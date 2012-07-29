@@ -29,7 +29,27 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
 			<version>1-SNAPSHOT</version>
-		</dependency>	
+		</dependency>
+	  	<dependency>
+	  		<groupId>org.jdom</groupId>
+	  		<artifactId>jdom</artifactId>
+	  		<version>1.1.2</version>
+	  		<exclusions>
+	  			<exclusion>
+	  				<groupId>maven-plugins</groupId>
+	  				<artifactId>maven-findbugs-plugin</artifactId>
+	  			</exclusion>
+	  			<exclusion>
+	  				<groupId>maven-plugins</groupId>
+	  				<artifactId>maven-cobertura-plugin</artifactId>
+	  			</exclusion>
+	  		</exclusions>
+	  	</dependency>
+	  	<dependency>
+	  		<groupId>org.apache.solr</groupId>
+	  		<artifactId>solr-solrj</artifactId>
+	  		<version>3.5.0</version>
+	  	</dependency>		
 		<!-- logging backend for unit tests: log debug and above to console, no need for config file -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
