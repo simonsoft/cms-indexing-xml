@@ -25,6 +25,11 @@
 	</repositories>
 	
 	<dependencies>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-indexing</artifactId>
+			<version>1-SNAPSHOT</version>
+		</dependency>	
 		<!-- logging backend for unit tests: log debug and above to console, no need for config file -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
