@@ -49,7 +49,12 @@
 	  		<groupId>org.apache.solr</groupId>
 	  		<artifactId>solr-solrj</artifactId>
 	  		<version>3.5.0</version>
-	  	</dependency>		
+	  	</dependency>
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>Saxon-HE</artifactId>
+			<version>9.4</version>
+		</dependency>	  	
 		<!-- logging backend for unit tests: log debug and above to console, no need for config file -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
