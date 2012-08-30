@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+
+<!-- Repos Search XML element index -->
+
+<schema name="reposxml" version="1.1">
+	<types>
+		
+		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
+		
+		<!-- For faster range queries, consider the tint/tfloat/tlong/tdouble types. -->
+		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+	</types>
+
+	<fields>
+		<!-- 
+		Uniqueness and support for delete/reindex/overwrite
+		-->
+		<field name="id" type="string"
+			indexed="true" stored="true"
+			multiValued="false" required="true" />
+
+		<!-- 
+		CMS item fields.
+		-->
+		<field name="path"     type="string" indexed="true"  stored="true"  multiValued="false"/>
+		<field name="pathname" type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathext"  type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathdir"  type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
+		<field name="revt" type="long" indexed="true" stored="true" multiValued="false"/>		
+		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="repohost"   type="string" indexed="true" stored="true" multiValued="false"/>
+		<dynamicField name="prop_*" type="string" indexed="true" stored="true" multiValued="false"/>
+
+		<!--
+		Checksums of any field or of contents that are not indexed
+		-->
+		<field name="c_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+
+		<!--
+		XML element name including namespace
+		-->
+		<field name="name" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		<!-- 
+		Attributes, solr should accept with any valid xml
+		attribute name including those containing ":"
+		-->
+		<dynamicField name="a_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />	
+		<!--
+		Verbatim element and its contents
+		-->
+		<field name="source" type="string" indexed="true" stored="true"
+			multiValued="false" />
+		<!-- 
+		Position in DOM, indexes starting from 1 like in XSL
+		-->	
+		<field name="depth" type="int" indexed="true" stored="true"/>
+		<field name="position" type="int" indexed="true" stored="true"/>
+		<!-- 
+		"Inherit" attributes, including self, near overrides far
+		-->
+		<dynamicField name="ia_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		
+			
+		<!--
+		Parent element name
+		-->
+		<field name="pname" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />		
+		<!-- 
+		Ancestor element names, excluding self
+		-->
+		<field name="aname" type="string"
+			indexed="true" stored="true"
+			multiValued="true" />
+			
+		<!--
+		Root element name
+		-->
+		<field name="rname" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		<!--
+		Root element attributes
+		-->
+		<dynamicField name="ra_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		
+		<!--
+		Preceding sibling's name 
+		-->
+		<field name="sname" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		<!--
+		Preceding sibling's attributes 
+		-->
+		<dynamicField name="sa_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		
+		<field name="text" type="string" indexed="true" stored="true" multiValued="false"/>
+		<dynamicField name="source_*" type="string" indexed="true" stored="true" multivalued="false"/>
+		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false"/>
+		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false"/>		
+	</fields>
+
+	<!-- field to use to determine and enforce document uniqueness. -->
+	<uniqueKey>id</uniqueKey>
+
+	<!-- field for the QueryParser to use when an explicit fieldname is absent -->
+	<defaultSearchField>name</defaultSearchField>
+
+	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+	<solrQueryParser defaultOperator="OR" />
+</schema>
+
