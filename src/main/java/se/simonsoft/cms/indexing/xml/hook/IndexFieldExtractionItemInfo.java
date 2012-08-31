@@ -51,7 +51,8 @@ public class IndexFieldExtractionItemInfo implements
 		CmsRepository repo = context.getRepository();		
 		fields.addField("path", path.getPath());
 		fields.addField("pathname", path.getName());
-		fields.addField("pathdir", path.getParent().getPath());
+		CmsItemPath parent = path.getParent();
+		fields.addField("pathdir", parent == null ? "" : parent.getPath());
 		fields.addField("pathext", path.getExtension());
 		fields.addField("rev", rev.getNumber());
 		fields.addField("revt", rev.getDate().getTime());

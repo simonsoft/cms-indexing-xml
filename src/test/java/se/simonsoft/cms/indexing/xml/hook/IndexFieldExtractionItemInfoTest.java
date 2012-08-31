@@ -82,4 +82,18 @@ public class IndexFieldExtractionItemInfoTest {
 		verify(f3, times(0)).addField(eq("repohost"), anyString());
 	}
 
+	@Test
+	public void testFileInRoot() {
+		IndexingContext context = mock(IndexingContext.class);
+		when(context.getRepository()).thenReturn(new CmsRepository("http://localhost:88/svn1/r1"));
+		when(context.getRevision()).thenReturn(new RepoRevision(77, new Date()));
+		when(context.getItemPath()).thenReturn(new CmsItemPath("/f.html"));
+		
+		IndexFieldExtraction x = new IndexFieldExtractionItemInfo(context);
+		IndexFields extracted = mock(IndexFields.class);
+		x.extract(extracted, null);
+		// Subversion uses slash in root but that is inconsistent when all other paths lack traling slash. Let's be consistent.
+		verify(extracted).addField("pathdir", "");
+	}
+	
 }
