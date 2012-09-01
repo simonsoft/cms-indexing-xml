@@ -22,16 +22,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -199,7 +201,7 @@ public class XmlSourceHandlerSolrjTest {
 	//@Ignore // requires local test server
 	@Test
 	public void testIntegration() throws MalformedURLException {
-		SolrServer server = new CommonsHttpSolrServer("http://localhost:8080/solr/reposxml/");
+		SolrServer server = new HttpSolrServer("http://localhost:8080/solr/reposxml/");
 		
 		// like the test above but with real server
 		
@@ -235,6 +237,9 @@ public class XmlSourceHandlerSolrjTest {
 		when(idStrategy.getElementId(e4)).thenReturn("testdoc1_e4");
 		
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(server, idStrategy);
+
+		Set<IndexFieldExtraction> extraction = new HashSet<IndexFieldExtraction>();
+		handler.setFieldExtraction(extraction);
 		
 		handler.startDocument();
 		verify(idStrategy).start();
@@ -245,106 +250,6 @@ public class XmlSourceHandlerSolrjTest {
 		handler.endDocument();
 		
 		// TODO assertions, currently manual
-	}
-	
-	//@Ignore // requires local test server
-	@Test
-	public void testIntegrationWithXmlSourceReader() throws MalformedURLException, SolrServerException {
-		SolrServer server = new CommonsHttpSolrServer("http://localhost:8080/solr/reposxml/");
-		
-		XmlSourceReader reader = new XmlSourceReaderJdom();
-		
-		// actual documents
-		final List<String> testfiles = Arrays.asList(
-				"se/simonsoft/xmltracking/source/test1.xml",
-				"se/simonsoft/xmltracking/reuse/900108_A.xml",
-				"se/simonsoft/xmltracking/reuse/900108_B.xml",
-				"se/simonsoft/xmltracking/reuse/900108_A_de-DE_Released.xml");
-		
-		final String testid = "test" + System.currentTimeMillis();
-		
-		IdStrategy testIdStrategy = new IdStrategy() {
-			int filenum = 0;
-			String file = null;
-			int count = 0;
-			@Override public void start() {
-				count = 0;
-				file = testfiles.get(filenum++);
-			}
-			@Override
-			public String getElementId(XmlSourceElement element) {
-				return testid + "_" + file + "_" + count++;
-			}
-		};
-		
-		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(server, testIdStrategy);
-			
-		for (String testfile : testfiles) {
-			InputStream f = this.getClass().getClassLoader().getResourceAsStream(testfile);
-			reader.read(f, handler);
-		}
-		
-		// assert cms:rid match
-		SolrParams q1 = new SolrQuery("a_cms\\:rid:1wj1mp4dmcb0007")
-			.addFilterQuery("id:" + testid + "_*")
-			.addSortField("ia_xml:lang", ORDER.asc);
-		QueryResponse r1 = server.query(q1);
-		assertEquals(2, r1.getResults().size());
-		SolrDocument r1en = r1.getResults().get(1);
-		SolrDocument r1de = r1.getResults().get(0);
-		assertEquals("en-GB", r1en.getFieldValue("ia_xml:lang"));
-		assertEquals("de-DE", r1de.getFieldValue("ia_xml:lang"));
-		
-		// test aname
-		SolrParams q2 = new SolrQuery("aname:frontm AND aname:note AND ra_cms\\:rid:1wj1mp4dmcb0000")
-			.addFilterQuery("id:" + testid + "_*");
-		assertEquals(2, server.query(q2).getResults().size());
-		
-		// test logical id match, with depth although not needed
-		SolrParams q3 = new SolrQuery("a_cms\\:rlogicalid:x-svn\\:///svn/demo1\\^/vvab/xml/sections/INTRODUCTION.xml?p=129 AND depth:3")
-			.addFilterQuery("id:" + testid + "_*")
-			.addSortField("ia_xml:lang", ORDER.asc);
-		SolrDocumentList r3 = server.query(q3).getResults();
-		assertEquals(2, r3.size());
-		assertEquals("en-GB", r1en.getFieldValue("ia_xml:lang"));
-		assertEquals("de-DE", r1de.getFieldValue("ia_xml:lang"));
-		
-		// Test content match
-		SolrParams q4c = new SolrQuery(
-				"name:title AND depth:5" // narrow the search, for performance maybe
-				+ " AND a_cms\\:rid:[* TO *]"// require existence of rid so we only get finalized releases
-				// match directly on source until we have digest strategies (heavy escaping would be needed though)
-				// we also need to handle the newline before the last word
-				//source:<title*cms\:rid=*>Before\ the\ seed\ drill\ is\ put\ into*operation</title>
-				+ " AND source:<title*>Before\\ the\\ seed\\ drill\\ is\\ put\\ into*operation</title>"
-				// master language
-				+ " AND ia_xml\\:lang:en-GB"
-				)
-				.addFilterQuery("id:" + testid + "_*")
-				// sort newest first, revision field?
-				.setSortField("ra_revision", ORDER.desc);
-		System.out.println("Query: " + q4c.get("q"));
-		SolrDocumentList r4c = server.query(q4c).getResults();
-		assertTrue(r4c.size() >= 1);
-		SolrDocument maybeTranslated1 = r4c.get(0);
-		assertEquals("title", maybeTranslated1.getFieldValue("name"));
-		String rid = maybeTranslated1.getFieldValue("a_cms:rid").toString();
-		assertNotNull("Expecting a match in this test set that has a cms:rid", rid);
-		assertEquals("The match should be in the previous release", "1wj1mp4dmcb000f", rid);
-		
-		// Now search on this matching content for translations
-		SolrParams q4t = new SolrQuery("a_cms\\:rid:" + rid
-				+ " AND -ia_xml\\:lang:en-GB"
-				// word count: no need to filter on status
-				// replace: get imported translations only
-				)
-				.addFilterQuery("id:" + testid + "_*")
-				;
-		
-		SolrDocumentList r4t = server.query(q4t).getResults();
-		assertEquals("Should have found one translation of the cms:rid in this test set", 1, r4t.size());
-		SolrDocument r4tde = r4t.get(0);
-		assertEquals("de-DE", r4tde.getFieldValue("ra_xml:lang"));
 	}
 	
 }

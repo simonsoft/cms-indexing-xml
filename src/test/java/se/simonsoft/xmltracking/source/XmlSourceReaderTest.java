@@ -47,7 +47,7 @@ public class XmlSourceReaderTest {
 	@Test
 	public void testRead() throws IOException {
 		InputStream test1 = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/xmltracking/source/test1.xml");
+				"se/simonsoft/cms/indexing/xml/source/test1.xml");
 		TestHandler handler = new TestHandler();
 		
 		reader.read(test1, handler);
@@ -100,7 +100,7 @@ public class XmlSourceReaderTest {
 	@Test
 	public void testNamespaced() throws IOException {
 		InputStream testns = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/xmltracking/source/testnamespaces.xml");
+				"se/simonsoft/cms/indexing/xml/source/testnamespaces.xml");
 		TestHandler handler = new TestHandler();
 		
 		reader.read(testns, handler);

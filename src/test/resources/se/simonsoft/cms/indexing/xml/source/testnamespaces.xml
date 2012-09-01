@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//Simonsoft//DTD xxx//EN" "techdoc.dtd">
+<document 
+	xmlns:cms="http://www.simonsoft.se/namespace/cms"
+	xmlns:extra="http://www.simonsoft.se/namespace/extra"
+	notnamespaced="yes"
+	cms:rid="X00"
+	extra:id="testns1">
+	<child cms:rid="X01">
+		text
+	</child>
+	<child xmlns:new="http://www.simonsoft.se/namespace/new" new:a="v"/>
+</document>
