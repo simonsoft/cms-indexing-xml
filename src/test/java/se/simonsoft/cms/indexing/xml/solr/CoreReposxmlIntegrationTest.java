@@ -1,4 +1,4 @@
-package se.simonsoft.cms.indexing.xml;
+package se.simonsoft.cms.indexing.xml.solr;
 
 import static org.junit.Assert.*;
 
@@ -32,7 +32,7 @@ import org.junit.Test;
  *  - http://maven.apache.org/plugins/maven-surefire-plugin/test-mojo.html#enableAssertions
  *  - Eclipse > Preferences > Java > Junit > Append -ea to JVM arguments ...
  */
-public class SolrReposxmlIntegrationTest extends SolrTestCaseJ4 {
+public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 
 	public static String solrhome = "se/simonsoft/cms/indexing/xml/solr";
 
