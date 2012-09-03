@@ -17,13 +17,13 @@ import org.junit.Test;
 public class SolrReposxmlIntegrationTest {
 
 	static {
-		System.setProperty("solr.solr.home", "./solrhome");
+		System.setProperty("solr.solr.home", "./src/main/solr");
 	}
 	
 	@BeforeClass
 	public static void beforeTests() throws Exception {
 		System.out.println("hello");
-		SolrTestCaseJ4.initCore("src/main/solr/reposxml/conf/solrconfig.xml", "src/main/solr/reposxml/conf/schema.xml");
+		SolrTestCaseJ4.initCore("reposxml/conf/solrconfig.xml", "reposxml/conf/schema.xml", "reposxml/");
 	}
 	
 	@Test
