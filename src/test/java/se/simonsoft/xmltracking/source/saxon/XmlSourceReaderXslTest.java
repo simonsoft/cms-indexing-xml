@@ -35,10 +35,10 @@ public class XmlSourceReaderXslTest {
 	@Test
 	public void testRead() {
 		InputStream test1 = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/xmltracking/source/test1.xml");
+				"se/simonsoft/cms/indexing/xml/source/test1.xml");
 		assertNotNull("Should find the test source", test1);
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/xmltracking/source/xml-indexing-recursive.xsl");
+				"se/simonsoft/cms/indexing/xml/source/xml-indexing-recursive.xsl");
 		// (test basic fields to solr doc)
 		//		"se/simonsoft/xmltracking/source/xml-indexing-fields.xsl");		
 		assertNotNull("Should find an xsl file to test with", xsl);

@@ -36,7 +36,7 @@ public class IndexFieldExtractionCustomXslTest {
 			@Override
 			public Source getXslt() {
 				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/xmltracking/source/xml-indexing-fields.xsl");
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
