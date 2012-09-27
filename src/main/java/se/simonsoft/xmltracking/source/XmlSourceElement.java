@@ -15,7 +15,10 @@
  */
 package se.simonsoft.xmltracking.source;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XmlSourceElement {
 
@@ -84,7 +87,18 @@ public class XmlSourceElement {
 	 * @return all attributes on the element
 	 */
 	public List<XmlSourceAttribute> getAttributes() {
-		return attributes;
+		return Collections.unmodifiableList(attributes);
+	}
+	
+	/**
+	 * @return unordered name-value map for attribute lookup, new every time, namespaces included in names
+	 */
+	public Map<String, String> getAttributeMap() {
+		Map<String, String> map = new HashMap<String, String>();
+		for (XmlSourceAttribute a : attributes) {
+			map.put(a.getName(), a.getValue());
+		}
+		return map;
 	}
 	
 	/**

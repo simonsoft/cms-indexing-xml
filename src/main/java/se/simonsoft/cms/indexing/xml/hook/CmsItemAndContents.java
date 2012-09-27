@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import se.simonsoft.cms.admin.CmsContentsReader;
@@ -41,11 +42,11 @@ import se.simonsoft.cms.item.properties.CmsItemProperties;
  * For normal, authenticated, repository access this is not necessary
  * because a simple REST/HTTP client can fetch content from svn URLs, any rev.
  * 
- * TODO {@link #getContents(OutputStream)} should really declare exceptions.
- * 
  * Caches properties so they are only read once per item.
  * Contents are not cached, for now, because stream reuse
  * is complex and contents may be too big to be buffered.
+ * 
+ * @deprecated CmsItem is now updated to support contents reading so we can change signatures for indexing
  */
 class CmsItemAndContents implements CmsItem {
 
@@ -72,6 +73,7 @@ class CmsItemAndContents implements CmsItem {
 		return id;
 	}
 	
+	@Override
 	public void getContents(OutputStream output) {
 		reader.getContents(repo, revision, path, output);
 	}
