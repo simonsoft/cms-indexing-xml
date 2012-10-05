@@ -24,6 +24,10 @@
 		</repository>		
 	</repositories>
 	
+	<properties>
+		<solr-version>4.0.0-BETA</solr-version>
+	</properties>	
+	
 	<dependencies>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -38,13 +42,13 @@
 	  	<dependency>
 	  		<groupId>org.apache.solr</groupId>
 	  		<artifactId>solr-solrj</artifactId>
-	  		<version>4.0.0-BETA</version>
+	  		<version>${solr-version}</version>
 	  	</dependency>
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>Saxon-HE</artifactId>
 			<version>9.4</version>
-		</dependency>	  	
+		</dependency>
 		<!-- logging backend for unit tests: log debug and above to console, no need for config file -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -55,7 +59,7 @@
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-test-framework</artifactId>
-			<version>4.0.0-BETA</version>
+			<version>${solr-version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
