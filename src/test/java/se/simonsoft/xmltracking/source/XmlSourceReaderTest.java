@@ -108,14 +108,24 @@ public class XmlSourceReaderTest {
 		assertEquals("document", d.getName());
 		assertEquals(3, d.getAttributes().size());
 		System.out.println(d.getAttributes());
+		
 		assertEquals("Should produce attributes in order",
 				"notnamespaced", d.getAttributes().get(0).getName());
 		assertEquals("Attribute names should include namespace", 
 				"cms:rid", d.getAttributes().get(1).getName());
 		assertEquals("extra:id", d.getAttributes().get(2).getName());
 		
+		assertEquals("Should have namespaces", 2, d.getNamespaces().size());
+		assertEquals("Should produce declared attributes in order",
+				"cms", d.getNamespaces().get(0).getName());
+		assertEquals("http://www.simonsoft.se/namespace/cms", d.getNamespaces().get(0).getUri());
+		assertEquals("extra", d.getNamespaces().get(1).getName());
+		assertEquals("http://www.simonsoft.se/namespace/extra", d.getNamespaces().get(1).getUri());
+		
 		XmlSourceElement c1 = verifyCommon(handler.elements.get(1));
 		assertEquals(1, c1.getAttributes().size());
+		assertEquals("no new namespaces here", 0, c1.getNamespaces().size());
+		
 		// Namespace may be needed for subsequent analysis to run, for example xsl transform
 //		assertEquals("source should be original, without namespace declaration",
 //				"<child cms:rid=\"X01\">\n"
@@ -127,6 +137,8 @@ public class XmlSourceReaderTest {
 		assertEquals("source should be original, without only original namespace declaration",
 				//"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\"/>", c2.getSource());
 				"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\" />", c2.getSource()); // whitespace added, allowed?
+		assertEquals("should have the new namespace but not the inherited",
+				1, c2.getNamespaces().size());
 	}
 	
 	private XmlSourceElement verifyCommon(XmlSourceElement element) {

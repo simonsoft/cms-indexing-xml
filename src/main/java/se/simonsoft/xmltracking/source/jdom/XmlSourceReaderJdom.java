@@ -25,12 +25,14 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
+import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
 
 /**
@@ -64,7 +66,6 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 	}
 
 	protected void configureBuilder(SAXBuilder builder) {
-		builder.setValidation(false);
 	    builder.setFeature("http://xml.org/sax/features/validation", false);
 	    builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 	    builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -77,8 +78,13 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 			XmlSourceElement parent, int depth, XmlSourceElement siblingPreceding, int position) {
 		String name = current.getName();
 		
+		List<XmlSourceNamespace> namespaces = new LinkedList<XmlSourceNamespace>();
+		List<Namespace> namespacesIntroduced = current.getNamespacesIntroduced();
+		for (Namespace n : namespacesIntroduced) {
+			namespaces.add(new XmlSourceNamespace(n.getPrefix(), n.getURI()));
+		}
+		
 		List<XmlSourceAttribute> attributes = new LinkedList<XmlSourceAttribute>();
-		@SuppressWarnings("unchecked")
 		List<Attribute> attrs = current.getAttributes();
 		for (Attribute a : attrs) {
 			String ns = a.getNamespacePrefix();
@@ -88,7 +94,7 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 		
 		String elementsource = outputter.outputString(current);
 		elementsource = elementsource.replace("\r", ""); // TODO avoid jdom insertion of carriage returns even if source is LF only
-		XmlSourceElement element = new XmlSourceElement(name, attributes, elementsource);
+		XmlSourceElement element = new XmlSourceElement(name, namespaces, attributes, elementsource);
 		element.setDepth(depth, parent);
 		element.setPosition(position, siblingPreceding);
 		

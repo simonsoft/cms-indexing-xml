@@ -101,7 +101,7 @@ public class XmlSourceElement {
 	 * @return The namespaces declared on this element, not the inherited declarations.
 	 */
 	public List<XmlSourceNamespace> getNamespaces() {
-		return namespaces;
+		return Collections.unmodifiableList(namespaces);
 	}
 	
 	/**

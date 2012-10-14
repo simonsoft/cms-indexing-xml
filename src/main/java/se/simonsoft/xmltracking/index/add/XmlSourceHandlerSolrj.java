@@ -33,6 +33,7 @@ import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
+import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 
 /**
  * Sends each element to Solr directly.
@@ -122,6 +123,9 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
 		doc.addField("source", element.getSource());
+		for (XmlSourceNamespace n : element.getNamespaces()) {
+			doc.addField("ns_" + n.getName(), n.getUri());
+		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
 			doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
 		}
@@ -162,6 +166,12 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	protected void addAncestorData(XmlSourceElement element, IndexFieldsSolrj doc) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
+		for (XmlSourceNamespace n : element.getNamespaces()) {
+			String f = "ins_" + n.getName();
+			if (!doc.containsKey(f)) {
+				doc.addField(f, n.getUri());
+			}
+		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
 			String f = fieldNames.getAttributeInherited(a.getName());
 			if (!doc.containsKey(f)) {

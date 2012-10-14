@@ -38,6 +38,7 @@ import org.junit.Test;
 
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
+import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 
 public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 	
@@ -53,12 +54,12 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 	
 	@Test
 	public void testIntegration() throws MalformedURLException, SolrServerException {
-		// like the test above but with real server
 		
 		XmlSourceElement e1 = new XmlSourceElement("document",
+				Arrays.asList(new XmlSourceNamespace("cms", "http://www.simonsoft.se/namespace/cms")),
 				Arrays.asList(new XmlSourceAttribute("cms:status", "In_Work"),
 						new XmlSourceAttribute("xml:lang", "en")), 
-				"<document cms:status=\"In_Work\" xml:lang=\"en\">\n" +
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:status=\"In_Work\" xml:lang=\"en\">\n" +
 				"<section cms:component=\"xyz\" cms:status=\"Released\">section</section>\n" +
 				"<figure cms:component=\"xz0\"><title>Title</title>Figure</figure>\n" +						
 				"</document>")
@@ -109,11 +110,15 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		assertEquals(1, d1.get("depth"));
 		assertEquals("In_Work", d1.get("a_cms:status"));
 		assertEquals("en", d1.get("a_xml:lang"));
+		assertEquals("should index namespaces", "http://www.simonsoft.se/namespace/cms", d1.get("ns_cms"));
+		assertEquals("inherited namespaces should contains self", "http://www.simonsoft.se/namespace/cms", d1.get("ins_cms"));
 		
 		SolrDocument d2 = all.getResults().get(1);
 		assertEquals("section", d2.get("name"));
 		assertEquals(2, d2.get("depth"));
 		assertEquals("document", d2.get("pname"));
+		assertEquals("ns is only those defined on the actual element", null, d2.get("ns_cms"));
+		assertEquals("inherited namespaces", "http://www.simonsoft.se/namespace/cms", d2.get("ins_cms"));
 		
 		assertEquals(1, d2.getFieldValues("aname").size());
 		assertTrue(d2.getFieldValues("aname").contains("document"));

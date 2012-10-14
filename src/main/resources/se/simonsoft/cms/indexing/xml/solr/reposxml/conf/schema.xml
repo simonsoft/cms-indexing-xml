@@ -87,7 +87,10 @@
 		<dynamicField name="ia_*" type="string"
 			indexed="true" stored="true"
 			multiValued="false" />
+
 		
+		<dynamicField name="ns_*" type="string" indexed="true" stored="true"/>
+		<dynamicField name="ins_*" type="string" indexed="true" stored="true"/>
 			
 		<!--
 		Parent element name

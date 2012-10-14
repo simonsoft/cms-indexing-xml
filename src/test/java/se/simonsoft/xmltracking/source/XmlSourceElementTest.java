@@ -47,5 +47,10 @@ public class XmlSourceElementTest {
 	public void testIsRootNoLevel() {
 		new XmlSourceElement("n", new LinkedList<XmlSourceAttribute>(), "<e/>").isRoot();
 	}
+
+	@Test
+	public void testGetPos() {
+		
+	}
 	
 }
