@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,7 +28,6 @@ import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -53,7 +51,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 	}
 	
 	@Test
-	public void testIntegration() throws MalformedURLException, SolrServerException {
+	public void testIntegration() throws Exception {
 		
 		XmlSourceElement e1 = new XmlSourceElement("document",
 				Arrays.asList(new XmlSourceNamespace("cms", "http://www.simonsoft.se/namespace/cms")),
@@ -61,7 +59,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 						new XmlSourceAttribute("xml:lang", "en")), 
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:status=\"In_Work\" xml:lang=\"en\">\n" +
 				"<section cms:component=\"xyz\" cms:status=\"Released\">section</section>\n" +
-				"<figure cms:component=\"xz0\"><title>Title</title>Figure</figure>\n" +						
+				"<figure cms:component=\"xz0\"><title>Title</title><byline>me</byline></figure>\n" +						
 				"</document>")
 				.setDepth(1, null).setPosition(1, null);
 		
@@ -73,19 +71,25 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 
 		XmlSourceElement e3 = new XmlSourceElement("figure",
 				Arrays.asList(new XmlSourceAttribute("cms:component", "xz0")),
-				"<figure cms:component=\"xz0\"><title>Title</title>Figure</figure>")
+				"<figure cms:component=\"xz0\"><title>Title</title><byline>me</byline></figure>")
 				.setDepth(2, e1).setPosition(2, e2);
 		
 		XmlSourceElement e4 = new XmlSourceElement("title",
 				new LinkedList<XmlSourceAttribute>(),
 				"<title>Title</title>")
 				.setDepth(3, e3).setPosition(1, null);
+
+		XmlSourceElement e5 = new XmlSourceElement("byline",
+				new LinkedList<XmlSourceAttribute>(),
+				"<byline>me</byline>")
+				.setDepth(3, e3).setPosition(2, e4);		
 		
 		IdStrategy idStrategy = mock(IdStrategy.class);
 		when(idStrategy.getElementId(e1)).thenReturn("testdoc1_e1");
 		when(idStrategy.getElementId(e2)).thenReturn("testdoc1_e2");
 		when(idStrategy.getElementId(e3)).thenReturn("testdoc1_e3");
 		when(idStrategy.getElementId(e4)).thenReturn("testdoc1_e4");
+		when(idStrategy.getElementId(e5)).thenReturn("testdoc1_e5");
 		
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(server, idStrategy);
 
@@ -98,16 +102,21 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		handler.begin(e2);
 		handler.begin(e3);
 		handler.begin(e4);
+		handler.begin(e5);
 		handler.endDocument();
 		
 		// We could probably do these assertions by mocking solr server, but it wouldn't be easier
 		QueryResponse all = server.query(new SolrQuery("*:*").addSortField("id", ORDER.asc));
-		assertEquals(4, all.getResults().getNumFound());
+		assertEquals(5, all.getResults().getNumFound());
 		
 		SolrDocument d1 = all.getResults().get(0);
+		assertEquals("should get id from IdStrategy", "testdoc1_e1", d1.get("id"));
 		assertEquals("document", d1.get("name"));
 		assertEquals(1, d1.get("position"));
 		assertEquals(1, d1.get("depth"));
+		assertEquals(null, d1.get("id_parent"));
+		assertEquals(null, d1.get("id_sibp"));
+		assertEquals(d1.get("id"), d1.get("id_root"));
 		assertEquals("In_Work", d1.get("a_cms:status"));
 		assertEquals("en", d1.get("a_xml:lang"));
 		assertEquals("should index namespaces", "http://www.simonsoft.se/namespace/cms", d1.get("ns_cms"));
@@ -117,6 +126,9 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		SolrDocument d2 = all.getResults().get(1);
 		assertEquals("section", d2.get("name"));
 		assertEquals(2, d2.get("depth"));
+		assertEquals(d1.get("id"), d2.get("id_parent"));
+		assertEquals(null, d2.get("id_sibp"));
+		assertEquals(d1.get("id"), d2.get("id_root"));		
 		assertEquals("document", d2.get("pname"));
 		assertEquals("ns is only those defined on the actual element", null, d2.get("ns_cms"));
 		assertEquals("inherited namespaces", "http://www.simonsoft.se/namespace/cms", d2.get("ins_cms"));
@@ -132,9 +144,46 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		SolrDocument d3 = all.getResults().get(2);
 		assertEquals(2, d3.get("position"));
 		assertEquals("1.2", d3.get("pos"));
+		assertEquals(d1.get("id"), d3.get("id_parent"));
+		assertEquals(d2.get("id"), d3.get("id_sibp"));
+		assertEquals(d1.get("id"), d3.get("id_root"));
+		assertEquals("xz0", d3.get("a_cms:component"));
 		
 		SolrDocument d4 = all.getResults().get(3);
 		assertEquals("1.2.1", d4.get("pos"));
+		assertEquals(d3.get("id"), d4.get("id_parent"));
+		assertEquals(null, d4.get("id_sibp"));
+		assertEquals(d1.get("id"), d4.get("id_root"));
+		
+		SolrDocument d5 = all.getResults().get(4);
+		assertEquals("1.2.2", d5.get("pos"));
+		
+		// now that we have the data in a test index, test some other queries
+		reuseDataTestJoin();
+	}
+	
+	void reuseDataTestJoin() throws Exception {
+		
+		// find all elements that can be joined with a parent
+		assertJQ(req("q", "{!join from=id to=id_parent}*:*", "fl", "id"),
+				"/response=={'numFound':4,'start':0,'docs':[{'id':'testdoc1_e2'},{'id':'testdoc1_e3'},{'id':'testdoc1_e4'},{'id':'testdoc1_e5'}]}");
+
+		// find all elements that have a child
+		assertJQ(req("q", "{!join from=id_parent to=id}*:*", "fl", "id"),
+				"/response=={'numFound':2,'start':0,'docs':[{'id':'testdoc1_e1'},{'id':'testdoc1_e3'}]}");
+		
+		// find all children of xz0 component
+		assertJQ(req("q", "{!join from=id to=id_parent}a_cms\\:component:xz0", "fl", "name"),
+				"/response=={'numFound':2,'start':0,'docs':[{'name':'title'}, {'name':'byline'}]}");
+		
+		// find all figures with a bylinew with value "me"
+		assertJQ(req("q", "{!join from=id_parent to=id v=$qq}",
+					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
+					//"qf", "name",
+					"fl", "id",
+					"debugQuery", "true"),
+				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
+		
 	}
 
 }

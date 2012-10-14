@@ -15,6 +15,9 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import se.simonsoft.xmltracking.index.add.IdStrategy;
@@ -31,6 +34,8 @@ public class IdStrategyRepoRevisionItemElem implements IdStrategy {
 	private transient int n = Integer.MIN_VALUE;
 	private String doc = null;
 	
+	private Map<XmlSourceElement, String> assigned;
+	
 	@Inject
 	public IdStrategyRepoRevisionItemElem(IndexingContext indexingContext) {
 		this.context = indexingContext;
@@ -39,6 +44,7 @@ public class IdStrategyRepoRevisionItemElem implements IdStrategy {
 	@Override
 	public void start() {
 		n = 0;
+		assigned = new HashMap<XmlSourceElement, String>();
 		doc = context.getRepository().getName() + "^" + context.getItemPath() + "?p=" + context.getRevision().getNumber();
 	}
 
@@ -47,7 +53,12 @@ public class IdStrategyRepoRevisionItemElem implements IdStrategy {
 		if (doc == null) {
 			throw new IllegalStateException("Id strategy not initialized with a document id, start method must be called for each item");
 		}
-		return doc + "#" + n++;
+		if (assigned.containsKey(element)) {
+			return assigned.get(element);
+		}
+		String id = doc + "#" + n++;
+		assigned.put(element, id);
+		return id;
 	}
 
 }

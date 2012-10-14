@@ -17,6 +17,12 @@ package se.simonsoft.xmltracking.index.add;
 
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
+/**
+ * Generate unique and predictable IDs per document and element.
+ * 
+ * Minimal predictability is that after each {@link #start()} an element
+ * gets the same id at any time from {@link #getElementId(XmlSourceElement)}.
+ */
 public interface IdStrategy {
 
 	/**

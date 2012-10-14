@@ -70,7 +70,16 @@
 		-->
 		<dynamicField name="a_*" type="string"
 			indexed="true" stored="true"
-			multiValued="false" />	
+			multiValued="false" />
+			
+		<!-- 
+		Joinable references to parent (null if root), previous sibling (null if first), next sibling (null if last)
+		-->
+		<field name="id_root" type="string" indexed="true" stored="true" />
+		<field name="id_parent" type="string" indexed="true" stored="true" />
+		<field name="id_sibp" type="string" indexed="true" stored="true" />
+		<!-- can join the other way <field name="id_sibn" type="string" indexed="true" stored="true" /> -->
+					
 		<!--
 		Verbatim element and its contents
 		-->
