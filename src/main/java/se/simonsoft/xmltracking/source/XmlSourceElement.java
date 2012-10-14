@@ -20,9 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Raw information about an element.
+ * Callers can aggregate structural information using {@link #getParent()} and {@link #getSiblingPreceding()}.
+ */
 public class XmlSourceElement {
 
 	private String name;
+	
+	private List<XmlSourceNamespace> namespaces;
 	
 	private List<XmlSourceAttribute> attributes;
 	
@@ -39,7 +45,15 @@ public class XmlSourceElement {
 	public XmlSourceElement(String name,
 			List<XmlSourceAttribute> attributes,
 			String source) {
+		this(name, new java.util.LinkedList<XmlSourceNamespace>(), attributes, source);
+	}
+	
+	public XmlSourceElement(String name,
+			List<XmlSourceNamespace> namespaces,			
+			List<XmlSourceAttribute> attributes,
+			String source) {
 		this.name = name;
+		this.namespaces = namespaces;
 		this.attributes = attributes;
 		this.source = source;
 	}
@@ -81,6 +95,13 @@ public class XmlSourceElement {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * @return The namespaces declared on this element, not the inherited declarations.
+	 */
+	public List<XmlSourceNamespace> getNamespaces() {
+		return namespaces;
 	}
 	
 	/**
