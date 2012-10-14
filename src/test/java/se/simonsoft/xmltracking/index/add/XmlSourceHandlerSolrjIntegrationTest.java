@@ -112,6 +112,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		assertEquals("en", d1.get("a_xml:lang"));
 		assertEquals("should index namespaces", "http://www.simonsoft.se/namespace/cms", d1.get("ns_cms"));
 		assertEquals("inherited namespaces should contains self", "http://www.simonsoft.se/namespace/cms", d1.get("ins_cms"));
+		assertEquals("root", "1", d1.get("pos"));
 		
 		SolrDocument d2 = all.getResults().get(1);
 		assertEquals("section", d2.get("name"));
@@ -119,6 +120,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		assertEquals("document", d2.get("pname"));
 		assertEquals("ns is only those defined on the actual element", null, d2.get("ns_cms"));
 		assertEquals("inherited namespaces", "http://www.simonsoft.se/namespace/cms", d2.get("ins_cms"));
+		assertEquals("1.1", d2.get("pos"));
 		
 		assertEquals(1, d2.getFieldValues("aname").size());
 		assertTrue(d2.getFieldValues("aname").contains("document"));
@@ -126,6 +128,13 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		
 		assertEquals(null, d2.get("a_xml:lang"));
 		assertEquals("en", d2.get("ia_xml:lang"));
+		
+		SolrDocument d3 = all.getResults().get(2);
+		assertEquals(2, d3.get("position"));
+		assertEquals("1.2", d3.get("pos"));
+		
+		SolrDocument d4 = all.getResults().get(3);
+		assertEquals("1.2.1", d4.get("pos"));
 	}
 
 }

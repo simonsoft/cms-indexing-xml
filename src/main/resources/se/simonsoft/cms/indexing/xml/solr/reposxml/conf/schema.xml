@@ -82,6 +82,11 @@
 		<field name="depth" type="int" indexed="true" stored="true"/>
 		<field name="position" type="int" indexed="true" stored="true"/>
 		<!-- 
+		Position in tree for uniqueness within document, .N appended for each level, 1-based
+		-->
+		<field name="pos" type="string" indexed="true" stored="true" required="true"/>		
+		
+		<!-- 
 		"Inherit" attributes, including self, near overrides far
 		-->
 		<dynamicField name="ia_*" type="string"

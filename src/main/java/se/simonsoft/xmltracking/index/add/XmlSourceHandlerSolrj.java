@@ -164,6 +164,10 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 * @param doc Field value holder
 	 */
 	protected void addAncestorData(XmlSourceElement element, IndexFieldsSolrj doc) {
+		addAncestorData(element, doc, new StringBuffer());
+	}
+	
+	protected void addAncestorData(XmlSourceElement element, IndexFieldsSolrj doc, StringBuffer pos) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
 		for (XmlSourceNamespace n : element.getNamespaces()) {
@@ -189,10 +193,12 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			if (isSelf) {
 				doc.addField("pname", parent.getName());
 			}
-			addAncestorData(parent, doc);
+			addAncestorData(parent, doc, pos);
 		}
-		// top first
-		if (!isSelf) {
+		pos.append('.').append(element.getPosition());
+		if (isSelf) {
+			doc.addField("pos", pos.substring(1));
+		} else {
 			doc.addField("aname", element.getName());
 		}
 	}
