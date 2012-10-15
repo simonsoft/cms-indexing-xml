@@ -134,7 +134,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		addAncestorData(element, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
-			doc.addField("id_sibp", idStrategy.getElementId(sp));
+			doc.addField("id_s", idStrategy.getElementId(sp));
 			doc.addField("sname", sp.getName());
 			for (XmlSourceAttribute a : sp.getAttributes()) {
 				doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
@@ -185,7 +185,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		}
 		// handle root or recurse
 		if (element.isRoot()) {
-			doc.addField("id_root", idStrategy.getElementId(element));
+			doc.addField("id_r", idStrategy.getElementId(element));
 			doc.addField("rname", element.getName());
 			for (XmlSourceAttribute a : element.getAttributes()) {
 				doc.addField(fieldNames.getAttributeRoot(a.getName()), a.getValue());
@@ -193,7 +193,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		} else {
 			XmlSourceElement parent = element.getParent();
 			if (isSelf) {
-				doc.addField("id_parent", idStrategy.getElementId(parent));
+				doc.addField("id_p", idStrategy.getElementId(parent));
 				doc.addField("pname", parent.getName());
 			}
 			addAncestorData(parent, doc, pos);
@@ -203,6 +203,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			doc.addField("pos", pos.substring(1));
 		} else {
 			doc.addField("aname", element.getName());
+			doc.addField("id_a", idStrategy.getElementId(element));
 		}
 	}
 

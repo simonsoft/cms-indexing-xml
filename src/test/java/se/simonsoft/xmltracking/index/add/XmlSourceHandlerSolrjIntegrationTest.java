@@ -114,9 +114,10 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		assertEquals("document", d1.get("name"));
 		assertEquals(1, d1.get("position"));
 		assertEquals(1, d1.get("depth"));
-		assertEquals(null, d1.get("id_parent"));
-		assertEquals(null, d1.get("id_sibp"));
-		assertEquals(d1.get("id"), d1.get("id_root"));
+		assertEquals(null, d1.get("id_p"));
+		assertEquals(null, d1.get("id_s"));
+		assertEquals(d1.get("id"), d1.get("id_r"));
+		assertEquals(null, d1.getFieldValues("id_a"));
 		assertEquals("In_Work", d1.get("a_cms:status"));
 		assertEquals("en", d1.get("a_xml:lang"));
 		assertEquals("should index namespaces", "http://www.simonsoft.se/namespace/cms", d1.get("ns_cms"));
@@ -126,9 +127,9 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		SolrDocument d2 = all.getResults().get(1);
 		assertEquals("section", d2.get("name"));
 		assertEquals(2, d2.get("depth"));
-		assertEquals(d1.get("id"), d2.get("id_parent"));
-		assertEquals(null, d2.get("id_sibp"));
-		assertEquals(d1.get("id"), d2.get("id_root"));		
+		assertEquals(d1.get("id"), d2.get("id_p"));
+		assertEquals(null, d2.get("id_s"));
+		assertEquals(d1.get("id"), d2.get("id_r"));
 		assertEquals("document", d2.get("pname"));
 		assertEquals("ns is only those defined on the actual element", null, d2.get("ns_cms"));
 		assertEquals("inherited namespaces", "http://www.simonsoft.se/namespace/cms", d2.get("ins_cms"));
@@ -137,6 +138,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		assertEquals(1, d2.getFieldValues("aname").size());
 		assertTrue(d2.getFieldValues("aname").contains("document"));
 		assertFalse(d2.getFieldValues("aname").contains("section"));
+		assertEquals(1, d2.getFieldValues("id_a").size());
 		
 		assertEquals(null, d2.get("a_xml:lang"));
 		assertEquals("en", d2.get("ia_xml:lang"));
@@ -144,16 +146,21 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		SolrDocument d3 = all.getResults().get(2);
 		assertEquals(2, d3.get("position"));
 		assertEquals("1.2", d3.get("pos"));
-		assertEquals(d1.get("id"), d3.get("id_parent"));
-		assertEquals(d2.get("id"), d3.get("id_sibp"));
-		assertEquals(d1.get("id"), d3.get("id_root"));
+		assertEquals(d1.get("id"), d3.get("id_p"));
+		assertEquals(d2.get("id"), d3.get("id_s"));
+		assertEquals(d1.get("id"), d3.get("id_r"));
+		assertEquals(1, d3.getFieldValues("id_a").size());
+		assertTrue(d3.getFieldValues("id_a").contains(d1.get("id")));
 		assertEquals("xz0", d3.get("a_cms:component"));
 		
 		SolrDocument d4 = all.getResults().get(3);
 		assertEquals("1.2.1", d4.get("pos"));
-		assertEquals(d3.get("id"), d4.get("id_parent"));
-		assertEquals(null, d4.get("id_sibp"));
-		assertEquals(d1.get("id"), d4.get("id_root"));
+		assertEquals(d3.get("id"), d4.get("id_p"));
+		assertEquals(null, d4.get("id_s"));
+		assertEquals(d1.get("id"), d4.get("id_r"));
+		assertEquals(2, d4.getFieldValues("id_a").size());
+		assertTrue(d4.getFieldValues("id_a").contains(d1.get("id")));
+		assertTrue(d4.getFieldValues("id_a").contains(d3.get("id")));
 		
 		SolrDocument d5 = all.getResults().get(4);
 		assertEquals("1.2.2", d5.get("pos"));
@@ -165,24 +172,32 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 	void reuseDataTestJoin() throws Exception {
 		
 		// find all elements that can be joined with a parent
-		assertJQ(req("q", "{!join from=id to=id_parent}*:*", "fl", "id"),
+		assertJQ(req("q", "{!join from=id to=id_p}*:*", "fl", "id"),
 				"/response=={'numFound':4,'start':0,'docs':[{'id':'testdoc1_e2'},{'id':'testdoc1_e3'},{'id':'testdoc1_e4'},{'id':'testdoc1_e5'}]}");
 
 		// find all elements that have a child
-		assertJQ(req("q", "{!join from=id_parent to=id}*:*", "fl", "id"),
+		assertJQ(req("q", "{!join from=id_p to=id}*:*", "fl", "id"),
 				"/response=={'numFound':2,'start':0,'docs':[{'id':'testdoc1_e1'},{'id':'testdoc1_e3'}]}");
+
+		// find all elements that have a child that is a <title/>
+		assertJQ(req("q", "{!join from=id_p to=id}name:title", "fl", "id"),
+				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");		
 		
 		// find all children of xz0 component
-		assertJQ(req("q", "{!join from=id to=id_parent}a_cms\\:component:xz0", "fl", "name"),
+		assertJQ(req("q", "{!join from=id to=id_p}a_cms\\:component:xz0", "fl", "name"),
 				"/response=={'numFound':2,'start':0,'docs':[{'name':'title'}, {'name':'byline'}]}");
 		
 		// find all figures with a bylinew with value "me"
-		assertJQ(req("q", "{!join from=id_parent to=id v=$qq}",
+		assertJQ(req("q", "{!join from=id_p to=id v=$qq}",
 					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
 					//"qf", "name",
 					"fl", "id",
 					"debugQuery", "true"),
 				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
+		
+		// find all elements that contain a title (recursively)
+		assertJQ(req("q", "{!join from=id_a to=id}name:title", "fl", "id"),
+				"/response=={'numFound':2,'start':0,'docs':[{'id':'testdoc1_e1'},{'id':'testdoc1_e3'}]}");
 		
 	}
 
