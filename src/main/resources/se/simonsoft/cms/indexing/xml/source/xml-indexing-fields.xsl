@@ -52,7 +52,15 @@
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
 		<!-- filter attributes -->
-		<xsl:apply-templates mode="source-reuse" select="@*[name() != 'cms:rid' and name() != 'cms:rlogicalid']" />
+		<xsl:apply-templates mode="source-reuse" select="@*[
+			name() != 'cms:rid' 
+			and name() != 'cms:rlogicalid'
+			and name() != 'cms:trid'
+			and name() != 'cms:tpos'
+			and name() != 'cms:tlogicalid'
+			and name() != 'cms:tmatch'
+			and name() != 'cms:twords'
+			]" />
 		<xsl:text>&gt;</xsl:text>
 		<xsl:apply-templates mode="source-reuse" />
 		<xsl:text>&lt;/</xsl:text>
@@ -69,6 +77,10 @@
 	</xsl:template>
 
 	<xsl:template match="text()" mode="source-reuse">
+		<!-- TODO normalize space
+		BUT how do we handle preformatted?
+		Probably ok as long as we use source instead of source-reuse for replacement.
+		-->
 		<xsl:value-of select="." />
 	</xsl:template>
 	
