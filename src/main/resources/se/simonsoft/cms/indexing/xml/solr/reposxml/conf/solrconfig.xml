@@ -69,8 +69,10 @@
   
   <lib dir="../lib" regex=".*\.jar" />
   
-  <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy"/>
+  <encoder name="html" class="solr.highlight.HtmlEncoder" />
   
+  <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy"/>
+    
   <!-- A Robust Example 
        
        This example SearchHandler declaration shows off usage of the
