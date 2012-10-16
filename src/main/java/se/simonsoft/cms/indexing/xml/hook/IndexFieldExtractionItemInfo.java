@@ -15,6 +15,11 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.inject.Inject;
 
 import se.simonsoft.cms.item.CmsItemId;
@@ -38,6 +43,19 @@ public class IndexFieldExtractionItemInfo implements
 
 	private IndexingContext context;
 
+	private static final DateFormat DATE_FIELD_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+	static {
+		DATE_FIELD_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+	
+	/**
+	 * @param timetsamp
+	 * @return value for field of type "date"
+	 */
+	protected String getDateValue(Date timetsamp) {
+		return DATE_FIELD_FORMAT.format(timetsamp) + "Z";
+	}
+	
 	@Inject
 	public IndexFieldExtractionItemInfo(IndexingContext indexingContext) {
 		this.context = indexingContext;
@@ -55,7 +73,7 @@ public class IndexFieldExtractionItemInfo implements
 		fields.addField("pathdir", parent == null ? "" : parent.getPath());
 		fields.addField("pathext", path.getExtension());
 		fields.addField("rev", rev.getNumber());
-		fields.addField("revt", rev.getDate().getTime());
+		fields.addField("revt", getDateValue(rev.getDate()));
 		fields.addField("repo", repo.getName());
 		fields.addField("repoparent", repo.getParentPath());
 		if (repo.isHostKnown()) {

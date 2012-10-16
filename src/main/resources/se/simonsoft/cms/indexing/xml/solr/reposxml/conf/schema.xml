@@ -19,17 +19,11 @@
 
 <!-- Repos Search XML element index -->
 
-<schema name="reposxml" version="1.1">
-	<types>
-		
-		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
-		
-		<!-- For faster range queries, consider the tint/tfloat/tlong/tdouble types. -->
-		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-	</types>
+<schema name="reposxml" version="1.2">
 
 	<fields>
+		<field name="_version_" type="long" indexed="true" stored="true"/>
+	
 		<!-- 
 		Uniqueness and support for delete/reindex/overwrite
 		-->
@@ -45,7 +39,7 @@
 		<field name="pathext"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathdir"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
-		<field name="revt" type="long" indexed="true" stored="true" multiValued="false"/>		
+		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>		
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repohost"   type="string" indexed="true" stored="true" multiValued="false"/>
@@ -160,5 +154,16 @@
 
 	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 	<solrQueryParser defaultOperator="OR" />
+	
+	<types>	
+		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
+		
+		<!-- For faster range queries, precisionStep = 0 suitable for revision and depth -->
+		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"
+			sortMissingLast="false"/><!-- sort missing first to get root and first siblings first -->
+		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		<fieldType name="date" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
+	</types>
+		
 </schema>
 

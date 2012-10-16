@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 Simonsoft Nordic AB
+* Copyright (C) 2009-2012 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,19 @@ import se.simonsoft.xmltracking.index.add.IndexFields;
 public class IndexFieldExtractionItemInfoTest {
 
 	@Test
+	public void testDateValue() {
+		// http://lucene.apache.org/solr/4_0_0/solr-core/org/apache/solr/schema/DateField.html
+		assertEquals("1970-01-01T00:00:01.000Z", new IndexFieldExtractionItemInfo(null).getDateValue(new Date(1000)));
+	}
+	
+	@Test
 	public void testExtract() {
 		CmsItemPath item1 = new CmsItemPath("/docs/a.xml");
 		CmsItemPath item2 = new CmsItemPath("/docs/b.xml");
 		CmsRepository repoa = new CmsRepository("http://localhost:88/svn1/r1");
 		CmsRepository repob = new CmsRepositoryInspection("/svn2", "r3", new File("."));
 		assertFalse(repob.isHostKnown());
-		Date d2 = new Date();
+		Date d2 = new Date(2000);
 		Date d1 = new Date(d2.getTime() - 1000);
 		RepoRevision rev1 = new RepoRevision(77, d1);
 		RepoRevision rev2 = new RepoRevision(78, d2);
@@ -60,7 +66,7 @@ public class IndexFieldExtractionItemInfoTest {
 		verify(f1).addField("pathdir", "/docs");
 		verify(f1).addField("pathext", "xml");
 		verify(f1).addField("rev", 77L);
-		verify(f1).addField("revt", d1.getTime());
+		verify(f1).addField("revt", "1970-01-01T00:00:01.000Z");
 		verify(f1).addField("repo", "r1");
 		verify(f1).addField("repoparent", "/svn1"); // if needed, can be undefined in solr schema
 		verify(f1).addField("repohost", "localhost:88"); // if needed, can be undefined in solr schema
@@ -69,7 +75,7 @@ public class IndexFieldExtractionItemInfoTest {
 		x.extract(f2, null);
 		verify(f2).addField("path", "/docs/a.xml");
 		verify(f2).addField("rev", 78L);
-		verify(f2).addField("revt", d2.getTime());
+		verify(f2).addField("revt", "1970-01-01T00:00:02.000Z");
 		verify(f2).addField("repo", "r1");
 		
 		IndexFields f3 = mock(IndexFields.class);
