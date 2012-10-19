@@ -183,7 +183,7 @@
        <str name="wt">velocity</str>
        <str name="v.template">browse</str>
        <str name="v.layout">layout</str>
-       <str name="title">Solritas</str>
+       <str name="title">Simonsoft CMS | XML Search</str>
 
        <!-- Query settings -->
        <str name="defType">edismax</str>
@@ -204,13 +204,18 @@
 
        <!-- Faceting defaults -->
        <str name="facet">on</str>
-       <str name="facet.field">name</str>
+       <!--<str name="facet.field">name</str>-->
        <str name="facet.field">repo</str>
-       <str name="facet.query">section</str>
-       <str name="facet.query">title</str>
+       <str name="facet.field">prop_abx:ReleaseLabel</str>
+       <str name="facet.field">prop_abx:TranslationLocale</str>
+       <str name="facet.field">prop_abx:TranslationSource</str>
+       <str name="facet.field">prop_abx:TranslationProject</str>
+       <str name="facet.field">prop_abx:PublicId</str>
+       <!--<str name="facet.query">section</str>-->
+       <!--<str name="facet.query">title</str>-->
        <str name="facet.mincount">1</str>
-       <str name="facet.pivot">name,repo</str>
-       <str name="facet.range.other">after</str>
+       <!--<str name="facet.pivot">name,repo</str>-->
+       <!--<str name="facet.range.other">after</str>-->
        <str name="facet.range">depth</str>
        <int name="f.depth.facet.range.start">0</int>
        <int name="f.depth.facet.range.end">10</int>
@@ -221,10 +226,10 @@
        <str name="f.revt.facet.range.gap">+1YEAR</str>
        <str name="f.revt.facet.range.other">before</str>
        <str name="f.revt.facet.range.other">after</str>
-       <str name="facet.words">words_text</str>
-       <int name="f.words.facet.range.start">0</int>
-       <int name="f.words.facet.range.end">100</int>
-       <int name="f.words.facet.range.gap">10</int>
+       <str name="facet.range">words_text</str>
+       <int name="f.words_text.facet.range.start">0</int>
+       <int name="f.words_text.facet.range.end">100</int>
+       <int name="f.words_text.facet.range.gap">10</int>
 
        <!-- Highlighting defaults -->
        <str name="hl">on</str>
