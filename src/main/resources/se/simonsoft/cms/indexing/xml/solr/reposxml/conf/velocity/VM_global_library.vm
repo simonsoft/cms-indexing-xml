@@ -1,4 +1,10 @@
 
+## New field name escape for reposxml, instead of esc.url
+
+#macro(esc_field $fieldName) $fieldName.replace(":","\:") #end
+
+## ---
+
 #macro(param $key)$request.params.get($key)#end
 
 #macro(url_root)/solr#end
@@ -39,7 +45,7 @@
 #macro(url_for_nested_facet_query $field)#url_for_home#lens&fq=$esc.url($field)#end
 
 ## TODO: convert to use {!raw f=$field}$value (with escaping of course)
-#macro(url_for_facet_filter $field $value)#url_for_home#lens&fq=$esc.url($field):%22$esc.url($value)%22#end
+#macro(url_for_facet_filter $field $value)#url_for_home#lens&fq=#esc_field($field):%22$esc.url($value)%22#end
 
 #macro(url_for_facet_date_filter $field $value)#url_for_home#lens&fq=$esc.url($field):$esc.url($value)#end
 
