@@ -188,12 +188,12 @@
        <!-- Query settings -->
        <str name="defType">edismax</str>
        <str name="qf">
-          text^0.5 name^1.2 id^10.0
+          text^0.5 name^3 id^10.0 pos^2 a_cms\:logicalid^1.8 a_cms\:rid^1.8 a_cms\:tpos^1.6 a_cms\:rlogicalid^1.6 a_cms\:tlogicalid^1.4 a_cms\:trid^1.4
        </str>
        <str name="df">text</str>
        <str name="mm">100%</str>
        <str name="q.alt">*:*</str>
-       <str name="rows">10</str>
+       <str name="rows">100</str>
        <str name="fl">*,score</str>
 
        <str name="mlt.qf">
@@ -211,8 +211,10 @@
        <str name="facet.field">prop_abx:TranslationSource</str>
        <str name="facet.field">prop_abx:TranslationProject</str>
        <str name="facet.field">prop_abx:PublicId</str>
+       <str name="facet.field">name</str>
        <!--<str name="facet.query">section</str>-->
        <!--<str name="facet.query">title</str>-->
+       <str name="facet.limit">10</str>
        <str name="facet.mincount">1</str>
        <!--<str name="facet.pivot">name,repo</str>-->
        <!--<str name="facet.range.other">after</str>-->
@@ -220,12 +222,13 @@
        <int name="f.depth.facet.range.start">0</int>
        <int name="f.depth.facet.range.end">10</int>
        <int name="f.depth.facet.range.gap">3</int>
+       <!-- experiment with date ranges: ...&facet=true&facet.date=revt&facet.date.start=NOW/DAY-5DAYS&facet.date.end=NOW/DAY%2B1DAY&facet.date.gap=%2B1DAY -->
        <str name="facet.range">revt</str>
-       <str name="f.revt.facet.range.start">NOW/YEAR-10YEARS</str>
+       <str name="f.revt.facet.range.start">NOW/HOUR-5HOURS</str>
        <str name="f.revt.facet.range.end">NOW</str>
-       <str name="f.revt.facet.range.gap">+1YEAR</str>
-       <str name="f.revt.facet.range.other">before</str>
-       <str name="f.revt.facet.range.other">after</str>
+       <!-- is variable range implemented or not? <str name="f.revt.facet.range.spec">NOW-1HOUR..NOW, NOW-1DAY..NOW-1HOUR, NOW-1WEEK..NOW-1DAY, NOW-1YEAR..NOW-1WEEK</str> -->
+       <str name="f.revt.facet.range.gap">+1HOURS</str>
+       <!-- <str name="f.revt.facet.range.other">before</str> -->
        <str name="facet.range">words_text</str>
        <int name="f.words_text.facet.range.start">0</int>
        <int name="f.words_text.facet.range.end">100</int>
