@@ -41,6 +41,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
 import org.junit.Test;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceReader;

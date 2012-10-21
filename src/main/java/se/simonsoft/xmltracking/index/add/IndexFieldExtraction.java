@@ -15,6 +15,7 @@
  */
 package se.simonsoft.xmltracking.index.add;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**

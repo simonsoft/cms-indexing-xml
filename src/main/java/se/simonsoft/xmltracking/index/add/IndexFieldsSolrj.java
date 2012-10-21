@@ -15,11 +15,35 @@
  */
 package se.simonsoft.xmltracking.index.add;
 
+import java.util.Collection;
+
 import org.apache.solr.common.SolrInputDocument;
+
+import se.simonsoft.cms.indexing.IndexFields;
 
 public class IndexFieldsSolrj extends SolrInputDocument
 		implements IndexFields {
 
 	private static final long serialVersionUID = 1L;
+
+	@Override
+	public IndexFields getCopy() {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
+	public Collection<String> getFieldNamesAdded() {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
+	public Collection<String> getFieldNamesUpdated() {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
+	public String getId() {
+		return (String) getFieldValue("id");
+	}
 	
 }

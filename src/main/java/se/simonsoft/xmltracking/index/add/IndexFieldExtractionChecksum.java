@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
 import se.simonsoft.xmltracking.source.XmlSourceElement;

@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import se.simonsoft.cms.indexing.IndexFields;
+
 public class IndexFieldExtractionChecksumTest {
 
 	@Test

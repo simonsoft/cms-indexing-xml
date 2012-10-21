@@ -25,8 +25,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Test;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
-import se.simonsoft.xmltracking.index.add.IndexFields;
 
 public class IndexFieldExtractionCustomXslTest {
 

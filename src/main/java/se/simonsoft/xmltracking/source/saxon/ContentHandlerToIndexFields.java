@@ -22,7 +22,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-import se.simonsoft.xmltracking.index.add.IndexFields;
+import se.simonsoft.cms.indexing.IndexFields;
 
 /**
  * Passes solr doc style field=value elements directly to {@link IndexFields}.

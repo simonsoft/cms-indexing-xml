@@ -22,12 +22,12 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
-import se.simonsoft.xmltracking.index.add.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**

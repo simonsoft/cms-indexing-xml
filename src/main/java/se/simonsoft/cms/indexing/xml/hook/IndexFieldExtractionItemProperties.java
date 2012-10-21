@@ -20,9 +20,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
-import se.simonsoft.xmltracking.index.add.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 public class IndexFieldExtractionItemProperties implements IndexFieldExtraction {
