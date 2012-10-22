@@ -15,6 +15,8 @@
  */
 package se.simonsoft.xmltracking.source;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Map;
 /**
  * Raw information about an element.
  * Callers can aggregate structural information using {@link #getParent()} and {@link #getSiblingPreceding()}.
+ * 
+ * @todo Instances currently buffers the full source, could probably share stream with other elements.
  */
 public class XmlSourceElement {
 
@@ -127,8 +131,8 @@ public class XmlSourceElement {
 	 *  only parsed with character set, not unescaped,
 	 *  including newlines and PIs
 	 */
-	public String getSource() {
-		return source;
+	public Reader getSource() {
+		return new StringReader(source); // TODO see class javadocs
 	}
 
 	/**

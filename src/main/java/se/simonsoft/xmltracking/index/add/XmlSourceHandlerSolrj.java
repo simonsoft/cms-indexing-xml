@@ -16,6 +16,7 @@
 package se.simonsoft.xmltracking.index.add;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +123,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		IndexFieldsSolrj doc = new IndexFieldsSolrj();
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
-		doc.addField("source", element.getSource());
+		doc.addField("source", getSource(element));
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			doc.addField("ns_" + n.getName(), n.getUri());
 		}
@@ -157,6 +158,25 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			throw new RuntimeException("Error not handled", e);
 		}
 		sent.add(id);
+	}
+
+	/**
+	 * Source is currently stored in index but could be very large xml chunks.
+	 * @param element
+	 * @return
+	 */
+	private String getSource(XmlSourceElement element) {
+		Reader s = element.getSource();
+		StringBuffer b = new StringBuffer();
+		int c;
+		try {
+			while ((c = s.read()) > -1) {
+				b.append((char) c);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Error reading XML source for indexing", e);
+		}
+		return b.toString();
 	}
 
 	/**

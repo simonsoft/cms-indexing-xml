@@ -74,12 +74,7 @@
 		<field name="id_s" type="string" indexed="true" stored="true" />
 		<field name="id_a" type="string" indexed="true" stored="true" multiValued="true" />
 		<!-- next sibling, can join the other way <field name="id_n" type="string" indexed="true" stored="true" /> -->
-					
-		<!--
-		Verbatim element and its contents
-		-->
-		<field name="source" type="string" indexed="true" stored="true"
-			multiValued="false" />
+		
 		<!-- 
 		Position in DOM, indexes starting from 1 like in XSL
 		-->	
@@ -139,11 +134,27 @@
 		<dynamicField name="sa_*" type="string"
 			indexed="true" stored="true"
 			multiValued="false" />
+			
+		<!--
+		Verbatim element and its contents.
+		Should preferrably be accessed through an abstraction so reading can be
+		changed if index grows too big.
+		-->
+		<field name="source" type="string" indexed="false" stored="true" />
 		
-		<field name="text" type="string" indexed="true" stored="true" multiValued="false"/>
-		<dynamicField name="source_*" type="string" indexed="true" stored="true" multivalued="false"/>
-		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false"/>
-		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false"/>		
+		<!--
+		Text content of element including children, XML normalized.
+		-->
+		<field name="text" type="string" indexed="true" stored="true"/>
+		
+		<!-- 
+		Special filtered extractions, source - checksum - word count.
+		Store sources? - No, because it is lots of data and verbatim source can most likely be used.
+		Index sources? - Maybe not because we need the analysis to be done before the checksum anyway.
+		-->
+		<dynamicField name="source_*" type="string" indexed="false" stored="false"/>
+		<dynamicField name="c_*" type="string" indexed="true" stored="true"/>
+		<dynamicField name="words_*" type="int" indexed="true" stored="true"/>		
 	</fields>
 
 	<!-- field to use to determine and enforce document uniqueness. -->

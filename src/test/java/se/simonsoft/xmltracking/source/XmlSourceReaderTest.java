@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class XmlSourceReaderTest {
 		verifyCommon(s1);
 		assertEquals("<section><p>This is the para\n" + 
 				"text &amp; some &lt;escaped&gt; stuff</p>\n" +
-				"</section>", s1.getSource());
+				"</section>", getSource(s1));
 		assertEquals(2, s1.getDepth());
 		assertEquals(1, s1.getPosition());
 		assertEquals(null, s1.getSiblingPreceding());
@@ -78,7 +79,7 @@ public class XmlSourceReaderTest {
 		assertEquals("expecting depth-first", "p", s1p.getName());
 		assertEquals(s1, s1p.getParent());
 		assertEquals("<p>This is the para\n" + 
-				"text &amp; some &lt;escaped&gt; stuff</p>", s1p.getSource());
+				"text &amp; some &lt;escaped&gt; stuff</p>", getSource(s1p));
 		assertEquals(3, s1p.getDepth());
 		assertEquals(1, s1p.getPosition());
 		assertEquals(s1, s1p.getParent());
@@ -87,7 +88,7 @@ public class XmlSourceReaderTest {
 		assertEquals("section", s2.getName());
 		assertEquals("<section meaningful=\"no\">\n" +
 				"	<!-- empty -->\n" +
-				"	</section>", s2.getSource());
+				"	</section>", getSource(s2));
 		assertEquals(root, s2.getParent());
 		assertEquals(1, s2.getAttributes().size());
 		XmlSourceAttribute a1 = s2.getAttributes().get(0);
@@ -135,20 +136,34 @@ public class XmlSourceReaderTest {
 		XmlSourceElement c2 = verifyCommon(handler.elements.get(2));
 		assertEquals(1, c2.getAttributes().size());
 		assertEquals("source should be original, without only original namespace declaration",
-				//"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\"/>", c2.getSource());
-				"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\" />", c2.getSource()); // whitespace added, allowed?
+				//"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\"/>", getSource(c2));
+				"<child xmlns:new=\"http://www.simonsoft.se/namespace/new\" new:a=\"v\" />", getSource(c2)); // whitespace added, allowed?
 		assertEquals("should have the new namespace but not the inherited",
 				1, c2.getNamespaces().size());
 	}
 	
 	private XmlSourceElement verifyCommon(XmlSourceElement element) {
-		String source = element.getSource();
+		String source = getSource(element);
 		assertNotNull(source);
 		assertEquals("Source should always start with element, no padding", 
 				'<', source.charAt(0));
 		assertEquals("Source should always end with element, no padding",
 				'>', source.charAt(source.length() - 1));
 		return element;
+	}
+
+	private String getSource(XmlSourceElement element) {
+		Reader sourceReader = element.getSource();
+		StringBuffer b = new StringBuffer();
+		int c;
+		try {
+			while ((c = sourceReader.read()) > -1) {
+				b.append((char) c);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return b.toString();
 	}
 	
 	class TestHandler implements XmlSourceHandler {
