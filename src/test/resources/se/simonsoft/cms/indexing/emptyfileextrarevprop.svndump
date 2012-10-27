@@ -1,0 +1,52 @@
+SVN-fs-dump-format-version: 2
+
+UUID: d7dc4516-ae4c-4702-95c6-6a5720a1bf52
+
+Revision-number: 0
+Prop-content-length: 92
+Content-length: 92
+
+K 14
+custom:revprop
+V 10
+Prop value
+K 8
+svn:date
+V 27
+2012-10-22T09:36:22.234766Z
+PROPS-END
+
+Revision-number: 1
+Prop-content-length: 136
+Content-length: 136
+
+K 10
+svn:author
+V 7
+solsson
+K 8
+svn:date
+V 27
+2012-10-22T09:37:55.290780Z
+K 7
+svn:log
+V 34
+Added empty file, will set revprop
+PROPS-END
+
+Node-path: emptyfile.txt
+Node-kind: file
+Node-action: add
+Prop-content-length: 45
+Text-content-length: 0
+Text-content-md5: d41d8cd98f00b204e9800998ecf8427e
+Text-content-sha1: da39a3ee5e6b4b0d3255bfef95601890afd80709
+Content-length: 45
+
+K 13
+svn:mime-type
+V 10
+text/plain
+PROPS-END
+
+

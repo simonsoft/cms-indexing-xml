@@ -24,15 +24,29 @@ import se.simonsoft.cms.item.RepoRevision;
 public interface CmsIndexing {
 
 	/**
-	 * @param repo Service is per repository so this is just to authorize the caller
+	 * @param repo Service is per repository so this is just to authorize the caller for administrative access
 	 * @return The current highest revision that is sync'd
 	 */
 	RepoRevision getHead(CmsRepositoryInspection repo);
 	
 	/**
-	 * @param repo Service is per repository so this is just to authorize the caller
+	 * @param repo Service is per repository so this is just to authorize the caller for administrative access
 	 * @param head the revision to index up to
 	 */
 	void sync(CmsRepositoryInspection repo, RepoRevision head);
+	
+	/**
+	 * Remove all indexed data for the current repository. 
+	 */
+	void clear();
+	
+	/**
+	 * Make private?
+	 * Remove all indexed data for a specific revision.
+	 * Will most likely be allowed for current highest indexed (or highest + 1),
+	 * primarily to set indexing to a known state after application restart.
+	 * @param revision The revision to clear
+	 */
+	void clearRevision(RepoRevision revision);
 	
 }

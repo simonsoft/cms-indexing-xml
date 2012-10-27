@@ -15,12 +15,18 @@
  */
 package se.simonsoft.cms.indexing.history;
 
+import org.apache.solr.client.solrj.SolrServer;
+
+import se.simonsoft.cms.indexing.IndexingCore;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
 
 /**
  * Called first and last of every revision's indexing operation to track,
  * in a way that survives application restarts, the highest indexed revision.
+ * <p>
+ * Note that revprop changes are currently not supported.
+ * Reindex is required after revprop change.
  */
 public interface CmsIndexingHistory {
 
@@ -28,22 +34,23 @@ public interface CmsIndexingHistory {
 	 * Fast index and commit an entry containing basic changeset information such as date, comment and author.
 	 * @param revision The commit
 	 */
-	void begin(CmsChangeset revision);
+	void begin(CmsChangeset revision, IndexingCore core);
 	
 	/**
 	 * Update {@link #begin(CmsChangeset)}'s index entry with a completeness flag, commit to mark revision indexing completed.
 	 * @param revision The commit, same instance as at begin
 	 */
-	void end(CmsChangeset revision);
+	void end(CmsChangeset revision, IndexingCore core);
 	
 	/**
-	 * @return true if there is an indexed changeset begun bot not ended
+	 * @return true if there is an indexed changeset begun bot not ended,
+	 * currently always false after application restart - started revisions must be overwritten
 	 */
 	boolean isIncomplete();
 	
 	/**
 	 * @return Highest revision that has been completed
 	 */
-	RepoRevision getHeadCompleted();
+	RepoRevision getHeadCompleted(SolrServer core);
 	
 }

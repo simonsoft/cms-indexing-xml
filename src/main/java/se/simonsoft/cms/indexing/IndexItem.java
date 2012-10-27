@@ -21,7 +21,7 @@ import java.util.Collection;
  * Support duplication into different core, with additional data.
  * Support update of existing fields or adding new ones.
  */
-interface IndexItem {
+public interface IndexItem {
 
 	/**
 	 * ID field name is always "id"
