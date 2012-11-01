@@ -5,11 +5,11 @@ import javax.inject.Named;
 
 import org.apache.solr.client.solrj.SolrServer;
 
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.indexing.history.CmsIndexingHistoryImpl;
 import se.simonsoft.cms.indexing.solr.IndexingCoreSolrj;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**
  * Initial impl instantiating all dependencies,

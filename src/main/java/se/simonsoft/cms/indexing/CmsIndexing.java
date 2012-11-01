@@ -15,8 +15,8 @@
  */
 package se.simonsoft.cms.indexing;
 
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**
  * Per repository service responsible for keeping all indexes consistent.

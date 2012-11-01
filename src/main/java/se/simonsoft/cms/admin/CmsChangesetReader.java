@@ -17,6 +17,7 @@ package se.simonsoft.cms.admin;
 
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 public interface CmsChangesetReader {
 

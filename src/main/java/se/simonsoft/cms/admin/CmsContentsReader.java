@@ -21,6 +21,7 @@ import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 
 /**
