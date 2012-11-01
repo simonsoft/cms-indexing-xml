@@ -134,6 +134,11 @@ class CmsItemAndContents implements CmsItem {
 		}
 
 		@Override
+		public String getUrlAtHost() {
+			throw new UnsupportedOperationException("Method not implemented");
+		}		
+		
+		@Override
 		public CmsItemId withPegRev(Long arg0) {
 			throw new UnsupportedOperationException("Method not implemented");
 		}
