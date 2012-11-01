@@ -38,13 +38,13 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.cms.indexing.xml.hook.IndexFieldExtractionItemInfo;
 import se.simonsoft.cms.indexing.xml.hook.IndexingContext;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
 
 public class IndexFieldExtractionItemInfoTest {

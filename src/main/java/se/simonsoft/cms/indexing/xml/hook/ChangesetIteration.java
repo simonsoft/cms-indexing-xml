@@ -15,10 +15,10 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.CmsItemLookup;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**
  * Some more design thought is needed for efficient and reusable changeset iteration

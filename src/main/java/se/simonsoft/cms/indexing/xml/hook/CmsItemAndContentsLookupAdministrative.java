@@ -18,13 +18,13 @@ package se.simonsoft.cms.indexing.xml.hook;
 import javax.inject.Inject;
 
 import se.simonsoft.cms.admin.CmsContentsReader;
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.CmsConnectionException;
 import se.simonsoft.cms.item.CmsItem;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemLookup;
 import se.simonsoft.cms.item.CmsItemNotFoundException;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**
  * Uses {@link CmsRepositoryInspection} and {@link CmsContentsReader} to read {@link CmsItemAndContents}.

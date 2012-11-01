@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import se.simonsoft.cms.admin.CmsChangesetReader;
 import se.simonsoft.cms.admin.CmsContentsReader;
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.CmsConnectionException;
 import se.simonsoft.cms.item.CmsItem;
 import se.simonsoft.cms.item.CmsItemId;
@@ -40,6 +39,7 @@ import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
 

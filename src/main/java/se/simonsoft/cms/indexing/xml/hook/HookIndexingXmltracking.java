@@ -20,10 +20,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.PostCommitEventListener;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**
  * Ties xmltracking indexing into the hook framework.

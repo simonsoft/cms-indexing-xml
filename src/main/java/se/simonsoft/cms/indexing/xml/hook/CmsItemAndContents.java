@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import se.simonsoft.cms.admin.CmsContentsReader;
-import se.simonsoft.cms.admin.CmsRepositoryInspection;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.CmsItem;
 import se.simonsoft.cms.item.CmsItemId;
@@ -27,6 +26,7 @@ import se.simonsoft.cms.item.CmsItemKind;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 
 /**
