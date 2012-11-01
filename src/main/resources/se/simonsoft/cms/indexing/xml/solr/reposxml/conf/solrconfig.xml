@@ -211,6 +211,7 @@
        <str name="facet.field">prop_abx:TranslationSource</str>
        <str name="facet.field">prop_abx:TranslationProject</str>
        <str name="facet.field">prop_abx:PublicId</str>
+       <str name="facet.field">pathin</str>
        <str name="facet.field">name</str>
        <!--<str name="facet.query">section</str>-->
        <!--<str name="facet.query">title</str>-->

@@ -38,8 +38,10 @@
 		<field name="pathname" type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathext"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathdir"  type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathin"   type="string" indexed="true"  stored="false" multiValued="true"/>
+		<field name="pathfull"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
-		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>		
+		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repohost"   type="string" indexed="true" stored="true" multiValued="false"/>

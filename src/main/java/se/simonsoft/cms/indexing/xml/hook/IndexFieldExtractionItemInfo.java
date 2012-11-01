@@ -71,7 +71,12 @@ public class IndexFieldExtractionItemInfo implements
 		fields.addField("pathname", path.getName());
 		CmsItemPath parent = path.getParent();
 		fields.addField("pathdir", parent == null ? "" : parent.getPath());
+		while (parent != null) {
+			fields.addField("pathin", parent.getPath());
+			parent = parent.getParent();
+		}
 		fields.addField("pathext", path.getExtension());
+		fields.addField("pathfull", repo.getParentPath() + "/" + repo.getName() + path.getPath());
 		fields.addField("rev", rev.getNumber());
 		fields.addField("revt", getDateValue(rev.getDate()));
 		fields.addField("repo", repo.getName());

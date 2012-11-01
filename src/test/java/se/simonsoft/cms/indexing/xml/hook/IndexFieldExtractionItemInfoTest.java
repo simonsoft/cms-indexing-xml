@@ -58,7 +58,7 @@ public class IndexFieldExtractionItemInfoTest {
 	@Test
 	public void testExtract() {
 		CmsItemPath item1 = new CmsItemPath("/docs/a.xml");
-		CmsItemPath item2 = new CmsItemPath("/docs/b.xml");
+		CmsItemPath item2 = new CmsItemPath("/docs/more/b.xml");
 		CmsRepository repoa = new CmsRepository("http://localhost:88/svn1/r1");
 		CmsRepository repob = new CmsRepositoryInspection("/svn2", "r3", new File("."));
 		assertFalse(repob.isHostKnown());
@@ -85,6 +85,8 @@ public class IndexFieldExtractionItemInfoTest {
 		verify(f1).addField("repo", "r1");
 		verify(f1).addField("repoparent", "/svn1"); // if needed, can be undefined in solr schema
 		verify(f1).addField("repohost", "localhost:88"); // if needed, can be undefined in solr schema
+		verify(f1).addField("pathfull", "/svn1/r1/docs/a.xml");
+		verify(f1).addField("pathin", "/docs");
 		
 		IndexFields f2 = mock(IndexFields.class);
 		x.extract(f2, null);
@@ -95,10 +97,13 @@ public class IndexFieldExtractionItemInfoTest {
 		
 		IndexFields f3 = mock(IndexFields.class);
 		x.extract(f3, null);
-		verify(f3).addField("path", "/docs/b.xml");
+		verify(f3).addField("path", "/docs/more/b.xml");
 		verify(f3).addField("rev", 77L);
 		verify(f3).addField("repo", "r3");
 		verify(f3).addField("repoparent", "/svn2");
+		verify(f3).addField("pathfull", "/svn2/r3/docs/more/b.xml");
+		verify(f3).addField("pathin", "/docs");
+		verify(f3).addField("pathin", "/docs/more");
 		// host not known
 		verify(f3, times(0)).addField(eq("repohost"), anyString());
 	}
