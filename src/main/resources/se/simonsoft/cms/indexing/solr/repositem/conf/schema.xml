@@ -31,13 +31,23 @@
 		<field name="_version_" type="long" indexed="true" stored="true" />
 
 		<!--
-		Type of item: "commit", "file", "folder"
+		Type of item: "commit", "file", "folder". Type affects which fields are expected to exist.
 		-->
 		<field name="type" type="string" indexed="true" stored="true" />
 
+		<!-- commit type fields -->
 		<field name="revauthor" type="string" indexed="true" stored="true" />
 		<field name="revcomment" type="string" indexed="true" stored="true" />
 		<!-- revprops? -->
+		
+		<!-- commit and all items -->
+		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
+		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
+		
+		<!-- URL, URI (= logical id?), with rev for historical?, including commits? -->
+		
+		<!-- items -->
+		<!-- fields currently in reposxml core -->
 		
 	</fields>
 
@@ -53,6 +63,7 @@
 	<types>
 		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
 		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0" />
+		<fieldType name="date" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
 	</types>
 	
 </schema>
