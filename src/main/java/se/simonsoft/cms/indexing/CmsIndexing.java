@@ -23,6 +23,8 @@ import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
  */
 public interface CmsIndexing {
 
+	enum Phase { structure, meta, full };
+	
 	/**
 	 * @param repo Service is per repository so this is just to authorize the caller for administrative access
 	 * @return The current highest revision that is sync'd
@@ -34,6 +36,12 @@ public interface CmsIndexing {
 	 * @param head the revision to index up to
 	 */
 	void sync(CmsRepositoryInspection repo, RepoRevision head);
+	
+	/**
+	 * @param repo Service is per repository so this is just to authorize the caller for administrative access
+	 * @param head the revision to index up to
+	 */
+	void sync(CmsRepositoryInspection repo, RepoRevision head, Phase waitFor);
 	
 	/**
 	 * Remove all indexed data for the current repository. 

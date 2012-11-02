@@ -61,6 +61,13 @@ public class CmsIndexingSelfConfigured implements CmsIndexing {
 	}
 
 	@Override
+	public void sync(CmsRepositoryInspection repo, RepoRevision head,
+			Phase waitFor) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
 		
