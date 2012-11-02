@@ -19,33 +19,19 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.SolrParams;
 import org.junit.Test;
 
 import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
-import se.simonsoft.xmltracking.source.XmlSourceReader;
-import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
 
 public class XmlSourceHandlerSolrjTest {
 
