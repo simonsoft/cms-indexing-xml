@@ -23,26 +23,26 @@
 		<!--
 		Unique id per resource including revision
 		-->
-		<field name="id" type="string" indexed="true" stored="true" required="true" />
+		<field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 		
 		<!--
 		Solr field 
 		-->
-		<field name="_version_" type="long" indexed="true" stored="true" />
+		<field name="_version_" type="long" indexed="true" stored="true" multiValued="false" />
 
 		<!--
 		Type of item: "commit", "file", "folder". Type affects which fields are expected to exist.
 		-->
-		<field name="type" type="string" indexed="true" stored="true" />
+		<field name="type" type="string" indexed="true" stored="true" multiValued="false" />
 
 		<!-- commit type fields -->
-		<field name="revauthor" type="string" indexed="true" stored="true" />
-		<field name="revcomment" type="string" indexed="true" stored="true" />
+		<field name="revauthor" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="revcomment" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- revprops? -->
 		
 		<!-- commit and all items -->
-		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
-		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
+		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false" />
+		<field name="revt" type="date" indexed="true" stored="true" multiValued="false" />
 		
 		<!-- URL, URI (= logical id?), with rev for historical?, including commits? -->
 		
