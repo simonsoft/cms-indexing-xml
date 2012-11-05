@@ -6,7 +6,7 @@
 	<version>1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
-	<name>Simonsoft CMS Open Source project</name>
+	<name>Simonsoft CMS XMLDB</name>
 	<url>http://www.simonsoft.se/</url>
 	
 	<parent>
