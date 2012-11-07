@@ -56,7 +56,6 @@ class ContentHandlerToIndexFields implements ContentHandler {
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		logger.trace("startElement {} {} ({}), {}: {}", new Object[]{uri, localName, qName, attributes.getLength()});
 		if ("field".equals(localName)) {
 			curfield = attributes.getValue("name");
 		}
@@ -65,9 +64,8 @@ class ContentHandlerToIndexFields implements ContentHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		logger.trace("endElement {} {} ({})", new Object[]{uri, localName, qName});
 		if ("field".equals(localName)) {
-			logger.debug("Adding field {}={}", curfield, buf.length() > 40 ? buf.substring(0, 40) + "..." : buf);
+			logger.trace("Adding field {}={}", curfield, buf.length() > 40 ? buf.substring(0, 40) + "..." : buf);
 			add(curfield, buf.toString());
 			buf.setLength(0);
 		}
@@ -81,46 +79,39 @@ class ContentHandlerToIndexFields implements ContentHandler {
 	}
 
 	@Override
+	public void startDocument() throws SAXException {
+	}
+	
+	@Override
 	public void endDocument() throws SAXException {
-		logger.info("endDocument");
+		logger.trace("Done with " + curfield);
 	}
 	
 	@Override
 	public void endPrefixMapping(String prefix) throws SAXException {
-		logger.trace("endPrefixMapping {}", prefix);
 	}
 
 	@Override
 	public void ignorableWhitespace(char[] ch, int start, int length)
 			throws SAXException {
-		logger.trace("ignorableWhitespace {}+{}", start, length);
 	}
 
 	@Override
 	public void processingInstruction(String target, String data)
 			throws SAXException {
-		logger.trace("processingInstruction {} {}", target, data);
 	}
 	
 	@Override
 	public void setDocumentLocator(Locator locator) {
-		logger.trace("setDocumentLocator {}", locator);
 	}
 
 	@Override
 	public void skippedEntity(String name) throws SAXException {
-		logger.trace("skippedEntity {}", name);
-	}
-
-	@Override
-	public void startDocument() throws SAXException {
-		logger.info("startDocument");
 	}
 	
 	@Override
 	public void startPrefixMapping(String prefix, String uri)
 			throws SAXException {
-		logger.trace("startPrefixMapping {} {}", prefix, uri);
 	}
 	
 }
