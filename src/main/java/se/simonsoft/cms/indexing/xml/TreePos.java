@@ -18,7 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 /**
  * Uniquely identifies an element's position in an XML DOM.
  * 
- * TODO Verify analogous to ACL:Treepos
+ * TODO Verify analogous to ACL:treeloc
  * TODO Use as helper when calculating pos in indexing (to encapsulate rules for text nodes etc.)
  */
 public class TreePos {
