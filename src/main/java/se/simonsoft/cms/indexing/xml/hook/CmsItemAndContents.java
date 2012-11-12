@@ -156,7 +156,7 @@ class CmsItemAndContents implements CmsItem {
 	}
 
 	@Override
-	public RepoRevision getRevision() {
+	public RepoRevision getRevisionChanged() {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
