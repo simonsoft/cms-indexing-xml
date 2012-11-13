@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +25,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +59,8 @@ public class ChangesetIterationTms implements ChangesetIteration {
 	
 	private XmlSourceHandler sourceHandler = null;
 	private XmlSourceReader sourceReader = null;
+
+	private SolrServer solrServer = null;
 	
 	@Inject
 	public void setDependenciesHook(
@@ -75,6 +80,12 @@ public class ChangesetIterationTms implements ChangesetIteration {
 		this.sourceHandler = xmlSourceHandler;
 		this.sourceReader = xmlSourceReader;
 	}
+
+	@Inject
+	public void setDependenciesIndexing(
+			@Named("reposxml") SolrServer solrServer) {
+		this.solrServer  = solrServer;
+	} 
 	
 	@Override
 	public void onHook(CmsRepositoryInspection repository, RepoRevision revision) {
@@ -135,11 +146,26 @@ public class ChangesetIterationTms implements ChangesetIteration {
 
 	@Override
 	public void onUpdate(CmsItemAndContents item) {
+		indexDeletePath(item);
 		indexingContext.setItem(item);
 		CmsItemContentsBuffer contents = new CmsItemContentsBuffer(item);
 		sourceReader.read(contents.getContents(), sourceHandler);
 	}
 	
+	protected void indexDeletePath(CmsItemAndContents item) {
+		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
+		String query = "pathfull:\"" + item.getId().getRepository().getPath() + item.getId().getRelPath().toString() + '"';
+		logger.debug("Deleting previous revision of {} using query [}", item.getId(), query);
+		try {
+			solrServer.deleteByQuery(query);
+		} catch (SolrServerException e) {
+			throw new RuntimeException("not handled", e);
+		} catch (IOException e) {
+			throw new RuntimeException("not handled", e);
+		}
+		
+	}
+
 	/**
 	 * Another part of the bridge from CmsChangeset to generic CmsItem+contents,
 	 * implemented on a need-to-use basis.
