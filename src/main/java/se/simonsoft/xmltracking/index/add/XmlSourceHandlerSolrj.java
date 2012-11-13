@@ -123,7 +123,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		IndexFieldsSolrj doc = new IndexFieldsSolrj();
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
-		addSource(element, doc);
+		doc.addField("source", getSource(element));
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			doc.addField("ns_" + n.getName(), n.getUri());
 		}
@@ -145,6 +145,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		for (IndexFieldExtraction e : extraction) {
 			e.extract(doc, null);
 		}
+		fieldCleanupBeforeIndexAdd(element, doc);
 		logger.trace("Sending elem to Solr, id {}, fields {}", id, doc.getFieldNames());
 		try {
 			solrServer.add(doc);
@@ -161,13 +162,26 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	}
 
 	/**
+	 * Remove stuff that was needed for extractors but shouldn't be sent to index
+	 * for storage or security reasons.
+	 * @param element The element that's being indexed
+	 * @param doc The document that has been through the extractors chain
+	 */	
+	protected void fieldCleanupBeforeIndexAdd(XmlSourceElement element,
+			IndexFieldsSolrj doc) {
+		if (element.isRoot()) {
+			doc.removeField("source");
+		}
+	}
+
+	/**
 	 * Storing all source makes the index very large.
 	 * @param element
 	 * @param doc
 	 */
 	protected void addSource(XmlSourceElement element, IndexFieldsSolrj doc) {
 		if (!element.isRoot()) {
-			doc.addField("source", getSource(element));
+			
 		}
 	}
 
