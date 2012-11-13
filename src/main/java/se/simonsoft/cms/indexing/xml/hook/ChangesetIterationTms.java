@@ -155,7 +155,7 @@ public class ChangesetIterationTms implements ChangesetIteration {
 	protected void indexDeletePath(CmsItemAndContents item) {
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
 		String query = "pathfull:\"" + item.getId().getRepository().getPath() + item.getId().getRelPath().toString() + '"';
-		logger.debug("Deleting previous revision of {} using query [}", item.getId(), query);
+		logger.debug("Deleting previous revision of {} using query {}", item.getId(), query);
 		try {
 			solrServer.deleteByQuery(query);
 		} catch (SolrServerException e) {

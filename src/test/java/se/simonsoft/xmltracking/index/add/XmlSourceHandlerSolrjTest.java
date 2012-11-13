@@ -101,10 +101,9 @@ public class XmlSourceHandlerSolrjTest {
 				assertTrue("id must be set", doc.containsKey("id"));
 				String id = doc.getFieldValue("id").toString();
 				assertTrue("name must be set", doc.containsKey("name"));
-				assertTrue("source must be set", doc.containsKey("source"));
 				if ("testdoc1_e1".equals(id)) {
 					assertEquals("document", doc.getFieldValue("name"));
-					assertTrue(doc.getFieldValue("source").toString().startsWith("<document"));
+					assertEquals("We shouln't index (or store) source of root elements", null, doc.getFieldValue("source"));
 					// assumption made about SchemaFieldName impl
 					assertTrue("Should contain the attribute name prefixed with a_ as field",
 							doc.containsKey("a_cms:status"));
@@ -161,6 +160,8 @@ public class XmlSourceHandlerSolrjTest {
 					assertEquals("xyz", doc.getFieldValue("sa_cms:component"));
 				} else if ("testdoc1_e4".equals(id)) {
 					assertEquals("title", doc.getFieldValue("name"));
+					assertTrue("source must be set, at least for elements like title", doc.containsKey("source"));
+					assertTrue(doc.getFieldValue("source").toString().startsWith("<title"));
 					assertEquals("figure", doc.getFieldValue("pname"));
 					assertEquals("document", doc.getFieldValue("rname"));
 					Iterator<Object> a = doc.getFieldValues("aname").iterator();

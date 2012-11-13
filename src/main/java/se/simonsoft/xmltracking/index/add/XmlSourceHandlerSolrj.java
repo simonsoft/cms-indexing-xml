@@ -123,7 +123,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		IndexFieldsSolrj doc = new IndexFieldsSolrj();
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
-		doc.addField("source", getSource(element));
+		addSource(element, doc);
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			doc.addField("ns_" + n.getName(), n.getUri());
 		}
@@ -158,6 +158,17 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			throw new RuntimeException("Error not handled", e);
 		}
 		sent.add(id);
+	}
+
+	/**
+	 * Storing all source makes the index very large.
+	 * @param element
+	 * @param doc
+	 */
+	protected void addSource(XmlSourceElement element, IndexFieldsSolrj doc) {
+		if (!element.isRoot()) {
+			doc.addField("source", getSource(element));
+		}
 	}
 
 	/**
