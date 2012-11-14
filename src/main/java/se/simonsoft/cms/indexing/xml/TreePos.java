@@ -34,4 +34,12 @@ public class TreePos {
 		return pos;
 	}
 	
+	/**
+	 * Returns the last number in tree position.
+	 * @return position among siblings of the deepset level in this instance, even if it is not a leaf in the actual XML structure
+	 */
+	public int getChildNumber() {
+		throw new UnsupportedOperationException("To be implemented together with XmlSourceElement#getPosition()");
+	}
+	
 }

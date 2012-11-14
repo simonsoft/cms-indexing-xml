@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import se.simonsoft.cms.indexing.xml.TreePos;
+
 /**
  * Raw information about an element.
  * Callers can aggregate structural information using {@link #getParent()} and {@link #getSiblingPreceding()}.
@@ -143,6 +145,7 @@ public class XmlSourceElement {
 	}
 
 	/**
+	 * TODO convert too {@link TreePos}
 	 * @return position among siblings, 1 is first
 	 */
 	public int getPosition() {
