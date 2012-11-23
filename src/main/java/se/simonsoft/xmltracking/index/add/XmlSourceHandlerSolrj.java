@@ -169,9 +169,10 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 */	
 	protected void fieldCleanupBeforeIndexAdd(XmlSourceElement element,
 			IndexFieldsSolrj doc) {
-		if (element.isRoot()) {
-			doc.removeField("source");
-		}
+// can be done after we implement use of an original XML stream for supporting translation-of-translation		
+//		if (element.isRoot()) {
+//			doc.removeField("source");
+//		}
 	}
 
 	/**
