@@ -173,6 +173,9 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 //		if (element.isRoot()) {
 //			doc.removeField("source");
 //		}
+			// Short term solution to saving storage space
+			// TODO read ignore fields from schema
+			doc.removeField("prop_abx:Dependencies");
 	}
 
 	/**
