@@ -173,9 +173,21 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 //		if (element.isRoot()) {
 //			doc.removeField("source");
 //		}
-			// Short term solution to saving storage space
-			// TODO read ignore fields from schema
+			
+			// remove fields that we are likely to exclude in the future
+			// TODO read ignored fields from schema and skip sending those
 			doc.removeField("prop_abx:Dependencies");
+			fieldCleanupTemporary(doc);
+	}
+
+	/**
+	 * To be overridden when testing, so we can still assert that these fields are set.
+	 */
+	protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {
+		// heavy save, until we have element level reuse we only need source of elements with rlogicalid
+		if (!doc.containsKey("a_cms:rlogicalid")) {
+			doc.removeField("source");
+		}
 	}
 
 	/**
