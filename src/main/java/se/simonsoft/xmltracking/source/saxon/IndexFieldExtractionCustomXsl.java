@@ -69,12 +69,18 @@ public class IndexFieldExtractionCustomXsl implements IndexFieldExtraction {
 
 	@Override
 	public void extract(IndexFields fields, XmlSourceElement processedElement) {
-		String source = (String) fields.getFieldValue("source");
+		Object source = fields.getFieldValue("source");
 		if (source == null) {
 			throw new IllegalArgumentException("Prior to text extraction, 'source' field must have been extracted.");
 		}
-		
-		Reader sourceReader = new StringReader(source);
+		Reader sourceReader;
+		if (source instanceof Reader) {
+			sourceReader = (Reader) source;
+		} else if (source instanceof String) {
+			sourceReader = new StringReader((String) source);
+		} else {
+			throw new IllegalArgumentException("Unexpected source field " + source.getClass() + " in " + fields);
+		}
 		Source xmlInput = new StreamSource(sourceReader);
 		
 		ContentHandler transformOutputHandler = new ContentHandlerToIndexFields(fields);
