@@ -145,8 +145,8 @@ public class XmlSourceElement {
 	}
 
 	/**
-	 * TODO convert too {@link TreePos}
 	 * @return position among siblings, 1 is first
+	 * @deprecated use {@link #getPos()}
 	 */
 	public int getPosition() {
 		return position;
@@ -165,7 +165,13 @@ public class XmlSourceElement {
 	}
 	
 	public TreePos getPos() {
-		throw new UnsupportedOperationException("not implemented");
+		// TODO avoid setPosition and use TreePos internally
+		XmlSourceElement p = this;
+		TreePos pos = new TreePos(p.getPosition());
+		while ((p = p.getParent()) != null) {
+			pos = pos.withParent(p.getPosition());
+		}
+		return pos;
 	}
 	
 	/**

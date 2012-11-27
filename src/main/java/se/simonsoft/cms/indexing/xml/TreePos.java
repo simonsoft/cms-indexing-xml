@@ -23,10 +23,35 @@ package se.simonsoft.cms.indexing.xml;
  */
 public class TreePos {
 
+	// doesn't work with withParent //private static final Pattern VALIDATION = Pattern.compile("^1(\\.\\d+)*$"); 
+	
 	private String pos;
+	private int ordinal;
 
 	public TreePos(String dotSeparated1based) {
+		this(dotSeparated1based, getOrdinal(dotSeparated1based));
+	}
+
+	private TreePos(String dotSeparated1based, int ordinal) {
 		this.pos = dotSeparated1based;
+		this.ordinal = ordinal;
+	}
+	
+	/**
+	 * Used to build a pos in element traversal.
+	 * @param ordinal 1 for root, position among sibilings if {@link #withParent(int)} is used to build a complete pos 
+	 */
+	public TreePos(int ordinal) {
+		this.pos = Integer.toString(ordinal);
+		this.ordinal = ordinal;
+	}
+
+	private static int getOrdinal(String dotSeparated1based) {
+		int d = dotSeparated1based.lastIndexOf('.');
+		if (d < 0) {
+			return Integer.parseInt(dotSeparated1based);
+		}
+		return Integer.parseInt(dotSeparated1based.substring(d + 1));
 	}
 	
 	@Override
@@ -34,12 +59,32 @@ public class TreePos {
 		return pos;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		return obj != null 
+				&& obj instanceof TreePos // remove this?
+				&& toString().equals(obj.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
+	}
+
+	public TreePos withChild(int childOrdinal) {
+		return new TreePos(this.toString() + '.' + childOrdinal, childOrdinal);
+	}
+	
+	public TreePos withParent(int parentOrdinal) {
+		return new TreePos(parentOrdinal +  ('.' + this.toString()), this.ordinal);
+	}
+	
 	/**
 	 * Returns the last number in tree position.
 	 * @return position among siblings of the deepset level in this instance, even if it is not a leaf in the actual XML structure
 	 */
-	public int getChildNumber() {
-		throw new UnsupportedOperationException("To be implemented together with XmlSourceElement#getPosition()");
+	public int getOrdinal() {
+		return ordinal;
 	}
 	
 }

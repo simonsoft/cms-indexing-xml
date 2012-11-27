@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class XmlSourceElementTest {
@@ -49,8 +50,28 @@ public class XmlSourceElementTest {
 	}
 
 	@Test
-	public void testGetPos() {
-		// Not needed yet
+	public void testGetPosOnlyElements() {
+		XmlSourceElement a = new XmlSourceElement("a", new LinkedList<XmlSourceAttribute>(), "<a><b><c/><d/></b><b2/></a>");
+		XmlSourceElement b = new XmlSourceElement("b", new LinkedList<XmlSourceAttribute>(), "<b><c/></b>");
+		XmlSourceElement c = new XmlSourceElement("c", new LinkedList<XmlSourceAttribute>(), "<c/>");
+		XmlSourceElement b2 = new XmlSourceElement("b2", new LinkedList<XmlSourceAttribute>(), "<b2/>");
+		a.setDepth(1, null);
+		a.setPosition(1, null);
+		b.setDepth(2, a);
+		b.setPosition(1, null);
+		c.setDepth(3, b);
+		c.setPosition(1, null);
+		b2.setDepth(2, a);
+		b2.setPosition(2, b);
+		assertEquals("1", a.getPos().toString());
+		assertEquals("1.1", b.getPos().toString());
+		assertEquals("1.2", b2.getPos().toString());
+		assertEquals("1.1.1", c.getPos().toString());
+	}
+	
+	@Test
+	@Ignore // need a full xml doc with text, comments, pi-s etc
+	public void testGetPosCompatibilityWithTreeLoc() {
 	}
 	
 	@Test
