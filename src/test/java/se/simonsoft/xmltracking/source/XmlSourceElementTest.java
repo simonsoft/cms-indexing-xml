@@ -63,10 +63,10 @@ public class XmlSourceElementTest {
 		c.setPosition(1, null);
 		b2.setDepth(2, a);
 		b2.setPosition(2, b);
-		assertEquals("1", a.getPos().toString());
-		assertEquals("1.1", b.getPos().toString());
-		assertEquals("1.2", b2.getPos().toString());
-		assertEquals("1.1.1", c.getPos().toString());
+		assertEquals("1", a.getLocation().toString());
+		assertEquals("1.1", b.getLocation().toString());
+		assertEquals("1.2", b2.getLocation().toString());
+		assertEquals("1.1.1", c.getLocation().toString());
 	}
 	
 	@Test

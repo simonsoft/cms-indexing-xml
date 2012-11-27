@@ -21,18 +21,18 @@ package se.simonsoft.cms.indexing.xml;
  * TODO Verify analogous to ACL:treeloc
  * TODO Use as helper when calculating pos in indexing (to encapsulate rules for text nodes etc.)
  */
-public class TreePos {
+public class TreeLocation {
 
 	// doesn't work with withParent //private static final Pattern VALIDATION = Pattern.compile("^1(\\.\\d+)*$"); 
 	
 	private String pos;
 	private int ordinal;
 
-	public TreePos(String dotSeparated1based) {
+	public TreeLocation(String dotSeparated1based) {
 		this(dotSeparated1based, getOrdinal(dotSeparated1based));
 	}
 
-	private TreePos(String dotSeparated1based, int ordinal) {
+	private TreeLocation(String dotSeparated1based, int ordinal) {
 		this.pos = dotSeparated1based;
 		this.ordinal = ordinal;
 	}
@@ -41,7 +41,7 @@ public class TreePos {
 	 * Used to build a pos in element traversal.
 	 * @param ordinal 1 for root, position among sibilings if {@link #withParent(int)} is used to build a complete pos 
 	 */
-	public TreePos(int ordinal) {
+	public TreeLocation(int ordinal) {
 		this.pos = Integer.toString(ordinal);
 		this.ordinal = ordinal;
 	}
@@ -62,7 +62,7 @@ public class TreePos {
 	@Override
 	public boolean equals(Object obj) {
 		return obj != null 
-				&& obj instanceof TreePos // remove this?
+				&& obj instanceof TreeLocation // remove this?
 				&& toString().equals(obj.toString());
 	}
 
@@ -71,12 +71,12 @@ public class TreePos {
 		return toString().hashCode();
 	}
 
-	public TreePos withChild(int childOrdinal) {
-		return new TreePos(this.toString() + '.' + childOrdinal, childOrdinal);
+	public TreeLocation withChild(int childOrdinal) {
+		return new TreeLocation(this.toString() + '.' + childOrdinal, childOrdinal);
 	}
 	
-	public TreePos withParent(int parentOrdinal) {
-		return new TreePos(parentOrdinal +  ('.' + this.toString()), this.ordinal);
+	public TreeLocation withParent(int parentOrdinal) {
+		return new TreeLocation(parentOrdinal +  ('.' + this.toString()), this.ordinal);
 	}
 	
 	/**

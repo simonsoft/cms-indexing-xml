@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.simonsoft.cms.indexing.xml.TreePos;
+import se.simonsoft.cms.indexing.xml.TreeLocation;
 
 /**
  * Raw information about an element.
@@ -146,7 +146,7 @@ public class XmlSourceElement {
 
 	/**
 	 * @return position among siblings, 1 is first
-	 * @deprecated use {@link #getPos()}
+	 * @deprecated use {@link #getLocation()}
 	 */
 	public int getPosition() {
 		return position;
@@ -164,10 +164,13 @@ public class XmlSourceElement {
 		return name + attributes + source.length();
 	}
 	
-	public TreePos getPos() {
+	/**
+	 * @return location in DOM tree, called "pos" in index
+	 */
+	public TreeLocation getLocation() {
 		// TODO avoid setPosition and use TreePos internally
 		XmlSourceElement p = this;
-		TreePos pos = new TreePos(p.getPosition());
+		TreeLocation pos = new TreeLocation(p.getPosition());
 		while ((p = p.getParent()) != null) {
 			pos = pos.withParent(p.getPosition());
 		}
@@ -176,7 +179,7 @@ public class XmlSourceElement {
 	
 	/**
 	 * Uses {@link #setDepth(int, XmlSourceElement)} information to check ancestry.
-	 * For non-instance based checks use analogous methods from {@link #getPos()}.
+	 * For non-instance based checks use analogous methods from {@link #getLocation()}.
 	 * @param other possibly a child
 	 * @return true if the instance is among the parents of the argument instance
 	 */
@@ -186,7 +189,7 @@ public class XmlSourceElement {
 	
 	/**
 	 * Uses {@link #setDepth(int, XmlSourceElement)} information to traverse children.
-	 * For non-instance based checks use analogous methods from {@link #getPos()}.
+	 * For non-instance based checks use analogous methods from {@link #getLocation()}.
 	 * @param other possibly a child
 	 * @return true if the instance is among the parents of the argument instance
 	 */
