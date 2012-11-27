@@ -50,7 +50,34 @@ public class XmlSourceElementTest {
 
 	@Test
 	public void testGetPos() {
-		
+		// Not needed yet
+	}
+	
+	@Test
+	public void testIsAncestorOf() {
+		XmlSourceElement a = new XmlSourceElement("a", new LinkedList<XmlSourceAttribute>(), "<a><b><c/><d/></b><b2/></a>");
+		XmlSourceElement b = new XmlSourceElement("b", new LinkedList<XmlSourceAttribute>(), "<b><c/></b>");
+		XmlSourceElement c = new XmlSourceElement("c", new LinkedList<XmlSourceAttribute>(), "<c/>");
+		XmlSourceElement b2 = new XmlSourceElement("b2", new LinkedList<XmlSourceAttribute>(), "<b2/>");
+		a.setDepth(1, null);
+		b.setDepth(2, a);
+		c.setDepth(3, b);
+		b2.setDepth(2, a);
+		assertTrue(a.isAncestorOf(b));
+		assertTrue(b.isAncestorOf(c));
+		assertFalse(b2.isAncestorOf(c));
+		assertTrue(a.isAncestorOf(c));
+		assertFalse(b.isAncestorOf(b));
+		assertTrue(b.isDescendantOf(a));
+		assertTrue(b2.isDescendantOf(a));
+		assertTrue(c.isDescendantOf(a));
+		assertFalse(c.isDescendantOf(b2));
+		assertFalse(c.isDescendantOf(c));
+		XmlSourceElement bn = new XmlSourceElement("b", new LinkedList<XmlSourceAttribute>(), "<b><c/></b>");
+		assertFalse("For now we assume that there is only one instance of each element for each document", bn.isDescendantOf(a));
+		assertFalse(c.isDescendantOf(bn));
+		assertFalse(a.isAncestorOf(bn));
+		assertFalse(bn.isAncestorOf(c));
 	}
 	
 }

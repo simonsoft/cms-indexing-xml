@@ -164,4 +164,32 @@ public class XmlSourceElement {
 		return name + attributes + source.length();
 	}
 	
+	public TreePos getPos() {
+		throw new UnsupportedOperationException("not implemented");
+	}
+	
+	/**
+	 * Uses {@link #setDepth(int, XmlSourceElement)} information to check ancestry.
+	 * For non-instance based checks use analogous methods from {@link #getPos()}.
+	 * @param other possibly a child
+	 * @return true if the instance is among the parents of the argument instance
+	 */
+	public boolean isAncestorOf(XmlSourceElement other) {
+		return other.isDescendantOf(this);
+	}
+	
+	/**
+	 * Uses {@link #setDepth(int, XmlSourceElement)} information to traverse children.
+	 * For non-instance based checks use analogous methods from {@link #getPos()}.
+	 * @param other possibly a child
+	 * @return true if the instance is among the parents of the argument instance
+	 */
+	public boolean isDescendantOf(XmlSourceElement other) {
+		XmlSourceElement p = this;
+		while ((p = p.getParent()) != null) {
+			if (p == other) return true;
+		}
+		return false;
+	}
+	
 }
