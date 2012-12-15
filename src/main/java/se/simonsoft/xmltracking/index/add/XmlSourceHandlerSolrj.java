@@ -57,9 +57,25 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	private transient List<String> sent = null;
 	private transient List<String> failed = null;
 	
-	public static final int UPDATE_BATCH_MAX_SIZE = 100;
-	private List<SolrInputDocument> pending = new ArrayList<SolrInputDocument>(UPDATE_BATCH_MAX_SIZE);
-	private boolean updateBatchReady = false; // trigger send before batch max size is reached
+	public static final int BATCH_TEXT_MAX_SIZE = 1000;
+	private List<SolrInputDocument> pending = new ArrayList<SolrInputDocument>(BATCH_TEXT_MAX_SIZE);
+	private boolean batchReady = false; // trigger send before batch max size is reached
+	
+	/**
+	 * The text field was meant for searches on terms, words, values, not even paragraphs.
+	 * Thus we start with a very restrictive limit on when we keep the text field values.
+	 * We will most likely raise this when we start adding use cases for xml text search.
+	 * Text field is currently string, while analyzed text could be kept for much larger chunks. 
+	 */
+	private static final int TEXT_FIELD_KEEP_LENGTH = 1000;
+	
+	/**
+	 * As element size varies a lot due to source and text indexing we can
+	 * try to keep reasonably small batches by also checking total text length,
+	 * triggering batchReady if above a certain limit instead of waiting for the number of elements.
+	 */
+	private static final long BATCH_TEXT_TOTAL_MAX = 1000000;
+	private long batchTextTotal = 0; // used for optimization in field cleanup
 	
 	@Inject
 	public XmlSourceHandlerSolrj(@Named("reposxml") SolrServer solrServer, IdStrategy idStrategy) {
@@ -101,8 +117,8 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	@Override
 	public void endDocument() {
 		logger.debug("Sending remaining {} updates", pending.size());
-		updateBatchReady = true;
-		batchSend();
+		batchReady = true;
+		batchCheck();
 		logger.debug("Doing Solr commit");
 		try {
 			solrServer.commit();
@@ -161,12 +177,12 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	}
 
 	protected void batchCheck() {
-		if (updateBatchReady || pending.size() == UPDATE_BATCH_MAX_SIZE) {
+		if (batchReady || pending.size() == BATCH_TEXT_MAX_SIZE) {
 			try {
 				batchSend();
 			} finally {
 				pending.clear();
-				updateBatchReady = false;
+				batchReady = false;
 			}
 		}
 	}
@@ -235,16 +251,21 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		if (!doc.containsKey("a_cms:rlogicalid")) {
 			doc.removeField("source");
 		}
-	}
-
-	/**
-	 * Storing all source makes the index very large.
-	 * @param element
-	 * @param doc
-	 */
-	protected void addSource(XmlSourceElement element, IndexFieldsSolrj doc) {
-		if (!element.isRoot()) {
-			
+		// Ideally we'd only index text for elements that should contain character data but we have no dtd awareness so we'll guess a max text length for such elements
+		// Search for text should ideally hit the element where it is contained, not the parents.
+		// We'll remove these fields before first release so that no one starts using them.
+		if (doc.containsKey("text")) {
+			int textlen = ((String) doc.getFieldValue("text")).length();
+			if (textlen > TEXT_FIELD_KEEP_LENGTH) {
+				logger.trace("Removing text field size {} from {}", textlen, doc.getFieldValue("id"));
+				doc.removeField("text");
+			}
+			batchTextTotal += textlen;
+			if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
+				logger.info("Sending batch because total text size {} indicates large update", batchTextTotal);
+				batchReady = true; // send batch
+				batchTextTotal = 0;
+			}
 		}
 	}
 
