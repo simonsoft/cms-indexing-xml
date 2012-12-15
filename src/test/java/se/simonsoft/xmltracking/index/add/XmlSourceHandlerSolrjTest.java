@@ -23,11 +23,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
@@ -35,7 +37,7 @@ import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 public class XmlSourceHandlerSolrjTest {
 
-	@SuppressWarnings("serial")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void test() throws SolrServerException, IOException {
 		
@@ -91,96 +93,99 @@ public class XmlSourceHandlerSolrjTest {
 		handler.begin(e2);
 		handler.begin(e3);
 		handler.begin(e4);
-		// note: update times() below if elements are added to the test
+		
 		handler.endDocument();
 		verify(solrServer, times(1)).commit();
+
+		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
+		verify(solrServer).add(addcapture.capture());
+		List<SolrInputDocument> added = addcapture.getValue();
 		
-		verify(solrServer, times(4)).add(new SolrInputDocument() {
-			@Override
-			public boolean equals(Object obj) {
-				System.out.println("Got " + obj);
-				SolrInputDocument doc = (SolrInputDocument) obj;
-				assertTrue("id must be set", doc.containsKey("id"));
-				String id = doc.getFieldValue("id").toString();
-				assertTrue("name must be set", doc.containsKey("name"));
-				if ("testdoc1_e1".equals(id)) {
-					assertEquals("document", doc.getFieldValue("name"));
-					// TODO after we use actual XML file//assertEquals("We shouln't index (or store) source of root elements", null, doc.getFieldValue("source"));
-					// assumption made about SchemaFieldName impl
-					assertTrue("Should contain the attribute name prefixed with a_ as field",
-							doc.containsKey("a_cms:status"));
-					assertEquals("In_Work", doc.getFieldValue("a_cms:status").toString());
-					assertEquals("en", doc.getFieldValue("a_xml:lang").toString());
-					// additional names
-					assertEquals("document", doc.getFieldValue("rname"));
-					assertEquals("parent name should be null for root", null, doc.getFieldValue("pname"));
-					assertEquals("ancestor names should exclude self", null, doc.getFieldValues("aname")); // todo empty list in response?
-					assertEquals(null, doc.getFieldValues("aname"));
-					// additional attributes
-					assertEquals("In_Work", doc.getFieldValue("ra_cms:status").toString());
-					assertEquals("In_Work", doc.getFieldValue("ia_cms:status").toString());
-					assertEquals("en", doc.getFieldValue("ra_xml:lang").toString());
-					assertEquals("en", doc.getFieldValue("ia_xml:lang").toString());
-					assertNull(doc.getFieldValue("cms:component"));
-					assertEquals(1, doc.getFieldValue("depth"));
-					assertEquals(1, doc.getFieldValue("position"));
-					assertEquals(null, doc.getFieldValue("sname"));
-				} else if ("testdoc1_e2".equals(id)) {
-					assertEquals("section", doc.getFieldValue("name"));
-					assertEquals("document", doc.getFieldValue("rname"));
-					assertEquals("document", doc.getFieldValue("pname"));
-					assertEquals(1, doc.getFieldValues("aname").size());
-					assertEquals("document", doc.getFieldValues("aname").iterator().next());
-					assertTrue(doc.getFieldValue("source").toString().startsWith("<section"));
-					assertEquals("xyz", doc.getFieldValue("a_cms:component").toString());
-					assertEquals("Released", doc.getFieldValue("a_cms:status").toString());
-					assertEquals("Released", doc.getFieldValue("ia_cms:status").toString());
-					assertEquals("In_Work", doc.getFieldValue("ra_cms:status").toString());
-					assertEquals("en", doc.getFieldValue("ia_xml:lang").toString());
-					assertEquals("en", doc.getFieldValue("ra_xml:lang").toString());
-					assertEquals(null, doc.getFieldValue("a_xml:lang"));
-					assertEquals("xyz", doc.getFieldValue("ia_cms:component"));
-					assertEquals(null, doc.getFieldValue("ra_cms:component"));
-					assertEquals(2, doc.getFieldValue("depth"));
-					assertEquals(1, doc.getFieldValue("position"));
-					assertEquals(null, doc.getFieldValue("sname"));
-				} else if ("testdoc1_e3".equals(id)) {
-					assertEquals("figure", doc.getFieldValue("name"));
-					assertTrue(doc.getFieldValue("source").toString().startsWith("<figure"));
-					assertEquals("xz0", doc.getFieldValue("a_cms:component"));
-					assertEquals(null, doc.getFieldValue("a_cms:status"));
-					assertEquals("In_Work", doc.getFieldValue("ia_cms:status"));
-					assertEquals("In_Work", doc.getFieldValue("ra_cms:status"));
-					assertEquals("en", doc.getFieldValue("ia_xml:lang"));
-					assertEquals("en", doc.getFieldValue("ra_xml:lang"));
-					assertEquals(null, doc.getFieldValue("a_xml:lang"));
-					assertEquals("xz0", doc.getFieldValue("ia_cms:component"));
-					assertEquals(null, doc.getFieldValue("ra_cms:component"));
-					assertEquals(2, doc.getFieldValue("depth"));
-					assertEquals(2, doc.getFieldValue("position"));
-					assertEquals("section", doc.getFieldValue("sname"));
-					assertEquals("xyz", doc.getFieldValue("sa_cms:component"));
-				} else if ("testdoc1_e4".equals(id)) {
-					assertEquals("title", doc.getFieldValue("name"));
-					assertTrue("source must be set, at least for elements like title", doc.containsKey("source"));
-					assertTrue(doc.getFieldValue("source").toString().startsWith("<title"));
-					assertEquals("figure", doc.getFieldValue("pname"));
-					assertEquals("document", doc.getFieldValue("rname"));
-					Iterator<Object> a = doc.getFieldValues("aname").iterator();
-					assertEquals("ancestor names should be ordered from top", "document", a.next());
-					assertEquals("all ancestors should be there", "figure", a.next());
-					assertFalse("ancestors should not include self", a.hasNext());
-					assertEquals(1, doc.getFieldValue("position"));
-					assertEquals(3, doc.getFieldValue("depth"));
-					assertEquals(null, doc.getFieldValues("sname"));
-					assertEquals("xz0", doc.getFieldValue("ia_cms:component"));
-					assertEquals(null, doc.getFieldValue("sa_cms:component"));
-				} else {
-					fail("Unexpected id " + id);
-				}
-				return true; // we should have failed assertions on unexpected docs
-			}
-		});
+		// first element
+		SolrInputDocument doc = added.get(0);
+		assertEquals("testdoc1_e1", doc.getFieldValue("id"));
+		assertEquals("document", doc.getFieldValue("name"));
+		// TODO after we use actual XML file//assertEquals("We shouln't index (or store) source of root elements", null, doc.getFieldValue("source"));
+		// assumption made about SchemaFieldName impl
+		assertTrue("Should contain the attribute name prefixed with a_ as field",
+				doc.containsKey("a_cms:status"));
+		assertEquals("In_Work", doc.getFieldValue("a_cms:status").toString());
+		assertEquals("en", doc.getFieldValue("a_xml:lang").toString());
+		// additional names
+		assertEquals("document", doc.getFieldValue("rname"));
+		assertEquals("parent name should be null for root", null, doc.getFieldValue("pname"));
+		assertEquals("ancestor names should exclude self", null, doc.getFieldValues("aname")); // todo empty list in response?
+		assertEquals(null, doc.getFieldValues("aname"));
+		// additional attributes
+		assertEquals("In_Work", doc.getFieldValue("ra_cms:status").toString());
+		assertEquals("In_Work", doc.getFieldValue("ia_cms:status").toString());
+		assertEquals("en", doc.getFieldValue("ra_xml:lang").toString());
+		assertEquals("en", doc.getFieldValue("ia_xml:lang").toString());
+		assertNull(doc.getFieldValue("cms:component"));
+		assertEquals(1, doc.getFieldValue("depth"));
+		assertEquals(1, doc.getFieldValue("position"));
+		assertEquals(null, doc.getFieldValue("sname"));
+		
+		// second element
+		doc = added.get(1);
+		assertEquals("testdoc1_e2", doc.getFieldValue("id"));
+		assertEquals("section", doc.getFieldValue("name"));
+		assertEquals("document", doc.getFieldValue("rname"));
+		assertEquals("document", doc.getFieldValue("pname"));
+		assertEquals(1, doc.getFieldValues("aname").size());
+		assertEquals("document", doc.getFieldValues("aname").iterator().next());
+		assertTrue(doc.getFieldValue("source").toString().startsWith("<section"));
+		assertEquals("xyz", doc.getFieldValue("a_cms:component").toString());
+		assertEquals("Released", doc.getFieldValue("a_cms:status").toString());
+		assertEquals("Released", doc.getFieldValue("ia_cms:status").toString());
+		assertEquals("In_Work", doc.getFieldValue("ra_cms:status").toString());
+		assertEquals("en", doc.getFieldValue("ia_xml:lang").toString());
+		assertEquals("en", doc.getFieldValue("ra_xml:lang").toString());
+		assertEquals(null, doc.getFieldValue("a_xml:lang"));
+		assertEquals("xyz", doc.getFieldValue("ia_cms:component"));
+		assertEquals(null, doc.getFieldValue("ra_cms:component"));
+		assertEquals(2, doc.getFieldValue("depth"));
+		assertEquals(1, doc.getFieldValue("position"));
+		assertEquals(null, doc.getFieldValue("sname"));
+		
+		// third element
+		doc = added.get(2);
+		assertEquals("testdoc1_e3", doc.getFieldValue("id"));
+		assertEquals("figure", doc.getFieldValue("name"));
+		assertTrue(doc.getFieldValue("source").toString().startsWith("<figure"));
+		assertEquals("xz0", doc.getFieldValue("a_cms:component"));
+		assertEquals(null, doc.getFieldValue("a_cms:status"));
+		assertEquals("In_Work", doc.getFieldValue("ia_cms:status"));
+		assertEquals("In_Work", doc.getFieldValue("ra_cms:status"));
+		assertEquals("en", doc.getFieldValue("ia_xml:lang"));
+		assertEquals("en", doc.getFieldValue("ra_xml:lang"));
+		assertEquals(null, doc.getFieldValue("a_xml:lang"));
+		assertEquals("xz0", doc.getFieldValue("ia_cms:component"));
+		assertEquals(null, doc.getFieldValue("ra_cms:component"));
+		assertEquals(2, doc.getFieldValue("depth"));
+		assertEquals(2, doc.getFieldValue("position"));
+		assertEquals("section", doc.getFieldValue("sname"));
+		assertEquals("xyz", doc.getFieldValue("sa_cms:component"));
+		
+		// fourth element
+		doc = added.get(3);
+		assertEquals("testdoc1_e4", doc.getFieldValue("id"));
+		assertEquals("title", doc.getFieldValue("name"));
+		assertTrue("source must be set, at least for elements like title", doc.containsKey("source"));
+		assertTrue(doc.getFieldValue("source").toString().startsWith("<title"));
+		assertEquals("figure", doc.getFieldValue("pname"));
+		assertEquals("document", doc.getFieldValue("rname"));
+		Iterator<Object> a = doc.getFieldValues("aname").iterator();
+		assertEquals("ancestor names should be ordered from top", "document", a.next());
+		assertEquals("all ancestors should be there", "figure", a.next());
+		assertFalse("ancestors should not include self", a.hasNext());
+		assertEquals(1, doc.getFieldValue("position"));
+		assertEquals(3, doc.getFieldValue("depth"));
+		assertEquals(null, doc.getFieldValues("sname"));
+		assertEquals("xz0", doc.getFieldValue("ia_cms:component"));
+		assertEquals(null, doc.getFieldValue("sa_cms:component"));
+		
+		assertEquals("all elements in test xml should have been added", 4, added.size());
 	}
 
 	public void testExtractors() {

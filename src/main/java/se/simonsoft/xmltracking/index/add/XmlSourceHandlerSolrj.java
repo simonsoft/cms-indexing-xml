@@ -17,6 +17,7 @@ package se.simonsoft.xmltracking.index.add;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import javax.inject.Named;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +39,8 @@ import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 
 /**
- * Sends each element to Solr directly.
- * 
- * Might be slow compared to indexing that makes batch updates,
- * but on the other hand element source for top level elements is big
- * so batch updates could be impractical.
+ * Extracts source fields internally and using {@link IndexFieldExtraction}s (the former being legacy)
+ * and sends batches to solr using javabin format.
  */
 public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
@@ -57,6 +56,10 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	
 	private transient List<String> sent = null;
 	private transient List<String> failed = null;
+	
+	public static final int UPDATE_BATCH_MAX_SIZE = 100;
+	private List<SolrInputDocument> pending = new ArrayList<SolrInputDocument>(UPDATE_BATCH_MAX_SIZE);
+	private boolean updateBatchReady = false; // trigger send before batch max size is reached
 	
 	@Inject
 	public XmlSourceHandlerSolrj(@Named("reposxml") SolrServer solrServer, IdStrategy idStrategy) {
@@ -97,6 +100,9 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
 	@Override
 	public void endDocument() {
+		logger.debug("Sending remaining {} updates", pending.size());
+		updateBatchReady = true;
+		batchSend();
 		logger.debug("Doing Solr commit");
 		try {
 			solrServer.commit();
@@ -146,6 +152,47 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			e.extract(doc, null);
 		}
 		fieldCleanupBeforeIndexAdd(element, doc);
+		add(doc);
+	}
+
+	protected void add(IndexFieldsSolrj doc) {
+		pending.add(doc);
+		batchCheck();
+	}
+
+	protected void batchCheck() {
+		if (updateBatchReady || pending.size() == UPDATE_BATCH_MAX_SIZE) {
+			try {
+				batchSend();
+			} finally {
+				pending.clear();
+				updateBatchReady = false;
+			}
+		}
+	}
+	
+	protected void batchSend() {
+		if (pending.size() == 0) {
+			logger.warn("Send to solr attempted with empty document list");
+			return;
+		}
+		logger.trace("Sending {} elements to Solr starting with id {}", pending.size(), pending.get(0).getFieldValue("id"));
+		try {
+			solrServer.add(pending);
+		} catch (SolrServerException e) {
+			for (SolrInputDocument d : pending) failed.add((String) d.getFieldValue("id")); // legacy logging
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error not handled", e);
+		} catch (IOException e) {
+			for (SolrInputDocument d : pending) failed.add((String) d.getFieldValue("id")); // legacy logging
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error not handled", e);
+		}
+		for (SolrInputDocument d : pending) sent.add((String) d.getFieldValue("id")); // legacy logging
+	}
+	
+	@Deprecated // produces too much logging, is too slow
+	protected void send(String id, IndexFieldsSolrj doc) {		
 		logger.trace("Sending elem to Solr, id {}, fields {}", id, doc.getFieldNames());
 		try {
 			solrServer.add(doc);
