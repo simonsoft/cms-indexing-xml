@@ -99,7 +99,10 @@ public class XmlSourceHandlerSolrjTest {
 
 		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
 		verify(solrServer).add(addcapture.capture());
+		verifyNoMoreInteractions(solrServer);
+		
 		List<SolrInputDocument> added = addcapture.getValue();
+		assertEquals("Should have added all elements", 4, added.size());
 		
 		// first element
 		SolrInputDocument doc = added.get(0);
@@ -184,13 +187,6 @@ public class XmlSourceHandlerSolrjTest {
 		assertEquals(null, doc.getFieldValues("sname"));
 		assertEquals("xz0", doc.getFieldValue("ia_cms:component"));
 		assertEquals(null, doc.getFieldValue("sa_cms:component"));
-		
-		assertEquals("all elements in test xml should have been added", 4, added.size());
-	}
-
-	public void testExtractors() {
-		IndexFieldExtraction x1 = mock(IndexFieldExtraction.class);
-		
 	}
 	
 }

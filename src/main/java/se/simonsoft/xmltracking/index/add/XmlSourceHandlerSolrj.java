@@ -71,7 +71,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	
 	/**
 	 * As element size varies a lot due to source and text indexing we can
-	 * try to keep reasonably small batches by also checking total text length,
+	 * try to keep reasonably small batches by also checking total text+source length,
 	 * triggering batchReady if above a certain limit instead of waiting for the number of elements.
 	 */
 	private static final long BATCH_TEXT_TOTAL_MAX = 1000000;
@@ -116,7 +116,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
 	@Override
 	public void endDocument() {
-		logger.debug("Sending remaining {} updates", pending.size());
+		logger.debug("Sending remaining {} updates before commit", pending.size());
 		batchReady = true;
 		batchCheck();
 		logger.debug("Doing Solr commit");
@@ -192,7 +192,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			logger.warn("Send to solr attempted with empty document list");
 			return;
 		}
-		logger.trace("Sending {} elements to Solr starting with id {}", pending.size(), pending.get(0).getFieldValue("id"));
+		logger.info("Sending {} elements to Solr starting with id {}", pending.size(), pending.get(0).getFieldValue("id"));
 		try {
 			solrServer.add(pending);
 		} catch (SolrServerException e) {
@@ -250,6 +250,9 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		// heavy save, until we have element level reuse we only need source of elements with rlogicalid
 		if (!doc.containsKey("a_cms:rlogicalid")) {
 			doc.removeField("source");
+		} else {
+			int sourcelen = ((String) doc.getFieldValue("source")).length();
+			batchTextTotal += sourcelen;
 		}
 		// Ideally we'd only index text for elements that should contain character data but we have no dtd awareness so we'll guess a max text length for such elements
 		// Search for text should ideally hit the element where it is contained, not the parents.
@@ -259,13 +262,15 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			if (textlen > TEXT_FIELD_KEEP_LENGTH) {
 				logger.trace("Removing text field size {} from {}", textlen, doc.getFieldValue("id"));
 				doc.removeField("text");
+			} else {
+				batchTextTotal += textlen;
 			}
-			batchTextTotal += textlen;
-			if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
-				logger.info("Sending batch because total text size {} indicates large update", batchTextTotal);
-				batchReady = true; // send batch
-				batchTextTotal = 0;
-			}
+		}
+		// we have a rough measurement of total field size here and can trigger batch send to reduce risk of hitting memory limitations in webapp
+		if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
+			logger.info("Sending batch because total source+text size {} indicates large update", batchTextTotal);
+			batchReady = true; // send batch
+			batchTextTotal = 0;
 		}
 	}
 
