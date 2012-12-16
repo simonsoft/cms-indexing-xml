@@ -158,7 +158,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
 		}
 		doc.addField("depth", element.getDepth());
-		doc.addField("position", element.getPosition());
+		doc.addField("position", element.getLocation().getOrdinal());
 		addAncestorData(element, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
@@ -337,7 +337,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			}
 			addAncestorData(parent, doc, pos);
 		}
-		pos.append('.').append(element.getPosition());
+		pos.append('.').append(element.getLocation().getOrdinal());
 		if (isSelf) {
 			doc.addField("pos", pos.substring(1));
 		} else {
