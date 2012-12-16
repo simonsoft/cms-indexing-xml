@@ -58,7 +58,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	private transient List<String> failed = null;
 	
 	public static final int BATCH_TEXT_MAX_SIZE = 1000;
-	private List<SolrInputDocument> pending = new ArrayList<SolrInputDocument>(BATCH_TEXT_MAX_SIZE);
+	private List<SolrInputDocument> pending = null;
 	private boolean batchReady = false; // trigger send before batch max size is reached
 	
 	/**
@@ -112,13 +112,18 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		sent = new LinkedList<String>();
 		failed = new LinkedList<String>();
 		idStrategy.start();
+		newBatch();
+	}
+
+	private void newBatch() {
+		pending = new ArrayList<SolrInputDocument>(BATCH_TEXT_MAX_SIZE);
+		batchReady = false;
 	}
 
 	@Override
 	public void endDocument() {
 		logger.debug("Sending remaining {} updates before commit", pending.size());
-		batchReady = true;
-		batchCheck();
+		batchCheck(true);
 		logger.debug("Doing Solr commit");
 		try {
 			solrServer.commit();
@@ -173,16 +178,16 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
 	protected void add(IndexFieldsSolrj doc) {
 		pending.add(doc);
-		batchCheck();
+		batchCheck(false);
 	}
 
-	protected void batchCheck() {
-		if (batchReady || pending.size() == BATCH_TEXT_MAX_SIZE) {
+	protected void batchCheck(boolean forceSend) {
+		if (forceSend || batchReady || pending.size() == BATCH_TEXT_MAX_SIZE) {
 			try {
 				batchSend();
 			} finally {
-				pending.clear();
-				batchReady = false;
+				// we don't know how the list is handled while sending so clearing it would be unwise
+				newBatch();
 			}
 		}
 	}

@@ -78,7 +78,7 @@ public class XmlSourceHandlerSolrjTest {
 		extractors.add(extractor1);
 		extractors.add(extractor2);		
 		
-		SolrServer solrServer = mock(SolrServer.class);
+		SolrServer solrServer = mock(SolrServer.class, withSettings().verboseLogging());
 		
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
 			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
