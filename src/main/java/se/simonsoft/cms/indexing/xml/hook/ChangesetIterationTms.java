@@ -126,7 +126,12 @@ public class ChangesetIterationTms implements ChangesetIteration {
 	
 	protected void onDelete(CmsChangesetItem c) {
 		logger.debug("Deleting item {}", c);
-		CmsItemId id = new ChangesetItemToContentsReaderId(c.getPath());
+		CmsItemId id = new ChangesetItemToContentsReaderId(c.getPath()) {
+			@Override
+			public CmsRepository getRepository() {
+				return indexingContext.getRepository();
+			}
+		};
 		indexDeletePath(id);
 	}
 	
@@ -244,6 +249,11 @@ public class ChangesetIterationTms implements ChangesetIteration {
 		@Override
 		public CmsItemId withRelPath(CmsItemPath arg0) {
 			throw new UnsupportedOperationException("Method not implemented");
+		}
+
+		@Override
+		public String toString() {
+			return path.toString();
 		}
 		
 	}
