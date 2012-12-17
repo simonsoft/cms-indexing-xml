@@ -128,6 +128,7 @@ public class XmlSourceHandlerSolrjTest {
 		assertEquals(1, doc.getFieldValue("depth"));
 		assertEquals(1, doc.getFieldValue("position"));
 		assertEquals(null, doc.getFieldValue("sname"));
+		assertEquals("should not add source for root", null, doc.getFieldValue("source"));
 		
 		// second element
 		doc = added.get(1);

@@ -237,15 +237,15 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 */	
 	protected void fieldCleanupBeforeIndexAdd(XmlSourceElement element,
 			IndexFieldsSolrj doc) {
-// can be done after we implement use of an original XML stream for supporting translation-of-translation		
-//		if (element.isRoot()) {
-//			doc.removeField("source");
-//		}
-			
-			// remove fields that we are likely to exclude in the future
-			// TODO read ignored fields from schema and skip sending those
-			doc.removeField("prop_abx:Dependencies");
-			fieldCleanupTemporary(doc);
+		// getting the source for the entire file is easy, no need to store
+		if (element.isRoot()) {
+			doc.removeField("source");
+		}
+		
+		// remove fields that we are likely to exclude in the future
+		// TODO read ignored fields from schema and skip sending those
+		doc.removeField("prop_abx:Dependencies");
+		fieldCleanupTemporary(doc);
 	}
 
 	/**
@@ -253,12 +253,15 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 */
 	protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {
 		// heavy save, until we have element level reuse we only need source of elements with rlogicalid
-		if (!doc.containsKey("a_cms:rlogicalid")) {
-			doc.removeField("source");
-		} else {
-			int sourcelen = ((String) doc.getFieldValue("source")).length();
-			batchTextTotal += sourcelen;
+		if (doc.containsKey("source")) {
+			if (!doc.containsKey("a_cms:rlogicalid")) {
+				doc.removeField("source");
+			} else {
+				int sourcelen = ((String) doc.getFieldValue("source")).length();
+				batchTextTotal += sourcelen;
+			}
 		}
+		
 		// Ideally we'd only index text for elements that should contain character data but we have no dtd awareness so we'll guess a max text length for such elements
 		// Search for text should ideally hit the element where it is contained, not the parents.
 		// We'll remove these fields before first release so that no one starts using them.
