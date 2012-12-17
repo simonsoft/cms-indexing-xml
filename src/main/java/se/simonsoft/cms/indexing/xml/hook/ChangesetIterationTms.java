@@ -108,8 +108,12 @@ public class ChangesetIterationTms implements ChangesetIteration {
 				// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 				if (extensionsToTry.contains(c.getPath().getExtension())) {
 					logger.debug("Changeset content update item {} found", c);
-					onUpdate(c, itemAndContentsReader);
-					indexed.add(c.getPath().toString());
+					if (c.isDelete()) {
+						onDelete(c);
+					} else {
+						onUpdate(c, itemAndContentsReader);
+						indexed.add(c.getPath().toString());
+					}
 				} else {
 					logger.debug("Ignoring content update item {}, not an XML candidate file type", c);
 				}
@@ -118,6 +122,12 @@ public class ChangesetIterationTms implements ChangesetIteration {
 			}
 		}
 		logger.info("Indexing, reposxml, attempted for {} files {}", indexed.size(), indexed);
+	}
+	
+	protected void onDelete(CmsChangesetItem c) {
+		logger.debug("Deleting item {}", c);
+		CmsItemId id = new ChangesetItemToContentsReaderId(c.getPath());
+		indexDeletePath(id);
 	}
 	
 	/**
@@ -153,9 +163,13 @@ public class ChangesetIterationTms implements ChangesetIteration {
 	}
 	
 	protected void indexDeletePath(CmsItemAndContents item) {
+		indexDeletePath(item.getId());
+	}
+	
+	protected void indexDeletePath(CmsItemId itemId) {
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
-		String query = "pathfull:\"" + item.getId().getRepository().getPath() + item.getId().getRelPath().toString() + '"';
-		logger.debug("Deleting previous revision of {} using query {}", item.getId(), query);
+		String query = "pathfull:\"" + itemId.getRepository().getPath() + itemId.getRelPath().toString() + '"';
+		logger.debug("Deleting previous revision of {} using query {}", itemId, query);
 		try {
 			solrServer.deleteByQuery(query);
 		} catch (SolrServerException e) {
