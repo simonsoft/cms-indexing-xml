@@ -237,10 +237,6 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 */	
 	protected void fieldCleanupBeforeIndexAdd(XmlSourceElement element,
 			IndexFieldsSolrj doc) {
-		// getting the source for the entire file is easy, no need to store
-		if (element.isRoot()) {
-			doc.removeField("source");
-		}
 		
 		// remove fields that we are likely to exclude in the future
 		// TODO read ignored fields from schema and skip sending those
