@@ -122,9 +122,23 @@ public class ChangesetIterationTms implements ChangesetIteration {
 			}
 		}
 		logger.info("Indexing, reposxml, attempted for {} files {}", indexed.size(), indexed);
+		logger.debug("Doing Solr commit at revision {}", changeset.getRevision());
+		commit();
 		if (changeset.getRevision().getNumber() % 1000 == 0) {
 			logger.info("Optimizing index at revision {}", changeset.getRevision());
 			optimize();
+		}
+	}
+	
+	private void commit() {
+		try {
+			solrServer.commit();
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error not handled", e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error not handled", e);
 		}
 	}
 

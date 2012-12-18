@@ -41,6 +41,8 @@ import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 /**
  * Extracts source fields internally and using {@link IndexFieldExtraction}s (the former being legacy)
  * and sends batches to solr using javabin format.
+ * 
+ * Does not do solr commit as that is up to the caller, which also does deletion of entries for missing files etc.
  */
 public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
@@ -127,16 +129,6 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	public void endDocument() {
 		logger.debug("Sending remaining {} updates at end of document", pending.size());
 		batchCheck(true);
-		logger.debug("Doing Solr commit");
-		try {
-			solrServer.commit();
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
-		}
 		if (sent.size() == 0) {
 			logger.warn("No elements were indexed");
 		} else {

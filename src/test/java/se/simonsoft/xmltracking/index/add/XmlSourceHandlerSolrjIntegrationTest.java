@@ -104,6 +104,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		handler.begin(e4);
 		handler.begin(e5);
 		handler.endDocument();
+		server.commit();
 		
 		// We could probably do these assertions by mocking solr server, but it wouldn't be easier
 		QueryResponse all = server.query(new SolrQuery("*:*").addSortField("id", ORDER.asc));

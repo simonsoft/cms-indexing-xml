@@ -95,7 +95,7 @@ public class XmlSourceHandlerSolrjTest {
 		handler.begin(e4);
 		
 		handler.endDocument();
-		verify(solrServer, times(1)).commit();
+		// commit not expected to be done by handler anymore //verify(solrServer, times(1)).commit();
 
 		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
 		verify(solrServer).add(addcapture.capture());
