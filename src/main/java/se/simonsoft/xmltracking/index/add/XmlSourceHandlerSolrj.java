@@ -122,7 +122,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
 	@Override
 	public void endDocument() {
-		logger.debug("Sending remaining {} updates before commit", pending.size());
+		logger.debug("Sending remaining {} updates at end of document", pending.size());
 		batchCheck(true);
 		logger.debug("Doing Solr commit");
 		try {

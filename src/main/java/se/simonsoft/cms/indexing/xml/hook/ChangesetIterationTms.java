@@ -122,6 +122,22 @@ public class ChangesetIterationTms implements ChangesetIteration {
 			}
 		}
 		logger.info("Indexing, reposxml, attempted for {} files {}", indexed.size(), indexed);
+		if (changeset.getRevision().getNumber() % 1000 == 0) {
+			logger.info("Optimizing index at revision {}", changeset.getRevision());
+			optimize();
+		}
+	}
+
+	private void optimize() {
+		try {
+			solrServer.optimize();
+		} catch (SolrServerException e) {
+			logger.error("Index optimize failed: {}", e.getMessage(), e);
+			// we can live without optimized index, could fail because optimize needs lots of free disk
+		} catch (IOException e) {
+			logger.error("Solr connection issues at optimize: ", e.getMessage(), e);
+			throw new RuntimeException("Optimize failed", e);
+		}
 	}
 	
 	protected void onDelete(CmsChangesetItem c) {
