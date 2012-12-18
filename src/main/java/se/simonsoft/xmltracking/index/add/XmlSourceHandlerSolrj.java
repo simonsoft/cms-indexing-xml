@@ -113,6 +113,9 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		failed = new LinkedList<String>();
 		idStrategy.start();
 		newBatch();
+		if (extraction == null) {
+			logger.warn("Index extractors list not set. Is indexing properly configured?");
+		}
 	}
 
 	private void newBatch() {
@@ -169,8 +172,10 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 			}
 		}
 		// could be merged with OfflineElementAnalysis
-		for (IndexFieldExtraction e : extraction) {
-			e.extract(doc, null);
+		if (extraction != null) {
+			for (IndexFieldExtraction e : extraction) {
+				e.extract(doc, null);
+			}
 		}
 		fieldCleanupBeforeIndexAdd(element, doc);
 		add(doc);
