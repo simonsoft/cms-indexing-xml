@@ -76,7 +76,7 @@ public class IndexFieldExtractionItemInfo implements
 			parent = parent.getParent();
 		}
 		fields.addField("pathext", path.getExtension());
-		fields.addField("pathfull", repo.getParentPath() + "/" + repo.getName() + path.getPath());
+		fields.addField("pathfull", repo.getPath() + path.getPath());
 		fields.addField("rev", rev.getNumber());
 		fields.addField("revt", getDateValue(rev.getDate()));
 		fields.addField("repo", repo.getName());
