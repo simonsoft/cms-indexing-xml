@@ -192,4 +192,67 @@ public class XmlSourceHandlerSolrjTest {
 		assertEquals(null, doc.getFieldValue("sa_cms:component"));
 	}
 	
+	@Test
+	public void testNoreuseOnDisqualifiedChild() throws SolrServerException, IOException {
+		
+		XmlSourceElement e1 = new XmlSourceElement("document",
+				Arrays.asList(new XmlSourceAttribute("cms:rlogicalid", "xy1"),
+						new XmlSourceAttribute("cms:rid", "r01")), 
+				"<document cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
+				"</document>")
+				.setDepth(1, null).setPosition(1, null);
+		
+		XmlSourceElement e2 = new XmlSourceElement("section",
+				Arrays.asList(new XmlSourceAttribute("cms:rlogicalid", "xy2")),
+				"<section cms:rlogicalid=\"xy2\">section</section>")
+				.setDepth(2, e1).setPosition(1, null);
+
+		XmlSourceElement e3 = new XmlSourceElement("figure",
+				Arrays.asList(new XmlSourceAttribute("cms:component", "xz0"),
+						new XmlSourceAttribute("cms:rid", "r03")),
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>")
+				.setDepth(2, e1).setPosition(2, e2);
+		
+		XmlSourceElement e4 = new XmlSourceElement("title",
+				new LinkedList<XmlSourceAttribute>(),
+				"<title>Title</title>")
+				.setDepth(3, e3).setPosition(1, null);
+		
+		IdStrategy idStrategy = mock(IdStrategy.class);
+		when(idStrategy.getElementId(e1)).thenReturn("testdoc1_e1");
+		when(idStrategy.getElementId(e2)).thenReturn("testdoc1_e2");
+		when(idStrategy.getElementId(e3)).thenReturn("testdoc1_e3");
+		when(idStrategy.getElementId(e4)).thenReturn("testdoc1_e4");
+	
+		SolrServer solrServer = mock(SolrServer.class);	
+		
+		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
+			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
+		};
+		
+		handler.startDocument();
+		handler.begin(e1);
+		handler.begin(e2);
+		handler.begin(e3);
+		handler.begin(e4);
+		handler.endDocument();
+
+		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
+		verify(solrServer).add(addcapture.capture());
+		
+		List<SolrInputDocument> added = addcapture.getValue();
+		assertEquals("Should have added all elements", 4, added.size());
+		
+		SolrInputDocument a1 = added.get(0);
+		assertEquals("xy1", a1.getFieldValue("a_cms:rlogicalid"));
+		assertEquals("should flag that a part of the element has ben banned from reuse so that we can keep the architectural promise of assuming all reuse search matches are valid",
+				"true", a1.getFieldValue("noreuse"));
+		SolrInputDocument a3 = added.get(2);
+		assertNull("the sibling to a banned element should still be ok",
+				a3.getFieldValue("noreuse"));
+		
+	}
+	
 }
