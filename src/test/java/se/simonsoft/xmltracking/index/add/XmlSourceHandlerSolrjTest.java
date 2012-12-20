@@ -248,10 +248,10 @@ public class XmlSourceHandlerSolrjTest {
 		SolrInputDocument a1 = added.get(0);
 		assertEquals("xy1", a1.getFieldValue("a_cms:rlogicalid"));
 		assertEquals("should flag that a part of the element has ben banned from reuse so that we can keep the architectural promise of assuming all reuse search matches are valid",
-				"true", a1.getFieldValue("noreuse"));
+				new Integer(-1), (Integer) a1.getFieldValue("reusevalue"));
 		SolrInputDocument a3 = added.get(2);
-		assertNull("the sibling to a banned element should still be ok",
-				a3.getFieldValue("noreuse"));
+		assertEquals("the sibling to a banned element should still be ok",
+				new Integer(1), (Integer) a3.getFieldValue("reusevalue"));
 		
 	}
 	
