@@ -26,6 +26,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Test;
 
+import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 
@@ -58,7 +59,7 @@ public class XmlSourceReaderXslTest {
 		List<XmlSourceElement> elements = new LinkedList<XmlSourceElement>();
 		
 		@Override
-		public void startDocument() {
+		public void startDocument(XmlSourceDoctype doctype) {
 			assertFalse(started);
 			started = true;
 		}

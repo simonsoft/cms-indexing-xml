@@ -54,6 +54,7 @@ public class XmlSourceReaderTest {
 		reader.read(test1, handler);
 		assertTrue(handler.started);
 		assertTrue(handler.ended);
+		assertNull("file does not have doctype", handler.doctype);
 		
 		XmlSourceElement root = verifyCommon(handler.elements.get(0));
 		assertEquals("document", root.getName());
@@ -108,7 +109,11 @@ public class XmlSourceReaderTest {
 		XmlSourceElement d = verifyCommon(handler.elements.get(0));
 		assertEquals("document", d.getName());
 		assertEquals(3, d.getAttributes().size());
-		System.out.println(d.getAttributes());
+		
+		assertNotNull("Should read doctype when there is one", handler.doctype);
+		assertEquals("Should read doctype", "document", handler.doctype.getElementName());
+		assertEquals("-//Simonsoft//DTD xxx//EN", handler.doctype.getPublicID());
+		assertEquals("techdoc.dtd", handler.doctype.getSystemID());
 		
 		assertEquals("Should produce attributes in order",
 				"notnamespaced", d.getAttributes().get(0).getName());
@@ -169,13 +174,15 @@ public class XmlSourceReaderTest {
 	class TestHandler implements XmlSourceHandler {
 
 		boolean started = false;
+		XmlSourceDoctype doctype = null;
 		boolean ended = false;
 		List<XmlSourceElement> elements = new LinkedList<XmlSourceElement>();
 		
 		@Override
-		public void startDocument() {
+		public void startDocument(XmlSourceDoctype doctype) {
 			assertFalse(started);
 			started = true;
+			this.doctype = doctype;
 		}
 
 		@Override

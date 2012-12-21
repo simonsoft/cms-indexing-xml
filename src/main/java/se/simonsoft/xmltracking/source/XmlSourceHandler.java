@@ -21,7 +21,10 @@ package se.simonsoft.xmltracking.source;
  */
 public interface XmlSourceHandler {
 
-	void startDocument();
+	/**
+	 * @param doctype the documents doctype declaration or null if there is none, could be a minimal doctype like HTML5
+	 */
+	void startDocument(XmlSourceDoctype doctype);
 	
 	void endDocument();
 	

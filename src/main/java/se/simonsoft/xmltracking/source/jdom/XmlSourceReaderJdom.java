@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jdom2.Attribute;
+import org.jdom2.DocType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -30,6 +31,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
+import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceNamespace;
@@ -52,8 +54,13 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 
 		try {
 			Document doc = builder.build(xml);
+			XmlSourceDoctype doctype = null;
+			DocType t = doc.getDocType();
+			if (t != null) {
+				doctype = new XmlSourceDoctype(t.getElementName(), t.getPublicID(), t.getSystemID());
+			}
 			Element root = doc.getRootElement();
-			handler.startDocument();
+			handler.startDocument(doctype);
 			register(root, handler, outputter, null, 1, null, 1);
 			handler.endDocument();
 		}

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
+import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceNamespace;
@@ -55,6 +56,8 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	private IdStrategy idStrategy;
 	private SolrServer solrServer;
 	private Set<IndexFieldExtraction> extraction;
+
+	private XmlSourceDoctype doctype;
 	
 	private transient List<String> sent = null;
 	private transient List<String> failed = null;
@@ -110,7 +113,8 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	}
 	
 	@Override
-	public void startDocument() {
+	public void startDocument(XmlSourceDoctype doctype) {
+		this.doctype = doctype;
 		sent = new LinkedList<String>();
 		failed = new LinkedList<String>();
 		idStrategy.start();
@@ -139,10 +143,23 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		}		
 	}
 	
+	/**
+	 * @return new doc with fields that are the same for all elements for the current document
+	 */
+	private IndexFieldsSolrj getInitialDoc() {
+		IndexFieldsSolrj doc = new IndexFieldsSolrj();
+		if (doctype != null) {
+			doc.setField("typename", doctype.getElementName());
+			doc.setField("typepublic", doctype.getPublicID());
+			doc.setField("typesystem", doctype.getSystemID());
+		}
+		return doc;
+	}
+	
 	@Override
 	public void begin(XmlSourceElement element) {
 		String id = idStrategy.getElementId(element);
-		IndexFieldsSolrj doc = new IndexFieldsSolrj();
+		IndexFieldsSolrj doc = getInitialDoc();
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
 		doc.addField("source", getSource(element));
@@ -238,6 +255,11 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		// remove fields that we are likely to exclude in the future
 		// TODO read ignored fields from schema and skip sending those
 		doc.removeField("prop_abx:Dependencies");
+		// we index doctype so the properties for that are not needed
+		doc.removeField("prop_abx:DoctypeName");
+		doc.removeField("prop_abx:PublicId");
+		doc.removeField("prop_abx:SystemId");
+		// cleanup based on what we know about use cases for now
 		fieldCleanupTemporary(doc);
 	}
 

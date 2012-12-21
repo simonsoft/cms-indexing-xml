@@ -97,7 +97,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		Set<IndexFieldExtraction> extraction = new HashSet<IndexFieldExtraction>();
 		handler.setFieldExtraction(extraction);
 		
-		handler.startDocument();
+		handler.startDocument(null);
 		verify(idStrategy).start();
 		handler.begin(e1);
 		handler.begin(e2);

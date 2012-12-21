@@ -33,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 
 import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
+import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 public class XmlSourceHandlerSolrjTest {
@@ -85,7 +86,7 @@ public class XmlSourceHandlerSolrjTest {
 		};
 		handler.setFieldExtraction(extractors);
 		
-		handler.startDocument();
+		handler.startDocument(new XmlSourceDoctype("document", "pubID", "sysID"));
 		verify(idStrategy).start();
 		handler.begin(e1);
 		verify(extractor1).extract(any(IndexFields.class), (XmlSourceElement) isNull()); // still not sure we want to pass the xml indexing specific data
@@ -108,6 +109,9 @@ public class XmlSourceHandlerSolrjTest {
 		SolrInputDocument doc = added.get(0);
 		assertEquals("testdoc1_e1", doc.getFieldValue("id"));
 		assertEquals("document", doc.getFieldValue("name"));
+		assertEquals("should index doctype name", "document", doc.getFieldValue("typename"));
+		assertEquals("pubID", doc.getFieldValue("typepublic"));
+		assertEquals("sysID", doc.getFieldValue("typesystem"));
 		// TODO after we use actual XML file//assertEquals("We shouln't index (or store) source of root elements", null, doc.getFieldValue("source"));
 		// assumption made about SchemaFieldName impl
 		assertTrue("Should contain the attribute name prefixed with a_ as field",
@@ -135,7 +139,10 @@ public class XmlSourceHandlerSolrjTest {
 		// second element
 		doc = added.get(1);
 		assertEquals("testdoc1_e2", doc.getFieldValue("id"));
-		assertEquals("section", doc.getFieldValue("name"));
+		assertEquals("should index doctype for all elements", "document", doc.getFieldValue("typename"));
+		assertEquals("pubID", doc.getFieldValue("typepublic"));
+		assertEquals("sysID", doc.getFieldValue("typesystem"));
+		assertEquals("section", doc.getFieldValue("name"));		
 		assertEquals("document", doc.getFieldValue("rname"));
 		assertEquals("document", doc.getFieldValue("pname"));
 		assertEquals(1, doc.getFieldValues("aname").size());
@@ -232,7 +239,7 @@ public class XmlSourceHandlerSolrjTest {
 			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
 		};
 		
-		handler.startDocument();
+		handler.startDocument(null);
 		handler.begin(e1);
 		handler.begin(e2);
 		handler.begin(e3);

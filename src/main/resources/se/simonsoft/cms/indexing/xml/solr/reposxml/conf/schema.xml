@@ -60,6 +60,13 @@
 			multiValued="false" />
 
 		<!--
+		Doctype
+		-->
+		<field name="typename"   type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="typepublic" type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="typesystem" type="string" indexed="true" stored="true" multiValued="false"/>
+
+		<!--
 		XML element name including namespace
 		-->
 		<field name="name" type="string"
