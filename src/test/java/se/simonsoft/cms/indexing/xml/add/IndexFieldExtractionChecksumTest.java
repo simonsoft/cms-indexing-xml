@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.index.add;
+package se.simonsoft.cms.indexing.xml.add;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
 import se.simonsoft.cms.indexing.IndexFields;
+import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.IndexFieldExtractionChecksum;
+import se.simonsoft.xmltracking.index.add.IndexFieldsSolrj;
 
 public class IndexFieldExtractionChecksumTest {
 

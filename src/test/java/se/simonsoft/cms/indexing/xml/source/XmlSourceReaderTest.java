@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source;
+package se.simonsoft.cms.indexing.xml.source;
 
 import static org.junit.Assert.*;
 
@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
+import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;

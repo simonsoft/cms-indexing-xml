@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source;
+package se.simonsoft.cms.indexing.xml.source;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 
 public class XmlSourceNamespaceTest {
 

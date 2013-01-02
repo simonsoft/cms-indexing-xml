@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source.saxon;
+package se.simonsoft.cms.indexing.xml.source.saxon;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
+import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
 
 public class IndexFieldExtractionCustomXslTest {
 

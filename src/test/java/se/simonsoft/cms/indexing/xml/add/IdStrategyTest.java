@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.index.add;
+package se.simonsoft.cms.indexing.xml.add;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -33,6 +33,7 @@ import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
+import se.simonsoft.xmltracking.index.add.IdStrategy;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 

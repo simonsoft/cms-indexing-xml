@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.index.add;
+package se.simonsoft.cms.indexing.xml.add;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,6 +34,9 @@ import org.apache.solr.common.SolrDocument;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import se.simonsoft.xmltracking.index.add.IdStrategy;
+import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceNamespace;

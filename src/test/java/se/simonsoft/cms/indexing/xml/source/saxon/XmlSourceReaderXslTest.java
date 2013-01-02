@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source.saxon;
+package se.simonsoft.cms.indexing.xml.source.saxon;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +29,7 @@ import org.junit.Test;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
+import se.simonsoft.xmltracking.source.saxon.XmlSourceReaderXsl;
 
 public class XmlSourceReaderXslTest {
 
@@ -39,7 +40,7 @@ public class XmlSourceReaderXslTest {
 				"se/simonsoft/cms/indexing/xml/source/test1.xml");
 		assertNotNull("Should find the test source", test1);
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/indexing/xml/source/xml-indexing-recursive.xsl");
+				"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
 		// (test basic fields to solr doc)
 		//		"se/simonsoft/xmltracking/source/xml-indexing-fields.xsl");		
 		assertNotNull("Should find an xsl file to test with", xsl);
