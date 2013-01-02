@@ -18,6 +18,7 @@
 -->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:cms="http://www.simonsoft.se/namespace/cms"
 	>
 
 	<!-- 
@@ -43,6 +44,10 @@
 			<field name="text"><xsl:value-of select="normalize-space(.)"/></field>
 			
 			<field name="words_text"><xsl:value-of select="count(tokenize(string(.), $whitespace))"/></field>
+			
+			<field name="reusevalue">
+				<xsl:apply-templates select="." mode="find-rid-removal"/>
+			</field>
 			
 		</doc>
 		
@@ -82,6 +87,10 @@
 		Probably ok as long as we use source instead of source-reuse for replacement.
 		-->
 		<xsl:value-of select="." />
+	</xsl:template>
+	
+	<xsl:template match="*" mode="find-rid-removal">
+		<xsl:if test="//*[@cms:rlogicalid and not(@cms:rid)]">-1</xsl:if>
 	</xsl:template>
 	
 </xsl:stylesheet>

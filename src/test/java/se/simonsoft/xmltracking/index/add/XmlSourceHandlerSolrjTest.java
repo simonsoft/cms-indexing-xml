@@ -19,11 +19,15 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,6 +39,8 @@ import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
+import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
+import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
 
 public class XmlSourceHandlerSolrjTest {
 
@@ -199,13 +205,15 @@ public class XmlSourceHandlerSolrjTest {
 		assertEquals(null, doc.getFieldValue("sa_cms:component"));
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testNoreuseOnDisqualifiedChild() throws SolrServerException, IOException {
+		String ns = " xmlns:cms=\"http://www.simonsoft.se/namespace/cms\"";
 		
 		XmlSourceElement e1 = new XmlSourceElement("document",
 				Arrays.asList(new XmlSourceAttribute("cms:rlogicalid", "xy1"),
 						new XmlSourceAttribute("cms:rid", "r01")), 
-				"<document cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<document" + ns + " cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
 				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
 				"</document>")
@@ -213,13 +221,13 @@ public class XmlSourceHandlerSolrjTest {
 		
 		XmlSourceElement e2 = new XmlSourceElement("section",
 				Arrays.asList(new XmlSourceAttribute("cms:rlogicalid", "xy2")),
-				"<section cms:rlogicalid=\"xy2\">section</section>")
+				"<section" + ns + " cms:rlogicalid=\"xy2\">section</section>")
 				.setDepth(2, e1).setPosition(1, null);
 
 		XmlSourceElement e3 = new XmlSourceElement("figure",
 				Arrays.asList(new XmlSourceAttribute("cms:component", "xz0"),
 						new XmlSourceAttribute("cms:rid", "r03")),
-				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>")
+				"<figure" + ns + " cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>")
 				.setDepth(2, e1).setPosition(2, e2);
 		
 		XmlSourceElement e4 = new XmlSourceElement("title",
@@ -239,6 +247,20 @@ public class XmlSourceHandlerSolrjTest {
 			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
 		};
 		
+		// we currently rely on the "custom xsl" extractor for this feature
+		LinkedHashSet<IndexFieldExtraction> extractors = new LinkedHashSet<IndexFieldExtraction>();
+		IndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});		
+		extractors.add(x);
+		handler.setFieldExtraction(extractors);
+		
 		handler.startDocument(null);
 		handler.begin(e1);
 		handler.begin(e2);
@@ -255,10 +277,12 @@ public class XmlSourceHandlerSolrjTest {
 		SolrInputDocument a1 = added.get(0);
 		assertEquals("xy1", a1.getFieldValue("a_cms:rlogicalid"));
 		assertEquals("should flag that a part of the element has ben banned from reuse so that we can keep the architectural promise of assuming all reuse search matches are valid",
-				new Integer(-1), (Integer) a1.getFieldValue("reusevalue"));
+		//		new Integer(-1), (Integer) a1.getFieldValue("reusevalue"));
+				"-1", a1.getFieldValue("reusevalue").toString());
 		SolrInputDocument a3 = added.get(2);
 		assertEquals("the sibling to a banned element should still be ok",
-				new Integer(1), (Integer) a3.getFieldValue("reusevalue"));
+		//		new Integer(1), (Integer) a3.getFieldValue("reusevalue"));
+				"1", a3.getFieldValue("reusevalue").toString());
 		
 	}
 	
