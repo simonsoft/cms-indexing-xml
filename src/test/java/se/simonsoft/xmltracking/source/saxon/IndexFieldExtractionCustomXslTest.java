@@ -76,6 +76,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
 				"</document>");
+		when(root.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
 		x.extract(root, null);
 		// a child is disqualified from reuse so this element has to be too
@@ -84,6 +85,7 @@ public class IndexFieldExtractionCustomXslTest {
 		IndexFields norid = mock(IndexFields.class);
 		when(norid.getFieldValue("source")).thenReturn(
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" >section</section>");
+		when(norid.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
 		x.extract(norid, null);
 		verify(norid).addField("reusevalue", "-1");
@@ -91,9 +93,22 @@ public class IndexFieldExtractionCustomXslTest {
 		IndexFields sibling = mock(IndexFields.class);
 		when(sibling.getFieldValue("source")).thenReturn(
 				"<figure xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>");
+		when(sibling.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
 		x.extract(sibling, null);
-		// we can not judge >0 here //verify(sibling).addField("reusevalue", "-1");
+		verify(sibling).addField("reusevalue", "1");
+		
+		IndexFields doc2 = mock(IndexFields.class);
+		when(doc2.getFieldValue("prop_cms:status")).thenReturn("In_Translation");
+		when(doc2.getFieldValue("source")).thenReturn("<doc/>");
+		x.extract(doc2, null);
+		verify(doc2).addField("reusevalue", "0");
+		
+		IndexFields doc3 = mock(IndexFields.class);
+		when(doc3.getFieldValue("prop_cms:status")).thenReturn(null);
+		when(doc3.getFieldValue("source")).thenReturn("<doc/>");
+		x.extract(doc3, null);
+		verify(doc3).addField("reusevalue", "0");
 	}
 
 }

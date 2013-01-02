@@ -280,9 +280,9 @@ public class XmlSourceHandlerSolrjTest {
 		//		new Integer(-1), (Integer) a1.getFieldValue("reusevalue"));
 				"-1", a1.getFieldValue("reusevalue").toString());
 		SolrInputDocument a3 = added.get(2);
-		assertEquals("the sibling to a banned element should still be ok",
+		assertEquals("the sibling to a banned element should still be ok, but we have no status value here so we must expect 0 instaed of 1",
 		//		new Integer(1), (Integer) a3.getFieldValue("reusevalue"));
-				"1", a3.getFieldValue("reusevalue").toString());
+				"0", a3.getFieldValue("reusevalue").toString());
 		
 	}
 	

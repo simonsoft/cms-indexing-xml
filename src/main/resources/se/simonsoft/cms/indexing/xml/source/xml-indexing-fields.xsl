@@ -25,6 +25,9 @@
 	TODO implement IndexFieldExtensions and run this, then checksumming,
 	and add to indexing chain.
 	-->
+	
+	<!-- document's status -->
+	<xsl:param name="status"/>
 
 	<xsl:template match="*">
 	
@@ -90,7 +93,12 @@
 	</xsl:template>
 	
 	<xsl:template match="*" mode="find-rid-removal">
-		<xsl:if test="//*[@cms:rlogicalid and not(@cms:rid)]">-1</xsl:if>
+		<xsl:choose>
+			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-1</xsl:when>
+			<xsl:when test="$status = 'Released'">1</xsl:when>
+			<xsl:otherwise>0</xsl:otherwise>
+		</xsl:choose>
+		
 	</xsl:template>
 	
 </xsl:stylesheet>

@@ -27,8 +27,10 @@ import org.xml.sax.ContentHandler;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SAXDestination;
 import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
@@ -46,6 +48,13 @@ public class IndexFieldExtractionCustomXsl implements IndexFieldExtraction {
 	
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
+	
+	/**
+	 * How to get document status from already extracted fields.
+	 */
+	public static final String STATUS_FIELD_NAME = "prop_cms:status";
+	
+	private static final QName STATUS_PARAM = new QName("status");
 	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
@@ -97,6 +106,11 @@ public class IndexFieldExtractionCustomXsl implements IndexFieldExtraction {
 		}
 		
 		transformer.setDestination(xmltrackingFieldsHandler);
+		
+		Object status = fields.getFieldValue(STATUS_FIELD_NAME);
+		if (status != null) {
+			transformer.setParameter(STATUS_PARAM, new XdmAtomicValue((String) status));
+		}
 		
 		try {
 			transformer.transform();
