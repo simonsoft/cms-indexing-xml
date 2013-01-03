@@ -210,6 +210,7 @@
        <str name="facet.field">prop_abx:TranslationLocale</str>
        <str name="facet.field">prop_abx:TranslationSource</str>
        <str name="facet.field">prop_abx:TranslationProject</str>
+       <str name="facet.field">reusevalue</str>
        <str name="facet.field">typepublic</str>
        <str name="facet.field">pathin</str>
        <str name="facet.field">name</str>
