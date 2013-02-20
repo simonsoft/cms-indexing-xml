@@ -34,6 +34,35 @@ public class CmsIndexingTest {
 	public void tearDown() {
 		setup.tearDown();
 	}
+
+	@Test
+	public void testAPIWebappPostCommitHook() {
+		// empty repository
+		// run hook twice
+		// changeset should be shared with other post commit handlers, but indexing could also need access to earlier changesets
+	}
+	
+	@Test
+	public void testAPIResyncPreconfigured() {
+		// configure indexing with solr instance/provider for repositem
+		// call with repository
+	}
+	
+	@Test
+	public void testAPIResyncWithPlugins() {
+		// plugins that add or edit fields in repositem
+		//  - core is basic element indexing, browseable data, before returning
+		//  - metadata and fulltext extraction is such a plugin, running after return
+		// plugins that index to different cores by cloning or just listening to repositem docs, including history/rev docs
+	}
+	
+	@Test
+	public void testAPICommandLine() {
+		String repository = "http://testhost/svn/repo1";
+		String solr = "http://testhost/solr"; // indexing must assume the cores exist
+		// additional arguments could
+		// fail("TODO call a main method and expect resync repositem as default operation");
+	}
 	
 	@Test
 	public void testEmptyFileAndRevprop() {
