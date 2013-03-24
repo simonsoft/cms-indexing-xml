@@ -49,6 +49,9 @@
 		<!-- items -->
 		<!-- fields currently in reposxml core -->
 		
+		<!-- classifies item as belonging to 1+ areas of the file hirearchy, such as "trunk"/"branch"/"tag"/"release"/"translation"/"template" -->
+		<field name="patharea" type="string" indexed="true" stored="true" multiValued="true" /> 
+		
 	</fields>
 
 	<!-- field to use to determine and enforce document uniqueness. -->
