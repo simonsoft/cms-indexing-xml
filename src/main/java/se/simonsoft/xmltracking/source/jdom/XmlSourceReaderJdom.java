@@ -101,7 +101,7 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 		
 		String elementsource = outputter.outputString(current);
 		elementsource = elementsource.replace("\r", ""); // TODO avoid jdom insertion of carriage returns even if source is LF only
-		XmlSourceElement element = new XmlSourceElement(name, namespaces, attributes, elementsource);
+		XmlSourceElement element = new XmlSourceElementJdom(current, name, namespaces, attributes, elementsource);
 		element.setDepth(depth, parent);
 		element.setPosition(position, siblingPreceding);
 		
