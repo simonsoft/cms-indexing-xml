@@ -23,7 +23,7 @@ import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemLookup;
 import se.simonsoft.cms.item.CmsItemNotFoundException;
 import se.simonsoft.cms.item.RepoRevision;
-import se.simonsoft.cms.item.inspection.CmsContentsReader;
+import se.simonsoft.cms.admin.CmsContentsReader;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 
 /**

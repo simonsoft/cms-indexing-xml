@@ -15,7 +15,6 @@
  */
 package se.simonsoft.cms.indexing.xml.hook;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import se.simonsoft.cms.item.Checksum;
@@ -26,7 +25,7 @@ import se.simonsoft.cms.item.CmsItemLock;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
-import se.simonsoft.cms.item.inspection.CmsContentsReader;
+import se.simonsoft.cms.admin.CmsContentsReader;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 
@@ -97,7 +96,7 @@ class CmsItemAndContents implements CmsItem {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
-	@Override
+	//@Override
 	public CmsItemLock getLock() {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
