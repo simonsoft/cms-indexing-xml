@@ -56,5 +56,20 @@ public class TreeLocationTest {
 		assertFalse(new TreeLocation("1.2.3").equals(new TreeLocation("1.2")));
 		assertEquals(new TreeLocation("1.2.3").hashCode(), new TreeLocation("1.2.3").hashCode());
 	}
+	
+	@Test
+	public void testRelations() {
+		assertTrue(new TreeLocation("1.2.3").isAncestorOf(new TreeLocation("1.2.3.4.5")));
+		assertFalse(new TreeLocation("1.2.3").isAncestorOf(new TreeLocation("1.2.3")));
+		assertFalse(new TreeLocation("1.2.3").isAncestorOf(new TreeLocation("1.2.33")));
+		
+		assertTrue(new TreeLocation("1.2.3.4").isDescendantOf(new TreeLocation("1.2")));
+		assertFalse(new TreeLocation("1.2.3.4").isDescendantOf(new TreeLocation("1.2.3.456")));
+		
+		assertTrue(new TreeLocation("1.2").isParentOf(new TreeLocation("1.2.3")));
+		assertFalse(new TreeLocation("1").isParentOf(new TreeLocation("1.2.3")));
+		assertTrue(new TreeLocation("1.2.3").isChildOf(new TreeLocation("1.2")));
+		assertFalse(new TreeLocation("1.2.3.4").isChildOf(new TreeLocation("1.2")));
+	}
 
 }

@@ -86,5 +86,21 @@ public class TreeLocation {
 	public int getOrdinal() {
 		return ordinal;
 	}
+
+	public boolean isAncestorOf(TreeLocation treeLocation) {
+		return treeLocation.toString().startsWith(this.toString() + ".");
+	}
+
+	public boolean isDescendantOf(TreeLocation treeLocation) {
+		return treeLocation.isAncestorOf(this);
+	}
+
+	public boolean isParentOf(TreeLocation treeLocation) {
+		return isAncestorOf(treeLocation) && treeLocation.toString().substring(this.toString().length() + 1).indexOf(".") == -1;
+	}
+
+	public boolean isChildOf(TreeLocation treeLocation) {
+		return treeLocation.isParentOf(this);
+	}
 	
 }
