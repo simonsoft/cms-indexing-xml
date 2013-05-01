@@ -169,6 +169,10 @@
 		<dynamicField name="source_*" type="string" indexed="false" stored="false" multiValued="false" />
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
+		
+		<!-- bad idea to allow colon on field names, make copies for experimentation -->
+		<copyField source="prop_cms:status" dest="prop_cms_status"/>
+		<copyField source="prop_cms:rid" dest="prop_cms_rid"/>
 	</fields>
 
 	<!-- field to use to determine and enforce document uniqueness. -->
