@@ -15,8 +15,10 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -24,8 +26,11 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup.Core;
 
 /**
  * Verify features of the actual index, without using our abstractions.
@@ -47,18 +52,24 @@ import org.junit.Test;
  */
 public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 
-	public static String solrhome = "se/simonsoft/cms/indexing/xml/solr";
+	public static File testhome = null;
 
 	@BeforeClass
 	public static void beforeTests() throws Exception {
+		testhome = File.createTempFile("test", CoreReposxmlIntegrationTest.getClassName());
+		Core core = new SolrCoreSetup(testhome).getCore("reposxml");
 		try {
-			SolrTestCaseJ4.initCore(solrhome + "/reposxml/conf/solrconfig.xml", solrhome + "/reposxml/conf/schema.xml",
-					"src/test/resources/" + solrhome); // has to be in classpath because "collection1" is hardcoded in TestHarness initCore/createCore
+			SolrTestCaseJ4.initCore(core.getSolrconfig(), core.getSchema(), testhome.getPath(), core.getName());
 		} catch (Exception e) {
 			System.out.println("getSolrConfigFile()=" + getSolrConfigFile());
 			System.out.println("testSolrHome=" + testSolrHome);
 			throw e;
 		}
+	}
+	
+	@AfterClass
+	public static void afterTests() throws Exception {
+		FileUtils.deleteDirectory(testhome);
 	}
 	
 	/**

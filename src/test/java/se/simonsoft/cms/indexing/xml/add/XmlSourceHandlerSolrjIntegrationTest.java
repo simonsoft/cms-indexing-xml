@@ -19,11 +19,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -31,9 +33,12 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup;
+import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup.Core;
 import se.simonsoft.xmltracking.index.add.IdStrategy;
 import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
@@ -45,13 +50,26 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 	
 	static SolrServer server;
 	
+	public static File testhome = null;
+
 	@BeforeClass
 	public static void beforeTests() throws Exception {
-		initCore("se/simonsoft/cms/indexing/xml/solr/reposxml/conf/solrconfig.xml",
-				"se/simonsoft/cms/indexing/xml/solr/reposxml/conf/schema.xml",
-				"src/test/resources/se/simonsoft/cms/indexing/xml/solr"); // has to be in classpath because "collection1" is hardcoded in TestHarness initCore/createCore
+		testhome = File.createTempFile("test", XmlSourceHandlerSolrjIntegrationTest.getClassName());
+		Core core = new SolrCoreSetup(testhome).getCore("reposxml");
+		try {
+			SolrTestCaseJ4.initCore(core.getSolrconfig(), core.getSchema(), testhome.getPath(), core.getName());
+		} catch (Exception e) {
+			System.out.println("getSolrConfigFile()=" + getSolrConfigFile());
+			System.out.println("testSolrHome=" + testSolrHome);
+			throw e;
+		}
 		server = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
 	}
+	
+	@AfterClass
+	public static void afterTests() throws Exception {
+		FileUtils.deleteDirectory(testhome);
+	}	
 	
 	@Test
 	public void testIntegration() throws Exception {
