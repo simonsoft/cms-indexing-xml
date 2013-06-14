@@ -182,8 +182,10 @@
 		<copyField source="a_cms:rid" dest="a_cms_rid"/>
 		<copyField source="prop_cms:status" dest="prop_cms,status"/>
 		<copyField source="a_cms:rid" dest="a_cms,rid"/>
-		<copyField source="prop_cms:status" dest="prop_cms'status"/>
-		<copyField source="a_cms:rid" dest="a_cms'rid"/>
+		<copyField source="prop_cms:status" dest="prop_cms.status"/>
+		<copyField source="a_cms:rid" dest="a_cms.rid"/>
+		<copyField source="prop_cms:status" dest="prop_cms|status"/>
+		<copyField source="a_cms:rid" dest="a_cms|rid"/>
 		
 		<copyField source="text" dest="text_g"/>
 		<copyField source="text" dest="text_spell"/>
