@@ -50,7 +50,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	private XmlSourceHandler sourceHandler = null;
 	private XmlSourceReader sourceReader = null;
 
-	private SolrServer solrServer = null;	
+	private SolrServer solrServer = null;
 	
 	@Inject
 	public void setDependenciesIndexing(
@@ -93,7 +93,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		onRevisionEnd(progress.getRevision());
 	}
 	
-	// TODO implement in interface
+	// TODO implement an indexing event interface
 	//@Override
 	public void onRevisionEnd(RepoRevision revision) {
 		commit();
