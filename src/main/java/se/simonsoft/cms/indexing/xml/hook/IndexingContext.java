@@ -17,7 +17,7 @@ package se.simonsoft.cms.indexing.xml.hook;
 
 import javax.inject.Singleton;
 
-import se.simonsoft.cms.item.CmsItem;
+import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
@@ -37,52 +37,41 @@ import se.simonsoft.cms.item.properties.CmsItemProperties;
  * Values must be set as start of each item's processing.
  */
 @Singleton
+@Deprecated // should switch to deepClone of fields from ItemPathinfo
 public class IndexingContext {
 
-	private CmsRepository repository;
-	private RepoRevision revision;
-	private CmsItem item;
+	private IndexingItemProgress progress;
 
 	public RepoRevision getRevision() {
-		return revision;
+		return progress.getRevision();
 	}
 	
 	/**
 	 * @return quite possibly with only name and parent path known
 	 */
 	public CmsRepository getRepository() {
-		return repository;
+		return progress.getRepository();
 	}
 	
 	/**
 	 * @return when needed we can probably get a CmsItemId here because it will be needed anyway during indexing
 	 */
 	public CmsItemPath getItemPath() {
-		return item.getId().getRelPath();
+		return progress.getItem().getPath();
 	}
 
 	/**
 	 * @return properties backed by fast or cached access, called from multiple indexing handlers
 	 */
 	public CmsItemProperties getItemProperties() {
-		return item.getProperties();
+		return progress.getProperties();
 	}
-	
-	void setRevision(RepoRevision revision) {
-		this.revision = revision;
-	}
-	
-	void setRepository(CmsRepository repository) {
-		// TODO convert from CmsRepositoryInspection to CmsRepository to enforce security
-		// and at the same time change the hook interface to pass CmsRepositoryInspection
-		this.repository = repository;
-	}
-	
-	/**
-	 * @param item Should maybe be a CmsItemId
-	 */
-	void setItem(CmsItem item) {
-		this.item = item;
+
+	public void setItem(IndexingItemProgress progress) {
+		this.progress = progress;
+		if (progress.getRevision().getDate() == null) {
+			throw new IllegalArgumentException("Revision must be qualified with date, got " + progress.getRevision());
+		}
 	}
 	
 }
