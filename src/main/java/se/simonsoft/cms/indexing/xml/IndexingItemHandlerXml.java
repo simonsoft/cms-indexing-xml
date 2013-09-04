@@ -66,6 +66,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	@Inject
 	public void setDependenciesIndexing(
 			@Named("reposxml") SolrServer solrServer) {
+		logger.debug("Got SolrServer (core); {}", solrServer);
 		this.solrServer  = solrServer;
 	}	
 	
