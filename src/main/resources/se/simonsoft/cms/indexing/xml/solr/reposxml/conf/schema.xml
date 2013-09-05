@@ -38,7 +38,7 @@
 		<field name="pathext"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathdir"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathin"   type="string" indexed="true"  stored="false" multiValued="true"/>
-		<field name="pathfull"  type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathfull"  type="string" indexed="true"  stored="true" multiValued="false"/><!-- stored during development -->
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
 		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
@@ -172,7 +172,7 @@
 		Store sources? - No, because it is lots of data and verbatim source can most likely be used.
 		Index sources? - Maybe not because we need the analysis to be done before the checksum anyway.
 		-->
-		<dynamicField name="source_*" type="string" indexed="false" stored="false" multiValued="false" />
+		<dynamicField name="source_*" type="string" indexed="false" stored="true" multiValued="false" /><!-- stored during development -->
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
 		
