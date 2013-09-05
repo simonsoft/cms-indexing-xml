@@ -24,6 +24,7 @@ public class IndexingItemHandlerAbxDependenciesTest {
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		when(p.getFields()).thenReturn(doc);
 		when(p.getRepository()).thenReturn(new CmsRepository("http://host:123/svn/documentation"));
+		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.Dependencies", abxdeps);
 		doc.addField("ref", "/existing/url");
 		doc.addField("refurl", "http://host:123/existing/url");
