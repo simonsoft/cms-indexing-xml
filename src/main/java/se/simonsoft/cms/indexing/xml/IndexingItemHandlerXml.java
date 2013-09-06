@@ -73,6 +73,9 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();
+		if (c.isOverwritten()) {
+			logger.debug("XML index only contains HEAD so skipping later overwritten {}", c.getPath());
+		}
 		if (c.isFile()) {
 			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 			if (extensionsToTry.contains(c.getPath().getExtension())) {
