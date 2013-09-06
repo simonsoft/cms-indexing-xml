@@ -26,7 +26,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
 import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
 

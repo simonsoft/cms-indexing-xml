@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.index;
+package se.simonsoft.cms.indexing.xml;
 
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**
  * Services that extract fields from source element or from earlier extracted fields.
  * 
- * A list of these services is for example provided to {@link XmlSourceHandlerSolrj}.
+ * A list of these services is for example provided to {@link se.simonsoft.xmltracking.index.addXmlSourceHandlerSolrj}.
  */
 public interface XmlIndexFieldExtraction {
 
@@ -30,6 +29,6 @@ public interface XmlIndexFieldExtraction {
 	 * @param fields to read from and add/overwrite to
 	 * @param processedElement original element
 	 */
-	void extract(XmlSourceElement processedElemen, IndexingDoc fieldst);
+	void extract(XmlSourceElement processedElement, IndexingDoc fields);
 	
 }

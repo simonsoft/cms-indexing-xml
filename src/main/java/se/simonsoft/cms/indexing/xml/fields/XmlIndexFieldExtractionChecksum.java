@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.index.add;
+package se.simonsoft.cms.indexing.xml.fields;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,9 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
-import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**

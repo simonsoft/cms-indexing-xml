@@ -22,7 +22,7 @@ public class SchemaFieldNamesReposxml implements SchemaFieldNames {
 
 	@Override
 	public String getAttribute(String xmlAttributeName) {
-		return "a_" + xmlAttributeName;
+		return "a_" + xmlAttributeName.replace(':', '.');
 	}
 
 	@Override

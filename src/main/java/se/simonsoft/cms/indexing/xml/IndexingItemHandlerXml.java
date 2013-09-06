@@ -15,20 +15,11 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +28,8 @@ import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.ItemPathinfo;
 import se.repos.indexing.item.ItemProperties;
-import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
-import se.simonsoft.cms.item.properties.CmsItemProperties;
-import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
@@ -58,14 +46,14 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
-	private Provider<XmlIndexAddSession> indexAddProvider;
+	private XmlIndexWriter indexWriter;
 	
 	/**
 	 * @param fieldExtraction a sequence of pluggable extractors that add fields
 	 * @param xmlSourceReader that processes the XML into {@link XmlSourceElement}s for the extractors
 	 */
 	@Inject
-	public void setDependenciesIndexing(
+	public void setDependenciesXml(
 			Set<XmlIndexFieldExtraction> fieldExtraction,
 			XmlSourceReader xmlSourceReader
 			) {
@@ -75,9 +63,9 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 
 	@Inject
 	public void setDependenciesIndexing(
-			Provider<XmlIndexAddSession> indexAddProvider) {
-		this.indexAddProvider = indexAddProvider;
-	}	
+			XmlIndexWriter indexAddProvider) {
+		this.indexWriter = indexAddProvider;
+	}
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
@@ -91,9 +79,9 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.debug("Changeset content update item {} found", c);
 				if (c.isDelete()) {
-					indexDeletePath(progress.getRepository(), c);
+					indexWriter.deletePath(progress.getRepository(), c);
 				} else {
-					indexDeletePath(progress.getRepository(), c);
+					indexWriter.deletePath(progress.getRepository(), c);
 					index(progress);
 				}
 			} else {
@@ -109,7 +97,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	protected void index(IndexingItemProgress progress) {
 		IndexingDoc itemDoc = cloneItemFields(progress.getFields());
 		supportLegacySchema.handle(itemDoc);
-		XmlIndexAddSession docHandler = indexAddProvider.get();
+		XmlIndexAddSession docHandler = indexWriter.get();
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		sourceReader.read(progress.getContents(), sourceHandler);
 	}
@@ -119,52 +107,10 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		return doc;
 	}
 
-	// TODO implement an indexing event interface
+	// TODO will never be called now, implement an indexing event interface
 	//@Override
 	public void onRevisionEnd(RepoRevision revision) {
-		commit();
-		if (revision.getNumber() % 1000 == 0) {
-			logger.info("Optimizing index at revision {}", revision);
-			optimize();
-		}
-	}
-
-	private void commit() {
-		try {
-			solrServer.commit();
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
-		}
-	}
-
-	private void optimize() {
-		try {
-			solrServer.optimize();
-		} catch (SolrServerException e) {
-			logger.error("Index optimize failed: {}", e.getMessage(), e);
-			// we can live without optimized index, could fail because optimize needs lots of free disk
-		} catch (IOException e) {
-			logger.error("Solr connection issues at optimize: ", e.getMessage(), e);
-			throw new RuntimeException("Optimize failed", e);
-		}
-	}
-	
-	protected void indexDeletePath(CmsRepository repository, CmsChangesetItem item) {
-		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
-		String query = "pathfull:\"" + repository.getPath() + item.getPath().toString() + '"';
-		logger.debug("Deleting previous revision of {} using query {}", item, query);
-		try {
-			solrServer.deleteByQuery(query);
-		} catch (SolrServerException e) {
-			throw new RuntimeException("not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("not handled", e);
-		}
-		
+		indexWriter.onRevisionEnd(revision);
 	}
 	
 	@SuppressWarnings("serial")

@@ -5,6 +5,12 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -16,22 +22,23 @@ import org.junit.Test;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNPropertyValue;
-import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNCopySource;
 import org.tmatesoft.svn.core.wc.SVNRevision;
-import org.tmatesoft.svn.core.wc2.SvnOperationFactory;
 
 import se.repos.testing.indexing.SvnTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
-import se.simonsoft.cms.indexing.xml.hook.IdStrategyRepoRevisionItemElem;
+import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.testing.svn.CmsTestRepository;
 import se.simonsoft.cms.testing.svn.SvnTestSetup;
-import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
-import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
 import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
+import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
+import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
 
 public class IndexingItemHandlerXmlIntegrationTest {
 
@@ -62,14 +69,26 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		indexing = SvnTestIndexing.getInstance(indexOptions);
 		SolrServer reposxml = indexing.getCore("reposxml");
 		
-		IdStrategy idStrategy = new IdStrategyRepoRevisionItemElem(null);
-		XmlSourceHandler xmlHandler = new XmlSourceHandlerSolrj(reposxml, idStrategy);
-		
 		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
+		XmlIndexWriter indexWriter = new XmlIndexWriterSolrj(reposxml);
+		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
+		fe.add(new XmlIndexIdAppendTreeLocation());
+		fe.add(new XmlIndexFieldElement());
+		XmlMatchingFieldExtractionSource xslSource = new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				return new StreamSource(xsl);
+			}
+		};
+		fe.add(new IndexFieldExtractionCustomXsl(xslSource));
+		fe.add(new XmlIndexFieldExtractionChecksum());
+		fe.add(new IndexFieldDeletionsToSaveSpace());
 		
 		IndexingItemHandlerXml handlerXml = new IndexingItemHandlerXml();
-		handlerXml.setDependenciesIndexing(reposxml);
-		handlerXml.setDependenciesIndexing(xmlHandler, xmlReader);
+		handlerXml.setDependenciesIndexing(indexWriter);
+		handlerXml.setDependenciesXml(fe, xmlReader);
 		
 		indexOptions.addHandler(handlerXml);
 	}
@@ -151,8 +170,8 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		// now sync
 		indexing.enable(repo);
 		
-		SolrServer repoxml = indexing.getCore("reposxml");
-		SolrDocumentList x1 = repoxml.query(new SolrQuery("*.*")).getResults();
+		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 	
 		// now produce more revisions

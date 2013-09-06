@@ -18,15 +18,19 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
+import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
-public class XmlIndexAddSolrj implements Provider<XmlIndexAddSession> {
+public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlIndexWriter {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SolrServer solrServer;
 
 	@Inject
-	public XmlIndexAddSolrj(@Named("reposxml") SolrServer core) {
+	public XmlIndexWriterSolrj(@Named("reposxml") SolrServer core) {
 		this.solrServer = core;
 	}
 	
@@ -55,6 +59,51 @@ public class XmlIndexAddSolrj implements Provider<XmlIndexAddSession> {
 	protected void sessionEnd(Session session) {
 		batchSend(session);
 	}
+	
+	@Override
+	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
+		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
+		String query = "pathfull:\"" + repository.getPath() + c.getPath().toString() + '"';
+		logger.debug("Deleting previous revision of {} using query {}", c, query);
+		try {
+			solrServer.deleteByQuery(query);
+		} catch (SolrServerException e) {
+			throw new RuntimeException("not handled", e);
+		} catch (IOException e) {
+			throw new RuntimeException("not handled", e);
+		}		
+	}
+
+	@Override
+	public void onRevisionEnd(RepoRevision revision) {
+		commit();
+		if (revision.getNumber() % 1000 == 0) {
+			logger.info("Optimizing index at revision {}", revision);
+			optimize();
+		}
+	}
+	
+	private void commit() {
+		try {
+			solrServer.commit();
+		} catch (SolrServerException e) {
+			throw new RuntimeException("Error not handled", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Error not handled", e);
+		}
+	}
+
+	private void optimize() {
+		try {
+			solrServer.optimize();
+		} catch (SolrServerException e) {
+			logger.error("Index optimize failed: {}", e.getMessage(), e);
+			// we can live without optimized index, could fail because optimize needs lots of free disk
+		} catch (IOException e) {
+			logger.error("Solr connection issues at optimize: ", e.getMessage(), e);
+			throw new RuntimeException("Optimize failed", e);
+		}
+	}	
 
 	class Session implements XmlIndexAddSession {
 
@@ -79,7 +128,16 @@ public class XmlIndexAddSolrj implements Provider<XmlIndexAddSession> {
 
 		@Override
 		public boolean add(IndexingDoc e) {
-			return pending.add(getSolrDoc(e));
+			if (!pending.add(getSolrDoc(e))) {
+				throw new IllegalArgumentException("Doc add failed for " + e);
+			}
+//TODO			// we have a rough measurement of total field size here and can trigger batch send to reduce risk of hitting memory limitations in webapp
+//			if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
+//				logger.info("Sending batch because total source+text size {} indicates large update", batchTextTotal);
+//				batchReady = true; // send batch
+//				batchTextTotal = 0;
+//			}
+			return true;
 		}
 
 		@Override
