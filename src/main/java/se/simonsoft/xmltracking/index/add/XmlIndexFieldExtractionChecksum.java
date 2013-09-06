@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import se.simonsoft.cms.indexing.IndexFields;
+import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
@@ -30,15 +30,15 @@ import se.simonsoft.xmltracking.source.XmlSourceElement;
 /**
  * Creates checksums of selected fields and adds with checksum type prefixed field names.
  */
-public class IndexFieldExtractionChecksum implements IndexFieldExtraction {
+public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction {
 
 	private List<String> prefixes;
 
-	public IndexFieldExtractionChecksum() {
+	public XmlIndexFieldExtractionChecksum() {
 		this("text", "source");
 	}
 	
-	public IndexFieldExtractionChecksum(String... fieldprefixes) {
+	public XmlIndexFieldExtractionChecksum(String... fieldprefixes) {
 		this.prefixes = Arrays.asList(fieldprefixes);
 	}
 
@@ -47,7 +47,7 @@ public class IndexFieldExtractionChecksum implements IndexFieldExtraction {
 	}
 	
 	@Override
-	public void extract(IndexFields fields, XmlSourceElement processedElement) {
+	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
 		Collection<String> orgFieldNames = new LinkedList<String>(fields.getFieldNames());
 		for (String n : orgFieldNames) {
 			for (String p : prefixes) {

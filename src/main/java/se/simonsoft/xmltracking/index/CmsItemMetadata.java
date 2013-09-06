@@ -16,7 +16,7 @@
 package se.simonsoft.xmltracking.index;
 
 import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 
 /**
  * Provides access to metadata in IdStrategy#getElementId and IndexFieldExtensions.
@@ -24,7 +24,7 @@ import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
  * Do we need this?
  * - Path is better handled in {@link IdStrategy} impl
  * - Revision could be added using index fields pre-indexing service.
- *   See {@link IndexFieldExtraction}
+ *   See {@link XmlIndexFieldExtraction}
  * - Custom notifications to this impl by the caller of XmlSourceHandler
  * @deprecated No, we don't need this, too inflexible
  */

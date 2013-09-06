@@ -40,7 +40,7 @@ import org.junit.Test;
 import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup;
 import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup.Core;
 import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
@@ -115,7 +115,7 @@ public class XmlSourceHandlerSolrjIntegrationTest extends SolrTestCaseJ4 {
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(server, idStrategy);
 
 		// Note that this test currently does not run any extractors so only basic fields will be extracted
-		Set<IndexFieldExtraction> extraction = new HashSet<IndexFieldExtraction>();
+		Set<XmlIndexFieldExtraction> extraction = new HashSet<XmlIndexFieldExtraction>();
 		handler.setFieldExtraction(extraction);
 		
 		handler.startDocument(null);

@@ -22,12 +22,12 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
-import se.simonsoft.cms.indexing.IndexFields;
+import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**
@@ -39,7 +39,7 @@ import se.simonsoft.xmltracking.source.XmlSourceElement;
  * (see ticket:401 and ticket:406).
  */
 public class IndexFieldExtractionItemInfo implements
-		IndexFieldExtraction {
+		XmlIndexFieldExtraction {
 
 	private IndexingContext context;
 
@@ -62,7 +62,7 @@ public class IndexFieldExtractionItemInfo implements
 	}
 	
 	@Override
-	public void extract(IndexFields fields, XmlSourceElement processedElement) {
+	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
 		// can these be the common ID field names?
 		CmsItemPath path = context.getItemPath();
 		RepoRevision rev = context.getRevision();

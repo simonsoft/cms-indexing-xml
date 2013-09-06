@@ -17,7 +17,9 @@ package se.simonsoft.cms.indexing.xml;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -28,6 +30,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.ItemPathinfo;
@@ -45,20 +48,24 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	
 	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml"));
 	
-	private IndexingContext indexingContext = null;
-	
 	private XmlSourceHandler sourceHandler = null;
 	private XmlSourceReader sourceReader = null;
 
 	private SolrServer solrServer = null;
 	
+	/**
+	 * Until {@link IndexingDoc#deepCopy()} can get only the {@link ItemPathinfo} and {@link ItemProperties} fields we use this to map repositem fields to reposxml schema.
+	 * Key is field name, value is rename or null for using same name (we should end up with only nulls here).
+	 */
+	public static final Map<String, String> FIELDS_KEEP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
+		put("path", null);
+	}};
+	
 	@Inject
 	public void setDependenciesIndexing(
-			IndexingContext indexingContext,
 			@Named("indexing") XmlSourceHandler xmlSourceHandler,
 			XmlSourceReader xmlSourceReader
 			) {
-		this.indexingContext  = indexingContext;
 		this.sourceHandler = xmlSourceHandler;
 		this.sourceReader = xmlSourceReader;
 	}
@@ -84,8 +91,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 					indexDeletePath(progress.getRepository(), c);
 				} else {
 					indexDeletePath(progress.getRepository(), c);
-					indexingContext.setItem(progress);
-					sourceReader.read(progress.getContents(), sourceHandler);
+					index(progress);
 				}
 			} else {
 				logger.debug("Ignoring content update item {}, not an XML candidate file type", c);
@@ -96,7 +102,17 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		// TODO until we have notification on revision end we commit always
 		onRevisionEnd(progress.getRevision());
 	}
+
+	protected void index(IndexingItemProgress progress) {
+		IndexingDoc itimDoc = cloneItemFields(progress.getFields());
+		sourceReader.read(progress.getContents(), sourceHandler);
+	}
 	
+	private IndexingDoc cloneItemFields(IndexingDoc fields) {
+		IndexingDoc doc = fields.deepCopy();
+		return doc;
+	}
+
 	// TODO implement an indexing event interface
 	//@Override
 	public void onRevisionEnd(RepoRevision revision) {

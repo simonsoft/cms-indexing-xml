@@ -22,7 +22,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-import se.simonsoft.cms.indexing.IndexFields;
+import se.repos.indexing.IndexingDoc;
 
 /**
  * Passes solr doc style field=value elements directly to {@link IndexFields}.
@@ -31,7 +31,7 @@ class ContentHandlerToIndexFields implements ContentHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContentHandlerToIndexFields.class);
 	
-	private IndexFields fields;
+	private IndexingDoc fields;
 	
 	private transient StringBuffer buf = new StringBuffer();
 	private transient String curfield = null;
@@ -39,7 +39,7 @@ class ContentHandlerToIndexFields implements ContentHandler {
 	/**
 	 * @param fields to add extracted fields to
 	 */
-	public ContentHandlerToIndexFields(IndexFields fields) {
+	public ContentHandlerToIndexFields(IndexingDoc fields) {
 		this.fields = fields;
 	}
 

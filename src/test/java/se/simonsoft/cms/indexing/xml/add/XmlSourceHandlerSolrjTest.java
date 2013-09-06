@@ -35,10 +35,9 @@ import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import se.simonsoft.cms.indexing.IndexFields;
+import se.repos.indexing.IndexingDoc;
 import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
-import se.simonsoft.xmltracking.index.add.IndexFieldsSolrj;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;
@@ -83,24 +82,24 @@ public class XmlSourceHandlerSolrjTest {
 		when(idStrategy.getElementId(e3)).thenReturn("testdoc1_e3");
 		when(idStrategy.getElementId(e4)).thenReturn("testdoc1_e4");
 		
-		IndexFieldExtraction extractor1 = mock(IndexFieldExtraction.class);
-		IndexFieldExtraction extractor2 = mock(IndexFieldExtraction.class);
-		LinkedHashSet<IndexFieldExtraction> extractors = new LinkedHashSet<IndexFieldExtraction>();
+		XmlIndexFieldExtraction extractor1 = mock(XmlIndexFieldExtraction.class);
+		XmlIndexFieldExtraction extractor2 = mock(XmlIndexFieldExtraction.class);
+		LinkedHashSet<XmlIndexFieldExtraction> extractors = new LinkedHashSet<XmlIndexFieldExtraction>();
 		extractors.add(extractor1);
 		extractors.add(extractor2);		
 		
 		SolrServer solrServer = mock(SolrServer.class, withSettings().verboseLogging());
 		
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
-			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
+			@Override protected void fieldCleanupTemporary(IndexingDoc doc) {}
 		};
 		handler.setFieldExtraction(extractors);
 		
 		handler.startDocument(new XmlSourceDoctype("document", "pubID", "sysID"));
 		verify(idStrategy).start();
 		handler.begin(e1);
-		verify(extractor1).extract(any(IndexFields.class), (XmlSourceElement) isNull()); // still not sure we want to pass the xml indexing specific data
-		verify(extractor2).extract(any(IndexFields.class), (XmlSourceElement) isNull());
+		verify(extractor1).extract((XmlSourceElement) isNull(), any(IndexingDoc.class)); // still not sure we want to pass the xml indexing specific data
+		verify(extractor2).extract((XmlSourceElement) isNull(), any(IndexingDoc.class));
 		handler.begin(e2);
 		handler.begin(e3);
 		handler.begin(e4);
@@ -248,12 +247,12 @@ public class XmlSourceHandlerSolrjTest {
 		SolrServer solrServer = mock(SolrServer.class);	
 		
 		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
-			@Override protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {}
+			@Override protected void fieldCleanupTemporary(IndexingDoc doc) {}
 		};
 		
 		// we currently rely on the "custom xsl" extractor for this feature
-		LinkedHashSet<IndexFieldExtraction> extractors = new LinkedHashSet<IndexFieldExtraction>();
-		IndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+		LinkedHashSet<XmlIndexFieldExtraction> extractors = new LinkedHashSet<XmlIndexFieldExtraction>();
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {
 				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(

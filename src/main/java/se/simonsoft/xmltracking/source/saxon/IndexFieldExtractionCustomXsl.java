@@ -34,9 +34,8 @@ import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
-
-import se.simonsoft.cms.indexing.IndexFields;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.repos.indexing.IndexingDoc;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
 
@@ -44,7 +43,7 @@ import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
  * 
  * Depends on "source" field extraction from {@link XmlSourceReaderJdom}.
  */
-public class IndexFieldExtractionCustomXsl implements IndexFieldExtraction {
+public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
@@ -77,7 +76,7 @@ public class IndexFieldExtractionCustomXsl implements IndexFieldExtraction {
 	}
 
 	@Override
-	public void extract(IndexFields fields, XmlSourceElement processedElement) {
+	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
 		Object source = fields.getFieldValue("source");
 		if (source == null) {
 			throw new IllegalArgumentException("Prior to text extraction, 'source' field must have been extracted.");

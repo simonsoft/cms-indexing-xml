@@ -38,14 +38,15 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import se.simonsoft.cms.indexing.IndexFields;
 import se.simonsoft.cms.indexing.xml.hook.IndexFieldExtractionItemInfo;
 import se.simonsoft.cms.indexing.xml.hook.IndexingContext;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
+
+import se.repos.indexing.IndexingDoc;
 
 public class IndexFieldExtractionItemInfoTest {
 
@@ -72,10 +73,10 @@ public class IndexFieldExtractionItemInfoTest {
 		when(context.getRevision()).thenReturn(rev1, rev2, rev1);
 		when(context.getItemPath()).thenReturn(item1, item1, item2);
 		
-		IndexFieldExtraction x = new IndexFieldExtractionItemInfo(context);
+		XmlIndexFieldExtraction x = new IndexFieldExtractionItemInfo(context);
 		
-		IndexFields f1 = mock(IndexFields.class);
-		x.extract(f1, null);
+		IndexingDoc f1 = mock(IndexingDoc.class);
+		x.extract(null, f1);
 		verify(f1).addField("path", "/docs/a.xml");
 		verify(f1).addField("pathname", "a.xml");
 		verify(f1).addField("pathdir", "/docs");
@@ -88,15 +89,15 @@ public class IndexFieldExtractionItemInfoTest {
 		verify(f1).addField("pathfull", "/svn1/r1/docs/a.xml");
 		verify(f1).addField("pathin", "/docs");
 		
-		IndexFields f2 = mock(IndexFields.class);
-		x.extract(f2, null);
+		IndexingDoc f2 = mock(IndexingDoc.class);
+		x.extract(null, f2);
 		verify(f2).addField("path", "/docs/a.xml");
 		verify(f2).addField("rev", 78L);
 		verify(f2).addField("revt", "1970-01-01T00:00:02.000Z");
 		verify(f2).addField("repo", "r1");
 		
-		IndexFields f3 = mock(IndexFields.class);
-		x.extract(f3, null);
+		IndexingDoc f3 = mock(IndexingDoc.class);
+		x.extract(null, f3);
 		verify(f3).addField("path", "/docs/more/b.xml");
 		verify(f3).addField("rev", 77L);
 		verify(f3).addField("repo", "r3");
@@ -115,9 +116,9 @@ public class IndexFieldExtractionItemInfoTest {
 		when(context.getRevision()).thenReturn(new RepoRevision(77, new Date()));
 		when(context.getItemPath()).thenReturn(new CmsItemPath("/f.html"));
 		
-		IndexFieldExtraction x = new IndexFieldExtractionItemInfo(context);
-		IndexFields extracted = mock(IndexFields.class);
-		x.extract(extracted, null);
+		XmlIndexFieldExtraction x = new IndexFieldExtractionItemInfo(context);
+		IndexingDoc extracted = mock(IndexingDoc.class);
+		x.extract(null, extracted);
 		// Subversion uses slash in root but that is inconsistent when all other paths lack traling slash. Let's be consistent.
 		verify(extracted).addField("pathdir", "");
 	}

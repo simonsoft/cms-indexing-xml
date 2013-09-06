@@ -25,8 +25,9 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Test;
 
-import se.simonsoft.cms.indexing.IndexFields;
-import se.simonsoft.xmltracking.index.add.IndexFieldExtraction;
+import se.repos.indexing.IndexingDoc;
+
+import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
 import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
 
@@ -34,7 +35,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 	@Test
 	public void test() {
-		IndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {
 				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
@@ -44,14 +45,14 @@ public class IndexFieldExtractionCustomXslTest {
 			}
 		});
 		
-		IndexFields fields = mock(IndexFields.class);
+		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
 				"<document xml:lang=\"en\">\n" +
 				"<section>section &amp; stuff</section>\n" +
 				"<figure><title>Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(fields, null);
+		x.extract(null, fields);
 		verify(fields).addField("text", "section & stuff TitleFigure");
 		verify(fields).addField(eq("source_reuse"), anyString());
 		//verify(fields).addField("words_text", 4); ?
@@ -62,7 +63,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testReuseDisqualifyOnRemovedRid() {
-		IndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {
 				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
@@ -72,7 +73,7 @@ public class IndexFieldExtractionCustomXslTest {
 			}
 		});		
 		
-		IndexFields root = mock(IndexFields.class);
+		IndexingDoc root = mock(IndexingDoc.class);
 		when(root.getFieldValue("source")).thenReturn(
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
 				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
@@ -80,36 +81,36 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		when(root.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
-		x.extract(root, null);
+		x.extract(null, root);
 		// a child is disqualified from reuse so this element has to be too
 		verify(root).addField("reusevalue", "-1");
 		
-		IndexFields norid = mock(IndexFields.class);
+		IndexingDoc norid = mock(IndexingDoc.class);
 		when(norid.getFieldValue("source")).thenReturn(
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" >section</section>");
 		when(norid.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
-		x.extract(norid, null);
+		x.extract(null, norid);
 		verify(norid).addField("reusevalue", "-1");
 		
-		IndexFields sibling = mock(IndexFields.class);
+		IndexingDoc sibling = mock(IndexingDoc.class);
 		when(sibling.getFieldValue("source")).thenReturn(
 				"<figure xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>");
 		when(sibling.getFieldValue("prop_cms:status")).thenReturn("Released");
 		
-		x.extract(sibling, null);
+		x.extract(null, sibling);
 		verify(sibling).addField("reusevalue", "1");
 		
-		IndexFields doc2 = mock(IndexFields.class);
+		IndexingDoc doc2 = mock(IndexingDoc.class);
 		when(doc2.getFieldValue("prop_cms:status")).thenReturn("In_Translation");
 		when(doc2.getFieldValue("source")).thenReturn("<doc/>");
-		x.extract(doc2, null);
+		x.extract(null, doc2);
 		verify(doc2).addField("reusevalue", "0");
 		
-		IndexFields doc3 = mock(IndexFields.class);
+		IndexingDoc doc3 = mock(IndexingDoc.class);
 		when(doc3.getFieldValue("prop_cms:status")).thenReturn(null);
 		when(doc3.getFieldValue("source")).thenReturn("<doc/>");
-		x.extract(doc3, null);
+		x.extract(null, doc3);
 		verify(doc3).addField("reusevalue", "0");
 	}
 

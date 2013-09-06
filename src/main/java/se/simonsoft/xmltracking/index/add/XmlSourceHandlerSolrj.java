@@ -31,6 +31,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
@@ -40,7 +42,7 @@ import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceNamespace;
 
 /**
- * Extracts source fields internally and using {@link IndexFieldExtraction}s (the former being legacy)
+ * Extracts source fields internally and using {@link XmlIndexFieldExtraction}s (the former being legacy)
  * and sends batches to solr using javabin format.
  * 
  * Does not do solr commit as that is up to the caller, which also does deletion of entries for missing files etc.
@@ -55,7 +57,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 
 	private IdStrategy idStrategy;
 	private SolrServer solrServer;
-	private Set<IndexFieldExtraction> extraction;
+	private Set<XmlIndexFieldExtraction> extraction;
 
 	private XmlSourceDoctype doctype;
 	
@@ -101,7 +103,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 *  (guice multibinder binding order becomes iteration order)
 	 */
 	@Inject
-	public void setFieldExtraction(Set<IndexFieldExtraction> fieldExtraction) {
+	public void setFieldExtraction(Set<XmlIndexFieldExtraction> fieldExtraction) {
 		this.extraction = fieldExtraction;
 	}
 	
@@ -146,8 +148,8 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	/**
 	 * @return new doc with fields that are the same for all elements for the current document
 	 */
-	private IndexFieldsSolrj getInitialDoc() {
-		IndexFieldsSolrj doc = new IndexFieldsSolrj();
+	private IndexingDoc getInitialDoc() {
+		IndexingDoc doc = null; // TODO
 		if (doctype != null) {
 			doc.setField("typename", doctype.getElementName());
 			doc.setField("typepublic", doctype.getPublicID());
@@ -159,7 +161,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	@Override
 	public void begin(XmlSourceElement element) {
 		String id = idStrategy.getElementId(element);
-		IndexFieldsSolrj doc = getInitialDoc();
+		IndexingDoc doc = getInitialDoc();
 		doc.addField("id", id);
 		doc.addField("name", element.getName());
 		doc.addField("source", getSource(element));
@@ -182,16 +184,16 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 		}
 		// could be merged with OfflineElementAnalysis
 		if (extraction != null) {
-			for (IndexFieldExtraction e : extraction) {
-				e.extract(doc, null);
+			for (XmlIndexFieldExtraction e : extraction) {
+				e.extract(null, doc);
 			}
 		}
 		fieldCleanupBeforeIndexAdd(element, doc);
 		add(doc);
 	}
 
-	protected void add(IndexFieldsSolrj doc) {
-		pending.add(doc);
+	protected void add(IndexingDoc doc) {
+		pending.add(((IndexingDocIncrementalSolrj) doc).getSolrDoc());
 		batchCheck(false);
 	}
 
@@ -227,7 +229,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	}
 	
 	@Deprecated // produces too much logging, is too slow
-	protected void send(String id, IndexFieldsSolrj doc) {		
+	protected void send(String id, SolrInputDocument doc) {		
 		logger.trace("Sending elem to Solr, id {}, fields {}", id, doc.getFieldNames());
 		try {
 			solrServer.add(doc);
@@ -250,7 +252,7 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 * @param doc The document that has been through the extractors chain
 	 */	
 	protected void fieldCleanupBeforeIndexAdd(XmlSourceElement element,
-			IndexFieldsSolrj doc) {
+			IndexingDoc doc) {
 		
 		// remove fields that we are likely to exclude in the future
 		// TODO read ignored fields from schema and skip sending those
@@ -266,29 +268,29 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	/**
 	 * To be overridden when testing, so we can still assert that these fields are set.
 	 */
-	protected void fieldCleanupTemporary(IndexFieldsSolrj doc) {
-		// heavy save, until we have element level reuse we only need source of elements with rlogicalid
-		if (doc.containsKey("source")) {
-			if (!doc.containsKey("a_cms:rlogicalid")) {
-				doc.removeField("source");
-			} else {
-				int sourcelen = ((String) doc.getFieldValue("source")).length();
-				batchTextTotal += sourcelen;
-			}
-		}
-		
-		// Ideally we'd only index text for elements that should contain character data but we have no dtd awareness so we'll guess a max text length for such elements
-		// Search for text should ideally hit the element where it is contained, not the parents.
-		// We'll remove these fields before first release so that no one starts using them.
-		if (doc.containsKey("text")) {
-			int textlen = ((String) doc.getFieldValue("text")).length();
-			if (textlen > TEXT_FIELD_KEEP_LENGTH) {
-				logger.trace("Removing text field size {} from {}", textlen, doc.getFieldValue("id"));
-				doc.removeField("text");
-			} else {
-				batchTextTotal += textlen;
-			}
-		}
+	protected void fieldCleanupTemporary(IndexingDoc doc) {
+//		// heavy save, until we have element level reuse we only need source of elements with rlogicalid
+//		if (doc.containsKey("source")) {
+//			if (!doc.containsKey("a_cms:rlogicalid")) {
+//				doc.removeField("source");
+//			} else {
+//				int sourcelen = ((String) doc.getFieldValue("source")).length();
+//				batchTextTotal += sourcelen;
+//			}
+//		}
+//		
+//		// Ideally we'd only index text for elements that should contain character data but we have no dtd awareness so we'll guess a max text length for such elements
+//		// Search for text should ideally hit the element where it is contained, not the parents.
+//		// We'll remove these fields before first release so that no one starts using them.
+//		if (doc.containsKey("text")) {
+//			int textlen = ((String) doc.getFieldValue("text")).length();
+//			if (textlen > TEXT_FIELD_KEEP_LENGTH) {
+//				logger.trace("Removing text field size {} from {}", textlen, doc.getFieldValue("id"));
+//				doc.removeField("text");
+//			} else {
+//				batchTextTotal += textlen;
+//			}
+//		}
 		// we have a rough measurement of total field size here and can trigger batch send to reduce risk of hitting memory limitations in webapp
 		if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
 			logger.info("Sending batch because total source+text size {} indicates large update", batchTextTotal);
@@ -321,11 +323,11 @@ public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 	 * @param element Initial call with the element from {@link #begin(XmlSourceElement)}
 	 * @param doc Field value holder
 	 */
-	protected void addAncestorData(XmlSourceElement element, IndexFieldsSolrj doc) {
+	protected void addAncestorData(XmlSourceElement element, IndexingDoc doc) {
 		addAncestorData(element, doc, new StringBuffer());
 	}
 	
-	protected void addAncestorData(XmlSourceElement element, IndexFieldsSolrj doc, StringBuffer pos) {
+	protected void addAncestorData(XmlSourceElement element, IndexingDoc doc, StringBuffer pos) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
 		for (XmlSourceNamespace n : element.getNamespaces()) {

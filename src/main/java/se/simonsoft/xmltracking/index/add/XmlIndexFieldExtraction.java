@@ -15,7 +15,7 @@
  */
 package se.simonsoft.xmltracking.index.add;
 
-import se.simonsoft.cms.indexing.IndexFields;
+import se.repos.indexing.IndexingDoc;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 
 /**
@@ -23,12 +23,12 @@ import se.simonsoft.xmltracking.source.XmlSourceElement;
  * 
  * A list of these services is for example provided to {@link XmlSourceHandlerSolrj}.
  */
-public interface IndexFieldExtraction {
+public interface XmlIndexFieldExtraction {
 
 	/**
 	 * @param fields to read from and add/overwrite to
 	 * @param processedElement original element
 	 */
-	void extract(IndexFields fields, XmlSourceElement processedElement);
+	void extract(XmlSourceElement processedElemen, IndexingDoc fieldst);
 	
 }
