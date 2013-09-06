@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
-import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtractionChecksum;
 
 public class IndexFieldExtractionChecksumTest {

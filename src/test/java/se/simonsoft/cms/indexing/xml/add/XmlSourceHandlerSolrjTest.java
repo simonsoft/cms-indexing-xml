@@ -36,8 +36,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;

@@ -35,6 +35,7 @@ import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
@@ -46,6 +47,7 @@ import se.simonsoft.xmltracking.source.XmlSourceNamespace;
  * and sends batches to solr using javabin format.
  * 
  * Does not do solr commit as that is up to the caller, which also does deletion of entries for missing files etc.
+ * @deprecated
  */
 public class XmlSourceHandlerSolrj implements XmlSourceHandler {
 

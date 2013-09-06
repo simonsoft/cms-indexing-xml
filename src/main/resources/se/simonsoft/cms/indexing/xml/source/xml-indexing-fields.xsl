@@ -21,11 +21,6 @@
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
 	>
 
-	<!-- 
-	TODO implement IndexFieldExtensions and run this, then checksumming,
-	and add to indexing chain.
-	-->
-	
 	<!-- document's status -->
 	<xsl:param name="status"/>
 

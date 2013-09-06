@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,10 +37,12 @@ import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.ItemPathinfo;
 import se.repos.indexing.item.ItemProperties;
-import se.simonsoft.cms.indexing.xml.hook.IndexingContext;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.properties.CmsItemProperties;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
+import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
 
@@ -46,35 +50,33 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml"));
+	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, mportant customization point
 	
-	private XmlSourceHandler sourceHandler = null;
+	private SupportLegacySchema supportLegacySchema = new SupportLegacySchema(); // TODO do away with gradually
+	
 	private XmlSourceReader sourceReader = null;
+	
+	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
-	private SolrServer solrServer = null;
+	private Provider<XmlIndexAddSession> indexAddProvider;
 	
 	/**
-	 * Until {@link IndexingDoc#deepCopy()} can get only the {@link ItemPathinfo} and {@link ItemProperties} fields we use this to map repositem fields to reposxml schema.
-	 * Key is field name, value is rename or null for using same name (we should end up with only nulls here).
+	 * @param fieldExtraction a sequence of pluggable extractors that add fields
+	 * @param xmlSourceReader that processes the XML into {@link XmlSourceElement}s for the extractors
 	 */
-	public static final Map<String, String> FIELDS_KEEP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
-		put("path", null);
-	}};
-	
 	@Inject
 	public void setDependenciesIndexing(
-			@Named("indexing") XmlSourceHandler xmlSourceHandler,
+			Set<XmlIndexFieldExtraction> fieldExtraction,
 			XmlSourceReader xmlSourceReader
 			) {
-		this.sourceHandler = xmlSourceHandler;
+		this.fieldExtraction = fieldExtraction;
 		this.sourceReader = xmlSourceReader;
 	}
 
 	@Inject
 	public void setDependenciesIndexing(
-			@Named("reposxml") SolrServer solrServer) {
-		logger.debug("Got SolrServer (core); {}", solrServer);
-		this.solrServer  = solrServer;
+			Provider<XmlIndexAddSession> indexAddProvider) {
+		this.indexAddProvider = indexAddProvider;
 	}	
 	
 	@Override
@@ -82,10 +84,11 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		CmsChangesetItem c = progress.getItem();
 		if (c.isOverwritten()) {
 			logger.debug("XML index only contains HEAD so skipping later overwritten {}", c.getPath());
+			return;
 		}
-		if (c.isFile()) {
+		if (c.isContent()) {
 			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
-			if (extensionsToTry.contains(c.getPath().getExtension())) {
+			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.debug("Changeset content update item {} found", c);
 				if (c.isDelete()) {
 					indexDeletePath(progress.getRepository(), c);
@@ -104,7 +107,10 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	}
 
 	protected void index(IndexingItemProgress progress) {
-		IndexingDoc itimDoc = cloneItemFields(progress.getFields());
+		IndexingDoc itemDoc = cloneItemFields(progress.getFields());
+		supportLegacySchema.handle(itemDoc);
+		XmlIndexAddSession docHandler = indexAddProvider.get();
+		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		sourceReader.read(progress.getContents(), sourceHandler);
 	}
 	
@@ -123,15 +129,6 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		}
 	}
 
-	@SuppressWarnings("serial")
-	@Override
-	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
-		return new HashSet<Class<? extends IndexingItemHandler>>() {{
-				add(ItemPathinfo.class);
-				add(ItemProperties.class);
-			}};
-	}
-	
 	private void commit() {
 		try {
 			solrServer.commit();
@@ -168,6 +165,15 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 			throw new RuntimeException("not handled", e);
 		}
 		
+	}
+	
+	@SuppressWarnings("serial")
+	@Override
+	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
+		return new HashSet<Class<? extends IndexingItemHandler>>() {{
+				add(ItemPathinfo.class);
+				add(ItemProperties.class);
+			}};
 	}	
 
 }

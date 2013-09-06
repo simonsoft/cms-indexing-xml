@@ -39,8 +39,8 @@ import org.junit.Test;
 
 import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup;
 import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup.Core;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.IdStrategy;
-import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.add.XmlSourceHandlerSolrj;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceElement;

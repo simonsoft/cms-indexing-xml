@@ -35,7 +35,7 @@ import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
 

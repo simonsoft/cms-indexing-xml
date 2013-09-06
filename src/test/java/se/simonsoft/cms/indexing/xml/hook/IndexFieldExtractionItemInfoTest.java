@@ -44,8 +44,7 @@ import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
-import se.simonsoft.xmltracking.index.add.XmlIndexFieldExtraction;
-
+import se.simonsoft.xmltracking.index.XmlIndexFieldExtraction;
 import se.repos.indexing.IndexingDoc;
 
 public class IndexFieldExtractionItemInfoTest {
