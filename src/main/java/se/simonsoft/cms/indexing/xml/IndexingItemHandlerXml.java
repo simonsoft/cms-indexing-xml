@@ -74,7 +74,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 			logger.debug("XML index only contains HEAD so skipping later overwritten {}", c.getPath());
 			return;
 		}
-		if (c.isContent()) {
+		if (c.isFile()) {
 			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.debug("Changeset content update item {} found", c);
