@@ -51,7 +51,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	/**
 	 * How to get document status from already extracted fields.
 	 */
-	public static final String STATUS_FIELD_NAME = "prop_cms:status";
+	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	
 	private static final QName STATUS_PARAM = new QName("status");
 	

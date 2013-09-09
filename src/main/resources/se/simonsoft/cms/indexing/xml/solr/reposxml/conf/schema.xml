@@ -176,16 +176,6 @@
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
 		
-		<!-- bad idea to allow colon on field names, make copies for experimentation -->
-		<copyField source="prop_cms:status" dest="prop_cms_status"/>
-		<copyField source="a_cms:rid" dest="a_cms_rid"/>
-		<copyField source="prop_cms:status" dest="prop_cms,status"/>
-		<copyField source="a_cms:rid" dest="a_cms,rid"/>
-		<copyField source="prop_cms:status" dest="prop_cms.status"/>
-		<copyField source="a_cms:rid" dest="a_cms.rid"/>
-		<copyField source="prop_cms:status" dest="prop_cms|status"/>
-		<copyField source="a_cms:rid" dest="a_cms|rid"/>
-		
 		<copyField source="text" dest="text_g"/>
 		<copyField source="text" dest="text_spell"/>
 		<copyField source="text" dest="text_assist"/>
