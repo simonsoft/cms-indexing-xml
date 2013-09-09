@@ -40,7 +40,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	
 	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, mportant customization point
 	
-	private SupportLegacySchema supportLegacySchema = new SupportLegacySchema(); // TODO do away with gradually
+	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
 	private XmlSourceReader sourceReader = null;
 	

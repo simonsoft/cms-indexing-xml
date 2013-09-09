@@ -19,9 +19,9 @@ import se.simonsoft.cms.item.RepoRevision;
 /**
  * Preprocesses the doc for common fields so that the old reposxml schema is supported while transitioning to the new repositem fields.
  */
-public class SupportLegacySchema {
+public class XmlIndexRestrictFields {
 
-	private static final Logger logger = LoggerFactory.getLogger(SupportLegacySchema.class);
+	private static final Logger logger = LoggerFactory.getLogger(XmlIndexRestrictFields.class);
 	
 	/**
 	 * Until {@link IndexingDoc#deepCopy()} can get only the {@link ItemPathinfo} and {@link ItemProperties} fields we use this to map repositem fields to reposxml schema.
