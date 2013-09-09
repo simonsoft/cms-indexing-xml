@@ -71,7 +71,7 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();
 		if (c.isOverwritten()) {
-			logger.debug("XML index only contains HEAD so skipping later overwritten {}", c.getPath());
+			logger.debug("Head indexing skips later overwritten {} at {}", c.getPath(), progress.getRevision());
 			return;
 		}
 		if (c.isFile()) {
