@@ -44,7 +44,7 @@
 			<field name="words_text"><xsl:value-of select="count(tokenize(string(.), $whitespace))"/></field>
 			
 			<field name="reusevalue">
-				<xsl:apply-templates select="." mode="find-rid-removal"/>
+				<xsl:apply-templates select="." mode="rule-reusevalue"/>
 			</field>
 			
 		</doc>
@@ -87,13 +87,27 @@
 		<xsl:value-of select="." />
 	</xsl:template>
 	
-	<xsl:template match="*" mode="find-rid-removal">
+	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
+	<xsl:template match="*" mode="rule-reusevalue">
 		<xsl:choose>
-			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-1</xsl:when>
+			<!-- Rid should not have been removed from the current node -->
+			<xsl:when test="not(@cms:rid)">-2</xsl:when>	
+			<!-- Rid should not have been removed from a child, but note that removal must always be done on complete includes -->
+			<!-- Some installations don't set rids below certain stop tags -->
+			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
+			<!-- Marking a document Obsolete means we don't want to reuse from it -->
+			<xsl:when test="$status = 'Obsolete'">-1</xsl:when>
+			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
+			<xsl:otherwise>1</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<!-- Decides if a match is valid for use as replacement, >0 means true -->
+	<xsl:template match="*" mode="rule-reuseready">
+		<xsl:choose>
 			<xsl:when test="$status = 'Released'">1</xsl:when>
 			<xsl:otherwise>0</xsl:otherwise>
 		</xsl:choose>
-		
 	</xsl:template>
 	
 </xsl:stylesheet>
