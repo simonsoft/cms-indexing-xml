@@ -46,6 +46,10 @@
 			<field name="reusevalue">
 				<xsl:apply-templates select="." mode="rule-reusevalue"/>
 			</field>
+
+			<field name="reuseready">
+				<xsl:apply-templates select="." mode="rule-reuseready"/>
+			</field>
 			
 		</doc>
 		

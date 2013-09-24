@@ -50,6 +50,7 @@
 		Index time analysis of the quality of the element for suggest/assist/reuse features, higher number is better, <0 is discouraging.
 		-->
 		<field name="reusevalue" type="int" indexed="true" stored="true" multiValued="false" />
+		<field name="reuseready" type="int" indexed="true" stored="true" multiValued="false" />
 
 		<!--
 		Checksums of any field or of contents that are not indexed
