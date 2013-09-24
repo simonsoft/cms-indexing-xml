@@ -72,7 +72,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		repo = setup.getRepository();
 		wc = new File(repo.getAdminPath(), "wc"); // inside repository, same cleanup
 
-		clientManager = SVNClientManager.newInstance();
+		clientManager = SVNClientManager.newInstance(null, repo.getSvnkit().getAuthenticationManager());
 		
 		setUpIndexing(repo);
 	}
