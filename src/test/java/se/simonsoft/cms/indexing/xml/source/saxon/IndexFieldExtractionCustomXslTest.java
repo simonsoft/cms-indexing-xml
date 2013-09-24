@@ -73,46 +73,48 @@ public class IndexFieldExtractionCustomXslTest {
 			}
 		});		
 		
-		IndexingDoc root = mock(IndexingDoc.class);
-		when(root.getFieldValue("source")).thenReturn(
+		IndexingDoc root = new IndexingDocIncrementalSolrj();
+		root.setField("source",
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
 				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
 				"</document>");
-		when(root.getFieldValue("prop_cms.status")).thenReturn("Released");
+		root.setField("prop_cms.status", "Released");
 		
 		x.extract(null, root);
 		// a child is disqualified from reuse so this element has to be too
-		verify(root).addField("reusevalue", "-1");
+		assertEquals("-3", root.getFieldValue("reusevalue"));
 		
-		IndexingDoc norid = mock(IndexingDoc.class);
-		when(norid.getFieldValue("source")).thenReturn(
+		IndexingDoc norid = new IndexingDocIncrementalSolrj();
+		norid.setField("source",
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" >section</section>");
-		when(norid.getFieldValue("prop_cms.status")).thenReturn("Released");
+		norid.setField("prop_cms.status", "Released");
 		
 		x.extract(null, norid);
-		verify(norid).addField("reusevalue", "-1");
+		assertEquals("-2", norid.getFieldValue("reusevalue"));
 		
-		IndexingDoc sibling = mock(IndexingDoc.class);
-		when(sibling.getFieldValue("source")).thenReturn(
+		IndexingDoc sibling = new IndexingDocIncrementalSolrj();
+		sibling.setField("source",
 				"<figure xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>");
-		when(sibling.getFieldValue("prop_cms.status")).thenReturn("Released");
+		sibling.setField("prop_cms.status", "Released");
 		
 		x.extract(null, sibling);
-		verify(sibling).addField("reusevalue", "1");
+		assertEquals("1", sibling.getFieldValue("reusevalue"));
 		
-		IndexingDoc doc2 = new IndexingDocIncrementalSolrj(); // should replace mock(IndexingDoc.class) because it allows real asserts
+		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
 		doc2.addField("source", "<doc/>");
-		x.extract(null, doc2);
-		// status is reflected in reuserea
-		assertEquals("0", doc2.getFieldValue("reuseready"));		
 		
-		IndexingDoc doc3 = mock(IndexingDoc.class);
-		when(doc3.getFieldValue("prop_cms.status")).thenReturn(null);
-		when(doc3.getFieldValue("source")).thenReturn("<doc/>");
+		x.extract(null, doc2);
+		assertEquals("-2", doc2.getFieldValue("reusevalue"));		
+		// TODO assert reuseready
+		
+		IndexingDoc doc3 = new IndexingDocIncrementalSolrj();
+		doc3.setField("prop_cms.status", null);
+		doc3.setField("source", "<doc/>");
 		x.extract(null, doc3);
-		verify(doc3).addField("reusevalue", "0");
+		assertEquals("-2", doc3.getFieldValue("reusevalue"));
+		// TODO assert reuseready
 	}
 
 }
