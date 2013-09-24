@@ -26,6 +26,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
 import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
@@ -100,11 +101,12 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, sibling);
 		verify(sibling).addField("reusevalue", "1");
 		
-		IndexingDoc doc2 = mock(IndexingDoc.class);
-		when(doc2.getFieldValue("prop_cms.status")).thenReturn("In_Translation");
-		when(doc2.getFieldValue("source")).thenReturn("<doc/>");
+		IndexingDoc doc2 = new IndexingDocIncrementalSolrj(); // should replace mock(IndexingDoc.class) because it allows real asserts
+		doc2.addField("prop_cms.status", "In_Translation");
+		doc2.addField("source", "<doc/>");
 		x.extract(null, doc2);
-		verify(doc2).addField("reusevalue", "0");
+		// status is reflected in reuserea
+		assertEquals("0", doc2.getFieldValue("reuseready"));		
 		
 		IndexingDoc doc3 = mock(IndexingDoc.class);
 		when(doc3.getFieldValue("prop_cms.status")).thenReturn(null);

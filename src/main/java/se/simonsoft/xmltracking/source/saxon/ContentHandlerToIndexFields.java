@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 import se.repos.indexing.IndexingDoc;
 
 /**
- * Passes solr doc style field=value elements directly to {@link IndexFields}.
+ * Passes solr doc style field=value elements directly to {@link IndexingDoc}.
  */
 class ContentHandlerToIndexFields implements ContentHandler {
 
