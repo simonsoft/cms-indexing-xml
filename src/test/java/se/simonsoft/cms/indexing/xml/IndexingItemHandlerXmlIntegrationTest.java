@@ -53,6 +53,7 @@ import se.simonsoft.xmltracking.source.XmlSourceReader;
 import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
 import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
 import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
+import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSourceDefault;
 
 public class IndexingItemHandlerXmlIntegrationTest {
 
@@ -88,15 +89,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
 		fe.add(new XmlIndexIdAppendTreeLocation());
 		fe.add(new XmlIndexFieldElement());
-		XmlMatchingFieldExtractionSource xslSource = new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				return new StreamSource(xsl);
-			}
-		};
-		fe.add(new IndexFieldExtractionCustomXsl(xslSource));
+		fe.add(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault()));
 		fe.add(new XmlIndexFieldExtractionChecksum());
 		fe.add(new IndexFieldDeletionsToSaveSpace());
 		

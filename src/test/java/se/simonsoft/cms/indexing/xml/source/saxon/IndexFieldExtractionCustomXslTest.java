@@ -82,8 +82,8 @@ public class IndexFieldExtractionCustomXslTest {
 		root.setField("prop_cms.status", "Released");
 		
 		x.extract(null, root);
-		// a child is disqualified from reuse so this element has to be too
-		assertEquals("-3", root.getFieldValue("reusevalue"));
+		assertEquals("a child is disqualified from reuse so this element has to be too", "-3", root.getFieldValue("reusevalue"));
+		assertEquals("the element is status=Released so reuseready is not affected", "1", root.getFieldValue("reuseready"));
 		
 		IndexingDoc norid = new IndexingDocIncrementalSolrj();
 		norid.setField("source",
@@ -106,8 +106,8 @@ public class IndexFieldExtractionCustomXslTest {
 		doc2.addField("source", "<doc/>");
 		
 		x.extract(null, doc2);
-		assertEquals("-2", doc2.getFieldValue("reusevalue"));		
-		// TODO assert reuseready
+		assertEquals("-2", doc2.getFieldValue("reusevalue"));
+		assertEquals("status is not released", "0", doc2.getFieldValue("reuseready"));
 		
 		IndexingDoc doc3 = new IndexingDocIncrementalSolrj();
 		doc3.setField("prop_cms.status", null);
