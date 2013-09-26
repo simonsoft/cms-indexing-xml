@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
@@ -85,7 +87,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 	@Test
 	public void testTinyInline() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
@@ -95,6 +97,56 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		assertEquals(4, x1.getNumFound());
 	
 		// now produce more revisions
+		
+	}
+	
+	@Test
+	public void testJoin() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
+		assertEquals("all elements that have a parent, got " + j1, 3, j1.getNumFound());
+		for (SolrDocument e : j1) {
+			assertNotEquals("root does not have a parent", "doc", e.getFieldValue("name"));
+		}
+	
+		SolrDocumentList j2 = reposxml.query(new SolrQuery("{!join from=id_p to=id}*:*")).getResults();
+		assertEquals("all elements that have a child, got " + j2, 2, j2.getNumFound());
+		
+		SolrDocumentList j3 = reposxml.query(new SolrQuery("{!join from=id_p to=id}name:inline")).getResults();
+		assertEquals("all elements that have a child which is an <inline/>, got " + j3, 1, j3.getNumFound());
+		assertEquals("elem", j3.get(0).getFieldValue("name"));
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml@2|1.2", j3.get(0).getFieldValue("id"));
+		
+		SolrDocumentList j4 = reposxml.query(new SolrQuery("name:elem AND {!join from=id_p to=id}*:*")).getResults();
+		assertEquals("all elements that are an elem and have a child, got " + j4, 1, j4.getNumFound());
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml@2|1.2", j4.get(0).getFieldValue("id"));
+		
+		SolrDocumentList j5 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
+		assertEquals("all elements that have a child which is either <elem/> or <inline/>" + j5, 2, j5.getNumFound());
+		
+		// why doesn't this run?
+		//SolrDocumentList j6 = reposxml.query(new SolrQuery("repo:tiny-inline AND {!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
+		//assertEquals("all elements that have a child which is either <elem/> or <inline/>, in the test repo" + j6, 2, j6.getNumFound());
+
+		SolrDocumentList j7 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(text:\"elem text\" AND name:elem)")).getResults();
+		assertEquals("elements that have a child which matches two criterias" + j7, 1, j7.getNumFound());
+
+		SolrDocumentList j8 = reposxml.query(new SolrQuery("{!join from=id_a to=id}name:inline")).getResults();
+		assertEquals("elements with a descendat which is an <inline/>, got " + j8, 2, j8.getNumFound());		
+		
+		// how to do "qq" in solrj?
+//		// find all figures with a bylinew with value "me"
+//		assertJQ(req("q", "{!join from=id_p to=id v=$qq}",
+//					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
+//					//"qf", "name",
+//					"fl", "id",
+//					"debugQuery", "true"),
+//				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
 		
 	}
 
@@ -459,38 +511,6 @@ public class IndexingItemHandlerXmlIntegrationTest {
 //		
 //		// now that we have the data in a test index, test some other queries
 //		reuseDataTestJoin();
-//	}
-//	
-//	void reuseDataTestJoin() throws Exception {
-//		
-//		// find all elements that can be joined with a parent
-//		assertJQ(req("q", "{!join from=id to=id_p}*:*", "fl", "id"),
-//				"/response=={'numFound':4,'start':0,'docs':[{'id':'testdoc1_e2'},{'id':'testdoc1_e3'},{'id':'testdoc1_e4'},{'id':'testdoc1_e5'}]}");
-//
-//		// find all elements that have a child
-//		assertJQ(req("q", "{!join from=id_p to=id}*:*", "fl", "id"),
-//				"/response=={'numFound':2,'start':0,'docs':[{'id':'testdoc1_e1'},{'id':'testdoc1_e3'}]}");
-//
-//		// find all elements that have a child that is a <title/>
-//		assertJQ(req("q", "{!join from=id_p to=id}name:title", "fl", "id"),
-//				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");		
-//		
-//		// find all children of xz0 component
-//		assertJQ(req("q", "{!join from=id to=id_p}a_cms\\:component:xz0", "fl", "name"),
-//				"/response=={'numFound':2,'start':0,'docs':[{'name':'title'}, {'name':'byline'}]}");
-//		
-//		// find all figures with a bylinew with value "me"
-//		assertJQ(req("q", "{!join from=id_p to=id v=$qq}",
-//					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
-//					//"qf", "name",
-//					"fl", "id",
-//					"debugQuery", "true"),
-//				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
-//		
-//		// find all elements that contain a title (recursively)
-//		assertJQ(req("q", "{!join from=id_a to=id}name:title", "fl", "id"),
-//				"/response=={'numFound':2,'start':0,'docs':[{'id':'testdoc1_e1'},{'id':'testdoc1_e3'}]}");
-//		
 //	}	
 	
 }

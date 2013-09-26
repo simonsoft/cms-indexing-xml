@@ -17,4 +17,7 @@
 
 -->
 <!DOCTYPE document PUBLIC "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN" "techdoc.dtd">
-<doc><elem>text</elem><elem id="e2">elem <inline>text</inline></elem></doc>
+<doc>
+<elem>text</elem>
+<elem id="e2">elem <inline>text</inline></elem>
+</doc>
