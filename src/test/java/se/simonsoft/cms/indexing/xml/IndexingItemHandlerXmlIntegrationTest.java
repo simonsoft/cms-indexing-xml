@@ -129,7 +129,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		SolrDocumentList j5 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
 		assertEquals("all elements that have a child which is either <elem/> or <inline/>" + j5, 2, j5.getNumFound());
 		
-		// why doesn't this run?
+		// why doesn't this run? instead use Parameter dereferencing?
 		//SolrDocumentList j6 = reposxml.query(new SolrQuery("repo:tiny-inline AND {!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
 		//assertEquals("all elements that have a child which is either <elem/> or <inline/>, in the test repo" + j6, 2, j6.getNumFound());
 
@@ -139,7 +139,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		SolrDocumentList j8 = reposxml.query(new SolrQuery("{!join from=id_a to=id}name:inline")).getResults();
 		assertEquals("elements with a descendat which is an <inline/>, got " + j8, 2, j8.getNumFound());		
 		
-		// how to do "qq" in solrj?
+		// "Parameter dereferencing", http://wiki.apache.org/solr/LocalParams#parameter_dereferencing, but how to do "qq" in solrj?
 //		// find all figures with a bylinew with value "me"
 //		assertJQ(req("q", "{!join from=id_p to=id v=$qq}",
 //					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
@@ -148,6 +148,40 @@ public class IndexingItemHandlerXmlIntegrationTest {
 //					"debugQuery", "true"),
 //				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
 		
+	}
+	
+	@Test
+	public void testJoinReleasetranslation() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
+		
+		SolrDocumentList findAllMatchesWithoutJoin = reposxml.query(new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1)).getResults();
+		assertEquals("Could search for the checksum in all xml", 2, findAllMatchesWithoutJoin.getNumFound());
+		
+		SolrQuery q = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
+				// Because we join on the same filed name we must explicitly state that the hit should be a release, or In_Translation items would join with themselves and match
+				// Do we have a release specific field that is not copied to translations? For now just exclude translations.
+				+ " AND -prop_abx.TranslationLocale:*"
+				// Haven't found how to combine two criterias on the join into a single join, when there's also criteria on the actual match (see join test above)
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}prop_abx.TranslationLocale:sv-SE"
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}reusevalue:1");
+		SolrDocumentList findReusevalue = reposxml.query(q).getResults();
+		assertEquals(1, findReusevalue.getNumFound());
+		
+		SolrQuery q2 = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}prop_abx.TranslationLocale:de-DE"
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}reusevalue:1");
+		assertEquals("The two requirements must match the same join element", 0, reposxml.query(q2).getResults().getNumFound());
+		
+		// Then use the rid of the highest ranking hit to retrieve reuseready and source for it from solr, or to avoid having all source in solr find some other way to read element source
 	}
 
 //	@SuppressWarnings({ "unchecked", "rawtypes" })

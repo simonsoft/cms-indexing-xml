@@ -176,5 +176,34 @@
             <property name="xml:title">My First Novel</property>
          </properties>
       </entry>
+      <!-- extra entry to verify that join doesn't match -->
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/lang/de-DE/release/R001/xml/Docs/My First Novel.xml</name>
+         <size>1386</size>
+         <commit revision="9">
+            <author>test</author>
+            <date>2012-10-03T05:06:59.295201Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1^/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:BaseLogicalId">x-svn:///svn/testaut1^/tms/lang/sv-SE/release/R001/xml/Docs/My%20First%20Novel.xml?p=8</property>
+            <property name="abx:ContentType">xml</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseLabel">R001</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationLocale">de-DE</property>
+            <property name="abx:TranslationMaster">x-svn:///svn/testaut1^/tms/release/R001/xml/Docs/My%20First%20Novel.xml?p=6</property>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:TranslationSource">Agency</property>
+            <property name="abx:lang">de-DE</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">In_Translation</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
    </list>
 </lists>
