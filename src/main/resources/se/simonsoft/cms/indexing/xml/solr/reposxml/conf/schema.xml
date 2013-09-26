@@ -51,6 +51,11 @@
 		-->
 		<field name="reusevalue" type="int" indexed="true" stored="true" multiValued="false" />
 		<field name="reuseready" type="int" indexed="true" stored="true" multiValued="false" />
+		<!--
+		Simplify joins, can be stored=false in production
+		-->
+		<field name="reusevaluelocale" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="reuserelease" type="string" indexed="true" stored="true" multiValued="false" />
 
 		<!--
 		Checksums of any field or of contents that are not indexed

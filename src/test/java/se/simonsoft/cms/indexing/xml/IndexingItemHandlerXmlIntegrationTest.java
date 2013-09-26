@@ -22,8 +22,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
@@ -37,6 +39,7 @@ import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
+import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
@@ -70,6 +73,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		fe.add(new XmlIndexFieldElement());
 		fe.add(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault()));
 		fe.add(new XmlIndexFieldExtractionChecksum());
+		fe.add(new IndexReuseJoinFields());
 		fe.add(new IndexFieldDeletionsToSaveSpace());
 		
 		IndexingItemHandlerXml handlerXml = new IndexingItemHandlerXml();
@@ -151,7 +155,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 	}
 	
 	@Test
-	public void testJoinReleasetranslation() throws SolrServerException {
+	public void testJoinReleasetranslationNoExtraFields() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
@@ -175,15 +179,41 @@ public class IndexingItemHandlerXmlIntegrationTest {
 				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}reusevalue:1");
 		SolrDocumentList findReusevalue = reposxml.query(q).getResults();
 		assertEquals(1, findReusevalue.getNumFound());
-		
-		SolrQuery q2 = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
-				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}prop_abx.TranslationLocale:de-DE"
-				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}reusevalue:1");
-		assertEquals("The two requirements must match the same join element", 0, reposxml.query(q2).getResults().getNumFound());
-		
-		// Then use the rid of the highest ranking hit to retrieve reuseready and source for it from solr, or to avoid having all source in solr find some other way to read element source
+		// TODO with the current data set it is impossible to assert that we don't get false positives with the above query
+		// Would need another release with an Obsolete sv-SE translation and a reusevalue=1 de-DE one, which probably would match falsely
 	}
 
+	@Test
+	public void testJoinReleasetranslation() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
+		
+		SolrDocumentList findAllMatchesWithoutJoin = reposxml.query(new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1)).getResults();
+		assertEquals("Could search for the checksum in all xml", 2, findAllMatchesWithoutJoin.getNumFound());
+		
+		SolrQuery q = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
+				+ " AND {!join to=pathfull from=reuserelease}reusevaluelocale:1sv-SE");
+		SolrDocumentList findReusevalue = reposxml.query(q).getResults();
+		assertEquals(1, findReusevalue.getNumFound());
+		String ridForSourceAndReusereadyLookup = (String) findReusevalue.get(0).getFieldValue("a_cms.rid");
+		assertEquals("2gyvymn15kv0001", ridForSourceAndReusereadyLookup);
+		
+		// TODO we dont't get a cartesian product, so can we sort on released first (as we do with xincludes)
+		// otherwise we would risk getting lots of reuseready=0 hits first, and the benefit of joining would be gone
+		// The following query syntax fails
+		//q.addSort(new SortClause("{!join to=pathfull from=reuserelease}reuseready", ORDER.desc));
+		//SolrDocumentList findReusevalueReleasedFirst = reposxml.query(q).getResults();
+		//assertEquals(1, findReusevalueReleasedFirst.getNumFound());
+	}
+	
 //	@SuppressWarnings({ "unchecked", "rawtypes" })
 //	@Test
 //	public void test() throws SolrServerException, IOException {
