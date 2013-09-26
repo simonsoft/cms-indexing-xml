@@ -30,7 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.repos.testing.indexing.SvnTestIndexing;
+import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
 import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
@@ -51,7 +51,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 
 	/// test framework from cms-backend-svnkit
 	
-	private SvnTestIndexing indexing = null;
+	private ReposTestIndexing indexing = null;
 
 	/**
 	 * Manual dependency injection. We should think twice before we copy this config to other tests,
@@ -61,7 +61,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 	public void setUpIndexing() {
 		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaults();
 		indexOptions.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**");
-		indexing = SvnTestIndexing.getInstance(indexOptions);
+		indexing = ReposTestIndexing.getInstance(indexOptions);
 		SolrServer reposxml = indexing.getCore("reposxml");
 		
 		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
