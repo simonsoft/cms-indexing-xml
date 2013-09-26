@@ -27,7 +27,7 @@ public class IndexReuseJoinFields implements XmlIndexFieldExtraction {
 		String translationmaster = (String) fields.getFieldValue("prop_abx.TranslationMaster");
 		if (translationmaster != null) {
 			CmsItemIdArg id = new CmsItemIdArg(translationmaster);
-			fields.setField("reuserelease", id.getRepository().getPath() + id.getRelPath());
+			fields.setField("reuserelease", id.getRepository().getPath() + id.getRelPath()); // TODO not needed if we join on RID
 		}
 		String reusevalue = (String) fields.getFieldValue("reusevalue"); // should we parse to integer in the extraction from xsl instead?
 		String locale = (String) fields.getFieldValue("prop_abx.TranslationLocale");
