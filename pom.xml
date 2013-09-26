@@ -72,7 +72,13 @@
 			<artifactId>repos-testing</artifactId>
 			<version>1-SNAPSHOT</version>
 			<scope>test</scope>
-		</dependency>	
+		</dependency>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-backend-filexml</artifactId>
+			<version>1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>			
 	</dependencies>
 	
 	<build>
