@@ -22,10 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
@@ -168,7 +166,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
 		
 		SolrDocumentList findAllMatchesWithoutJoin = reposxml.query(new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1)).getResults();
-		assertEquals("Could search for the checksum in all xml", 2, findAllMatchesWithoutJoin.getNumFound());
+		assertEquals("Could search for the checksum in all xml", 1, findAllMatchesWithoutJoin.getNumFound());
 		
 		SolrQuery q = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
 				// Because we join on the same filed name we must explicitly state that the hit should be a release, or In_Translation items would join with themselves and match
@@ -195,9 +193,6 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
 		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
-		
-		SolrDocumentList findAllMatchesWithoutJoin = reposxml.query(new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1)).getResults();
-		assertEquals("Could search for the checksum in all xml", 2, findAllMatchesWithoutJoin.getNumFound());
 		
 		SolrQuery q = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
 				+ " AND {!join to=pathfull from=reuserelease}reusevaluelocale:1sv-SE");
