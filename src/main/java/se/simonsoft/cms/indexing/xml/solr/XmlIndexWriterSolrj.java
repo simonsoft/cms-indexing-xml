@@ -40,6 +40,9 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlIndexWriter {
 
+	private static final long BATCH_SIZE_MAX = 500; // This is a quick fix for avoiding "java.lang.OutOfMemoryError: Java heap space" without really analyzing the problem. 1500 and above has proved too large.
+	// The occurrence of the above error might be because of text size, so resurrecting the old text length count could be a good idea.
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SolrServer solrServer;
@@ -152,6 +155,10 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 //				batchReady = true; // send batch
 //				batchTextTotal = 0;
 //			}
+			if (size() == BATCH_SIZE_MAX) {
+				logger.warn("Reached max batch add sixe {}, forcing send to solr", BATCH_SIZE_MAX);
+				batchSend(this);
+			}
 			return true;
 		}
 

@@ -15,10 +15,16 @@
  */
 package se.simonsoft.xmltracking.source;
 
-import java.io.InputStream;
+/**
+ * Indicates that XML couldn't be parsed,
+ * not including errors like DTD lookup or compliance.
+ */
+public class XmlNotWellFormedException extends RuntimeException {
 
-public interface XmlSourceReader {
+	private static final long serialVersionUID = 1L;
 
-	void read(InputStream xml, XmlSourceHandler handler) throws XmlNotWellFormedException;
-	
+	public XmlNotWellFormedException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

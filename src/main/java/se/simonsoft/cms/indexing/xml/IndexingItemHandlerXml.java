@@ -30,6 +30,7 @@ import se.repos.indexing.item.ItemPathinfo;
 import se.repos.indexing.item.ItemProperties;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.xmltracking.source.XmlNotWellFormedException;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
@@ -99,7 +100,11 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 		supportLegacySchema.handle(itemDoc);
 		XmlIndexAddSession docHandler = indexWriter.get();
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
-		sourceReader.read(progress.getContents(), sourceHandler);
+		try {
+			sourceReader.read(progress.getContents(), sourceHandler);
+		} catch (XmlNotWellFormedException e) {
+			logger.warn("Skipping XML {}: {}", progress.getFields().getFieldValue("path"), e.getCause());
+		}
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {

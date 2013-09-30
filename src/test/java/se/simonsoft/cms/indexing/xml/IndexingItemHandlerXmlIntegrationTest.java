@@ -98,8 +98,22 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 	
-		// now produce more revisions
+		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
 		
+	}
+	
+	@Test
+	public void testInvalidXml() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-invalid", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();		
+		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
+				0, x1.getNumFound());
 	}
 	
 	@Test

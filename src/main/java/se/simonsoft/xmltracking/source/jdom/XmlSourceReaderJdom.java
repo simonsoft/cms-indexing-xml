@@ -30,6 +30,7 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 
+import se.simonsoft.xmltracking.source.XmlNotWellFormedException;
 import se.simonsoft.xmltracking.source.XmlSourceAttribute;
 import se.simonsoft.xmltracking.source.XmlSourceDoctype;
 import se.simonsoft.xmltracking.source.XmlSourceElement;
@@ -64,9 +65,9 @@ public class XmlSourceReaderJdom implements XmlSourceReader {
 			register(root, handler, outputter, null, 1, null, 1);
 			handler.endDocument();
 		}
-		// indicates a well-formedness error
 		catch (JDOMException e) {
-			throw new RuntimeException(e);
+			// indicates a well-formedness error because we have turned off validation
+			throw new XmlNotWellFormedException("Failed to parse XML from stream", e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
