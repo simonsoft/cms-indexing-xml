@@ -53,35 +53,13 @@ public class XmlIndexRestrictFields {
 		put("repohost", null);
 	}};
 	
-//	// can these be the common ID field names?
-//	CmsItemPath path = context.getItemPath();
-//	RepoRevision rev = context.getRevision();
-//	CmsRepository repo = context.getRepository();		
-//	fields.addField("path", path.getPath());
-//	fields.addField("pathname", path.getName());
-//	CmsItemPath parent = path.getParent();
-//	fields.addField("pathdir", parent == null ? "" : parent.getPath());
-//	while (parent != null) {
-//		fields.addField("pathin", parent.getPath());
-//		parent = parent.getParent();
-//	}
-//	fields.addField("pathext", path.getExtension());
-//	fields.addField("pathfull", repo.getPath() + path.getPath());
-//	fields.addField("rev", rev.getNumber());
-//	fields.addField("revt", getDateValue(rev.getDate()));
-//	fields.addField("repo", repo.getName());
-//	fields.addField("repoparent", repo.getParentPath());
-//	if (repo.isHostKnown()) {
-//		fields.addField("repohost", repo.getHost());
-//	}	
-	
 	public void handle(IndexingDoc itemDoc) {
 		Set<String> keep = FIELDS_KEEP.keySet();
 		Set<String> remove = new LinkedHashSet<String>();
 		for (String name : itemDoc.getFieldNames()) {
 			if (name.startsWith("prop_")) continue;
 			if (!keep.contains(name)) {
-				logger.debug("Removing field '{}' not in xml keep list", name);
+				logger.trace("Removing field '{}' not in xml keep list", name);
 				remove.add(name);
 			}
 		}
