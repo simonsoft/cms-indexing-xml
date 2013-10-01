@@ -25,5 +25,10 @@ public interface XmlIndexAddSession extends Collection<IndexingDoc> {
 	 * Called to end session, typically when the XML file is completely read.
 	 */
 	void end();
+
+	/**
+	 * @return accumulated form all added {@link IndexingDoc#getContentSize()}
+	 */
+	int sizeContentTotal();
 	
 }

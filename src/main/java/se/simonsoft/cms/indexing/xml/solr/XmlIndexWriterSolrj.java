@@ -40,8 +40,15 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlIndexWriter {
 
-	private static final long BATCH_SIZE_MAX = 500; // This is a quick fix for avoiding "java.lang.OutOfMemoryError: Java heap space" without really analyzing the problem. 1500 and above has proved too large.
-	// The occurrence of the above error might be because of text size, so resurrecting the old text length count could be a good idea.
+//	private static final long BATCH_SIZE_MAX = 500; // This is a quick fix for avoiding "java.lang.OutOfMemoryError: Java heap space" without really analyzing the problem. 1500 and above has proved too large.
+//	// The occurrence of the above error might be because of text size, so resurrecting the old text length count could be a good idea.
+	
+	/**
+	 * As element size varies a lot due to source and text indexing we can
+	 * try to keep reasonably small batches by also checking total text+source length,
+	 * triggering batchReady if above a certain limit instead of waiting for the number of elements.
+	 */
+	private static final long BATCH_TEXT_TOTAL_MAX = 1 * 1000 * 1000;	
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -63,7 +70,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			logger.warn("Send to solr attempted with empty document list");
 			return;
 		}
-		logger.info("Sending {} elements to Solr starting with id {}", pending.size(), pending.iterator().next().getFieldValue("id"));
+		logger.info("Sending {} elements size {} to Solr starting with id {}", pending.size(), session.sizeContentTotal(), pending.iterator().next().getFieldValue("id"));
 		try {
 			solrServer.add(pending);
 		} catch (SolrServerException e) {
@@ -127,6 +134,8 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 
 		private Collection<SolrInputDocument> pending = new LinkedList<SolrInputDocument>();
 		
+		private int contentSize = 0;
+		
 		@Override
 		public void end() {
 			sessionEnd(this);
@@ -144,19 +153,29 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			return pending.size();
 		}
 
+
+		@Override
+		public int sizeContentTotal() {
+			return contentSize;
+		}
+		
 		@Override
 		public boolean add(IndexingDoc e) {
+			if (size() == 0) {
+				contentSize = 0;
+			}
 			if (!pending.add(getSolrDoc(e))) {
 				throw new IllegalArgumentException("Doc add failed for " + e);
 			}
+			contentSize += e.getContentSize();
 //TODO			// we have a rough measurement of total field size here and can trigger batch send to reduce risk of hitting memory limitations in webapp
 //			if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
 //				logger.info("Sending batch because total source+text size {} indicates large update", batchTextTotal);
 //				batchReady = true; // send batch
 //				batchTextTotal = 0;
 //			}
-			if (size() == BATCH_SIZE_MAX) {
-				logger.warn("Reached max batch add sixe {}, forcing send to solr", BATCH_SIZE_MAX);
+			if (contentSize >= BATCH_TEXT_TOTAL_MAX) {
+				logger.warn("Reached max batch add sixe {} after {} elements, forcing send to solr", BATCH_TEXT_TOTAL_MAX, e.size());
 				batchSend(this);
 			}
 			return true;
