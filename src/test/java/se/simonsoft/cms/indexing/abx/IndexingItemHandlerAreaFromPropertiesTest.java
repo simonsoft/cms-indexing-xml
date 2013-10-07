@@ -26,8 +26,9 @@ import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 
 public class IndexingItemHandlerAreaFromPropertiesTest {
 
-	// TODO implement @Test
+	@Test
 	public void test() {
+		if (true) return; // TODO implement 
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		IndexingItemProgress progress = mock(IndexingItemProgress.class);
 		when(progress.getFields()).thenReturn(doc);
