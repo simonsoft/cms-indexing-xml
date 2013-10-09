@@ -20,7 +20,7 @@ import java.util.Set;
 
 import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
-import se.repos.indexing.item.ItemProperties;
+import se.repos.indexing.item.HandlerProperties;
 
 public class IndexingItemHandlerAreaFromProperties implements
 		IndexingItemHandler {
@@ -34,7 +34,7 @@ public class IndexingItemHandlerAreaFromProperties implements
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
 		return new HashSet<Class<? extends IndexingItemHandler>>() {{
-			add(ItemProperties.class);
+			add(HandlerProperties.class);
 		}};
 	}
 

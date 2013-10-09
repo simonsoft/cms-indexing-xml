@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
-import se.repos.indexing.item.ItemProperties;
+import se.repos.indexing.item.HandlerProperties;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 
 /**
@@ -66,7 +66,7 @@ public class IndexingItemHandlerAbxDependencies implements IndexingItemHandler {
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
 		return new HashSet<Class<? extends IndexingItemHandler>>() {private static final long serialVersionUID = 1L;{
-			add(ItemProperties.class);
+			add(HandlerProperties.class);
 		}};
 	}
 
