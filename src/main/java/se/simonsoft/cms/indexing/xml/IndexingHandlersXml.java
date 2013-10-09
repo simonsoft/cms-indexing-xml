@@ -18,7 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 import java.util.LinkedList;
 
 import se.repos.indexing.IndexingHandlers;
-import se.repos.indexing.item.IndexingItemHandler;
+import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.repository.HandlerContentDisable;
 import se.repos.indexing.repository.MarkerRevisionComplete;
 import se.repos.indexing.solrj.HandlerSendSolrjRepositem;
