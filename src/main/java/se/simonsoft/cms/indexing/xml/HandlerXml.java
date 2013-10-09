@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
-import se.repos.indexing.item.ItemPathinfo;
-import se.repos.indexing.item.ItemProperties;
+import se.repos.indexing.item.HandlerPathinfo;
+import se.repos.indexing.item.HandlerProperties;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.xmltracking.source.XmlNotWellFormedException;
@@ -35,7 +35,7 @@ import se.simonsoft.xmltracking.source.XmlSourceElement;
 import se.simonsoft.xmltracking.source.XmlSourceHandler;
 import se.simonsoft.xmltracking.source.XmlSourceReader;
 
-public class IndexingItemHandlerXml implements IndexingItemHandler {
+public class HandlerXml implements IndexingItemHandler {
 
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -122,8 +122,8 @@ public class IndexingItemHandlerXml implements IndexingItemHandler {
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
 		return new HashSet<Class<? extends IndexingItemHandler>>() {{
-				add(ItemPathinfo.class);
-				add(ItemProperties.class);
+				add(HandlerPathinfo.class);
+				add(HandlerProperties.class);
 			}};
 	}	
 

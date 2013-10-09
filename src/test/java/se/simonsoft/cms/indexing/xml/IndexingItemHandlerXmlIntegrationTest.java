@@ -74,7 +74,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 		fe.add(new IndexReuseJoinFields());
 		fe.add(new IndexFieldDeletionsToSaveSpace());
 		
-		IndexingItemHandlerXml handlerXml = new IndexingItemHandlerXml();
+		HandlerXml handlerXml = new HandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setDependenciesXml(fe, xmlReader);
 		

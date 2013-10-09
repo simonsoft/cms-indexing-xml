@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
-import se.repos.indexing.item.ItemPathinfo;
-import se.repos.indexing.item.ItemProperties;
+import se.repos.indexing.item.HandlerPathinfo;
+import se.repos.indexing.item.HandlerProperties;
 
 /**
  * Preprocesses the doc for common fields so that the old reposxml schema is supported while transitioning to the new repositem fields.
@@ -35,7 +35,7 @@ public class XmlIndexRestrictFields {
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexRestrictFields.class);
 	
 	/**
-	 * Until {@link IndexingDoc#deepCopy()} can get only the {@link ItemPathinfo} and {@link ItemProperties} fields we use this to map repositem fields to reposxml schema.
+	 * Until {@link IndexingDoc#deepCopy()} can get only the {@link HandlerPathinfo} and {@link HandlerProperties} fields we use this to map repositem fields to reposxml schema.
 	 * Key is field name, value is rename or null for using same name (we should end up with only nulls here).
 	 */
 	public static final Map<String, String> FIELDS_KEEP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
