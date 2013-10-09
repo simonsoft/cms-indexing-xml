@@ -18,7 +18,7 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.HashSet;
 import java.util.Set;
 
-import se.repos.indexing.item.IndexingItemHandler;
+import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
 

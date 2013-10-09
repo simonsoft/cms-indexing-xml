@@ -18,7 +18,7 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import se.repos.indexing.item.IndexingItemHandler;
+import se.repos.indexing.IndexingItemHandler;
 
 /**
  * Used to get a complete set of handlers for SvnTestIndexing in different test scenarios.

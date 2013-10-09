@@ -23,7 +23,7 @@ import java.util.Collection;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
-import se.repos.indexing.item.IndexingItemHandler;
+import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;
