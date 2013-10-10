@@ -23,7 +23,7 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
 
-public class IndexingItemHandlerAreaFromProperties implements
+public class HandlerPathareaFromProperties implements
 		IndexingItemHandler {
 
 	private static final String RELEASE_VAL = "release";

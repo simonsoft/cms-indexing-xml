@@ -24,14 +24,14 @@ import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 
-public class IndexingItemHandlerAreaFromPropertiesTest {
+public class HandlerPathareaFromPropertiesTest {
 
 	@Test
 	public void test() {
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		IndexingItemProgress progress = mock(IndexingItemProgress.class);
 		when(progress.getFields()).thenReturn(doc);
-		IndexingItemHandlerAreaFromProperties area = new IndexingItemHandlerAreaFromProperties();
+		HandlerPathareaFromProperties area = new HandlerPathareaFromProperties();
 		
 		area.handle(progress);
 		assertNull("Not a release or translation", doc.getFieldValues("patharea"));

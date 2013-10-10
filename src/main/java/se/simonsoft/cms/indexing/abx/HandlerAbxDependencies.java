@@ -30,9 +30,9 @@ import se.simonsoft.cms.item.impl.CmsItemIdArg;
 /**
  * Uses the abx:Dependencies property, splitting on newline, to add fields ref + refid + refurl.
  */
-public class IndexingItemHandlerAbxDependencies implements IndexingItemHandler {
+public class HandlerAbxDependencies implements IndexingItemHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(IndexingItemHandlerAbxDependencies.class);
+	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxDependencies.class);
 	
 	private static final String HOSTFIELD = "repohost";
 	

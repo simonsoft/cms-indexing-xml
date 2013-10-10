@@ -28,7 +28,7 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;
 
-public class IndexingItemHandlerAbxDependenciesTest {
+public class HandlerAbxDependenciesTest {
 
 	@Test
 	public void test() {
@@ -44,7 +44,7 @@ public class IndexingItemHandlerAbxDependenciesTest {
 		doc.addField("ref", "/existing/url");
 		doc.addField("refurl", "http://host:123/existing/url");
 		
-		IndexingItemHandler handler = new IndexingItemHandlerAbxDependencies();
+		IndexingItemHandler handler = new HandlerAbxDependencies();
 		handler.handle(p);
 		Collection<Object> ref = doc.getFieldValues("ref");
 		Collection<Object> refid = doc.getFieldValues("refid");
