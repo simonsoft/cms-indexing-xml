@@ -28,7 +28,6 @@ public class IndexingItemHandlerAreaFromPropertiesTest {
 
 	@Test
 	public void test() {
-		if (true) return; // TODO implement 
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		IndexingItemProgress progress = mock(IndexingItemProgress.class);
 		when(progress.getFields()).thenReturn(doc);
@@ -38,7 +37,7 @@ public class IndexingItemHandlerAreaFromPropertiesTest {
 		assertNull("Not a release or translation", doc.getFieldValues("patharea"));
 		assertEquals("Thus a 'main'", true, (Boolean) doc.getFieldValue("pathmain"));
 		
-		doc.addField("prop_abx.AuthorMaster", "xyz");
+		doc.addField("prop_abx.ReleaseLabel", "X");
 		area.handle(progress);
 		assertNotNull("Should have identified area", doc.getFieldValues("patharea"));
 		assertEquals("Authormaster but no locale", "release", doc.getFieldValues("patharea").iterator().next());
@@ -50,7 +49,8 @@ public class IndexingItemHandlerAreaFromPropertiesTest {
 		assertNotNull("Should have identified area", doc.getFieldValues("patharea"));
 		assertEquals("Has locale", "translation", doc.getFieldValues("patharea").iterator().next());
 		assertEquals("No longer relase", 1, doc.getFieldValues("patharea").size());
-		assertEquals("Also not author area", false, (Boolean) doc.getFieldValue("pathmain"));		
+		assertEquals("Also not author area", false, (Boolean) doc.getFieldValue("pathmain"));
+		
 	}
 
 }
