@@ -23,8 +23,8 @@ import se.repos.indexing.repository.HandlerContentDisable;
 import se.repos.indexing.repository.MarkerRevisionComplete;
 import se.repos.indexing.solrj.HandlerSendSolrjRepositem;
 import se.repos.indexing.solrj.MarkerCommitSolrjRepositem;
-import se.simonsoft.cms.indexing.abx.IndexingItemHandlerAbxDependencies;
-import se.simonsoft.cms.indexing.abx.IndexingItemHandlerAreaFromProperties;
+import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
+import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
@@ -59,8 +59,8 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.configureFirst(guiceMultibinder);
 		// high priority, TODO this should be inserted before ScheduleAwaitNewer
 		IndexingHandlers.to(guiceMultibinder,
-				IndexingItemHandlerAbxDependencies.class,
-				IndexingItemHandlerAreaFromProperties.class);
+				HandlerAbxDependencies.class,
+				HandlerPathareaFromProperties.class);
 		// slow
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
 	}
