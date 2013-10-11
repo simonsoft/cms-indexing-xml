@@ -24,9 +24,9 @@ import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
-import se.simonsoft.xmltracking.source.XmlSourceAttribute;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
-import se.simonsoft.xmltracking.source.XmlSourceNamespace;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceAttribute;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceNamespace;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 

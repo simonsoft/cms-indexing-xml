@@ -30,10 +30,10 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
-import se.simonsoft.xmltracking.source.XmlNotWellFormedException;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
-import se.simonsoft.xmltracking.source.XmlSourceHandler;
-import se.simonsoft.xmltracking.source.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 
 public class HandlerXml implements IndexingItemHandler {
 

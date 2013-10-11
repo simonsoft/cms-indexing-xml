@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source;
+package se.simonsoft.cms.indexing.xml.custom;
 
 import java.io.InputStream;
 
-public interface XmlSourceReader {
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
-	void read(InputStream xml, XmlSourceHandler handler) throws XmlNotWellFormedException;
-	
+public class XmlMatchingFieldExtractionSourceDefault implements
+		XmlMatchingFieldExtractionSource {
+
+	@Override
+	public Source getXslt() {
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+		return new StreamSource(xsl);
+	}
+
 }

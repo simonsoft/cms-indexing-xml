@@ -36,16 +36,16 @@ import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
+import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
+import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
-import se.simonsoft.xmltracking.source.XmlSourceReader;
-import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
-import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
-import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSourceDefault;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
 public class IndexingItemHandlerXmlIntegrationTest {
 

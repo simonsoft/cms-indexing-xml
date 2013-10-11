@@ -17,7 +17,7 @@ package se.simonsoft.cms.indexing.xml.fields;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 public class XmlIndexIdAppendTreeLocation implements XmlIndexFieldExtraction {
 

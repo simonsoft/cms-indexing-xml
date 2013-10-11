@@ -25,13 +25,13 @@ import se.repos.indexing.solrj.HandlerSendSolrjRepositem;
 import se.repos.indexing.solrj.MarkerCommitSolrjRepositem;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
+import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
+import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
-import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
-import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSourceDefault;
 
 /**
  * Adds XML indexing handlers to those defined by {@link IndexingHandlers}.

@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.xmltracking.source.XmlSourceDoctype;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
-import se.simonsoft.xmltracking.source.XmlSourceHandler;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceDoctype;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
 
 /**
  * Instantiated once per document.

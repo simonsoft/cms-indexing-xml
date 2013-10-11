@@ -26,7 +26,7 @@ import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 /**
  * Creates checksums of selected fields and adds with checksum type prefixed field names.

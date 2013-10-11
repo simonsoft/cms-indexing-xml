@@ -33,27 +33,22 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
 			<version>0.6-SNAPSHOT</version>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing</artifactId>
 			<version>1-SNAPSHOT</version>
 		</dependency>
-	  	<dependency>
-	  		<groupId>org.jdom</groupId>
-	  		<artifactId>jdom2</artifactId>
-	  		<version>2.0.5</version>
-	  	</dependency>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-xmlsource</artifactId>
+			<version>1-SNAPSHOT</version>
+		</dependency>		
 	  	<dependency>
 	  		<groupId>org.apache.solr</groupId>
 	  		<artifactId>solr-solrj</artifactId>
 	  		<version>${solr-version}</version>
 	  	</dependency>
-		<dependency>
-			<groupId>net.sf.saxon</groupId>
-			<artifactId>Saxon-HE</artifactId>
-			<version>9.4</version>
-		</dependency>
 		<!-- logging backend for unit tests: log debug and above to console, no need for config file -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

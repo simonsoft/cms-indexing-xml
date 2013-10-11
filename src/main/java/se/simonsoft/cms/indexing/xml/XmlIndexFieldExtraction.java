@@ -16,7 +16,7 @@
 package se.simonsoft.cms.indexing.xml;
 
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 /**
  * Services that extract fields from source element or from earlier extracted fields.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.xmltracking.source.saxon;
+package se.simonsoft.cms.indexing.xml.custom;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -36,8 +36,8 @@ import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.xmltracking.source.XmlSourceElement;
-import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
 /**
  * 

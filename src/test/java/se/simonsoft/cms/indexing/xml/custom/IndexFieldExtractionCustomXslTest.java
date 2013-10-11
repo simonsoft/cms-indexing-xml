@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.simonsoft.cms.indexing.xml.source.saxon;
+package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -28,8 +28,8 @@ import org.junit.Test;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.xmltracking.source.saxon.IndexFieldExtractionCustomXsl;
-import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
+import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
+import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 
 public class IndexFieldExtractionCustomXslTest {
 
