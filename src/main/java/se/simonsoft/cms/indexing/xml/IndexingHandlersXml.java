@@ -18,15 +18,9 @@ package se.simonsoft.cms.indexing.xml;
 import java.util.LinkedList;
 
 import se.repos.indexing.IndexingHandlers;
-import se.repos.indexing.IndexingItemHandler;
-import se.repos.indexing.repository.HandlerContentDisable;
-import se.repos.indexing.repository.MarkerRevisionComplete;
-import se.repos.indexing.solrj.HandlerSendSolrjRepositem;
-import se.repos.indexing.solrj.MarkerCommitSolrjRepositem;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
@@ -38,6 +32,28 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
  */
 public abstract class IndexingHandlersXml {
 
+	/*
+		// Indexing fields extraction, in order.
+		// A service dependency framework could be added if maintaining order here is difficult.
+		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
+		fieldExtraction.addBinding().to(XmlIndexIdAppendTreeLocation.class);
+		fieldExtraction.addBinding().to(XmlIndexFieldElement.class);
+		// Saxon based text and word count extraction
+		fieldExtraction.addBinding().to(IndexFieldExtractionCustomXsl.class);
+		// We don't have a strategy yet for placement of the custom xsl, read from jar
+		bind(IndexFieldExtractionCustomXsl.class).toInstance(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				return new StreamSource(xsl);
+			}
+		}));
+		// Checksums of text and source fields (default settings)
+		fieldExtraction.addBinding().to(XmlIndexFieldExtractionChecksum.class);
+		fieldExtraction.addBinding().to(IndexFieldDeletionsToSaveSpace.class);
+	 */
+	
 	public static final Iterable<Class<? extends XmlIndexFieldExtraction>> STANDARD_XML_EXTRACTION = new LinkedList<Class<? extends XmlIndexFieldExtraction>>() {
 		private static final long serialVersionUID = 1L;
 		{
