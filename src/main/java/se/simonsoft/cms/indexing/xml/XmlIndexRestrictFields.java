@@ -46,6 +46,8 @@ public class XmlIndexRestrictFields {
 		put("pathin", null);
 		put("pathext", null);
 		put("pathfull", null);
+		put("patharea", null);
+		put("pathmain", null);
 		put("rev", null);
 		put("revt", null);
 		put("repo", null);
