@@ -54,8 +54,7 @@ public class IndexingItemHandlerXmlIntegrationTest {
 	private ReposTestIndexing indexing = null;
 
 	/**
-	 * Manual dependency injection. We should think twice before we copy this config to other tests,
-	 * because as soon as we have >1 integration tests it will be a maintenance problem if we for example add handlers.
+	 * Manual dependency injection.
 	 */
 	@Before
 	public void setUpIndexing() {
