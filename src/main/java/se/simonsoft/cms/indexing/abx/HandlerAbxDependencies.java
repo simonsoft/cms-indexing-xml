@@ -75,7 +75,7 @@ public class HandlerAbxDependencies implements IndexingItemHandler {
 			String url = id.getUrl();
 			if (id.isPegged()) {
 				RepoRevision revision = new RepoRevision(id.getPegRev(), null); // ? do we need date lookup?
-				fields.addField("refid", idStrategy.getId(id/*, revision*/)); // in addition to head id
+				fields.addField("refid", idStrategy.getId(id, revision)); // in addition to head id
 				url = url + "?p=" + id.getPegRev();
 			}
 			
