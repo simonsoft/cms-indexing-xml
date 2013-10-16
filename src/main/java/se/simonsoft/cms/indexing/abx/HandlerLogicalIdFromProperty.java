@@ -56,6 +56,9 @@ public class HandlerLogicalIdFromProperty extends HandlerLogicalId {
 			}
 			return null;
 		}
+		if (base.endsWith("?p=-1")) {
+			base = base.substring(0, base.length() - 5);
+		}
 		CmsItemIdArg id = new CmsItemIdArg(base);
 		id.setHostnameOrValidate(repohost);
 		return id.withPegRev(item.getRevisionChanged().getNumber());

@@ -34,7 +34,7 @@ public class HandlerLogicalIdFromPropertyBaseLogicalIdTest {
 
 	@Test
 	public void testHandle() {
-		String baseLogicalId = "x-svn:///svn/documentation^/xml/reference/cms/User%20interface.xml?p=123";
+		String baseLogicalId = "x-svn:///svn/documentation^/xml/reference/cms/User%20interface.xml?p=133";
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
 		CmsChangesetItem pi = mock(CmsChangesetItem.class);
 		when(pi.getRevisionChanged()).thenReturn(new RepoRevision(145, null));
@@ -54,4 +54,26 @@ public class HandlerLogicalIdFromPropertyBaseLogicalIdTest {
 		assertEquals("Revision should not be from base but from commit rev", new Long(145), id.getPegRev());
 	}
 
+	@Test
+	public void testHandleAdd() {
+		String baseLogicalId = "x-svn:///svn/repo1^/qa/Documents/Bursting/Bursting%20Document%201.xml?p=-1";
+		IndexingItemProgress p = mock(IndexingItemProgress.class);
+		CmsChangesetItem pi = mock(CmsChangesetItem.class);
+		when(pi.getRevisionChanged()).thenReturn(new RepoRevision(99999, null));
+		when(p.getItem()).thenReturn(pi);
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		when(p.getFields()).thenReturn(doc);
+		when(p.getRepository()).thenReturn(new CmsRepository("http://host:123/svn/documentation"));
+		doc.addField("repohost", "host:123");
+		doc.addField("prop_abx.BaseLogicalId", baseLogicalId);
+		
+		IndexingItemHandler handler = new HandlerLogicalIdFromProperty();
+		handler.handle(p);
+		String urlid = (String) doc.getFieldValue("urlid");
+		assertNotNull("Should set field", urlid);
+		CmsItemIdArg id = new CmsItemIdArg(urlid);
+		assertEquals("/qa/Documents/Bursting/Bursting Document 1.xml", id.getRelPath().getPath());
+		assertEquals("Revision should not be from base but from commit rev", new Long(99999), id.getPegRev());
+	}
+	
 }
