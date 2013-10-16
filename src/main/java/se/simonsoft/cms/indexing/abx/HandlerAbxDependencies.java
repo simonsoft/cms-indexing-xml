@@ -18,9 +18,12 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.repos.indexing.IdStrategy;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
@@ -35,6 +38,16 @@ public class HandlerAbxDependencies implements IndexingItemHandler {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxDependencies.class);
 	
 	private static final String HOSTFIELD = "repohost";
+
+	private IdStrategy idStrategy;
+	
+	/**
+	 * @param idStrategy to fill the refid field
+	 */
+	@Inject
+	public HandlerAbxDependencies(IdStrategy idStrategy) {
+		this.idStrategy = idStrategy;
+	}
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
@@ -52,13 +65,17 @@ public class HandlerAbxDependencies implements IndexingItemHandler {
 			return;
 		}
 		for (String d : abxprop.split("\n")) {
-			fields.addField("refid", d);
 			CmsItemIdArg id = new CmsItemIdArg(d);
 			id.setHostname(host);
+
+			String indexid = idStrategy.getIdHead(id);
+			fields.addField("refid", indexid);
 			String url = id.getUrl();
 			if (id.isPegged()) {
+				fields.addField("refid", idStrategy.getId(id)); // in addition to head id
 				url = url + "?p=" + id.getPegRev();
 			}
+			
 			fields.addField("refurl", url);
 		}
 	}

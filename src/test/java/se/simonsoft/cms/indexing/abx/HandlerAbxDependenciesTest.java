@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
+import se.repos.indexing.item.IdStrategyDefault;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;
@@ -34,7 +35,7 @@ public class HandlerAbxDependenciesTest {
 	public void test() {
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png\n" +
 				"x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml\n" +
-				"x-svn:///svn/documentation^/xml/reference/cms/User%20interface.xml?p=123";
+				"x-svn:///svn/documentation^/xml/reference/cms/User_interface.xml?p=123";
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		when(p.getFields()).thenReturn(doc);
@@ -44,20 +45,25 @@ public class HandlerAbxDependenciesTest {
 		doc.addField("ref", "/existing/url");
 		doc.addField("refurl", "http://host:123/existing/url");
 		
-		IndexingItemHandler handler = new HandlerAbxDependencies();
+		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
 		Collection<Object> ref = doc.getFieldValues("ref");
 		Collection<Object> refid = doc.getFieldValues("refid");
 		Collection<Object> refurl = doc.getFieldValues("refurl");
-		assertEquals("Should have added the three dependencies as refid", 3, refid.size());
-		assertTrue(refid.contains("x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png"));
-		assertTrue(refid.contains("x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
-		assertTrue(refid.contains("x-svn:///svn/documentation^/xml/reference/cms/User%20interface.xml?p=123"));
+		System.out.println("Got refid " + refid);
+		assertEquals("Should have added the dependencies as refid", 4, refid.size());
+		assertTrue(refid.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
+		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml")
+				|| refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction to CMS.xml")); // just follow IdStrategy, needs to settle on ID encoding, any practical issues with whitespaces? Any with urlencoding?
+		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@123"));
+		assertTrue("Revision-locked dependencies should still be joinable with idhead",
+				refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 		assertEquals("refurl should contain the already added url and one extra per dependency", 4, refurl.size());
 		assertTrue(refurl.contains("http://host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
-		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User%20interface.xml?p=123"));
-		// TODO how to handle revision, extra refres field with plain resource URL (no query, no hash), maybe without protocol
+		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml?p=123"));
+		assertFalse("Revision should be set in URLs", // or should we do like with refid?
+				refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 	}
 
 }
