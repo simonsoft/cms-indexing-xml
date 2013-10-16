@@ -32,28 +32,6 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
  * Adds XML indexing handlers to those defined by {@link IndexingHandlers}.
  */
 public abstract class IndexingHandlersXml {
-
-	/*
-		// Indexing fields extraction, in order.
-		// A service dependency framework could be added if maintaining order here is difficult.
-		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
-		fieldExtraction.addBinding().to(XmlIndexIdAppendTreeLocation.class);
-		fieldExtraction.addBinding().to(XmlIndexFieldElement.class);
-		// Saxon based text and word count extraction
-		fieldExtraction.addBinding().to(IndexFieldExtractionCustomXsl.class);
-		// We don't have a strategy yet for placement of the custom xsl, read from jar
-		bind(IndexFieldExtractionCustomXsl.class).toInstance(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				return new StreamSource(xsl);
-			}
-		}));
-		// Checksums of text and source fields (default settings)
-		fieldExtraction.addBinding().to(XmlIndexFieldExtractionChecksum.class);
-		fieldExtraction.addBinding().to(IndexFieldDeletionsToSaveSpace.class);
-	 */
 	
 	public static final Iterable<Class<? extends XmlIndexFieldExtraction>> STANDARD_XML_EXTRACTION = new LinkedList<Class<? extends XmlIndexFieldExtraction>>() {
 		private static final long serialVersionUID = 1L;
@@ -73,14 +51,16 @@ public abstract class IndexingHandlersXml {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void configureFirst(Object guiceMultibinder) {
-		IndexingHandlers.configureFirst(guiceMultibinder);
-		// high priority, TODO this should be inserted before ScheduleAwaitNewer
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Unblock));
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Structure));
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Fast));
 		IndexingHandlers.to(guiceMultibinder,
 				HandlerLogicalIdFromProperty.class,
 				HandlerAbxDependencies.class,
 				HandlerPathareaFromProperties.class);
-		// slow
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
 	}
 
 	/**
