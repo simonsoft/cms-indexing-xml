@@ -50,9 +50,9 @@ public class HandlerLogicalIdFromProperty extends HandlerLogicalId {
 		String base = (String) progress.getFields().getFieldValue(PROPERTY_FIELD);
 		if (base == null) {
 			if ("xml".equals(item.getPath().getExtension())) {
-				logger.warn("No BaseLogicalId for {}, logical ID field will not be set");
+				logger.warn("No BaseLogicalId for {}, logical ID field will not be set", item);
 			} else {
-				logger.trace("No BaseLogicalId for {}, logical ID field will not be set");
+				logger.trace("No BaseLogicalId for {}, logical ID field will not be set", item);
 			}
 			return null;
 		}
