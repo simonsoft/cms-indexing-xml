@@ -19,6 +19,7 @@ import java.util.LinkedList;
 
 import se.repos.indexing.IndexingHandlers;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
+import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromProperty;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
@@ -75,6 +76,7 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.configureFirst(guiceMultibinder);
 		// high priority, TODO this should be inserted before ScheduleAwaitNewer
 		IndexingHandlers.to(guiceMultibinder,
+				HandlerLogicalIdFromProperty.class,
 				HandlerAbxDependencies.class,
 				HandlerPathareaFromProperties.class);
 		// slow
