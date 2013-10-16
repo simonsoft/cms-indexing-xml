@@ -30,6 +30,7 @@ import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 
 public class IndexFieldExtractionCustomXslTest {
 
@@ -115,6 +116,28 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, doc3);
 		assertEquals("-2", doc3.getFieldValue("reusevalue"));
 		// TODO assert reuseready
+	}
+	
+	/**
+	 * Transformation may have higher validity requirements than Jdom parsing.
+	 */
+	@Test
+	public void testInvalidXml() {
+		// found in Flir data x-svn:///svn/flir^/itc-swe/lang/fr-FR/xml/T404000-T405000/T404014.xml?p=6739
+		// but does the current element "source" concept handle entities that are actually declared?
+		String element = "<p>Conference R&D;</p>";
+		
+		XmlIndexFieldExtraction xsl = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault());
+		
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(element);
+		
+		try {
+			xsl.extract(null, fields);
+			fail("Should throw declared exception for xml error");
+		} catch (XmlNotWellFormedException e) { // any other exception would abort indexing
+			// expected
+		}
 	}
 
 }

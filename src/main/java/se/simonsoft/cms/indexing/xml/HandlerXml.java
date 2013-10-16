@@ -102,8 +102,10 @@ public class HandlerXml implements IndexingItemHandler {
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		try {
 			sourceReader.read(progress.getContents(), sourceHandler);
-		} catch (XmlNotWellFormedException e) {
-			logger.warn("Skipping XML {}: {}", progress.getFields().getFieldValue("path"), e.getCause());
+		} catch (XmlNotWellFormedException e) { 
+			// We assume that fulltext indexing will get the same error and set a text_error for this item.
+			// Otherwise there'll be no trace other than the log of why the file was skipped.
+			logger.error("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause(), e);
 		}
 	}
 	

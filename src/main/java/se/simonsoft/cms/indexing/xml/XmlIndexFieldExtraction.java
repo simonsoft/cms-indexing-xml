@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 /**
@@ -26,9 +27,14 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 public interface XmlIndexFieldExtraction {
 
 	/**
+	 * Extracts element fields for per-element indexing in xml core.
+	 * 
+	 * Indexing should be aborted for all errors except the declared. Index must never be inconsistent.
+	 * 
 	 * @param fields to read from and add/overwrite to
 	 * @param processedElement original element
+	 * @param error that should make the current document empty in index, but allow indexing to proceed to next item
 	 */
-	void extract(XmlSourceElement processedElement, IndexingDoc fields);
+	void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException;
 	
 }

@@ -33,17 +33,12 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
 			<version>0.6-SNAPSHOT</version>
-		</dependency>		
-		<dependency>
-			<groupId>se.repos</groupId>
-			<artifactId>repos-indexing</artifactId>
-			<version>1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
-			<version>1-SNAPSHOT</version>
-		</dependency>		
+			<version>0.9</version>
+		</dependency>	
 	  	<dependency>
 	  		<groupId>org.apache.solr</groupId>
 	  		<artifactId>solr-solrj</artifactId>
@@ -65,13 +60,13 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-testing</artifactId>
-			<version>1-SNAPSHOT</version>
+			<version>0.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-filexml</artifactId>
-			<version>1-SNAPSHOT</version>
+			<version>0.6</version>
 			<scope>test</scope>
 		</dependency>			
 	</dependencies>

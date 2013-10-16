@@ -20,6 +20,7 @@ import java.io.StringReader;
 
 import javax.inject.Inject;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.xml.sax.ContentHandler;
@@ -36,6 +37,7 @@ import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
@@ -76,7 +78,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 
 	@Override
-	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
+	public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
 		Object source = fields.getFieldValue("source");
 		if (source == null) {
 			throw new IllegalArgumentException("Prior to text extraction, 'source' field must have been extracted.");
@@ -114,7 +116,10 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		try {
 			transformer.transform();
 		} catch (SaxonApiException e) {
-			throw new RuntimeException("Extraction aborted with error", e);
+			if (e.getCause() instanceof TransformerException) { // including net.sf.saxon.trans.XPathException
+				throw new XmlNotWellFormedException("XML invalid for transformation at " + processedElement, e);
+			}
+			throw new RuntimeException("Extraction aborted with error at " + processedElement, e);
 		}
 		
 	}

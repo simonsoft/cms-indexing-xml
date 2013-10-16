@@ -47,7 +47,7 @@ import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
-public class IndexingItemHandlerXmlIntegrationTest {
+public class HandlerXmlIntegrationTest {
 
 	/// test framework from cms-backend-svnkit
 	
