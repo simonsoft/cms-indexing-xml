@@ -64,6 +64,9 @@ public class HandlerAbxDependenciesTest {
 		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml?p=123"));
 		assertFalse("Revision should be set in URLs", // or should we do like with refid?
 				refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
+		assertTrue("Should preserve existing URLs", refurl.contains("http://host:123/existing/url"));
+		// do we also copy all references to "ref" field? isn't there too much redundancy already anyway?
+		assertTrue(ref.contains("/existing/url"));
 	}
 
 }
