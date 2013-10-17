@@ -39,7 +39,7 @@ public class HandlerXml implements IndexingItemHandler {
 
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, mportant customization point
+	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, important customization point
 	
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
@@ -78,7 +78,7 @@ public class HandlerXml implements IndexingItemHandler {
 		if (c.isFile()) {
 			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
-				logger.debug("Changeset content update item {} found", c);
+				logger.trace("Changeset content update item {} found", c);
 				if (c.isDelete()) {
 					indexWriter.deletePath(progress.getRepository(), c);
 				} else {
@@ -86,10 +86,10 @@ public class HandlerXml implements IndexingItemHandler {
 					index(progress);
 				}
 			} else {
-				logger.debug("Ignoring content update item {}, not an XML candidate file type", c);
+				logger.trace("Ignoring content update item {}, not an XML candidate file type", c);
 			}
 		} else {
-			logger.debug("Ignoring changeset item {}, not a file", c);
+			logger.trace("Ignoring changeset item {}, not a file", c);
 		}
 		// TODO until we have notification on revision end we commit always
 		onRevisionEnd(progress.getRevision());
