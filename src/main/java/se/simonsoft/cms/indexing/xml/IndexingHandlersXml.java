@@ -69,9 +69,8 @@ public abstract class IndexingHandlersXml {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void configureLast(Object guiceMultibinder) {
-		IndexingHandlers.to(guiceMultibinder, MarkerXmlCommit.class);
-		IndexingHandlers.configureLast(guiceMultibinder);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
+		IndexingHandlers.to(guiceMultibinder, MarkerXmlCommit.class);
 	}
 	
 	public static void configureXmlFieldExtraction(Object guiceMultibinderXmlIndexFieldExtraction) {
