@@ -60,7 +60,7 @@ public abstract class IndexingHandlersXml {
 				HandlerPathareaFromProperties.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));
 	}
 
 	/**
@@ -71,6 +71,7 @@ public abstract class IndexingHandlersXml {
 	public static void configureLast(Object guiceMultibinder) {
 		IndexingHandlers.to(guiceMultibinder, MarkerXmlCommit.class);
 		IndexingHandlers.configureLast(guiceMultibinder);
+		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
 	}
 	
 	public static void configureXmlFieldExtraction(Object guiceMultibinderXmlIndexFieldExtraction) {
