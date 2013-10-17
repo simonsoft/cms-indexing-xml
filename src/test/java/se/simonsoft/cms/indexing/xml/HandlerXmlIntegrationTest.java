@@ -97,6 +97,10 @@ public class HandlerXmlIntegrationTest {
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 	
+		SolrServer repositem = indexing.getCore("reposxml");
+		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();
+		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
+		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
 		
 	}

@@ -37,6 +37,8 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 
 public class HandlerXml implements IndexingItemHandler {
 
+	public static final String FLAG_XML = "hasxml";
+	
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, important customization point
@@ -102,10 +104,14 @@ public class HandlerXml implements IndexingItemHandler {
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		try {
 			sourceReader.read(progress.getContents(), sourceHandler);
+			// success, flag this
+			progress.getFields().addField("flag", FLAG_XML);
 		} catch (XmlNotWellFormedException e) { 
 			// We assume that fulltext indexing will get the same error and set a text_error for this item.
 			// Otherwise there'll be no trace other than the log of why the file was skipped.
 			logger.error("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause(), e);
+			// Leave a trace, but don't overwrite text_error
+			progress.getFields().addField("flag", FLAG_XML + "error");
 		}
 	}
 	
