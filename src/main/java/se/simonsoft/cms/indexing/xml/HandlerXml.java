@@ -93,8 +93,6 @@ public class HandlerXml implements IndexingItemHandler {
 		} else {
 			logger.trace("Ignoring changeset item {}, not a file", c);
 		}
-		// TODO until we have notification on revision end we commit always
-		onRevisionEnd(progress.getRevision());
 	}
 
 	protected void index(IndexingItemProgress progress) {
@@ -118,12 +116,6 @@ public class HandlerXml implements IndexingItemHandler {
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
 		IndexingDoc doc = fields.deepCopy();
 		return doc;
-	}
-
-	// TODO will never be called now, implement an indexing event interface
-	//@Override
-	public void onRevisionEnd(RepoRevision revision) {
-		indexWriter.onRevisionEnd(revision);
 	}
 	
 	@SuppressWarnings("serial")

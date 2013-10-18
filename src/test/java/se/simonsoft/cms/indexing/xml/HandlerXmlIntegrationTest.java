@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.repos.indexing.IndexAdmin;
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
 import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
@@ -77,7 +78,10 @@ public class HandlerXmlIntegrationTest {
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setDependenciesXml(fe, xmlReader);
 		
+		MarkerXmlCommit commit = new MarkerXmlCommit(reposxml);
+		
 		indexOptions.addHandler(handlerXml);
+		indexOptions.addHandler(commit); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
 	}
 	
 	@After
@@ -96,6 +100,7 @@ public class HandlerXmlIntegrationTest {
 		SolrServer reposxml = indexing.getCore("reposxml");
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
+		assertEquals("should get 'repoid' from repositem", "x", x1.get(0).getFieldValue("repoid"));
 	
 		SolrServer repositem = indexing.getCore("reposxml");
 		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();
@@ -117,6 +122,26 @@ public class HandlerXmlIntegrationTest {
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();		
 		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
 				0, x1.getNumFound());
+		
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxmlerror")).getResults();
+		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());		
+	}
+	
+	@Test
+	public void testClear() {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		// IndexAdminXml is not bound in text context, we should probably switch to a real config module in this test
+		//IndexAdminXml indexAdminXml = new IndexAdminXml(repo...
+		
+		//context.getInstance(IndexAdmin.class).addPostAction(indexAdminXml);
 	}
 	
 	@Test

@@ -35,7 +35,6 @@ import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
 import se.simonsoft.cms.item.CmsRepository;
-import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlIndexWriter {
@@ -98,37 +97,6 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			throw new RuntimeException("not handled", e);
 		}		
 	}
-
-	@Override
-	public void onRevisionEnd(RepoRevision revision) {
-		commit();
-		if (revision.getNumber() % 1000 == 0) {
-			logger.info("Optimizing index at revision {}", revision);
-			optimize();
-		}
-	}
-	
-	private void commit() {
-		try {
-			solrServer.commit();
-		} catch (SolrServerException e) {
-			throw new RuntimeException("Error not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Error not handled", e);
-		}
-	}
-
-	private void optimize() {
-		try {
-			solrServer.optimize();
-		} catch (SolrServerException e) {
-			logger.error("Index optimize failed: {}", e.getMessage(), e);
-			// we can live without optimized index, could fail because optimize needs lots of free disk
-		} catch (IOException e) {
-			logger.error("Solr connection issues at optimize: ", e.getMessage(), e);
-			throw new RuntimeException("Optimize failed", e);
-		}
-	}	
 
 	class Session implements XmlIndexAddSession {
 

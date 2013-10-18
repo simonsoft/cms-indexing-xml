@@ -15,13 +15,18 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import javax.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import se.simonsoft.cms.item.CmsRepository;
-import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import org.apache.solr.client.solrj.SolrServer;
 
-public interface XmlIndexWriter extends Provider<XmlIndexAddSession> {
+import se.repos.indexing.solrj.MarkerOptimizeSolrj;
 
-	void deletePath(CmsRepository repository, CmsChangesetItem c);
+public class MarkerXmlOptimize extends MarkerOptimizeSolrj {
 
+	@Inject
+	public MarkerXmlOptimize(@Named("reposxml") SolrServer core) {
+		super(core);
+	}
+	
 }
