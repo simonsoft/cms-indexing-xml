@@ -50,8 +50,6 @@ import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
 public class HandlerXmlIntegrationTest {
 
-	/// test framework from cms-backend-svnkit
-	
 	private ReposTestIndexing indexing = null;
 
 	/**
