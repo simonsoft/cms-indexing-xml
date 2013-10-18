@@ -42,6 +42,7 @@
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
 		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="repoid"     type="string" indexed="true" stored="true" multiValued="false"/>		
 		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repohost"   type="string" indexed="true" stored="true" multiValued="false"/>
 		<dynamicField name="prop_*" type="string" indexed="true" stored="true" multiValued="false"/>

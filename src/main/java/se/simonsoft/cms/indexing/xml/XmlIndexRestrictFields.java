@@ -51,6 +51,7 @@ public class XmlIndexRestrictFields {
 		put("rev", null);
 		put("revt", null);
 		put("repo", null);
+		put("repoid", null);
 		put("repoparent", null);
 		put("repohost", null);
 	}};
