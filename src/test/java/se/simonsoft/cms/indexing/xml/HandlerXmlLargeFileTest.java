@@ -75,14 +75,13 @@ public class HandlerXmlLargeFileTest {
 			bind(SolrServer.class).annotatedWith(Names.named("reposxml")).toInstance(reposxml);
 		}};	
 		Injector context = Guice.createInjector(configTesting, new IndexingConfigXml());
-		indexOptions.addHandler(context.getInstance(HandlerXml.class));
-		indexOptions.addHandler(context.getInstance(MarkerXmlCommit.class)); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
+		indexOptions.addHandlerNodeps(context.getInstance(HandlerXml.class));
+		indexOptions.addHandlerNodeps(context.getInstance(MarkerXmlCommit.class)); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
 		
 		// enable repos-testing, enable hooks and build a context that includes backend services
 		ReposTestBackendFilexml testBackend = new ReposTestBackendFilexml(filexml);
 		indexing.enable(testBackend, context);
 
-		reposxml.commit(); // TODO why doesn't this happen in the handler chain?
 	}
 
 }

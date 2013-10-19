@@ -78,8 +78,8 @@ public class HandlerXmlIntegrationTest {
 		
 		MarkerXmlCommit commit = new MarkerXmlCommit(reposxml);
 		
-		indexOptions.addHandler(handlerXml);
-		indexOptions.addHandler(commit); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
+		indexOptions.addHandlerNodeps(handlerXml);
+		indexOptions.addHandlerNodeps(commit); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
 	}
 	
 	@After
@@ -89,6 +89,31 @@ public class HandlerXmlIntegrationTest {
 	
 	@Test
 	public void testTinyInline() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		//reposxml.commit(); // TODO why doesn't the handler chain do this?
+		
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
+		assertEquals(4, x1.getNumFound());
+		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
+	
+		SolrServer repositem = indexing.getCore("reposxml");
+		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();
+		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
+		
+		
+
+		assertEquals("Should index all elements", 5, reposxml.query(new SolrQuery("*:*")).getResults().size());
+	}
+
+	@Test
+	public void testNextRevisionDeletesElement() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
@@ -106,7 +131,7 @@ public class HandlerXmlIntegrationTest {
 		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
 		
-	}
+	}	
 	
 	@Test
 	public void testInvalidXml() throws Exception {
