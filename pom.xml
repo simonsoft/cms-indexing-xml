@@ -80,7 +80,7 @@
 					<excludes>
 						<exclude>**/*.txt</exclude>
 						<exclude>LICENSE</exclude>
-						<exclude>src/test/resources/*</exclude>
+						<exclude>src/test/resources/**</exclude>
 						<exclude>src/main/resources/se/simonsoft/cms/indexing/xml/solr/reposxml/conf/velocity/*</exclude>
 					</excludes>
 				</configuration>

@@ -22,9 +22,8 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 
 	@Override
-	public void extract(XmlSourceElement processedElemen, IndexingDoc fieldst) {
-		// TODO Auto-generated method stub
-
+	public void extract(XmlSourceElement processedElemen, IndexingDoc fields) {
+		fields.removeField("prop_abx.Dependencies");
 	}
 
 }
