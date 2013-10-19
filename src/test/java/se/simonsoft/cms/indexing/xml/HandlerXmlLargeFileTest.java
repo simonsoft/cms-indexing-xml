@@ -3,13 +3,17 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
@@ -17,20 +21,9 @@ import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
-import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
-import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 
 public class HandlerXmlLargeFileTest {
-
-	private ReposTestIndexing indexing = null;
 
 	private long startTime = 0;
 	
@@ -39,51 +32,42 @@ public class HandlerXmlLargeFileTest {
 	 */
 	@Before
 	public void setUpIndexing() {
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaults();
-		indexOptions.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**");
-		indexing = ReposTestIndexing.getInstance(indexOptions);
-		SolrServer reposxml = indexing.getCore("reposxml");
-		
-		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
-		XmlIndexWriter indexWriter = new XmlIndexWriterSolrj(reposxml);
-		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
-		fe.add(new XmlIndexIdAppendTreeLocation());
-		fe.add(new XmlIndexFieldElement());
-		fe.add(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault()));
-		fe.add(new XmlIndexFieldExtractionChecksum());
-		fe.add(new IndexReuseJoinFields());
-		fe.add(new IndexFieldDeletionsToSaveSpace());
-		
-		HandlerXml handlerXml = new HandlerXml();
-		handlerXml.setDependenciesIndexing(indexWriter);
-		handlerXml.setDependenciesXml(fe, xmlReader);
-		
-		MarkerXmlCommit commit = new MarkerXmlCommit(reposxml);
-		
-		indexOptions.addHandler(handlerXml);
-		indexOptions.addHandler(commit); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
-		
 		startTime = System.currentTimeMillis();
 	}
 	
 	@After
 	public void tearDown() throws IOException {
 		long time = System.currentTimeMillis() - startTime;
-		System.out.println("Indexing took " + time + " millisecondss");
+		System.out.println("Test took " + time + " millisecondss");
 		
-		indexing.tearDown();
+		ReposTestIndexing.getInstance().tearDown();
 	}
 	
 	@Test
-	public void testTinyInline() throws Exception {
+	public void testSingle860k() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
+		// set up repos-testing so we can get a SolrServer instance for reposxml
+		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaults();
+		indexOptions.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**");
+                ReposTestIndexing indexing = ReposTestIndexing.getInstance(indexOptions);
+		final SolrServer reposxml = indexing.getCore("reposxml");
+                
+        // with the SolrServer instance, set up XML indexing context so we can add the XML handler to indexing before we actually index the test backend
+		Module configTesting = new AbstractModule() { @Override protected void configure() {
+			bind(SolrServer.class).annotatedWith(Names.named("reposxml")).toInstance(reposxml);
+		}};	
+		Injector context = Guice.createInjector(configTesting, new IndexingConfigXml());
+		indexOptions.addHandler(context.getInstance(HandlerXml.class));
+		indexOptions.addHandler(context.getInstance(MarkerXmlCommit.class)); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
-		
+		// enable repos-testing, enable hooks and build a context that includes backend services
+		ReposTestBackendFilexml testBackend = new ReposTestBackendFilexml(filexml);
+		indexing.enable(testBackend, context);
+
+		reposxml.commit(); // TODO why doesn't this happen in the handler chain?
 	}
 
 }
