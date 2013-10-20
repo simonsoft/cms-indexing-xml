@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IdStrategy;
 import se.repos.indexing.IndexAdmin;
+import se.repos.indexing.IndexAdminNotification;
 import se.repos.indexing.solrj.SolrCommit;
 import se.repos.indexing.solrj.SolrDelete;
 import se.repos.indexing.solrj.SolrOptimize;
@@ -34,24 +35,17 @@ import se.simonsoft.cms.item.CmsRepository;
  * Don't forget to bind (<i>bind(IndexAdminXml.class).asEagerSingleton();</i>) this one, or clear won't affect reposxml core.
  */
 @Singleton // only one should be bound as listener to central IndexAdmin
-public class IndexAdminXml implements IndexAdmin {
+public class IndexAdminXml extends IndexAdminNotification implements IndexAdmin {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private SolrServer reposxml;
 	private String query;
 
 	@Inject
-	public IndexAdminXml(CmsRepository repository, IdStrategy idStrategy, @Named("reposxml") SolrServer core, IndexAdmin cetnralIndexAdmin) {
+	public IndexAdminXml(CmsRepository repository, IdStrategy idStrategy, @Named("reposxml") SolrServer core) {
 		this.query = "repoid:\"" + idStrategy.getIdRepository(repository).replace("\"", "\\\"") + '"';
 		this.reposxml = core;
-		cetnralIndexAdmin.addPostAction(this);
-		logger.info("Activated {}", this);
-	}
-
-	@Override
-	public void addPostAction(IndexAdmin notificationReceiver) {
-		throw new UnsupportedOperationException("Not supported for notification receivers");
 	}
 
 	@Override

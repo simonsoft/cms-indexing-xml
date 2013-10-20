@@ -37,7 +37,8 @@ public class IndexAdminXmlTest {
 		IdStrategy idStrategy = mock(IdStrategy.class);
 		when(idStrategy.getIdRepository(repository)).thenReturn("the/re\"po/id");
 		
-		IndexAdminXml admin = new IndexAdminXml(repository, idStrategy, reposxml, central);
+		IndexAdminXml admin = new IndexAdminXml(repository, idStrategy, reposxml);
+		admin.setIndexAdminCentral(central);
 		verify(central).addPostAction(admin);
 		
 		admin.clear();

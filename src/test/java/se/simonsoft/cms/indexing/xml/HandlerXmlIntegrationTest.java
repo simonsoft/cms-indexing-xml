@@ -45,6 +45,7 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
@@ -57,29 +58,10 @@ public class HandlerXmlIntegrationTest {
 	 */
 	@Before
 	public void setUpIndexing() {
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaults();
-		indexOptions.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**");
+		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
+				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
+				.addModule(new IndexingConfigXml());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
-		SolrServer reposxml = indexing.getCore("reposxml");
-		
-		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
-		XmlIndexWriter indexWriter = new XmlIndexWriterSolrj(reposxml);
-		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
-		fe.add(new XmlIndexIdAppendTreeLocation());
-		fe.add(new XmlIndexFieldElement());
-		fe.add(new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault()));
-		fe.add(new XmlIndexFieldExtractionChecksum());
-		fe.add(new IndexReuseJoinFields());
-		fe.add(new IndexFieldDeletionsToSaveSpace());
-		
-		HandlerXml handlerXml = new HandlerXml();
-		handlerXml.setDependenciesIndexing(indexWriter);
-		handlerXml.setDependenciesXml(fe, xmlReader);
-		
-		MarkerXmlCommit commit = new MarkerXmlCommit(reposxml);
-		
-		indexOptions.addHandlerNodeps(handlerXml);
-		indexOptions.addHandlerNodeps(commit); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
 	}
 	
 	@After
@@ -96,8 +78,6 @@ public class HandlerXmlIntegrationTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
 		SolrServer reposxml = indexing.getCore("reposxml");
-		
-		//reposxml.commit(); // TODO why doesn't the handler chain do this?
 		
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
@@ -123,7 +103,7 @@ public class HandlerXmlIntegrationTest {
 		SolrServer reposxml = indexing.getCore("reposxml");
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "x", x1.get(0).getFieldValue("repoid"));
+		assertEquals("should get 'repoid' from repositem", "localtesthost", x1.get(0).getFieldValue("repoid"));
 	
 		SolrServer repositem = indexing.getCore("reposxml");
 		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();

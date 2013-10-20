@@ -49,6 +49,8 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	 */
 	private static final long BATCH_TEXT_TOTAL_MAX = 1 * 1000 * 1000;	
 	
+	private static final long SIZE_INFO_ABOVE = 50000;
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SolrServer solrServer;
@@ -132,10 +134,14 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			if (size() == 0) {
 				contentSize = 0;
 			}
+			int s = e.getContentSize();
+			if (s >= SIZE_INFO_ABOVE && ((Integer) e.getFieldValue("depth")) > 1) {
+				logger.info("Large element {}, content size {}", e.getFieldValue("id"), s);
+			}
 			if (!pending.add(getSolrDoc(e))) {
 				throw new IllegalArgumentException("Doc add failed for " + e);
 			}
-			contentSize += e.getContentSize();
+			contentSize += s;
 //TODO			// we have a rough measurement of total field size here and can trigger batch send to reduce risk of hitting memory limitations in webapp
 //			if (batchTextTotal > BATCH_TEXT_TOTAL_MAX) {
 //				logger.info("Sending batch because total source+text size {} indicates large update", batchTextTotal);

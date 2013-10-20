@@ -27,18 +27,24 @@ import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 
 /**
  * Adds XML indexing handlers to those defined by {@link IndexingHandlers}.
  */
 public abstract class IndexingHandlersXml {
 	
+	/**
+	 * Naming may be confusing, but these are the handlers inside XML extraction.
+	 */
 	public static final Iterable<Class<? extends XmlIndexFieldExtraction>> STANDARD_XML_EXTRACTION = new LinkedList<Class<? extends XmlIndexFieldExtraction>>() {
 		private static final long serialVersionUID = 1L;
 		{
 			add(XmlIndexIdAppendTreeLocation.class);
 			add(XmlIndexFieldElement.class);
+			// Saxon based text and word count extraction
 			add(IndexFieldExtractionCustomXsl.class);
+			// Checksums of text and source fields (default settings)
 			add(XmlIndexFieldExtractionChecksum.class);
 			add(IndexReuseJoinFields.class);
 			add(IndexFieldDeletionsToSaveSpace.class);

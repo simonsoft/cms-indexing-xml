@@ -19,16 +19,12 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
 
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
@@ -40,6 +36,8 @@ import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 
 public class HandlerXmlLargeFileTest {
 
+	private ReposTestIndexing indexing;
+	
 	private long startTime = 0;
 	
 	/**
@@ -48,6 +46,11 @@ public class HandlerXmlLargeFileTest {
 	@Before
 	public void setUpIndexing() {
 		startTime = System.currentTimeMillis();
+		
+		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
+				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
+				.addModule(new IndexingConfigXml());
+		indexing = ReposTestIndexing.getInstance(indexOptions);
 	}
 	
 	@After
@@ -64,24 +67,11 @@ public class HandlerXmlLargeFileTest {
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		// set up repos-testing so we can get a SolrServer instance for reposxml
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaults();
-		indexOptions.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**");
-                ReposTestIndexing indexing = ReposTestIndexing.getInstance(indexOptions);
-		final SolrServer reposxml = indexing.getCore("reposxml");
-                
-        // with the SolrServer instance, set up XML indexing context so we can add the XML handler to indexing before we actually index the test backend
-		Module configTesting = new AbstractModule() { @Override protected void configure() {
-			bind(SolrServer.class).annotatedWith(Names.named("reposxml")).toInstance(reposxml);
-		}};	
-		Injector context = Guice.createInjector(configTesting, new IndexingConfigXml());
-		indexOptions.addHandlerNodeps(context.getInstance(HandlerXml.class));
-		indexOptions.addHandlerNodeps(context.getInstance(MarkerXmlCommit.class)); // unlike runtime this gets inserted right after handlerXml, another reason to switch to a config Module here
-		
-		// enable repos-testing, enable hooks and build a context that includes backend services
-		ReposTestBackendFilexml testBackend = new ReposTestBackendFilexml(filexml);
-		indexing.enable(testBackend, context);
+		indexing.enable(new ReposTestBackendFilexml(filexml));
 
+		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
+		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
 	}
 
 }
