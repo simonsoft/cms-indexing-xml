@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.IOException;
 
@@ -30,9 +31,11 @@ import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
 import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
+import se.simonsoft.cms.backend.filexml.FilexmlSource;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
+import se.simonsoft.cms.item.CmsItemPath;
 
 public class HandlerXmlLargeFileTest {
 
@@ -61,9 +64,16 @@ public class HandlerXmlLargeFileTest {
 		ReposTestIndexing.getInstance().tearDown();
 	}
 	
+	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
+	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
+		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported",
+				source.getFile(new CmsItemPath(cmsItemPath)));
+	}
+	
 	@Test
 	public void testSingle860k() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
+		assumeResourceExists(repoSource, "/T501007.xml");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		

@@ -18,14 +18,13 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,17 +36,7 @@ import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
-import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
-import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
 public class HandlerXmlIntegrationTest {
 
@@ -83,13 +72,12 @@ public class HandlerXmlIntegrationTest {
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("reposxml");
-		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
-		
-		
+		assertEquals("Issue with duplicate flag?", 1, flagged.get(0).getFieldValues("flag").size());
 
-		assertEquals("Should index all elements", 5, reposxml.query(new SolrQuery("*:*")).getResults().size());
+		assertEquals("Should index all elements", 4, reposxml.query(new SolrQuery("*:*")).getResults().size());
 	}
 
 	@Test
@@ -103,10 +91,10 @@ public class HandlerXmlIntegrationTest {
 		SolrServer reposxml = indexing.getCore("reposxml");
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "localtesthost", x1.get(0).getFieldValue("repoid"));
+		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("reposxml");
-		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
@@ -127,12 +115,12 @@ public class HandlerXmlIntegrationTest {
 				0, x1.getNumFound());
 		
 		SolrServer repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = reposxml.query(new SolrQuery("flag:hasxmlerror")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror")).getResults();
 		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());		
 	}
 	
 	@Test
-	public void testClear() {
+	public void testClear() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
@@ -140,11 +128,23 @@ public class HandlerXmlIntegrationTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
 		SolrServer reposxml = indexing.getCore("reposxml");
+		assertTrue("Should have indexed something", reposxml.query(new SolrQuery("*:*")).getResults().size() > 0);
 		
 		// IndexAdminXml is not bound in text context, we should probably switch to a real config module in this test
-		//IndexAdminXml indexAdminXml = new IndexAdminXml(repo...
+		IndexAdmin indexAdmin = indexing.getContext().getInstance(IndexAdmin.class);
+		indexAdmin.clear();
 		
-		//context.getInstance(IndexAdmin.class).addPostAction(indexAdminXml);
+		assertEquals("Should have removed all xml", 0, reposxml.query(new SolrQuery("*:*")).getResults().size());
+		
+		SolrInputDocument differentRepo = new SolrInputDocument();
+		differentRepo.setField("id", "something completely different");
+		differentRepo.setField("pos", "2");
+		reposxml.add(differentRepo);
+		reposxml.commit();
+		
+		assertEquals(1, reposxml.query(new SolrQuery("*:*")).getResults().size());
+		indexAdmin.clear();
+		assertEquals("Should not have cleared other repositories", 1, reposxml.query(new SolrQuery("*:*")).getResults().size());
 	}
 	
 	@Test

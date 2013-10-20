@@ -27,7 +27,6 @@ import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 
 /**
  * Adds XML indexing handlers to those defined by {@link IndexingHandlers}.

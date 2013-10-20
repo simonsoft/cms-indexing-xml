@@ -16,7 +16,7 @@
 package se.simonsoft.cms.indexing.xml.testconfig;
 
 import se.repos.indexing.IndexingItemHandler;
-import se.simonsoft.cms.indexing.xml.HandlerXml;
+import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
@@ -45,8 +45,10 @@ public class IndexingConfigXml extends AbstractModule {
 		// Item indexing, add XML handler
 		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
 		IndexingHandlersXml.configureFirst(handlers);
-		handlers.addBinding().to(HandlerXml.class);
 		IndexingHandlersXml.configureLast(handlers);
+		
+		// hook into repos-indexing actions
+		bind(IndexAdminXml.class).asEagerSingleton();
 	}
 
 }

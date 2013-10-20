@@ -25,7 +25,14 @@
             <author>test</author>
             <date>2013-09-26T04:23:02.302994Z</date>
          </commit>
-         <properties/>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
       </entry>
    </list>
 </lists>
