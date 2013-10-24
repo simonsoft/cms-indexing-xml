@@ -42,31 +42,28 @@ public class HandlerAbxDependenciesTest {
 		when(p.getRepository()).thenReturn(new CmsRepository("http://host:123/svn/documentation"));
 		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.Dependencies", abxdeps);
-		doc.addField("ref", "/existing/url");
-		doc.addField("refurl", "http://host:123/existing/url");
+		doc.addField("ref_link", "/existing/url/");
+		doc.addField("refurl", "http://host:123/existing/url/");
 		
 		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
-		Collection<Object> ref = doc.getFieldValues("ref");
 		Collection<Object> refid = doc.getFieldValues("refid");
 		Collection<Object> refurl = doc.getFieldValues("refurl");
 		System.out.println("Got refid " + refid);
-		assertEquals("Should have added the dependencies as refid", 4, refid.size());
+		assertEquals("Should have added the dependencies as refid", 3, refid.size());
 		assertTrue(refid.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml")
 				|| refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction to CMS.xml")); // just follow IdStrategy, needs to settle on ID encoding, any practical issues with whitespaces? Any with urlencoding?
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@123"));
-		assertTrue("Revision-locked dependencies should still be joinable with idhead",
+		assertFalse("Revision-locked dependencies are irrelevant in the 'where used' use case, don't get false positives when using idhead search/join",
 				refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 		assertEquals("refurl should contain the already added url and one extra per dependency", 4, refurl.size());
 		assertTrue(refurl.contains("http://host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
 		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml?p=123"));
-		assertFalse("Revision should be set in URLs", // or should we do like with refid?
+		assertFalse("Revision should be set in URLs",
 				refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
-		assertTrue("Should preserve existing URLs", refurl.contains("http://host:123/existing/url"));
-		// do we also copy all references to "ref" field? isn't there too much redundancy already anyway?
-		assertTrue(ref.contains("/existing/url"));
+		assertTrue("Should preserve existing URLs", refurl.contains("http://host:123/existing/url/"));
 	}
 
 }

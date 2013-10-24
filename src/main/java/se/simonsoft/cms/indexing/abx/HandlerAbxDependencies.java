@@ -71,14 +71,13 @@ public class HandlerAbxDependencies implements IndexingItemHandler {
 			id.setHostname(host);
 
 			String indexid = idStrategy.getIdHead(id);
-			fields.addField("refid", indexid);
 			String url = id.getUrl();
 			if (id.isPegged()) {
-				RepoRevision revision = new RepoRevision(id.getPegRev(), null); // ? do we need date lookup?
-				fields.addField("refid", idStrategy.getId(id, revision)); // in addition to head id
+				RepoRevision revision = new RepoRevision(id.getPegRev(), null); // do we need date lookup?
+				indexid = idStrategy.getId(id, revision);
 				url = url + "?p=" + id.getPegRev();
 			}
-			
+			fields.addField("refid", indexid);
 			fields.addField("refurl", url);
 		}
 	}
