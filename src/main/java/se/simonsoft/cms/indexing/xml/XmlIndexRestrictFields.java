@@ -54,6 +54,7 @@ public class XmlIndexRestrictFields {
 		put("repoid", null);
 		put("repoparent", null);
 		put("repohost", null);
+		// would be useful to have urlid also, but that introduces a dependency to another handler
 	}};
 	
 	public void handle(IndexingDoc itemDoc) {
