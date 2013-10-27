@@ -43,14 +43,37 @@ public class HandlerPathareaFromPropertiesTest {
 		assertEquals("Authormaster but no locale", "release", doc.getFieldValues("patharea").iterator().next());
 		assertEquals("Thus no longer author area", false, (Boolean) doc.getFieldValue("pathmain"));
 		
-		doc.addField("prop_abx.TranslationLocale", "pt-PT");
+		doc.addField("prop_abx.TranslationMaster", "x-svn:///svn/demo1^/vvab/xml/Documents/900108.xml?p=100");
+		//doc.addField("prop_abx.TranslationLocale", "pt-PT");
 		doc.removeField("patharea");
 		area.handle(progress);
 		assertNotNull("Should have identified area", doc.getFieldValues("patharea"));
-		assertEquals("Has locale", "translation", doc.getFieldValues("patharea").iterator().next());
+		assertEquals("Has translation master", "translation", doc.getFieldValues("patharea").iterator().next());
 		assertEquals("No longer relase", 1, doc.getFieldValues("patharea").size());
 		assertEquals("Also not author area", false, (Boolean) doc.getFieldValue("pathmain"));
 		
 	}
 
+	@Test
+	public void testLegacyTranslations() {
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		IndexingItemProgress progress = mock(IndexingItemProgress.class);
+		when(progress.getFields()).thenReturn(doc);
+		HandlerPathareaFromProperties area = new HandlerPathareaFromProperties();
+		
+		area.handle(progress);
+		assertNull("Not a release or translation", doc.getFieldValues("patharea"));
+		assertEquals("Thus a 'main'", true, (Boolean) doc.getFieldValue("pathmain"));
+		
+		// translations created before the release concept don't have translation locale //doc.addField("prop_abx.TranslationLocale", "pt-PT");
+		doc.addField("prop_abx.TranslationMaster", "x-svn:///svn/repo1^/demo/Documents/Presentation_B.xml?p=45");
+		doc.removeField("patharea");
+		area.handle(progress);
+		assertNotNull("Should have identified area", doc.getFieldValues("patharea"));
+		assertEquals("Has translation master", "translation", doc.getFieldValues("patharea").iterator().next());
+		assertEquals("No longer relase", 1, doc.getFieldValues("patharea").size());
+		assertEquals("Also not author area", false, (Boolean) doc.getFieldValue("pathmain"));
+		
+	}	
+	
 }

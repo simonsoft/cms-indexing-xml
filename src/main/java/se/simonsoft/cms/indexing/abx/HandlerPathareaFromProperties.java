@@ -29,7 +29,7 @@ public class HandlerPathareaFromProperties implements
 	private static final String RELEASE_VAL = "release";
 	private static final String TRANSLATION_VAL = "translation";
 	private static final String RELEASE_FIELD = "prop_abx.ReleaseLabel";
-	private static final String TRANSLATION_FIELD = "prop_abx.TranslationLocale";
+	private static final String TRANSLATION_FIELD = "prop_abx.TranslationMaster";
 
 	@Override
 	public void handle(IndexingItemProgress progress) {
