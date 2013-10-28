@@ -62,6 +62,8 @@
 		<xsl:apply-templates mode="source-reuse" select="@*[
 			name() != 'cms:rid' 
 			and name() != 'cms:rlogicalid'
+			and name() != 'cms:rwords'
+			and name() != 'cms:tstatus'
 			and name() != 'cms:trid'
 			and name() != 'cms:tpos'
 			and name() != 'cms:tlogicalid'
