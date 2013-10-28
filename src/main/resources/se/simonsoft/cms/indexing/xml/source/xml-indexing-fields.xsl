@@ -85,13 +85,17 @@
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 
-	<xsl:template match="text()" mode="source-reuse">
-		<!-- TODO normalize space
-		BUT how do we handle preformatted?
-		Probably ok as long as we use source instead of source-reuse for replacement.
-		-->
-		<xsl:value-of select="." />
-	</xsl:template>
+	<xsl:template match="*[@xml:space='preserve']/text()" mode="source-reuse" priority="5">
+        <!-- Not normalizing space when xml:space is set. -->
+        <!-- Can not determine normalize from schema, will have to be acceptable -->
+        <!-- Important to use source instead of source-reuse for replacement. -->
+        <xsl:value-of select="." />
+    </xsl:template>
+    
+    <xsl:template match="text()" mode="source-reuse" priority="1">
+        <!-- Text: Normalize each text node. -->
+        <xsl:value-of select="normalize-space(.)" />
+    </xsl:template>
 	
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
 	<xsl:template match="*" mode="rule-reusevalue">
