@@ -26,4 +26,9 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 		fields.removeField("prop_abx.Dependencies");
 	}
 
+	@Override
+	public void endDocument() {
+		
+	}
+
 }

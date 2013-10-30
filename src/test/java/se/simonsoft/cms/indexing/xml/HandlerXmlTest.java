@@ -50,6 +50,11 @@ public class HandlerXmlTest {
 				calls.add(processedElement);
 				throw new XmlNotWellFormedException("something went wrong", new RuntimeException("some xml lib's cause"));
 			}
+
+			@Override
+			public void endDocument() {
+				
+			}
 		});
 		
 		HandlerXml handlerXml = new HandlerXml();
@@ -80,6 +85,11 @@ public class HandlerXmlTest {
 			public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
 				calls.add(processedElement);
 				throw new RuntimeException("something went badly wrong");
+			}
+
+			@Override
+			public void endDocument() {
+				
 			}
 		});
 		

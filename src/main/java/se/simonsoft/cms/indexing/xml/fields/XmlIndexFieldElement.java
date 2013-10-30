@@ -30,9 +30,16 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceNamespace;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 
+	private static final int hashmapInitialCapacity = 10000;
+	
 	private SchemaFieldNames fieldNames = new SchemaFieldNamesReposxml();
 	
-	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(); // not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
+	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity); // not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
+	
+	public void endDocument() {
+		
+		assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
+	}
 	
 	@Override
 	public void extract(XmlSourceElement element, IndexingDoc doc) {

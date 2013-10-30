@@ -76,4 +76,10 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 		return c;
 	}
 
+	@Override
+	public void endDocument() {
+		// TODO Should prefixes be cleaned? Very little data anyway.
+		
+	}
+
 }

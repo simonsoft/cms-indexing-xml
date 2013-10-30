@@ -37,4 +37,9 @@ public interface XmlIndexFieldExtraction {
 	 */
 	void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException;
 	
+	
+	/**
+	 * Enable handlers to clean up after document.
+	 */
+	public void endDocument();
 }

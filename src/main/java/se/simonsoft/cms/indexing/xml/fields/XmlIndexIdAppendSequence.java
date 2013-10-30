@@ -40,4 +40,13 @@ public class XmlIndexIdAppendSequence implements XmlIndexFieldExtraction {
 		fields.setField("id", fileid + "|" + num++);
 	}
 
+
+	@Override
+	public void endDocument() {
+		
+		// TODO Should the variables be reset? 
+		previd = null;
+		num = Integer.MIN_VALUE;
+	}
+
 }

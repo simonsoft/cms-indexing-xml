@@ -124,4 +124,9 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		
 	}
 
+	@Override
+	public void endDocument() {
+		
+	}
+
 }

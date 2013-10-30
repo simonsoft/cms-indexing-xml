@@ -59,6 +59,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	@Override
 	public void endDocument() {
+		
+		for (XmlIndexFieldExtraction ex : fieldExtraction) {
+			ex.endDocument();
+		}
 		docHandler.end();
 	}
 

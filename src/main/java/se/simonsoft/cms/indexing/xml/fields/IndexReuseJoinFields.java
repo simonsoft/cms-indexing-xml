@@ -37,4 +37,9 @@ public class IndexReuseJoinFields implements XmlIndexFieldExtraction {
 		}
 	}
 
+	@Override
+	public void endDocument() {
+		
+	}
+
 }

@@ -30,4 +30,9 @@ public class XmlIndexIdAppendTreeLocation implements XmlIndexFieldExtraction {
 		fields.setField("id", fileid + "|" + processedElement.getLocation());
 	}
 
+	@Override
+	public void endDocument() {
+
+	}
+
 }
