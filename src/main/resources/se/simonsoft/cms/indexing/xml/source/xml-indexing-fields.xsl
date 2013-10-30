@@ -24,7 +24,7 @@
 	<!-- document's status -->
 	<xsl:param name="status"/>
 
-	<xsl:template match="*">
+	<xsl:template match="/">
 	
 		<!-- <xsl:variable name="whitespace" select="'&#x20;&#xD;&#xA;&#x9;'"/>-->
 		<xsl:variable name="whitespace" select="' '"/>
