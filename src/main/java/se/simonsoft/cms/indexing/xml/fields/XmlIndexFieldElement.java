@@ -34,7 +34,12 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	
 	private SchemaFieldNames fieldNames = new SchemaFieldNamesReposxml();
 	
-	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity); // not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
+	/**
+	 * not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
+	 * 
+	 * This map is a scalability problem making RAM requirement highly dependent on largest XML.
+	 */
+	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
 	
 	public void endDocument() {
 		
