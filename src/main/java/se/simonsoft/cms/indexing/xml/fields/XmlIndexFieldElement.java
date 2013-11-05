@@ -38,6 +38,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	 * not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
 	 * 
 	 * This map is a scalability problem making RAM requirement highly dependent on largest XML.
+	 * TODO: Consider using a separate "service" within the extraction that provides a stack of ancestors (just ancestors, not the whole tree in RAM).
+	 * Is Preceeding Sibling important? Can't the consumer of the index deduce that id based on the pos? 
+	 * Yes, but that breaks the id-strategy abstraction. Would a query on parent-id and processed pos be an acceptable alternative?  
 	 */
 	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
 	
