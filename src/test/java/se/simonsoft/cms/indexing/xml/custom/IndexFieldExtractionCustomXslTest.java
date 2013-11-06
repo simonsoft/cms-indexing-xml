@@ -173,6 +173,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, sibling);
 		assertEquals("1", sibling.getFieldValue("reusevalue"));
+		assertEquals("1", sibling.getFieldValue("reuseready"));
 		
 		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
@@ -187,7 +188,7 @@ public class IndexFieldExtractionCustomXslTest {
 		doc3.setField("source", "<doc/>");
 		x.extract(null, doc3);
 		assertEquals("-2", doc3.getFieldValue("reusevalue"));
-		// TODO assert reuseready
+		assertEquals("0", doc3.getFieldValue("reuseready"));
 	}
 	
 	/**
