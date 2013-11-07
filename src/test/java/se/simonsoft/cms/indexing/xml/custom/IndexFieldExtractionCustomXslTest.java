@@ -126,9 +126,38 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "4");
 	}
 	
+	@Test
+	public void testAttributesBursting() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		
+		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
+		fields.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" xml:lang=\"en\" status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"abc002\">\n" +
+				"<title cms:rid=\"abc003\">section &amp; stuff</title>\n" +
+				"<p cms:rid=\"abc004\" cms:trid=\"xyz006\" status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes,\n" +
+				"twoway or toxml.</p>\n" +
+				"</section>\n" +
+				"<figure cms:rid=\"abc005\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
+				"</document>");
+		
+		x.extract(null, fields);
+		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
+		assertEquals("<document xml:lang=\"en\"><section><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("11", fields.getFieldValue("words_text"));
+	}
 	
 	@Test
-	public void testCmsAttributes() {
+	public void testAttributesCms() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {
