@@ -67,24 +67,19 @@
 	<xsl:template match="*" mode="source-reuse">
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
-		<!-- filter attributes -->
-		<xsl:apply-templates mode="source-reuse" select="@*[
-			name() != 'cms:rid' 
-			and name() != 'cms:rlogicalid'
-			and name() != 'cms:rwords'
-			and name() != 'cms:tstatus'
-			and name() != 'cms:trid'
-			and name() != 'cms:tpos'
-			and name() != 'cms:tlogicalid'
-			and name() != 'cms:tmatch'
-			and name() != 'cms:twords'
-			]" />
+		<!-- filtering of attributes is done in match statements of templates, easier to customize)-->
+		<xsl:apply-templates mode="source-reuse" select="@*"/>
 		<xsl:text>&gt;</xsl:text>
 		<xsl:apply-templates mode="source-reuse" />
 		<xsl:text>&lt;/</xsl:text>
 		<xsl:value-of select="name()" />
 		<xsl:text>&gt;</xsl:text>
 	</xsl:template>
+	
+	<xsl:template match="@cms:rid | @cms:rlogicalid | @cms:rwords| @cms:twords | @cms:tstatus | @cms:trid | @cms:tpos | @cms:tlogicalid | @cms:tmatch" mode="source-reuse">
+        <!-- Simply doing nothing to suppress the CMS attributes. -->
+        <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
+    </xsl:template>
 	
 	<xsl:template match="@*" mode="source-reuse">
 		<xsl:value-of select="' '"/>
