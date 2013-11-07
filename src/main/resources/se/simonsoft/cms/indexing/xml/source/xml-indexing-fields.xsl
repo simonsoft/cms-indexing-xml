@@ -29,6 +29,8 @@
 		<!-- <xsl:variable name="whitespace" select="'&#x20;&#xD;&#xA;&#x9;'"/>-->
 		<xsl:variable name="whitespace" select="' '"/>
 	
+		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
+		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in //text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
 		<doc>
@@ -39,8 +41,11 @@
 			
 			<!-- What about number of elements? -->		
 			
+			
+			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<field name="text"><xsl:value-of select="$text"/></field>
 			
+			<!-- Word count is simple when each word is a text node. -->
 			<field name="words_text"><xsl:value-of select="count($text)"/></field>
 			
 			<field name="source_reuse">
