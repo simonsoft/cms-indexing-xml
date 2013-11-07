@@ -54,13 +54,11 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		
 		x.extract(null, fields);
-		verify(fields).addField("text", "section & stuff TitleFigure");
-		//verify(fields).addField("text", "section & stuff Title Figure");
+		//verify(fields).addField("text", "section & stuff TitleFigure");
+		verify(fields).addField("text", "section & stuff Title Figure");
 		verify(fields).addField(eq("source_reuse"), anyString());
-		//verify(fields).addField("words_text", 4); ?
-		//verify(fields).addField("words_text", 3);
-		// string is ok if solr converts it
-		verify(fields).addField("words_text", "3");
+
+		verify(fields).addField("words_text", "5");
 	}
 	
 	
@@ -89,18 +87,14 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		
 		x.extract(null, fields);
-		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
-		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right withing them. Title Figure");
+		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
+		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. Title Figure");
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		// Can actually make space btw 2 inline elements disappear... still just for checksum.
 		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
-		//verify(fields).addField("words_text", 4); ?
-		//verify(fields).addField("words_text", 3);
-		// string is ok if solr converts it
-		verify(fields).addField("words_text", "9");
-		// Strange word count. Should be minimum 11.
-		//verify(fields).addField("words_text", "12");
+
+		verify(fields).addField("words_text", "13");
 	}
 	
 	@Test
@@ -129,9 +123,7 @@ public class IndexFieldExtractionCustomXslTest {
 		//verify(fields).addField("text", "Indented code Double space");
 		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
 
-		// string is ok if solr converts it
-		// Currently expects 16 words. Something is seriously wrong.
-		//verify(fields).addField("words_text", "4");
+		verify(fields).addField("words_text", "4");
 	}
 	
 	@Test

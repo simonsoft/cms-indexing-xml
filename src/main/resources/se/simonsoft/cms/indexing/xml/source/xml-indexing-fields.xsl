@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
 	>
@@ -29,19 +29,23 @@
 		<!-- <xsl:variable name="whitespace" select="'&#x20;&#xD;&#xA;&#x9;'"/>-->
 		<xsl:variable name="whitespace" select="' '"/>
 	
+		<xsl:variable name="text" select="for $elemtext in //text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+	
 		<doc>
 
 			<!-- skip name and attributes, already extracted -->
 
 			<!-- skip plain source, already extracted -->
 			
+			<!-- What about number of elements? -->		
+			
+			<field name="text"><xsl:value-of select="$text"/></field>
+			
+			<field name="words_text"><xsl:value-of select="count($text)"/></field>
+			
 			<field name="source_reuse">
 				<xsl:apply-templates select="." mode="source-reuse"/>
 			</field>
-			
-			<field name="text"><xsl:value-of select="normalize-space(.)"/></field>
-			
-			<field name="words_text"><xsl:value-of select="count(tokenize(string(.), $whitespace))"/></field>
 			
 			<field name="reusevalue">
 				<xsl:apply-templates select="." mode="rule-reusevalue"/>
