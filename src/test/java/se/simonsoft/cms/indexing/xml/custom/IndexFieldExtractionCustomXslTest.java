@@ -126,6 +126,37 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "4");
 	}
 	
+	
+	@Test
+	public void testCmsAttributes() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		
+		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
+		fields.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" xml:lang=\"en\" cms:rwords=\"10\" cms:rlogicalid=\"xy1\" cms:rid=\"abc001\" cms:twords=\"15\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"abc002\">\n" +
+				"<title cms:rid=\"abc003\">section &amp; stuff</title>\n" +
+				"<p cms:rid=\"abc004\" cms:tstatus=\"Released\" cms:tlogicalid=\"x-svn...\" cms:tmatch=\"element1\" cms:tpos=\"1.x.x\" cms:trid=\"xyz006\" cms:twords=\"5\">Testing cms attributes\n" +
+				"including tvalidate.</p>\n" +
+				"</section>\n" +
+				"<figure cms:rid=\"abc005\" cms:tvalidate=\"no\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
+				"</document>");
+		
+		x.extract(null, fields);
+		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
+		assertEquals("<document xml:lang=\"en\"><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("10", fields.getFieldValue("words_text"));
+	}
+	
 	@Test
 	public void testReuseDisqualifyOnRemovedRid() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
