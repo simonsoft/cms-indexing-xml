@@ -39,7 +39,9 @@
 
 			<!-- skip plain source, already extracted -->
 			
-			<!-- What about number of elements? -->		
+			<!-- What about number of elements? -->	
+			
+			<!-- TODO Processing-instructions -->	
 			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
@@ -105,6 +107,14 @@
     <xsl:template match="text()" mode="source-reuse" priority="1">
         <!-- Text: Normalize each text node. -->
         <xsl:value-of select="normalize-space(.)" />
+    </xsl:template>
+	
+	<xsl:template match="processing-instruction()" mode="source-reuse">
+        <xsl:text>&lt;?</xsl:text>
+		<xsl:value-of select="name()"/>
+		<xsl:text> </xsl:text>
+		<xsl:value-of select="normalize-space(.)" />
+		<xsl:text>?&gt;</xsl:text>
     </xsl:template>
 	
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->

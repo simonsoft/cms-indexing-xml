@@ -63,6 +63,10 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	
 	
+	/**
+	 * Testing normalization of space (specifically ensure space btw elements and newline becoming space).
+	 * Also tests that comments are ignored in source_reuse.
+	 */
 	@Test
 	public void testNormalization() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
@@ -124,6 +128,35 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
 
 		verify(fields).addField("words_text", "4");
+	}
+	
+	@Test
+	public void testProcessInstruction() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(
+				"<document xml:lang=\"en\">\n" +
+				"<!-- A comment. -->" +
+				"<section><title>No<?Pub _hardspace?>Break</title>\n" +
+				"<p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"\n" +
+				"?>Specific text touchup.<?Pub /_font?></p>\n" +
+				"</section>\n" +					
+				"</document>");
+		
+		x.extract(null, fields);
+		verify(fields).addField("words_text", "5");
+		verify(fields).addField("text", "No Break Specific text touchup.");
+		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
+
 	}
 	
 	@Test
