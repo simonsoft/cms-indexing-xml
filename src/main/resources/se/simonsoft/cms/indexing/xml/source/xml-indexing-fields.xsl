@@ -41,8 +41,6 @@
 			
 			<!-- What about number of elements? -->	
 			
-			<!-- TODO Processing-instructions -->	
-			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<field name="text"><xsl:value-of select="$text"/></field>
