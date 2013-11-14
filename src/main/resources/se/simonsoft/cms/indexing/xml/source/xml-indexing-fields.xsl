@@ -49,7 +49,7 @@
 			<field name="words_text"><xsl:value-of select="count($text)"/></field>
 			
 			<field name="source_reuse">
-				<xsl:apply-templates select="." mode="source-reuse"/>
+				<xsl:apply-templates select="." mode="source-reuse-root"/>
 			</field>
 			
 			<field name="reusevalue">
@@ -62,6 +62,17 @@
 			
 		</doc>
 		
+	</xsl:template>
+
+	<xsl:template match="*" mode="source-reuse-root">
+		<xsl:text>&lt;</xsl:text>
+		<xsl:value-of select="name()" />
+		<!-- no attributes for root node -->
+		<xsl:text>&gt;</xsl:text>
+		<xsl:apply-templates mode="source-reuse" />
+		<xsl:text>&lt;/</xsl:text>
+		<xsl:value-of select="name()" />
+		<xsl:text>&gt;</xsl:text>
 	</xsl:template>
 
 	<xsl:template match="*" mode="source-reuse">
@@ -81,6 +92,7 @@
         <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
     </xsl:template>
     
+    <!-- TODO: Remove this template if total ignore of root attributes works out well.  -->
     <xsl:template match="@status | @revision | @revision-baseline | @revision-commit | @modifiedby | @modifieddate | @releaselabel | @name" mode="source-reuse">
         <!-- Simply doing nothing to suppress the typical bursted attributes. -->
         <!-- Expecting this to become an area of customization, easy to exclude additional elements with a similar template. -->

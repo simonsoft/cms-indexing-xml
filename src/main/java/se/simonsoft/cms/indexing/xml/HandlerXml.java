@@ -28,7 +28,6 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
-import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;

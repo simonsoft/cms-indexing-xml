@@ -93,12 +93,14 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
 		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. Title Figure");
+		verify(fields).addField("words_text", "13");
+		
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		// Can actually make space btw 2 inline elements disappear... still just for checksum.
-		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
+		verify(fields).addField("source_reuse", "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
 
-		verify(fields).addField("words_text", "13");
+		
 	}
 	
 	@Test
@@ -125,7 +127,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, fields);
 		verify(fields).addField("text", "Indented code Double space");
 		//verify(fields).addField("text", "Indented code Double space");
-		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
+		verify(fields).addField("source_reuse", "<document><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
 
 		verify(fields).addField("words_text", "4");
 	}
@@ -155,7 +157,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, fields);
 		verify(fields).addField("words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
-		verify(fields).addField("source_reuse", "<document xml:lang=\"en\"><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
+		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
 
 	}
 	
@@ -175,7 +177,7 @@ public class IndexFieldExtractionCustomXslTest {
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
 		fields.setField("source",
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" xml:lang=\"en\" status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">\n" +
-				"<section cms:rlogicalid=\"xy2\" cms:rid=\"abc002\">\n" +
+				"<section xml:id=\"must-be\" cms:rlogicalid=\"xy2\" cms:rid=\"abc002\">\n" +
 				"<title cms:rid=\"abc003\">section &amp; stuff</title>\n" +
 				"<p cms:rid=\"abc004\" cms:trid=\"xyz006\" status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes,\n" +
 				"twoway or toxml.</p>\n" +
@@ -185,7 +187,8 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
-		assertEquals("<document xml:lang=\"en\"><section><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		// Bursted attributes should definitely be excluded. Potentially all attributes excluded on root.
+		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
 	}
 	
@@ -215,7 +218,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
-		assertEquals("<document xml:lang=\"en\"><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("words_text"));
 	}
 	
