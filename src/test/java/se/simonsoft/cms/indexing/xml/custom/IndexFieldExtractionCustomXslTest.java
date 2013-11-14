@@ -187,8 +187,10 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
-		// Bursted attributes should definitely be excluded. Potentially all attributes excluded on root.
-		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		// Bursted attributes should definitely be excluded from root. Potentially all attributes excluded on root.
+		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		// Potentially excluding bursted attributes on all elements, but requires configuration.
+		//assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
 	}
 	

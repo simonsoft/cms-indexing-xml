@@ -91,13 +91,6 @@
         <!-- Simply doing nothing to suppress the CMS attributes. -->
         <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
     </xsl:template>
-    
-    <!-- TODO: Remove this template if total ignore of root attributes works out well.  -->
-    <xsl:template match="@status | @revision | @revision-baseline | @revision-commit | @modifiedby | @modifieddate | @releaselabel | @name" mode="source-reuse">
-        <!-- Simply doing nothing to suppress the typical bursted attributes. -->
-        <!-- Expecting this to become an area of customization, easy to exclude additional elements with a similar template. -->
-        <!-- This template can also be overridden using 'priority' in order to force inclusion of these attributes.  -->
-    </xsl:template>
 	
 	<xsl:template match="@*" mode="source-reuse">
 		<xsl:value-of select="' '"/>
