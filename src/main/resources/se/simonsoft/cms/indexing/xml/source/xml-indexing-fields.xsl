@@ -116,7 +116,8 @@
         <xsl:text>&lt;?</xsl:text>
 		<xsl:value-of select="name()"/>
 		<xsl:text> </xsl:text>
-		<xsl:value-of select="normalize-space(.)" />
+		<!-- Suppressing RIDs to improve pretranslate use of translations prepared with early 2.0 adapters. -->
+		<xsl:value-of select="normalize-space(replace(., 'cms:rid=&quot;[a-z0-9]{15}&quot;', ''))"/>
 		<xsl:text>?&gt;</xsl:text>
     </xsl:template>
 	

@@ -158,6 +158,37 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
 		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
+	}
+
+	/**
+	 * Copy of testProcessInstruction() but with complexity of RIDs (caused by old issue with Abx DOM)
+	 */
+	@Test
+	public void testProcessInstructionRid() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(
+				"<document xml:lang=\"en\">\n" +
+				"<!-- A comment. -->" +
+				"<section><title>No<?Pub _hardspace cms:rid=\"2hf3j2tpqwv002a\"?>Break</title>\n" +
+				"<p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"\n" +
+				"cms:rid=\"2hf3j2tpqwv002b\"?>Specific text touchup.<?Pub /_font?></p>\n" +
+				"</section>\n" +					
+				"</document>");
+		
+		x.extract(null, fields);
+		verify(fields).addField("words_text", "5");
+		verify(fields).addField("text", "No Break Specific text touchup.");
+		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
 
 	}
 	
