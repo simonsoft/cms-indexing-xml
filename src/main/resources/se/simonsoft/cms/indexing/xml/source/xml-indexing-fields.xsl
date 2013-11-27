@@ -23,6 +23,9 @@
 
 	<!-- document's status -->
 	<xsl:param name="status"/>
+	
+	<!-- key definition for cms:rid lookup -->
+	<xsl:key name="rid" use="@cms:rid" match="*"/>
 
 	<xsl:template match="/">
 	
@@ -59,6 +62,16 @@
 			<field name="reuseready">
 				<xsl:apply-templates select="." mode="rule-reuseready"/>
 			</field>
+			
+			<!-- TODO: Consider including RID duplicates in future schema. -->
+			<!-- Lists all duplicated RID (duplicates included twice) -->
+			<!-- Rids should not be duplicated in the document, but that can only be identified from the root node.-->
+			<!-- TODO: Consider suppressing indexing or dictating a disabling reusevalue from the root node of the XML onto all children. -->
+			<!-- 
+			<field name="reuseduplicatedrids">
+				<xsl:value-of select="//*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
+			</field>
+			-->
 			
 		</doc>
 		
