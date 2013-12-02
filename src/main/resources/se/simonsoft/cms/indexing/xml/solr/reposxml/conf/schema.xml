@@ -57,7 +57,16 @@
 		-->
 		<field name="reusevalue" type="int" indexed="true" stored="true" multiValued="false" />
 		<field name="reuseready" type="int" indexed="true" stored="true" multiValued="false" />
+		<!-- 
+		List of RIDs that appear more than once in the element and children. 
+		Can not identify if the element itself is a duplicate.
+		-->
 		<field name="reuseridduplicate" type="string" indexed="true" stored="true" multiValued="false" />
+		<!-- 
+		Indicate if element requires translation. Typically dependent on the schema/DTD.
+		Experimental use when determining if pretranslate was "complete".
+		-->
+		<field name="reuserequired" type="boolean" indexed="true" stored="true" multiValued="false" />
 		<!--
 		Simplify joins, can be stored=false in production
 		TODO: Remove, not used in released algorithm. 
