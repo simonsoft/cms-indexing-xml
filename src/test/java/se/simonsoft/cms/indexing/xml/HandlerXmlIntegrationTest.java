@@ -226,6 +226,10 @@ public class HandlerXmlIntegrationTest {
 		// Would need another release with an Obsolete sv-SE translation and a reusevalue=1 de-DE one, which probably would match falsely
 	}
 
+	/** 
+	 * This kind of join is not used, just work in progress.
+	 * @throws SolrServerException
+	 */
 	@Test
 	public void testJoinReleasetranslation() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
@@ -247,6 +251,10 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("2gyvymn15kv0001", ridForSourceAndReusereadyLookup);
 	}	
 	
+	/** 
+	 * This kind of join is not used, just work in progress.
+	 * @throws SolrServerException
+	 */
 	@Test
 	public void testJoinReleasetranslationRid() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
@@ -274,6 +282,48 @@ public class HandlerXmlIntegrationTest {
 		//q.addSort(new SortClause("{!join to=pathfull from=reuserelease}reuseready", ORDER.desc));
 		//SolrDocumentList findReusevalueReleasedFirst = reposxml.query(q).getResults();
 		//assertEquals(1, findReusevalueReleasedFirst.getNumFound());
+	}
+	
+	/**
+	 * Test covering the search algorithm actually implemented in CMS 3.0.
+	 * The joins is performed on RID to match the Sha1 on the Release side while the Translation is the "primary" side of the join.
+	 * @throws SolrServerException
+	 */
+	@Test
+	public void testJoinReleasetranslationRidSha1() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
+		
+		String locale = "sv-SE";
+		// this join does not know that the remote element is actually in a Release
+		// it could be another not-yet-translated translation, but that would typically not be an issue.
+		SolrQuery query = new SolrQuery("prop_abx.TranslationLocale:" + locale
+				+ " AND {!join from=a_cms.rid to=a_cms.rid}c_sha1_source_reuse:" + wantedReleaseSha1);
+				
+		query.addFilterQuery("reusevalue:[1 TO *]");
+		query.addFilterQuery("patharea:translation");
+		// Filter on repository and parent path.
+		query.addFilterQuery("repo:" + repo.getName());
+		query.addFilterQuery("repoparent:" + "\\/svn"); 
+		
+		// Prefer higher reuseready integer, prefers Released over other status values.
+		query.addSort(SolrQuery.SortClause.desc("reuseready"));
+		// Prefer the highest RID, i.e. latest finalized.
+		query.addSort(SolrQuery.SortClause.desc("a_cms.rid"));
+		
+		SolrDocumentList findReusevalue = reposxml.query(query).getResults();
+		assertEquals(1, findReusevalue.getNumFound());
+		String ridForSourceAndReusereadyLookup = (String) findReusevalue.get(0).getFieldValue("a_cms.rid");
+		assertEquals("2gyvymn15kv0001", ridForSourceAndReusereadyLookup);
+		assertEquals(1, findReusevalue.get(0).getFieldValue("reuseready"));
 	}
 	
 //	@SuppressWarnings({ "unchecked", "rawtypes" })
