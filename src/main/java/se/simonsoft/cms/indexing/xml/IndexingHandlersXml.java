@@ -23,7 +23,6 @@ import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromProperty;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
-import se.simonsoft.cms.indexing.xml.fields.IndexReuseJoinFields;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
@@ -45,7 +44,8 @@ public abstract class IndexingHandlersXml {
 			add(IndexFieldExtractionCustomXsl.class);
 			// Checksums of text and source fields (default settings)
 			add(XmlIndexFieldExtractionChecksum.class);
-			add(IndexReuseJoinFields.class);
+			// The special Join-fields were not used in the Pretranslate algorithm.
+			// add(IndexReuseJoinFields.class);
 			add(IndexFieldDeletionsToSaveSpace.class);
 		}
 	};

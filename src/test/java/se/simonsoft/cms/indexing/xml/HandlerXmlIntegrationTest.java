@@ -27,6 +27,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.indexing.IndexAdmin;
@@ -231,6 +232,7 @@ public class HandlerXmlIntegrationTest {
 	 * @throws SolrServerException
 	 */
 	@Test
+	@Ignore
 	public void testJoinReleasetranslation() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
@@ -256,6 +258,7 @@ public class HandlerXmlIntegrationTest {
 	 * @throws SolrServerException
 	 */
 	@Test
+	@Ignore
 	public void testJoinReleasetranslationRid() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);

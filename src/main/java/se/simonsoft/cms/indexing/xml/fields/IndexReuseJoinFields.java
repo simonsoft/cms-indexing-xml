@@ -20,6 +20,11 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
+
+/**
+ *@Deprecated not using these fields in the pretranslate algorithm being released in CMS 3.0
+ */
+@Deprecated
 public class IndexReuseJoinFields implements XmlIndexFieldExtraction {
 
 	@Override

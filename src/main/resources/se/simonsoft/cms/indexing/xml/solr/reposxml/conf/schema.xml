@@ -59,9 +59,10 @@
 		<field name="reuseready" type="int" indexed="true" stored="true" multiValued="false" />
 		<!--
 		Simplify joins, can be stored=false in production
+		TODO: Remove, not used in released algorithm. 
 		-->
-		<field name="reusevaluelocale" type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="reuserelease" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="reusevaluelocale" type="string" indexed="true" stored="false" multiValued="false" />
+		<field name="reuserelease" type="string" indexed="true" stored="false" multiValued="false" />
 
 		<!--
 		Checksums of any field or of contents that are not indexed
@@ -162,7 +163,7 @@
 			
 		<!--
 		Verbatim element and its contents.
-		Should preferrably be accessed through an abstraction so reading can be
+		Should preferably be accessed through an abstraction so reading can be
 		changed if index grows too big.
 		-->
 		<field name="source" type="string" indexed="false" stored="true" multiValued="false" />
