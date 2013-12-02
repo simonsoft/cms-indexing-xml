@@ -26,6 +26,7 @@ import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 
 /**
  * Adds XML indexing handlers to those defined by {@link IndexingHandlers}.
@@ -46,6 +47,9 @@ public abstract class IndexingHandlersXml {
 			add(XmlIndexFieldExtractionChecksum.class);
 			// The special Join-fields were not used in the Pretranslate algorithm.
 			// add(IndexReuseJoinFields.class);
+			// Detect duplication of RIDs for document root element.
+			add(XmlIndexRidDuplicateDetection.class);
+			// Remove some fields that are not needed on each XML element.
 			add(IndexFieldDeletionsToSaveSpace.class);
 		}
 	};

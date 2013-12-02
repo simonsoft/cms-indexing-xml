@@ -22,7 +22,9 @@
 	>
 
 	<!-- document's status -->
-	<xsl:param name="status"/>
+	<xsl:param name="document-status"/>
+	<!-- depth of element relative to document -->
+	<xsl:param name="document-depth"/>
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
@@ -63,15 +65,15 @@
 				<xsl:apply-templates select="." mode="rule-reuseready"/>
 			</field>
 			
-			<!-- TODO: Consider including RID duplicates in future schema. -->
 			<!-- Lists all duplicated RID (duplicates included twice) -->
 			<!-- Rids should not be duplicated in the document, but that can only be identified from the root node.-->
-			<!-- TODO: Consider suppressing indexing or dictating a disabling reusevalue from the root node of the XML onto all children. -->
-			<!-- 
-			<field name="reuseduplicatedrids">
+			<!-- This field can only identify duplicates among its children, not whether the element itself is a duplicate in the document context. -->
+			<!-- Disabling reusevalue from the root node of the XML onto all children (done by an XmlIndexFieldExtraction class). -->
+			<!-- TODO: Consider if we should only perform this extraction for root node (depth = 1), if performance is heavily degraded. -->
+			<field name="reuseridduplicate">
 				<xsl:value-of select="//*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
 			</field>
-			-->
+
 			
 		</doc>
 		
@@ -143,7 +145,7 @@
 			<!-- Some installations don't set rids below certain stop tags -->
 			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->
-			<xsl:when test="$status = 'Obsolete'">-1</xsl:when>
+			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
 			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
 			<xsl:otherwise>1</xsl:otherwise>
 		</xsl:choose>
@@ -152,7 +154,7 @@
 	<!-- Decides if a match is valid for use as replacement, >0 means true -->
 	<xsl:template match="*" mode="rule-reuseready">
 		<xsl:choose>
-			<xsl:when test="$status = 'Released'">1</xsl:when>
+			<xsl:when test="$document-status = 'Released'">1</xsl:when>
 			<xsl:otherwise>0</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>

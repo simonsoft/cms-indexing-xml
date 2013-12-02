@@ -30,6 +30,7 @@ import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 
 public class IndexFieldExtractionCustomXslTest {
@@ -255,8 +256,47 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("10", fields.getFieldValue("words_text"));
 	}
 	
+	
 	@Test
-	public void testReuseDisqualifyOnRemovedRid() {
+	public void testPretranslateDisqualifyOnDuplicateRid() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		
+		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
+		fields.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" xml:lang=\"en\" cms:rwords=\"10\" cms:rlogicalid=\"xy1\" cms:rid=\"abc001\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"abc002\">\n" +
+				"<title cms:rid=\"abc003\">section title</title>\n" +
+				"<p cms:rid=\"abc004\">Testing cms attributes\n" +
+				"including tvalidate.</p>\n" +
+				"<p cms:rid=\"abc004\">Duplicate RID.</p>\n" +
+				"</section>\n" +
+				"<figure cms:rid=\"abc005\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
+				"</document>");
+		
+		x.extract(null, fields);
+		
+		XmlIndexFieldExtraction r = new XmlIndexRidDuplicateDetection();
+		r.extract(null, fields);
+		
+		assertEquals("section title Testing cms attributes including tvalidate. Duplicate RID. Title Figure", fields.getFieldValue("text"));
+		assertEquals("<document><section><title>section title</title><p>Testing cms attributes including tvalidate.</p><p>Duplicate RID.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("11", fields.getFieldValue("words_text"));
+		assertEquals("abc004 abc004", fields.getFieldValue("reuseridduplicate"));
+		assertEquals(-5, fields.getFieldValue("reusevalue"));
+	}
+	
+	
+	@Test
+	public void testPretranslateDisqualifyOnRemovedRid() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {

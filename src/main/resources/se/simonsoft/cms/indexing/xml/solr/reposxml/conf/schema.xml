@@ -57,6 +57,7 @@
 		-->
 		<field name="reusevalue" type="int" indexed="true" stored="true" multiValued="false" />
 		<field name="reuseready" type="int" indexed="true" stored="true" multiValued="false" />
+		<field name="reuseridduplicate" type="string" indexed="true" stored="true" multiValued="false" />
 		<!--
 		Simplify joins, can be stored=false in production
 		TODO: Remove, not used in released algorithm. 

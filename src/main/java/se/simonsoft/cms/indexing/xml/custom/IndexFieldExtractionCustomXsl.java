@@ -54,8 +54,10 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	 * How to get document status from already extracted fields.
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
+	public static final String DEPTH_FIELD_NAME = "depth";
 	
-	private static final QName STATUS_PARAM = new QName("status");
+	private static final QName STATUS_PARAM = new QName("document-status");
+	private static final QName DEPTH_PARAM = new QName("document-depth");
 	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
@@ -108,9 +110,16 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		
 		transformer.setDestination(xmltrackingFieldsHandler);
 		
+		// Status as parameter to XSL.
 		Object status = fields.getFieldValue(STATUS_FIELD_NAME);
 		if (status != null) {
 			transformer.setParameter(STATUS_PARAM, new XdmAtomicValue((String) status));
+		}
+		
+		// Depth as parameter to XSL
+		Object depth = fields.getFieldValue(DEPTH_FIELD_NAME);
+		if (depth != null) {
+			transformer.setParameter(DEPTH_PARAM, new XdmAtomicValue((Integer) depth));
 		}
 		
 		try {
