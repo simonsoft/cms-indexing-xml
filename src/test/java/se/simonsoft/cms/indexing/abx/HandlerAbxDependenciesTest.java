@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
-import se.repos.indexing.item.IdStrategyDefault;
+import se.simonsoft.cms.item.indexing.IdStrategyDefault;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;

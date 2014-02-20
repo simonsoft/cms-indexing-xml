@@ -23,22 +23,21 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
-import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.impl.CmsItemIdBase;
-import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
- * Uses the abx:Dependencies property, splitting on newline, to add fields ref + refid + refurl.
+ * Uses the abx.*Master properties, splitting on newline, to add fields ref_abx.*Master.
  */
-public class HandlerAbxDependencies extends HandlerAbxFolders {
+public class HandlerAbxMasters extends HandlerAbxFolders {
 
-	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxDependencies.class);
+	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxMasters.class);
 	
 	private static final String HOSTFIELD = "repohost";
 
@@ -48,47 +47,33 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 	 * @param idStrategy to fill the refid field
 	 */
 	@Inject
-	public HandlerAbxDependencies(IdStrategy idStrategy) {
+	public HandlerAbxMasters(IdStrategy idStrategy) {
 		super(idStrategy);
 		this.idStrategy = idStrategy;
 	}
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
+		
+		logger.trace("handle(IndexItemProgress progress)");
+		
 		IndexingDoc fields = progress.getFields();
 		String host = (String) fields.getFieldValue(HOSTFIELD);
 		if (host == null) {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
-		String abxprop = (String) fields.getFieldValue("prop_abx.Dependencies");
-		if (abxprop == null) {
-			return;
-		}
-		if (abxprop.length() == 0) {
-			logger.debug("abx:Dependencies property exists but is empty");
-			return;
+		
+		Set<CmsItemIdBase> masterIds = new HashSet<CmsItemIdBase>();
+		String[] abxProperties = {"abx.ReleaseMaster", "abx.AuthorMaster", "abx.TranslationMaster"};
+		for (String propertyName : abxProperties) {
+			masterIds.addAll(handleAbxProperty(host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
 		}
 		
-		Set<CmsItemIdBase> dependencyIds = new HashSet<CmsItemIdBase>();
-		for (String d : abxprop.split("\n")) {
-			CmsItemIdArg id = new CmsItemIdArg(d);
-			id.setHostname(host);
-
-			String indexid = idStrategy.getIdHead(id);
-			String url = id.getUrl();
-			if (id.isPegged()) {
-				RepoRevision revision = new RepoRevision(id.getPegRev(), null); // do we need date lookup?
-				indexid = idStrategy.getId(id, revision);
-				url = url + "?p=" + id.getPegRev();
-			}
-			
-			fields.addField("refid", indexid);
-			fields.addField("refurl", url);
-			dependencyIds.add(id);
-			
+		for (CmsItemIdBase masterId : masterIds) {
+			fields.addField("ref_abx.Masters", masterId.getLogicalId());
 		}
 		
-		handleFolders(fields, "ref_pathparents", dependencyIds);
+		handleFolders(fields, "ref_abx.Masters_pathparents", masterIds);
 		
 	}
 
@@ -98,6 +83,40 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 			add(HandlerPathinfo.class);
 			add(HandlerProperties.class);
 		}};
+	}
+	
+	/**
+	 * Helper method for extracting master ids and adding them to a reference
+	 * field. Assumes that the propvided property is found in a field with the
+	 * prefix "prop_".
+	 *
+	 * @param host
+	 * @param propertyName name of the property field to copy master ref from
+	 * @param abxprop value of the property field.
+	 * @return 
+	 */
+	protected Set<CmsItemIdBase> handleAbxProperty(String host, String propertyName, String abxprop) {
+
+		Set<CmsItemIdBase> result = new HashSet<CmsItemIdBase>();
+
+		if (abxprop != null) {
+			
+			if (abxprop.length() != 0) {
+				
+				for (String d : abxprop.split("\n")) {
+					CmsItemIdArg id = new CmsItemIdArg(d);
+					id.setHostname(host);
+					result.add(id);
+				}
+				
+			} else {
+				logger.debug("{} property exists but is empty", propertyName);
+			}
+			
+		}
+		
+		return result;
+		
 	}
 
 }
