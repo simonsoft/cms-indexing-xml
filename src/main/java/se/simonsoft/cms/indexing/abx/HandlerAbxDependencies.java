@@ -28,9 +28,9 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
+import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
-import se.simonsoft.cms.item.impl.CmsItemIdBase;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
@@ -41,8 +41,6 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxDependencies.class);
 	
 	private static final String HOSTFIELD = "repohost";
-
-	private IdStrategy idStrategy;
 	
 	/**
 	 * @param idStrategy to fill the refid field
@@ -50,7 +48,6 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 	@Inject
 	public HandlerAbxDependencies(IdStrategy idStrategy) {
 		super(idStrategy);
-		this.idStrategy = idStrategy;
 	}
 	
 	@Override
@@ -69,7 +66,7 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 			return;
 		}
 		
-		Set<CmsItemIdBase> dependencyIds = new HashSet<CmsItemIdBase>();
+		Set<CmsItemId> dependencyIds = new HashSet<CmsItemId>();
 		for (String d : abxprop.split("\n")) {
 			CmsItemIdArg id = new CmsItemIdArg(d);
 			id.setHostname(host);

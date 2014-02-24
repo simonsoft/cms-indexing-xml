@@ -24,16 +24,16 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
+import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.RepoRevision;
-import se.simonsoft.cms.item.impl.CmsItemIdBase;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 
 public abstract class HandlerAbxFolders implements IndexingItemHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxFolders.class);
 	
-	private final IdStrategy idStrategy;
+	protected final IdStrategy idStrategy;
 	
 	@Inject
 	public HandlerAbxFolders(IdStrategy idStrategy) {
@@ -49,7 +49,7 @@ public abstract class HandlerAbxFolders implements IndexingItemHandler {
 	 * @param ids Set of CmsItemIdBase since we need to know they are unique
 	 * @return 
 	 */
-	protected IndexingDoc handleFolders(IndexingDoc fields, String folderField, Set<CmsItemIdBase> ids) {
+	protected IndexingDoc handleFolders(IndexingDoc fields, String folderField, Set<CmsItemId> ids) {
 
 		if (ids != null) {
 			
@@ -57,7 +57,7 @@ public abstract class HandlerAbxFolders implements IndexingItemHandler {
 			String tempPath;
 			RepoRevision revision;
 			
-			for (CmsItemIdBase id : ids) {
+			for (CmsItemId id : ids) {
 				
 				for (CmsItemPath ancestor : id.getRelPath().getAncestors()) {
 					

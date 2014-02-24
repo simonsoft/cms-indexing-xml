@@ -29,8 +29,8 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
+import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
-import se.simonsoft.cms.item.impl.CmsItemIdBase;
 
 /**
  * Uses the abx.*Master properties, splitting on newline, to add fields ref_abx.*Master.
@@ -40,8 +40,6 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxMasters.class);
 	
 	private static final String HOSTFIELD = "repohost";
-
-	private IdStrategy idStrategy;
 	
 	/**
 	 * @param idStrategy to fill the refid field
@@ -49,7 +47,6 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	@Inject
 	public HandlerAbxMasters(IdStrategy idStrategy) {
 		super(idStrategy);
-		this.idStrategy = idStrategy;
 	}
 	
 	@Override
@@ -63,13 +60,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
 		
-		Set<CmsItemIdBase> masterIds = new HashSet<CmsItemIdBase>();
+		Set<CmsItemId> masterIds = new HashSet<CmsItemId>();
 		String[] abxProperties = {"abx.ReleaseMaster", "abx.AuthorMaster", "abx.TranslationMaster"};
 		for (String propertyName : abxProperties) {
 			masterIds.addAll(handleAbxProperty(host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
 		}
 		
-		for (CmsItemIdBase masterId : masterIds) {
+		for (CmsItemId masterId : masterIds) {
 			fields.addField("ref_abx.Masters", masterId.getLogicalId());
 		}
 		
@@ -95,9 +92,9 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	 * @param abxprop value of the property field.
 	 * @return 
 	 */
-	protected Set<CmsItemIdBase> handleAbxProperty(String host, String propertyName, String abxprop) {
+	protected Set<CmsItemId> handleAbxProperty(String host, String propertyName, String abxprop) {
 
-		Set<CmsItemIdBase> result = new HashSet<CmsItemIdBase>();
+		Set<CmsItemId> result = new HashSet<CmsItemId>();
 
 		if (abxprop != null) {
 			
