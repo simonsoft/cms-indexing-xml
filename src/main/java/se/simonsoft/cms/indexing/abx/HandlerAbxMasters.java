@@ -30,6 +30,7 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
 import se.simonsoft.cms.item.CmsItemId;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 
 /**
@@ -67,7 +68,10 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		}
 		
 		for (CmsItemId masterId : masterIds) {
-			fields.addField("ref_abx.Masters", masterId.getLogicalId());
+			fields.addField("ref_abx.Masters", 
+					masterId.getPegRev() == null ? 
+							idStrategy.getIdHead(masterId) : 
+							idStrategy.getId(masterId, new RepoRevision(masterId.getPegRev(), null)));
 		}
 		
 		handleFolders(fields, "ref_abx.Masters_pathparents", masterIds);
