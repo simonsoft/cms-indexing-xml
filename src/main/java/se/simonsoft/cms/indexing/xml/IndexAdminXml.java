@@ -23,13 +23,13 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.repos.indexing.IdStrategy;
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.IndexAdminNotification;
 import se.repos.indexing.solrj.SolrCommit;
 import se.repos.indexing.solrj.SolrDelete;
 import se.repos.indexing.solrj.SolrOptimize;
 import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
  * Don't forget to bind (<i>bind(IndexAdminXml.class).asEagerSingleton();</i>) this one, or clear won't affect reposxml core.

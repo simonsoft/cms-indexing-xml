@@ -19,6 +19,7 @@ import java.util.LinkedList;
 
 import se.repos.indexing.IndexingHandlers;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
+import se.simonsoft.cms.indexing.abx.HandlerAbxMasters;
 import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromProperty;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
@@ -66,6 +67,7 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.to(guiceMultibinder,
 				HandlerLogicalIdFromProperty.class,
 				HandlerAbxDependencies.class,
+				HandlerAbxMasters.class,
 				HandlerPathareaFromProperties.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
