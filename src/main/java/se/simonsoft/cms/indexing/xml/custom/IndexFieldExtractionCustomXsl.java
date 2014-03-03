@@ -55,9 +55,11 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	public static final String DEPTH_FIELD_NAME = "depth";
+	public static final String TSUPPRESS_A_FIELD_NAME = "ia_cms.tsuppress";
 	
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName DEPTH_PARAM = new QName("document-depth");
+	private static final QName TSUPPRESS_A_PARAM = new QName("ancestor-tsuppress");
 	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
@@ -120,6 +122,13 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		Object depth = fields.getFieldValue(DEPTH_FIELD_NAME);
 		if (depth != null) {
 			transformer.setParameter(DEPTH_PARAM, new XdmAtomicValue((Integer) depth));
+		}
+		
+		// Attribute tsuppress as parameter to XSL
+		// Consider sending all attributes to XSL.
+		Object attrvalue = fields.getFieldValue(TSUPPRESS_A_FIELD_NAME);
+		if (attrvalue != null) {
+			transformer.setParameter(TSUPPRESS_A_PARAM, new XdmAtomicValue((String) attrvalue));
 		}
 		
 		try {

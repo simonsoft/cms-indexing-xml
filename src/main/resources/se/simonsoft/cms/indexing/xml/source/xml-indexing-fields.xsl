@@ -25,6 +25,8 @@
 	<xsl:param name="document-status"/>
 	<!-- depth of element relative to document -->
 	<xsl:param name="document-depth"/>
+	<!-- ancestor attribute cms:tsuppress -->
+	<xsl:param name="ancestor-tsuppress" select="'no'"/>
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
@@ -139,9 +141,16 @@
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
 	<xsl:template match="*" mode="rule-reusevalue">
 		<xsl:choose>
+			<!-- #716 Mechanism for suppressing parts of a document without regard to rlogicalid. -->
+			<!-- Ancestors and element itself where tsuppress is set. -->
+			<xsl:when test="//*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-4</xsl:when>
+			<!-- #716 Children where tsuppress is set above, must be extracted by Java. -->
+			<xsl:when test="not($ancestor-tsuppress = 'no')">-5</xsl:when>
+			
 			<!-- Rid should not have been removed from the current node -->
 			<xsl:when test="not(@cms:rid)">-2</xsl:when>	
 			<!-- Rid should not have been removed from a child, but note that removal must always be done on complete includes -->
+			<!-- There is now the option to selectively remove RIDs below tsuppress (#716). -->
 			<!-- Some installations don't set rids below certain stop tags -->
 			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->

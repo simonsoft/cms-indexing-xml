@@ -295,6 +295,10 @@ public class IndexFieldExtractionCustomXslTest {
 	}
 	
 	
+	/**
+	 * There is a dangerous situation illustrated by the p r02b which has RID but below a disqualified element.
+	 * That p would likely be available for pretranslate. 
+	 */
 	@Test
 	public void testPretranslateDisqualifyOnRemovedRid() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
@@ -310,7 +314,7 @@ public class IndexFieldExtractionCustomXslTest {
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
-				"<section cms:rlogicalid=\"xy2\" >section</section>\n" +
+				"<section cms:rlogicalid=\"xy2\" ><p cms:rid=\"r02b\">section</p></section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
 				"</document>");
 		root.setField("prop_cms.status", "Released");
@@ -335,6 +339,76 @@ public class IndexFieldExtractionCustomXslTest {
 		x.extract(null, sibling);
 		assertEquals("1", sibling.getFieldValue("reusevalue"));
 		assertEquals("1", sibling.getFieldValue("reuseready"));
+		
+	}
+	
+	/**
+	 * More modern variant of removing RID (on node with rlogicalid).
+	 * Can be done on any node and should disqualify both parents and children.
+	 */
+	@Test
+	public void testPretranslateDisqualifyOnSuppress() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});		
+		
+		IndexingDoc root = new IndexingDocIncrementalSolrj();
+		root.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsuppress=\"yes\"><p cms:rid=\"r02b\">section</p></section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
+				"</document>");
+		root.setField("prop_cms.status", "Released");
+		
+		x.extract(null, root);
+		assertEquals("a child is disqualified from reuse so this element has to be too", "-4", root.getFieldValue("reusevalue"));
+		assertEquals("the element is status=Released so reuseready is not affected", "1", root.getFieldValue("reuseready"));
+		
+		IndexingDoc syes = new IndexingDocIncrementalSolrj();
+		syes.setField("source",
+				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsuppress=\"yes\"><p cms:rid=\"r02b\">section</p></section>");
+		syes.setField("prop_cms.status", "Released");
+		
+		x.extract(null, syes);
+		assertEquals("the suppressed element itself is disqualified" ,"-4", syes.getFieldValue("reusevalue"));
+		
+		IndexingDoc sno = new IndexingDocIncrementalSolrj();
+		sno.setField("source",
+				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsuppress=\"no\"><p cms:rid=\"r02b\">section</p></section>");
+		sno.setField("prop_cms.status", "Released");
+		
+		x.extract(null, sno);
+		assertEquals("the suppressed element itself is disqualified" ,"1", sno.getFieldValue("reusevalue"));
+		
+		//Verify that all children of tsuppress:ed element is disqualified.
+		IndexingDoc sya = new IndexingDocIncrementalSolrj();
+		sya.setField("source",
+				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
+		sya.setField("prop_cms.status", "Released");
+		sya.setField("ia_cms.tsuppress", "whatever");
+		
+		x.extract(null, sya);
+		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
+		
+	}
+	
+	@Test
+	public void testPretranslateDisqualifyOnStatus() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});	
 		
 		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
