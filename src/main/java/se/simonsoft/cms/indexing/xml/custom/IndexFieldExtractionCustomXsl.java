@@ -129,6 +129,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		Object attrvalue = fields.getFieldValue(TSUPPRESS_A_FIELD_NAME);
 		if (attrvalue != null) {
 			transformer.setParameter(TSUPPRESS_A_PARAM, new XdmAtomicValue((String) attrvalue));
+		} else {
+			transformer.setParameter(TSUPPRESS_A_PARAM, null);
 		}
 		
 		try {

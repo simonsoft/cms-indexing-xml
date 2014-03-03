@@ -199,6 +199,63 @@ public class HandlerXmlIntegrationTest {
 	}
 	
 	@Test
+	public void testTinyAttributes() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-attributes");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
+		SolrDocumentList x1 = reposxml.query(q1).getResults();
+		assertEquals(4, x1.getNumFound());
+		
+		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
+		assertEquals("get name of e1", "ch1", x1.get(1).getFieldValue("a_name"));
+		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
+		
+		assertEquals("get if of e2", "e2", x1.get(2).getFieldValue("ia_id"));
+		assertEquals("get inherited name of e2", "root", x1.get(2).getFieldValue("ia_name"));
+		assertEquals("get p-sibling name of e2", "ch1", x1.get(2).getFieldValue("sa_name"));
+		
+		assertEquals("get inherited name of inline", "root", x1.get(3).getFieldValue("ia_name"));
+		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));
+		
+	}
+	
+	@Test
+	public void testAttributesReleasetranslation() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		SolrDocument elem;
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		elem = findUsingRid.get(0);
+		assertEquals("get the rid attribute", "2gyvymn15kv0001", elem.getFieldValue("a_cms.rid"));
+		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
+		
+		findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0006 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		elem = findUsingRid.get(0);
+		assertEquals("get the rid attribute", "2gyvymn15kv0006", elem.getFieldValue("a_cms.rid")); 
+		assertEquals("get the inherited rid attribute (same as element itself)", "2gyvymn15kv0006", elem.getFieldValue("ia_cms.rid"));
+		assertEquals("get the root rid attribute", "2gyvymn15kv0000", elem.getFieldValue("ra_cms.rid"));
+		assertEquals("get the preceding sibling rid attribute", "2gyvymn15kv0005", elem.getFieldValue("sa_cms.rid"));
+		assertNull("get the project id attribute", elem.getFieldValue("a_cms.translation-project"));
+		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
+		
+		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
+	}
+
+	
+	@Test
 	public void testJoinReleasetranslationNoExtraFields() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
