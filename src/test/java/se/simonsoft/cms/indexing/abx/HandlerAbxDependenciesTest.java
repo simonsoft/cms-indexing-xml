@@ -54,7 +54,7 @@ public class HandlerAbxDependenciesTest {
 		assertTrue(refid.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml")
 				|| refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction to CMS.xml")); // just follow IdStrategy, needs to settle on ID encoding, any practical issues with whitespaces? Any with urlencoding?
-		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@123"));
+		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@0000000123"));
 		assertFalse("Revision-locked dependencies are irrelevant in the 'where used' use case, don't get false positives when using idhead search/join",
 				refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 		assertEquals("refurl should contain the already added url and one extra per dependency", 4, refurl.size());

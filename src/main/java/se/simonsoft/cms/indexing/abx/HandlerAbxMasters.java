@@ -64,7 +64,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		Set<CmsItemId> masterIds = new HashSet<CmsItemId>();
 		String[] abxProperties = {"abx.ReleaseMaster", "abx.AuthorMaster", "abx.TranslationMaster"};
 		for (String propertyName : abxProperties) {
-			masterIds.addAll(handleAbxProperty(host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
+			masterIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
 		}
 		
 		for (CmsItemId masterId : masterIds) {
@@ -91,15 +91,17 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	 * field. Assumes that the propvided property is found in a field with the
 	 * prefix "prop_".
 	 *
+	 * @param fields
 	 * @param host
 	 * @param propertyName name of the property field to copy master ref from
 	 * @param abxprop value of the property field.
 	 * @return 
 	 */
-	protected Set<CmsItemId> handleAbxProperty(String host, String propertyName, String abxprop) {
+	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName, String abxprop) {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 
+		String strategyId;
 		if (abxprop != null) {
 			
 			if (abxprop.length() != 0) {
@@ -107,6 +109,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				for (String d : abxprop.split("\n")) {
 					CmsItemIdArg id = new CmsItemIdArg(d);
 					id.setHostname(host);
+					
+					strategyId = id.getPegRev() != null ?
+							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
+							idStrategy.getIdHead(id);
+					
+					fields.addField("ref_" + propertyName, strategyId);
+					
 					result.add(id);
 				}
 				
