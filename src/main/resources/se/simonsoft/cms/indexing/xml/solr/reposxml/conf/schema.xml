@@ -199,6 +199,11 @@
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
 		
+		<!--
+		Different transformations of the original XML.
+		-->
+		<dynamicField name="transform_*" type="string" indexed="false" stored="true" multiValued="false" />
+		
 		<copyField source="text" dest="text_g"/>
 		<copyField source="text" dest="text_spell"/>
 		<copyField source="text" dest="text_assist"/>
