@@ -49,13 +49,11 @@ public class HandlerAbxDependenciesTest {
 		handler.handle(p);
 		Collection<Object> refid = doc.getFieldValues("refid");
 		Collection<Object> refurl = doc.getFieldValues("refurl");
-		System.out.println("Got refid " + refid);
 		assertEquals("Should have added the dependencies as refid", 3, refid.size());
 		assertTrue(refid.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
-		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml")
-				|| refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction to CMS.xml")); // just follow IdStrategy, needs to settle on ID encoding, any practical issues with whitespaces? Any with urlencoding?
+		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@0000000123"));
-		assertFalse("Revision-locked dependencies are irrelevant in the 'where used' use case, don't get false positives when using idhead search/join",
+		assertFalse("Revision-locked dependencies are irrelevant in the typical 'where used' use case, don't get false positives when using idhead search/join",
 				refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 		assertEquals("refurl should contain the already added url and one extra per dependency", 4, refurl.size());
 		assertTrue(refurl.contains("http://host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
@@ -64,6 +62,8 @@ public class HandlerAbxDependenciesTest {
 		assertFalse("Revision should be set in URLs",
 				refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
 		assertTrue("Should preserve existing URLs", refurl.contains("http://host:123/existing/url/"));
+		
+		// pathparents are tested in HandlerAbxFoldersTest.java
 	}
 
 }
