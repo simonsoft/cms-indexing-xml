@@ -34,7 +34,7 @@ import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
- * Uses the abx:Dependencies property, splitting on newline, to add fields ref + refid + refurl.
+ * Uses the abx:Dependencies and abx:CrossRefs properties splitting on newline.
  */
 public class HandlerAbxDependencies extends HandlerAbxFolders {
 
@@ -57,6 +57,9 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		if (host == null) {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
+		String[] abxProperties = {"abx.Dependencies", "abx.CrossRefs"};
+		
+		// TODO: Handle all abxProperties
 		String abxprop = (String) fields.getFieldValue("prop_abx.Dependencies");
 		if (abxprop == null) {
 			return;
@@ -86,6 +89,8 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}
 		
 		handleFolders(fields, "ref_pathparents", dependencyIds);
+		// TODO: Name the fields like Master-attributes.
+		// Fill aggregated fields "refid", "refurl" "ref_pathparents".
 		
 	}
 
