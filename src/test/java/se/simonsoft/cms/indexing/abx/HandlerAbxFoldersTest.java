@@ -25,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Set;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
@@ -107,6 +106,13 @@ public class HandlerAbxFoldersTest {
 		Collection<Object> abxMastersPathParents = doc.getFieldValues("ref_abx.Masters_pathparents");
 		
 		assertEquals("Expected ref_abx.Masters_pathparents to be populated.", 8, abxMastersPathParents.size());
+		
+		// Also testing the individual Master fields and aggregated
+		assertEquals(1, doc.getFieldValues("ref_abx.TranslationMaster").size());
+		assertEquals(1, doc.getFieldValues("ref_abx.AuthorMaster").size());
+		
+		assertEquals("Expected ref_abx.Masters to be populated.", 2, doc.getFieldValues("ref_abx.Masters").size());
+		assertTrue(doc.getFieldValues("ref_abx.Masters").contains("host:123/svn/demo1/vvab/release/A/xml/documents/900108.xml@0000000131"));
 		
 	}
 
