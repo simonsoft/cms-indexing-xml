@@ -123,7 +123,7 @@ public class HandlerAbxDependenciesTest {
 		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
 
 		Collection<Object> refpathparents = doc.getFieldValues("ref_pathparents");
-		assertEquals("Should have aggregated references pathparents", 7, refpathparents.size()); //guessing the number
+		assertEquals("Should have aggregated references pathparents", 8, refpathparents.size()); //guessing the number
 
 	}
 

@@ -59,32 +59,22 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}
 		String[] abxProperties = {"abx.Dependencies", "abx.CrossRefs"};
 		
-		// TODO: Handle all abxProperties
-		String abxprop = (String) fields.getFieldValue("prop_abx.Dependencies");
-		if (abxprop == null) {
-			return;
-		}
-		if (abxprop.length() == 0) {
-			logger.debug("abx:Dependencies property exists but is empty");
-			return;
+		Set<CmsItemId> dependencyIds = new HashSet<CmsItemId>();
+		for (String propertyName : abxProperties) {
+			dependencyIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
 		}
 		
-		Set<CmsItemId> dependencyIds = new HashSet<CmsItemId>();
-		for (String d : abxprop.split("\n")) {
-			CmsItemIdArg id = new CmsItemIdArg(d);
-			id.setHostname(host);
-
-			String indexid = idStrategy.getIdHead(id);
-			String url = id.getUrl();
-			if (id.isPegged()) {
-				RepoRevision revision = new RepoRevision(id.getPegRev(), null); // do we need date lookup?
-				indexid = idStrategy.getId(id, revision);
-				url = url + "?p=" + id.getPegRev();
-			}
+		String refId;
+		String refUrl;
+		for (CmsItemId depItemId : dependencyIds) {
 			
-			fields.addField("refid", indexid);
-			fields.addField("refurl", url);
-			dependencyIds.add(id);
+			refId = depItemId.getPegRev() == null ?
+					idStrategy.getIdHead(depItemId) :
+					idStrategy.getId(depItemId, new RepoRevision(depItemId.getPegRev(), null));
+			refUrl = depItemId.getUrl() + (depItemId.getPegRev() == null ? "" : "?p=" + depItemId.getPegRev());
+			
+			fields.addField("refid", refId);
+			fields.addField("refurl", refUrl);
 			
 		}
 		
@@ -100,6 +90,39 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 			add(HandlerPathinfo.class);
 			add(HandlerProperties.class);
 		}};
+	}
+	
+	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName, String abxprop) {
+
+		Set<CmsItemId> result = new HashSet<CmsItemId>();
+
+		if (abxprop != null) {
+			
+			if (abxprop.length() != 0) {
+				
+				String strategyId;
+				
+				for (String d : abxprop.split("\n")) {
+					CmsItemIdArg id = new CmsItemIdArg(d);
+					id.setHostname(host);
+					
+					strategyId = id.getPegRev() != null ?
+							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
+							idStrategy.getIdHead(id);
+					
+					fields.addField("ref_" + propertyName, strategyId);
+					
+					result.add(id);
+				}
+				
+			} else {
+				logger.debug("{} property exists but is empty", propertyName);
+			}
+			
+		}
+		
+		return result;
+
 	}
 
 }
