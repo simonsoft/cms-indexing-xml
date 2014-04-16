@@ -65,22 +65,18 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}
 		
 		String refId;
-		String refUrl;
 		for (CmsItemId depItemId : dependencyIds) {
 			
 			refId = depItemId.getPegRev() == null ?
 					idStrategy.getIdHead(depItemId) :
 					idStrategy.getId(depItemId, new RepoRevision(depItemId.getPegRev(), null));
-			refUrl = depItemId.getUrl() + (depItemId.getPegRev() == null ? "" : "?p=" + depItemId.getPegRev());
 			
 			fields.addField("refid", refId);
-			fields.addField("refurl", refUrl);
 			
 		}
 		
 		handleFolders(fields, "ref_pathparents", dependencyIds);
 		// TODO: Name the fields like Master-attributes.
-		// Fill aggregated fields "refid", "refurl" "ref_pathparents".
 		
 	}
 

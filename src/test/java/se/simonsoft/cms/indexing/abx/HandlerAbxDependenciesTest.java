@@ -43,7 +43,6 @@ public class HandlerAbxDependenciesTest {
 		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.Dependencies", abxdeps);
 		doc.addField("ref_link", "/existing/url/");
-		doc.addField("refurl", "http://host:123/existing/url/");
 		
 		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
@@ -69,25 +68,16 @@ public class HandlerAbxDependenciesTest {
 		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.Dependencies", abxdeps);
 		doc.addField("ref_link", "/existing/url/");
-		doc.addField("refurl", "http://host:123/existing/url/");
 		
 		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
 		Collection<Object> refid = doc.getFieldValues("refid");
-		Collection<Object> refurl = doc.getFieldValues("refurl");
 		assertEquals("Should have added the dependencies as refid", 3, refid.size());
 		assertTrue(refid.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
 		assertTrue(refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml@0000000123"));
 		assertFalse("Revision-locked dependencies are irrelevant in the typical 'where used' use case, don't get false positives when using idhead search/join",
 				refid.contains("host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
-		assertEquals("refurl should contain the already added url and one extra per dependency", 4, refurl.size());
-		assertTrue(refurl.contains("http://host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
-		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
-		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml?p=123"));
-		assertFalse("Revision should be set in URLs",
-				refurl.contains("http://host:123/svn/documentation/xml/reference/cms/User_interface.xml"));
-		assertTrue("Should preserve existing URLs", refurl.contains("http://host:123/existing/url/"));
 		
 		// pathparents are tested in HandlerAbxFoldersTest.java
 	}
@@ -104,23 +94,19 @@ public class HandlerAbxDependenciesTest {
 		doc.addField("prop_abx.Dependencies", abxdeps);
 		doc.addField("prop_abx.CrossRefs", abxcross);
 		doc.addField("ref_link", "/existing/url/");
-		doc.addField("refurl", "http://host:123/existing/url/");
+		doc.addField("refid", "host:123/existing/url/");
 		
 		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
 		Collection<Object> refdep = doc.getFieldValues("ref_abx.Dependencies");
 		Collection<Object> refcross = doc.getFieldValues("ref_abx.CrossRefs");
 		
-		assertEquals("Should have added the dependency as refid", 1, refdep.size());
+		assertEquals("Should have added the dependency as refdep", 1, refdep.size());
 		assertTrue(refdep.contains("host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
 		assertTrue(refcross.contains("host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
 		
 		Collection<Object> refid = doc.getFieldValues("refid");
-		assertEquals("Should have aggregated references in refid", 2, refid.size());
-		
-		Collection<Object> refurl = doc.getFieldValues("refurl");
-		assertTrue(refurl.contains("http://host:123/svn/documentation/graphics/cms/process/2.0/op-edit.png"));
-		assertTrue(refurl.contains("http://host:123/svn/documentation/xml/reference/cms/adapter/Introduction%20to%20CMS.xml"));
+		assertEquals("Should have aggregated references in refid and kept existing", 3, refid.size());
 
 		Collection<Object> refpathparents = doc.getFieldValues("ref_pathparents");
 		assertEquals("Should have aggregated references pathparents", 8, refpathparents.size()); //guessing the number

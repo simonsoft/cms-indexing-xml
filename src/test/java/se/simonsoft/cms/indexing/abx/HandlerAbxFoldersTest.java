@@ -71,7 +71,7 @@ public class HandlerAbxFoldersTest {
 		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.Dependencies", abxdeps);
 		doc.addField("ref_link", "/existing/url/");
-		doc.addField("refurl", "http://host:123/existing/url/");
+		doc.addField("refid", "host:123/existing/url/");
 		
 		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
 		handler.handle(p);
