@@ -76,7 +76,6 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}
 		
 		handleFolders(fields, "ref_pathparents", dependencyIds);
-		// TODO: Name the fields like Master-attributes.
 		
 	}
 

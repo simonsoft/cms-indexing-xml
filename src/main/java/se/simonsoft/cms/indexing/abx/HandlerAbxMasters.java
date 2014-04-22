@@ -43,7 +43,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	private static final String HOSTFIELD = "repohost";
 	
 	/**
-	 * @param idStrategy to fill the refid field
+	 * @param idStrategy to fill the refid/relid field
 	 */
 	@Inject
 	public HandlerAbxMasters(IdStrategy idStrategy) {
@@ -68,13 +68,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		}
 		
 		for (CmsItemId masterId : masterIds) {
-			fields.addField("ref_abx.Masters", 
+			fields.addField("rel_abx.Masters", 
 					masterId.getPegRev() == null ? 
 							idStrategy.getIdHead(masterId) : 
 							idStrategy.getId(masterId, new RepoRevision(masterId.getPegRev(), null)));
 		}
 		
-		handleFolders(fields, "ref_abx.Masters_pathparents", masterIds);
+		handleFolders(fields, "rel_abx.Masters_pathparents", masterIds);
 		
 	}
 
@@ -88,7 +88,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	
 	/**
 	 * Helper method for extracting master ids and adding them to a reference
-	 * field. Assumes that the propvided property is found in a field with the
+	 * field. Assumes that the provided property is found in a field with the
 	 * prefix "prop_".
 	 *
 	 * @param fields
@@ -114,7 +114,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
 							idStrategy.getIdHead(id);
 					
-					fields.addField("ref_" + propertyName, strategyId);
+					fields.addField("rel_" + propertyName, strategyId);
 					
 					result.add(id);
 				}

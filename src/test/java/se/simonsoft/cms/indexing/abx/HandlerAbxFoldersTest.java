@@ -101,18 +101,18 @@ public class HandlerAbxFoldersTest {
 		
 		IndexingItemHandler handler = new HandlerAbxMasters(new IdStrategyDefault());
 		handler.handle(p);
-		System.out.println("ref_abx.Masters_pathparents: " + doc.getFieldValues("ref_abx.Masters_pathparents"));
+		System.out.println("rel_abx.Masters_pathparents: " + doc.getFieldValues("rel_abx.Masters_pathparents"));
 		
-		Collection<Object> abxMastersPathParents = doc.getFieldValues("ref_abx.Masters_pathparents");
+		Collection<Object> abxMastersPathParents = doc.getFieldValues("rel_abx.Masters_pathparents");
 		
-		assertEquals("Expected ref_abx.Masters_pathparents to be populated.", 8, abxMastersPathParents.size());
+		assertEquals("Expected rel_abx.Masters_pathparents to be populated.", 8, abxMastersPathParents.size());
 		
 		// Also testing the individual Master fields and aggregated
-		assertEquals(1, doc.getFieldValues("ref_abx.TranslationMaster").size());
-		assertEquals(1, doc.getFieldValues("ref_abx.AuthorMaster").size());
+		assertEquals(1, doc.getFieldValues("rel_abx.TranslationMaster").size());
+		assertEquals(1, doc.getFieldValues("rel_abx.AuthorMaster").size());
 		
-		assertEquals("Expected ref_abx.Masters to be populated.", 2, doc.getFieldValues("ref_abx.Masters").size());
-		assertTrue(doc.getFieldValues("ref_abx.Masters").contains("host:123/svn/demo1/vvab/release/A/xml/documents/900108.xml@0000000131"));
+		assertEquals("Expected ref_abx.Masters to be populated.", 2, doc.getFieldValues("rel_abx.Masters").size());
+		assertTrue(doc.getFieldValues("rel_abx.Masters").contains("host:123/svn/demo1/vvab/release/A/xml/documents/900108.xml@0000000131"));
 		
 	}
 
