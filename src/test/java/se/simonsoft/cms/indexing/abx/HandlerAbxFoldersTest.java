@@ -111,7 +111,7 @@ public class HandlerAbxFoldersTest {
 		assertEquals(1, doc.getFieldValues("rel_abx.TranslationMaster").size());
 		assertEquals(1, doc.getFieldValues("rel_abx.AuthorMaster").size());
 		
-		assertEquals("Expected ref_abx.Masters to be populated.", 2, doc.getFieldValues("rel_abx.Masters").size());
+		assertEquals("Expected rel_abx.Masters to be populated.", 2, doc.getFieldValues("rel_abx.Masters").size());
 		assertTrue(doc.getFieldValues("rel_abx.Masters").contains("host:123/svn/demo1/vvab/release/A/xml/documents/900108.xml@0000000131"));
 		
 	}

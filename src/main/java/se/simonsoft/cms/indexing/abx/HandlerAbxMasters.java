@@ -34,7 +34,7 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 
 /**
- * Uses the abx.*Master properties, splitting on newline, to add fields ref_abx.*Master.
+ * Uses the abx.*Master properties, splitting on newline, to add fields rel_abx.*Master.
  */
 public class HandlerAbxMasters extends HandlerAbxFolders {
 
