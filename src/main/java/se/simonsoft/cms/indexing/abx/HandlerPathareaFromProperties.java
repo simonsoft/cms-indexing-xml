@@ -28,16 +28,26 @@ public class HandlerPathareaFromProperties implements
 
 	private static final String RELEASE_VAL = "release";
 	private static final String TRANSLATION_VAL = "translation";
-	private static final String RELEASE_FIELD = "prop_abx.ReleaseLabel";
-	private static final String TRANSLATION_FIELD = "prop_abx.TranslationMaster";
+	private static final String TRANSLATION10_VAL = "translation10";
+	
+	private static final String RELEASELABEL_FIELD = "prop_abx.ReleaseLabel";
+	private static final String TRANSLATIONLOCALE_FIELD = "prop_abx.TranslationLocale";
+	
+	private static final String AUTHORMASTER_FIELD = "prop_abx.AuthorMaster";
+	private static final String RELEASEMASTER_FIELD = "prop_abx.ReleaseMaster";
+	private static final String TRANSLATIONMASTER_FIELD = "prop_abx.TranslationMaster";
 
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		IndexingDoc doc = progress.getFields();
-		if (doc.containsKey(TRANSLATION_FIELD)) {
-			doc.addField("patharea", TRANSLATION_VAL);
+		if (doc.containsKey(TRANSLATIONMASTER_FIELD) || doc.containsKey(TRANSLATIONLOCALE_FIELD)) {
 			doc.setField("pathmain", false);
-		} else if (doc.containsKey(RELEASE_FIELD)) {
+			if (doc.containsKey(AUTHORMASTER_FIELD) || doc.containsKey(TRANSLATIONLOCALE_FIELD)) 
+				doc.addField("patharea", TRANSLATION_VAL);
+			else
+				doc.addField("patharea", TRANSLATION10_VAL); // In CMS 1.0, there were neither AM or TL fields.
+			
+		} else if (doc.containsKey(RELEASEMASTER_FIELD) || doc.containsKey(RELEASELABEL_FIELD)) {
 			doc.addField("patharea", RELEASE_VAL);
 			doc.setField("pathmain", false);
 		} else {
