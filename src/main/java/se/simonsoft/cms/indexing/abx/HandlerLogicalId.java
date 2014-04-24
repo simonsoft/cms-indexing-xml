@@ -37,7 +37,7 @@ public abstract class HandlerLogicalId implements IndexingItemHandler {
 	
 	/**
 	 * @param progress from {@link #handle(IndexingItemProgress)}
-	 * @return null to avoid setting the field, an id preferrably with peg rev to set the field
+	 * @return null to avoid setting the field, an id preferably with peg rev to set the field
 	 */
 	protected abstract CmsItemId getItemId(IndexingItemProgress progress);
 

@@ -18,51 +18,43 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.CmsItemId;
+import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 
 /**
  * Without cms-logicalid module we can't encode a logical id based on {@link CmsChangesetItem},
- * so we'll use the value from svn property field {@value #PROPERTY_FIELD} but with the
- * commit revision from the changeset item.
- * @deprecated 
+ * so we'll use the URL as specified by repos-indexing, using the assumption that the URL
+ * is encoded according to Subversion/SvnKit standards.
  */
-public class HandlerLogicalIdFromProperty extends HandlerLogicalId {
+public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 	
-	public static final String PROPERTY_FIELD = "prop_abx.BaseLogicalId";
+	public static final String URL_REPO_FIELD = "repourl";
+	public static final String URL_ITEM_FIELD = "url";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());	
 	
 	@Override
 	protected CmsItemId getItemId(IndexingItemProgress progress) {
 		CmsChangesetItem item = progress.getItem();
-		String repohost = (String) progress.getFields().getFieldValue("repohost");
-		if (repohost == null) {
-			throw new AssertionError("Missing repohost field for " + item + ", can not set logical ID");
+		String repourl = (String) progress.getFields().getFieldValue(URL_REPO_FIELD);
+		if (repourl == null) {
+			throw new AssertionError("Missing " + URL_REPO_FIELD + " field for " + item + ", can not set logical ID");
 		}
-		String base = (String) progress.getFields().getFieldValue(PROPERTY_FIELD);
-		if (base == null) {
-			if ("xml".equals(item.getPath().getExtension())) {
-				logger.warn("No BaseLogicalId for {}, logical ID field will not be set", item);
-			} else {
-				logger.trace("No BaseLogicalId for {}, logical ID field will not be set", item);
-			}
-			return null;
+		String url = (String) progress.getFields().getFieldValue(URL_ITEM_FIELD);
+		if (url == null) {
+			throw new AssertionError("Missing " + URL_ITEM_FIELD + " field for " + item + ", can not set logical ID");
 		}
-		if (base.endsWith("?p=-1")) {
-			base = base.substring(0, base.length() - 5);
+
+		CmsItemIdArg id = new CmsItemIdArg(new CmsRepository(repourl), url, item.getRevisionChanged().getNumber());
+		if (!id.isFullyQualifiedOriginally()) {
+			throw new AssertionError("Missing host information for " + item + ", can not set logical ID");
 		}
-		CmsItemIdArg id = new CmsItemIdArg(base);
-		id.setHostnameOrValidate(repohost);
-		return id.withPegRev(item.getRevisionChanged().getNumber());
+		return id;
 	}
 	
 	@SuppressWarnings("serial")
