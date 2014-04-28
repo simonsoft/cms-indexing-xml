@@ -44,7 +44,6 @@ public class HandlerLogicalIdFromUrlTest {
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		when(p.getFields()).thenReturn(doc);
 		when(p.getRepository()).thenReturn(new CmsRepository(repourl));
-		doc.addField("repourl", repourl);
 		doc.addField("url", itemurl);
 		
 		IndexingItemHandler handler = new HandlerLogicalIdFromUrl();

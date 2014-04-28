@@ -25,7 +25,6 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
-import se.simonsoft.cms.item.impl.CmsItemIdArg;
 
 /**
  * Without cms-logicalid module we can't encode a logical id based on {@link CmsChangesetItem},
@@ -34,26 +33,21 @@ import se.simonsoft.cms.item.impl.CmsItemIdArg;
  */
 public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 	
-	public static final String URL_REPO_FIELD = "repourl";
 	public static final String URL_ITEM_FIELD = "url";
-
 	
 	@Override
 	protected CmsItemId getItemId(IndexingItemProgress progress) {
 		CmsChangesetItem item = progress.getItem();
-		String repourl = (String) progress.getFields().getFieldValue(URL_REPO_FIELD);
-		if (repourl == null) {
-			throw new AssertionError("Missing " + URL_REPO_FIELD + " field for " + item + ", can not set logical ID");
+		CmsRepository repo = progress.getRepository();
+		if (repo.getHost() == null) {
+			throw new AssertionError("Missing host information for " + item + ", can not set logical ID");
 		}
 		String url = (String) progress.getFields().getFieldValue(URL_ITEM_FIELD);
 		if (url == null) {
 			throw new AssertionError("Missing " + URL_ITEM_FIELD + " field for " + item + ", can not set logical ID");
 		}
 
-		CmsItemIdArg id = new CmsItemIdArg(new CmsRepository(repourl), url, item.getRevisionChanged().getNumber());
-		if (!id.isFullyQualifiedOriginally()) {
-			throw new AssertionError("Missing host information for " + item + ", can not set logical ID");
-		}
+		CmsItemId id = repo.getItemId(url).withPegRev(item.getRevisionChanged().getNumber());
 		return id;
 	}
 	
