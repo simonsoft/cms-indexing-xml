@@ -257,8 +257,10 @@
 		</fieldType>	
 		<fieldType class="solr.TextField" name="text_phrases">
 			<analyzer>
-				<tokenizer class="solr.KeywordTokenizerFactory" />
+				<tokenizer class="solr.StandardTokenizerFactory" />
 				<filter class="solr.LowerCaseFilterFactory" />
+				<!-- When outputting unigrams, single words will be included. -->
+				<filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="5" outputUnigrams="true"/>
 			</analyzer>
 		</fieldType>
 	</types>
