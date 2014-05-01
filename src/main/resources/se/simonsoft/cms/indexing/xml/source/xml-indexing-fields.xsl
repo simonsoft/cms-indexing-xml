@@ -93,6 +93,7 @@
 	</xsl:template>
 
 	<xsl:template match="*" mode="source-reuse">
+		<!-- NOTE: Empty elements are serialized in long form (start and end tag). -->
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
 		<!-- filtering of attributes is done in match statements of templates, easier to customize)-->
@@ -127,6 +128,21 @@
     <xsl:template match="text()" mode="source-reuse" priority="1">
         <!-- Text: Normalize each text node. -->
         <xsl:value-of select="normalize-space(.)" />
+    </xsl:template>
+    
+    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse" priority="1">
+        <!-- Text: Normalize each text node. Preserve a starting space.-->
+        <xsl:value-of select="concat(' ', normalize-space(.))" />
+    </xsl:template>
+    
+    <xsl:template match="text()[ends-with(., ' ')]" mode="source-reuse" priority="1">
+        <!-- Text: Normalize each text node. Preserve a trailing space. -->
+        <xsl:value-of select="concat(normalize-space(.), ' ')" />
+    </xsl:template>
+    
+    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse" priority="1">
+        <!-- Text: Normalize each text node. This template should NOT match '  ' (two+ spaces). -->
+        <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
     </xsl:template>
 	
 	<xsl:template match="processing-instruction()" mode="source-reuse">

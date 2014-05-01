@@ -100,10 +100,71 @@ public class IndexFieldExtractionCustomXslTest {
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		// Can actually make space btw 2 inline elements disappear... still just for checksum.
 		verify(fields).addField("source_reuse", "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
-
-		
 	}
-	
+
+	/**
+	 * Testing normalization in the context of Assist.
+	 * The (CMS 3.0) indexing is not designed for using source_reuse for insert.
+	 * If using source_reuse for Assist or other inserts, the Normalization must be very exact.
+	 */
+	@Test
+	public void testNormalizationAssistSpace() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(
+				"<p>Ett <code>två</code><code>tre</code> <code>fyra</code>  <code>fem</code>   <code> sex </code> sju.</p>");
+
+		x.extract(null, fields);
+		verify(fields).addField("text", "Ett två tre fyra fem sex sju.");
+		verify(fields).addField("words_text", "7");
+
+		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
+		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
+		// Can actually make space btw 2 inline elements disappear... important for reuse.
+		verify(fields).addField("source_reuse", "<p>Ett <code>två</code><code>tre</code> <code>fyra</code> <code>fem</code> <code> sex </code> sju.</p>");
+	}
+	/**
+	 * Testing normalization in the context of Assist.
+	 * The (CMS 3.0) indexing is not designed for using source_reuse for insert.
+	 * If using source_reuse for Assist or other inserts, the Normalization must be very exact.
+	 */
+	@Test
+	public void testNormalizationAssistVVAB() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(
+				"<p>Väderstad <termref linkend=\"platform\"/> <termref linkend=\"type\"\n" +
+						"/> are combination machines designed for direct seed drilling.</p\n" +
+						">");
+
+		x.extract(null, fields);
+		verify(fields).addField("text", "Väderstad are combination machines designed for direct seed drilling.");
+		verify(fields).addField("words_text", "9");
+
+		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
+		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
+		// Can actually make space btw 2 inline elements disappear... important for reuse.
+		verify(fields).addField("source_reuse", "<p>Väderstad <termref linkend=\"platform\"></termref> <termref linkend=\"type\"></termref> are combination machines designed for direct seed drilling.</p>");
+	}
+
 	@Test
 	public void testNormalizationPreserve() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
