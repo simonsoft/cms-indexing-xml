@@ -19,11 +19,12 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
-
-import org.xml.sax.ContentHandler;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.s9api.Destination;
@@ -32,9 +33,15 @@ import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SAXDestination;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmAtomicValue;
+import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
+
+import org.w3c.dom.Attr;
+import org.xml.sax.ContentHandler;
+
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
@@ -61,6 +68,9 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	private static final QName DEPTH_PARAM = new QName("document-depth");
 	private static final QName TSUPPRESS_A_PARAM = new QName("ancestor-tsuppress");
 	
+	private static final QName A_ATTR_PARAM = new QName("ancestor-attributes");
+	private static final QName D_ATTR_PARAM = new QName("document-attributes");
+	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
 		init(xslSource.getXslt());
@@ -79,6 +89,62 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		}
 		
 		transformer = xsltCompiled.load();
+	}
+	
+	
+	/** Just need a way to get a DOM element/document. 
+	 * Unsure what APIs we should use so this was a sample using pure W3C DOM. 
+	 * @param rootElementName
+	 * @return
+	 */
+	private org.w3c.dom.Document createDomDocument(String rootElementName) {
+
+		try {
+			// first of all we request out 
+			// DOM-implementation:
+			DocumentBuilderFactory factory =
+					DocumentBuilderFactory.newInstance();
+			// then we have to create document-loader:
+			DocumentBuilder loader = factory.newDocumentBuilder();
+
+			// createing a new DOM-document...
+			org.w3c.dom.Document document = loader.newDocument();
+
+			// initially it has no root-element, ... so we create it:
+			org.w3c.dom.Element root = document.createElement(rootElementName);
+
+			// we can add an element to a document only once,
+			// the following calls will raise exceptions:
+			document.appendChild(root);
+
+			//return root;
+			return document;
+
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create DOM element/document", e);
+		}
+	}
+	
+
+	private XdmValue getAttributeDoc(IndexingDoc fields) {
+	
+		net.sf.saxon.s9api.DocumentBuilder db = new Processor(false).newDocumentBuilder();
+		try {
+			org.w3c.dom.Document doc = createDomDocument("attributes");
+			String mft = (String) fields.getFieldValue("ia_markfortrans");
+			
+			if (mft != null) {
+				Attr attr = doc.createAttribute("markfortrans");
+				attr.setValue(mft);
+				doc.getDocumentElement().setAttributeNode(attr);
+			}
+			
+			
+			XdmNode xdmDoc = db.build(new DOMSource(doc));
+			return xdmDoc;
+		} catch (SaxonApiException e) {
+			throw new RuntimeException("failed to pass attributes to XSLT", e);
+		}
 	}
 
 	@Override
@@ -132,6 +198,9 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		} else {
 			transformer.setParameter(TSUPPRESS_A_PARAM, null);
 		}
+		
+		transformer.setParameter(A_ATTR_PARAM, this.getAttributeDoc(fields));
+		
 		
 		try {
 			transformer.transform();

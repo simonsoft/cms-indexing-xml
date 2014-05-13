@@ -27,6 +27,8 @@
 	<xsl:param name="document-depth"/>
 	<!-- ancestor attribute cms:tsuppress -->
 	<xsl:param name="ancestor-tsuppress" select="'no'"/>
+	<!-- ancestor attributes ... (wrapped somehow...) -->
+	<xsl:param name="ancestor-attributes"/>
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
@@ -39,6 +41,9 @@
 		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in //text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+	
+		<!-- Variables detecting markfortrans='no' or equivalent. -->
+		<xsl:variable name="no_translate" select="($ancestor-attributes[@markfortrans = 'no'])"/>
 	
 		<doc>
 
@@ -82,70 +87,116 @@
 	</xsl:template>
 
 	<xsl:template match="*" mode="source-reuse-root">
+	
+		<!-- The root node of each indexed element: 
+		- Basic rule is to exclude all attributes. 
+		- Some attributes might have a fundamental impact on the contained text (cause a variation in translation).
+		- Possible to customize how inherited attributes are potentially used and/or combined with local attributes.
+		-->
+		<xsl:variable name="attrs" as="attribute() *">
+			<xsl:apply-templates select="$ancestor-attributes/*/@*" mode="source-reuse-root-inherited"/>
+            <xsl:apply-templates select="@*" mode="source-reuse-root"/>
+        </xsl:variable>
+	
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
-		<!-- no attributes for root node -->
+		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
 		<xsl:text>&gt;</xsl:text>
-		<xsl:apply-templates mode="source-reuse" />
-		<xsl:text>&lt;/</xsl:text>
-		<xsl:value-of select="name()" />
-		<xsl:text>&gt;</xsl:text>
-	</xsl:template>
-
-	<xsl:template match="*" mode="source-reuse">
-		<!-- NOTE: Empty elements are serialized in long form (start and end tag). -->
-		<xsl:text>&lt;</xsl:text>
-		<xsl:value-of select="name()" />
-		<!-- filtering of attributes is done in match statements of templates, easier to customize)-->
-		<xsl:apply-templates mode="source-reuse" select="@*"/>
-		<xsl:text>&gt;</xsl:text>
-		<xsl:apply-templates mode="source-reuse" />
+		<xsl:apply-templates mode="source-reuse-child" />
 		<xsl:text>&lt;/</xsl:text>
 		<xsl:value-of select="name()" />
 		<xsl:text>&gt;</xsl:text>
 	</xsl:template>
 	
-	<xsl:template match="@cms:rid | @cms:rlogicalid | @cms:rwords| @cms:twords | @cms:tstatus | @cms:trid | @cms:tpos | @cms:tlogicalid | @cms:tmatch" mode="source-reuse">
+	<xsl:template match="@*" mode="source-reuse-root-inherited">
+		<!-- Exclude attributes that are not explicitly matched. -->
+	</xsl:template>
+	
+	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root-inherited">
+		<!-- Consider also supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
+		<xsl:copy/>
+	</xsl:template>
+	
+	
+	<xsl:template match="@*" mode="source-reuse-root">
+		<!-- Exclude attributes that are not explicitly matched. -->
+	</xsl:template>
+	
+	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root">
+		<xsl:copy/>
+	</xsl:template>
+	
+
+	<xsl:template match="*" mode="source-reuse-child">
+		<!-- NOTE: Empty elements are serialized in long form (start and end tag). -->
+		
+		<!-- This variable construction is not strictly required for 'source-reuse-child' (at this time). -->
+		<xsl:variable name="attrs" as="attribute() *">
+			<!-- filtering of attributes is done in match statements of templates, easier to customize. -->
+			<!-- Base rule is to include attributes. -->
+            <xsl:apply-templates select="@*" mode="source-reuse-child"/>
+        </xsl:variable>
+            
+		<xsl:text>&lt;</xsl:text>
+		<xsl:value-of select="name()" />
+		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
+		<xsl:text>&gt;</xsl:text>
+		<xsl:apply-templates mode="source-reuse-child" />
+		<xsl:text>&lt;/</xsl:text>
+		<xsl:value-of select="name()" />
+		<xsl:text>&gt;</xsl:text>
+	</xsl:template>
+	
+	<xsl:template match="@cms:rid | @cms:rlogicalid | @cms:rwords| @cms:twords | @cms:tstatus | @cms:trid | @cms:tpos | @cms:tlogicalid | @cms:tmatch" mode="source-reuse-child">
         <!-- Simply doing nothing to suppress the CMS attributes. -->
         <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
     </xsl:template>
 	
-	<xsl:template match="@*" mode="source-reuse">
+	<xsl:template match="@*" mode="source-reuse-child">
+		<!-- Include attributes that are not explicitly matched. -->
+		<xsl:copy/>
+	</xsl:template>
+	
+	<xsl:template match="@*" mode="source-reuse-serialize">
+		<!-- Serialize the attribute information. -->
 		<xsl:value-of select="' '"/>
 		<xsl:value-of select="name()"/>
 		<xsl:text>="</xsl:text>
 		<xsl:value-of select="."/>
 		<xsl:text>"</xsl:text>
 	</xsl:template>
+	
+	
+	<!-- Text Normalization -->
 
-	<xsl:template match="*[@xml:space='preserve']/text()" mode="source-reuse" priority="5">
+	<xsl:template match="*[@xml:space='preserve']/text()" mode="source-reuse-child" priority="5">
         <!-- Not normalizing space when xml:space is set. -->
         <!-- Can not determine normalize from schema, will have to be acceptable -->
         <!-- Important to use source instead of source-reuse for replacement. -->
         <xsl:value-of select="." />
     </xsl:template>
     
-    <xsl:template match="text()" mode="source-reuse" priority="1">
+    <xsl:template match="text()" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. -->
         <xsl:value-of select="normalize-space(.)" />
     </xsl:template>
     
-    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse" priority="1">
+    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. Preserve a starting space.-->
         <xsl:value-of select="concat(' ', normalize-space(.))" />
     </xsl:template>
     
-    <xsl:template match="text()[ends-with(., ' ')]" mode="source-reuse" priority="1">
+    <xsl:template match="text()[ends-with(., ' ')]" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. Preserve a trailing space. -->
         <xsl:value-of select="concat(normalize-space(.), ' ')" />
     </xsl:template>
     
-    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse" priority="1">
+    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. This template should NOT match '  ' (two+ spaces). -->
         <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
     </xsl:template>
 	
-	<xsl:template match="processing-instruction()" mode="source-reuse">
+	<xsl:template match="processing-instruction()" mode="source-reuse-child">
         <xsl:text>&lt;?</xsl:text>
 		<xsl:value-of select="name()"/>
 		<xsl:text> </xsl:text>
@@ -171,6 +222,18 @@
 			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->
 			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
+			
+			<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
+			<!-- We can not act on default values. Defaulting to 'yes' in ONLY allowed for inline elements. -->
+			<xsl:when test="/*/@markfortrans='no'">-20</xsl:when>
+			<xsl:when test="/*/@translate='no'">-20</xsl:when>
+			<!-- Consider supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
+			<!-- Ensure that children are also disqualified. -->
+			<!-- TODO: Remove, going for concept of including attribute in checksum. 
+			<xsl:when test="$ancestor-attributes/*/@markfortrans='no'">-21</xsl:when>
+			<xsl:when test="$ancestor-attributes/*/@translate='no'">-21</xsl:when>
+			-->
+			
 			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
 			<xsl:otherwise>1</xsl:otherwise>
 		</xsl:choose>

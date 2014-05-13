@@ -445,7 +445,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sno.setField("prop_cms.status", "Released");
 		
 		x.extract(null, sno);
-		assertEquals("the suppressed element itself is disqualified" ,"1", sno.getFieldValue("reusevalue"));
+		assertEquals("tsuppress attr can be set to 'no', no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tsuppress:ed element is disqualified.
 		IndexingDoc sya = new IndexingDocIncrementalSolrj();
@@ -456,6 +456,67 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, sya);
 		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
+		
+	}
+	
+	/**
+	 * Similar to tsuppress but driven by DTD-specific attributes and not propagating upwards.
+	 */
+	@Test
+	public void testPretranslateDisqualifyOnMarkfortranslateNo() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});		
+		
+		IndexingDoc root = new IndexingDocIncrementalSolrj();
+		root.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"no\"><p cms:rid=\"r02b\">section</p></section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
+				"</document>");
+		root.setField("prop_cms.status", "Released");
+		
+		x.extract(null, root);
+		assertEquals("a child is markfortrans but that does NOT disqualify parent (because markfortrans attribute is included in checksum", "1", root.getFieldValue("reusevalue"));
+		assertEquals("the element is status=Released so reuseready is of course ok", "1", root.getFieldValue("reuseready"));
+		
+		IndexingDoc tno = new IndexingDocIncrementalSolrj();
+		tno.setField("source",
+				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"no\"><p cms:rid=\"r02b\">section</p></section>");
+		tno.setField("prop_cms.status", "Released");
+		
+		x.extract(null, tno);
+		assertEquals("the markfortrans element has markfortrans attr in checksum/source_reuse" ,"<section markfortrans=\"no\"><p>section</p></section>", tno.getFieldValue("source_reuse"));
+//		assertEquals("the markfortrans element is not disqualified since including markfortrans/translate attr in checksum" ,"1", syes.getFieldValue("reusevalue"));
+		//assertEquals("the markfortrans element itself is disqualified (can be discussed, alternative would be to include markfortrans/translate attr in checksum)" ,"-20", syes.getFieldValue("reusevalue"));
+		
+		// Verify markfortrans=yes. Not really core now with the approach of inheriting attribute into source_reuse.
+		// We could consider removing markfortrans=yes, but not sure about interaction with defaulting of markfortrans attribute.
+		IndexingDoc tyes = new IndexingDocIncrementalSolrj();
+		tyes.setField("source",
+				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"yes\"><p cms:rid=\"r02b\">section</p></section>");
+		tyes.setField("prop_cms.status", "Released");
+		
+		x.extract(null, tyes);
+		assertEquals("the markfortrans element has markfortrans attr in checksum/source_reuse" ,"<section markfortrans=\"yes\"><p>section</p></section>", tyes.getFieldValue("source_reuse"));
+		assertEquals("markfortrans attr can be set to 'yes', no disqualification" ,"1", tyes.getFieldValue("reusevalue"));
+		
+		//Verify that all children of markfortrans:ed element is disqualified.
+		IndexingDoc tna = new IndexingDocIncrementalSolrj();
+		tna.setField("source",
+				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
+		tna.setField("prop_cms.status", "Released");
+		tna.setField("ia_markfortrans", "no");
+		
+		x.extract(null, tna);
+		assertEquals("the children of markfortrans:ed element has markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
+		//assertEquals("the children of markfortrans:ed element is disqualified" ,"-21", sya.getFieldValue("reusevalue"));
 		
 	}
 	
