@@ -138,7 +138,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		net.sf.saxon.s9api.DocumentBuilder db = new Processor(false).newDocumentBuilder();
 		try {
 			org.w3c.dom.Document doc = createDomDocument("attributes");
-			org.w3c.dom.Element e = doc.getDocumentElement();
+			org.w3c.dom.Element elem = doc.getDocumentElement();
 			
 			Collection<String> fieldNames = fields.getFieldNames();
 			
@@ -154,33 +154,38 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			}
 			
 			// Add attributes to element.
-			for (String fieldName: fieldNames) {
-				if (fieldName.startsWith("ia_")) {
-					String value = (String) fields.getFieldValue(fieldName);
-					if (value != null) {
-						String name = fieldName.substring(3).replace('.', ':');
-						int nssep = name.indexOf(':');
-						if (nssep == -1) {
-							Attr attr = doc.createAttribute(name);
-							attr.setValue(value);
-							e.setAttributeNode(attr);
+			for (String fieldName : fieldNames) {
+				try {
+					if (fieldName.startsWith("ia_")) {
+						String value = (String) fields.getFieldValue(fieldName);
+						if (value != null) {
+							String name = fieldName.substring(3).replace('.', ':');
+							int nssep = name.indexOf(':');
+							if (nssep == -1 || fieldName.startsWith("ia_xml")) {
+								Attr attr = doc.createAttribute(name);
+								attr.setValue(value);
+								elem.setAttributeNode(attr);
+							} else {
+								String nsuri = namespaces.get(name.substring(0, nssep));
+								//logger.trace("adding attribute with NS uri: {}", nsuri);
+								Attr attr = doc.createAttributeNS(nsuri, name);
+								attr.setValue(value);
+								elem.setAttributeNode(attr);
+							}
 						} else {
-							String nsuri = namespaces.get(name.substring(0, nssep));
-							//logger.trace("adding attribute with NS uri: {}", nsuri);
-							Attr attr = doc.createAttributeNS(nsuri, name);
-							attr.setValue(value);
-							e.setAttributeNode(attr);
+							logger.warn("field for attribute {} is null", fieldName);
 						}
-					} else {
-						logger.warn("field for attribute {} is null", fieldName);
 					}
+				} catch (Exception e) {
+					logger.error("failed to pass attribute in field {} to XSLT", fieldName);
+					throw e;
 				}
 			}
 
 			
 			XdmNode xdmDoc = db.build(new DOMSource(doc));
 			return xdmDoc;
-		} catch (SaxonApiException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("failed to pass attributes to XSLT", e);
 		}
 	}
