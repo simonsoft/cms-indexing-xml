@@ -17,6 +17,9 @@ package se.simonsoft.cms.indexing.xml.custom;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
@@ -39,6 +42,8 @@ import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.xml.sax.ContentHandler;
 
@@ -53,6 +58,8 @@ import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
  * Depends on "source" field extraction from {@link XmlSourceReaderJdom}.
  */
 public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
+	
+	private static final Logger logger = LoggerFactory.getLogger(IndexFieldExtractionCustomXsl.class);
 	
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
@@ -69,7 +76,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	private static final QName TSUPPRESS_A_PARAM = new QName("ancestor-tsuppress");
 	
 	private static final QName A_ATTR_PARAM = new QName("ancestor-attributes");
-	private static final QName D_ATTR_PARAM = new QName("document-attributes");
+	//private static final QName D_ATTR_PARAM = new QName("document-attributes");
 	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
@@ -126,19 +133,50 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 	
 
-	private XdmValue getAttributeDoc(IndexingDoc fields) {
+	private XdmValue getAttributeInheritedDoc(IndexingDoc fields) {
 	
 		net.sf.saxon.s9api.DocumentBuilder db = new Processor(false).newDocumentBuilder();
 		try {
 			org.w3c.dom.Document doc = createDomDocument("attributes");
-			String mft = (String) fields.getFieldValue("ia_markfortrans");
+			org.w3c.dom.Element e = doc.getDocumentElement();
 			
-			if (mft != null) {
-				Attr attr = doc.createAttribute("markfortrans");
-				attr.setValue(mft);
-				doc.getDocumentElement().setAttributeNode(attr);
+			Collection<String> fieldNames = fields.getFieldNames();
+			
+			// First extract namespaces.
+			Map<String,String> namespaces = new HashMap<String,String>();
+			for (String fieldName: fieldNames) {
+				if (fieldName.startsWith("ins_")) {
+					String prefix = fieldName.substring(4);
+					namespaces.put(prefix, (String) fields.getFieldValue(fieldName));
+					//logger.trace("added NS to map: {} - {}", prefix, fields.getFieldValue(fieldName));
+				}
+				
 			}
 			
+			// Add attributes to element.
+			for (String fieldName: fieldNames) {
+				if (fieldName.startsWith("ia_")) {
+					String value = (String) fields.getFieldValue(fieldName);
+					if (value != null) {
+						String name = fieldName.substring(3).replace('.', ':');
+						int nssep = name.indexOf(':');
+						if (nssep == -1) {
+							Attr attr = doc.createAttribute(name);
+							attr.setValue(value);
+							e.setAttributeNode(attr);
+						} else {
+							String nsuri = namespaces.get(name.substring(0, nssep));
+							//logger.trace("adding attribute with NS uri: {}", nsuri);
+							Attr attr = doc.createAttributeNS(nsuri, name);
+							attr.setValue(value);
+							e.setAttributeNode(attr);
+						}
+					} else {
+						logger.warn("field for attribute {} is null", fieldName);
+					}
+				}
+			}
+
 			
 			XdmNode xdmDoc = db.build(new DOMSource(doc));
 			return xdmDoc;
@@ -199,7 +237,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			transformer.setParameter(TSUPPRESS_A_PARAM, null);
 		}
 		
-		transformer.setParameter(A_ATTR_PARAM, this.getAttributeDoc(fields));
+		transformer.setParameter(A_ATTR_PARAM, this.getAttributeInheritedDoc(fields));
 		
 		
 		try {

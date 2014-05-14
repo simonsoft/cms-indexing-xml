@@ -408,7 +408,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 * Can be done on any node and should disqualify both parents and children.
 	 */
 	@Test
-	public void testPretranslateDisqualifyOnSuppress() {
+	public void testPretranslateDisqualifyOnTsuppress() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
 			@Override
 			public Source getXslt() {
@@ -452,10 +452,61 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		sya.setField("prop_cms.status", "Released");
+		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
 		sya.setField("ia_cms.tsuppress", "whatever");
 		
 		x.extract(null, sya);
 		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
+		
+	}
+	
+	/**
+	 * tvalidate='no' can be set on a node to suppress validation.
+	 * Pretranslate should be done on that node (with limited validation) but not below.
+	 * Can be done on any node and should disqualify children only (neither the element nor parents).
+	 */
+	@Test
+	public void testPretranslateDisqualifyOnTvalidate() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});		
+		
+		IndexingDoc root = new IndexingDocIncrementalSolrj();
+		root.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tvalidate=\"yes\"><p cms:rid=\"r02b\">section</p></section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
+				"</document>");
+		root.setField("prop_cms.status", "Released");
+		
+		x.extract(null, root);
+		assertEquals("a child is tvalidate=no, parent unaffected", "1", root.getFieldValue("reusevalue"));
+		
+				
+		IndexingDoc sno = new IndexingDocIncrementalSolrj();
+		sno.setField("source",
+				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tvalidate=\"no\"><p cms:rid=\"r02b\">section</p></section>");
+		sno.setField("prop_cms.status", "Released");
+		
+		x.extract(null, sno);
+		assertEquals("tvalidate=no of element itself, no disqualification" ,"1", sno.getFieldValue("reusevalue"));
+		
+		//Verify that all children of tvalidate=no element is disqualified.
+		IndexingDoc sya = new IndexingDocIncrementalSolrj();
+		sya.setField("source",
+				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
+		sya.setField("prop_cms.status", "Released");
+		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
+		sya.setField("ia_cms.tvalidate", "no");
+		
+		x.extract(null, sya);
+		assertEquals("the children of tvalidate=no element is disqualified" ,"-7", sya.getFieldValue("reusevalue"));
 		
 	}
 	
@@ -493,7 +544,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.extract(null, tno);
 		assertEquals("the markfortrans element has markfortrans attr in checksum/source_reuse" ,"<section markfortrans=\"no\"><p>section</p></section>", tno.getFieldValue("source_reuse"));
-//		assertEquals("the markfortrans element is not disqualified since including markfortrans/translate attr in checksum" ,"1", syes.getFieldValue("reusevalue"));
+		assertEquals("the markfortrans element is not disqualified since including markfortrans/translate attr in checksum" ,"1", tno.getFieldValue("reusevalue"));
 		//assertEquals("the markfortrans element itself is disqualified (can be discussed, alternative would be to include markfortrans/translate attr in checksum)" ,"-20", syes.getFieldValue("reusevalue"));
 		
 		// Verify markfortrans=yes. Not really core now with the approach of inheriting attribute into source_reuse.
@@ -515,8 +566,8 @@ public class IndexFieldExtractionCustomXslTest {
 		tna.setField("ia_markfortrans", "no");
 		
 		x.extract(null, tna);
-		assertEquals("the children of markfortrans:ed element has markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
-		//assertEquals("the children of markfortrans:ed element is disqualified" ,"-21", sya.getFieldValue("reusevalue"));
+		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
+		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
 		
 	}
 	

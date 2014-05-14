@@ -112,19 +112,25 @@
 		<!-- Exclude attributes that are not explicitly matched. -->
 	</xsl:template>
 	
-	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root-inherited">
-		<!-- Consider also supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
-		<xsl:copy/>
-	</xsl:template>
-	
-	
 	<xsl:template match="@*" mode="source-reuse-root">
 		<!-- Exclude attributes that are not explicitly matched. -->
 	</xsl:template>
 	
-	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root">
+	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root-inherited">
+		<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
+		<!-- With this approach of including attr in checksum (with inheritance) we are 'neutral' to DTD default values. --> 
+		<!-- Defaulting to anything for non-inline elements is not recommended. -->
+		<!-- We consider the expected behaviour undefined when defaulting below an explicit 'yes'/'no'. -->
+		<!-- Consider also supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
 		<xsl:copy/>
 	</xsl:template>
+	
+	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root">
+		<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
+		<xsl:copy/>
+	</xsl:template>
+	
+	
 	
 
 	<xsl:template match="*" mode="source-reuse-child">
@@ -181,20 +187,23 @@
         <xsl:value-of select="normalize-space(.)" />
     </xsl:template>
     
-    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="1">
+    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a starting space.-->
+        <!-- This template also matches white-space only and presents a single space. -->
         <xsl:value-of select="concat(' ', normalize-space(.))" />
     </xsl:template>
     
-    <xsl:template match="text()[ends-with(., ' ')]" mode="source-reuse-child" priority="1">
+    <xsl:template match="text()[ends-with(., ' ')  and normalize-space(.) != '']" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a trailing space. -->
         <xsl:value-of select="concat(normalize-space(.), ' ')" />
     </xsl:template>
-    
-    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="1">
-        <!-- Text: Normalize each text node. This template should NOT match '  ' (two+ spaces). -->
+
+    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="4">
+        <!-- Text: Normalize each text node. Preserve both starting and trailing space. -->
+        <!-- This template should NOT match '  ' (two+ spaces). -->
         <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
     </xsl:template>
+    
 	
 	<xsl:template match="processing-instruction()" mode="source-reuse-child">
         <xsl:text>&lt;?</xsl:text>
@@ -214,6 +223,9 @@
 			<!-- #716 Children where tsuppress is set above, must be extracted by Java. -->
 			<xsl:when test="not($ancestor-tsuppress = 'no')">-5</xsl:when>
 			
+			<!-- Children where tvalidate='no' is set above, disqualify. (value -6 is reserved but not used) -->
+			<xsl:when test="$ancestor-attributes/*/@cms:tvalidate='no'">-7</xsl:when>
+			
 			<!-- Rid should not have been removed from the current node -->
 			<xsl:when test="not(@cms:rid)">-2</xsl:when>	
 			<!-- Rid should not have been removed from a child, but note that removal must always be done on complete includes -->
@@ -222,17 +234,6 @@
 			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->
 			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
-			
-			<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
-			<!-- We can not act on default values. Defaulting to 'yes' in ONLY allowed for inline elements. -->
-			<xsl:when test="/*/@markfortrans='no'">-20</xsl:when>
-			<xsl:when test="/*/@translate='no'">-20</xsl:when>
-			<!-- Consider supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
-			<!-- Ensure that children are also disqualified. -->
-			<!-- TODO: Remove, going for concept of including attribute in checksum. 
-			<xsl:when test="$ancestor-attributes/*/@markfortrans='no'">-21</xsl:when>
-			<xsl:when test="$ancestor-attributes/*/@translate='no'">-21</xsl:when>
-			-->
 			
 			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
 			<xsl:otherwise>1</xsl:otherwise>
