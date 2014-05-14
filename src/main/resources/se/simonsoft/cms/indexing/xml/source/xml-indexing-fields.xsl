@@ -25,9 +25,7 @@
 	<xsl:param name="document-status"/>
 	<!-- depth of element relative to document -->
 	<xsl:param name="document-depth"/>
-	<!-- ancestor attribute cms:tsuppress -->
-	<xsl:param name="ancestor-tsuppress" select="'no'"/>
-	<!-- ancestor attributes ... (wrapped somehow...) -->
+	<!-- ancestor attributes on an element named 'attributes' -->
 	<xsl:param name="ancestor-attributes"/>
 	
 	<!-- key definition for cms:rid lookup -->
@@ -220,8 +218,8 @@
 			<!-- #716 Mechanism for suppressing parts of a document without regard to rlogicalid. -->
 			<!-- Ancestors and element itself where tsuppress is set. -->
 			<xsl:when test="//*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-4</xsl:when>
-			<!-- #716 Children where tsuppress is set above, must be extracted by Java. -->
-			<xsl:when test="not($ancestor-tsuppress = 'no')">-5</xsl:when>
+			<!-- #716 Children where tsuppress is set above (attribute exists and its value is not-'no'). -->
+			<xsl:when test="$ancestor-attributes/*/@cms:tsuppress and not($ancestor-attributes/*/@cms:tsuppress = 'no')">-5</xsl:when>
 			
 			<!-- Children where tvalidate='no' is set above, disqualify. (value -6 is reserved but not used) -->
 			<xsl:when test="$ancestor-attributes/*/@cms:tvalidate='no'">-7</xsl:when>

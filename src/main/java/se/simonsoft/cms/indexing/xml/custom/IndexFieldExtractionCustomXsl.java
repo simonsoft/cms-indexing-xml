@@ -73,7 +73,6 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName DEPTH_PARAM = new QName("document-depth");
-	private static final QName TSUPPRESS_A_PARAM = new QName("ancestor-tsuppress");
 	
 	private static final QName A_ATTR_PARAM = new QName("ancestor-attributes");
 	//private static final QName D_ATTR_PARAM = new QName("document-attributes");
@@ -233,15 +232,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			transformer.setParameter(DEPTH_PARAM, new XdmAtomicValue((Integer) depth));
 		}
 		
-		// Attribute tsuppress as parameter to XSL
-		// Consider sending all attributes to XSL.
-		Object attrvalue = fields.getFieldValue(TSUPPRESS_A_FIELD_NAME);
-		if (attrvalue != null) {
-			transformer.setParameter(TSUPPRESS_A_PARAM, new XdmAtomicValue((String) attrvalue));
-		} else {
-			transformer.setParameter(TSUPPRESS_A_PARAM, null);
-		}
 		
+		// Sending all inherited attributes to XSL.
 		transformer.setParameter(A_ATTR_PARAM, this.getAttributeInheritedDoc(fields));
 		
 		
