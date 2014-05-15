@@ -30,7 +30,7 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
  */
 public class XmlFileFilterExtensionAndSvnMimeType implements XmlFileFilter {
 
-	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml", "xhtml", "html"));
+	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml", "dita", "ditamap", "xlf", "xhtml", "html", "htm", "svg"));
 
 	@Override
 	public boolean isXml(CmsChangesetItem c, IndexingDoc fields) {
