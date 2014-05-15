@@ -116,17 +116,22 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	protected void addAncestorData(XmlSourceElement element, IndexingDoc doc, StringBuffer pos) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
+		
+		// Namespaces are by definition inherited, by the XmlSourceElement API provides 'namespacesIntroduced'.
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			String f = "ins_" + n.getName();
 			if (!doc.containsKey(f)) {
 				doc.addField(f, n.getUri());
 			}
 		}
+		
+		if (!isSelf) {
 		for (XmlSourceAttribute a : element.getAttributes()) {
 			String f = fieldNames.getAttributeInherited(a.getName());
 			if (!doc.containsKey(f)) {
 				doc.addField(f, a.getValue());
 			}
+		}
 		}
 		// handle root or recurse
 		if (element.isRoot()) {

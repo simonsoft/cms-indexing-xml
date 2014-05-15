@@ -30,6 +30,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.Configuration;
+import net.sf.saxon.functions.IndexOf;
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.QName;
@@ -144,8 +145,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			// First extract namespaces.
 			Map<String,String> namespaces = new HashMap<String,String>();
 			for (String fieldName: fieldNames) {
-				if (fieldName.startsWith("ins_")) {
-					String prefix = fieldName.substring(4);
+				if (fieldName.startsWith("ins_") || fieldName.startsWith("ns_")) {
+					String prefix = fieldName.substring(fieldName.indexOf('_') + 1);
 					namespaces.put(prefix, (String) fields.getFieldValue(fieldName));
 					//logger.trace("added NS to map: {} - {}", prefix, fields.getFieldValue(fieldName));
 				}

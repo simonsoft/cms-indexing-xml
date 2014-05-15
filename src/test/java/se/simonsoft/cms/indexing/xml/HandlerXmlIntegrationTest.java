@@ -213,14 +213,22 @@ public class HandlerXmlIntegrationTest {
 		assertEquals(4, x1.getNumFound());
 		
 		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
+		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
+		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("pos"));
 		assertEquals("get name of e1", "ch1", x1.get(1).getFieldValue("a_name"));
-		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
 		
-		assertEquals("get if of e2", "e2", x1.get(2).getFieldValue("ia_id"));
+		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
+		assertEquals("get id of e2", "e2", x1.get(2).getFieldValue("a_id"));
+		
+		assertEquals("get inherited name of e1 - also tests that inherited attr is not overridden by local attr", "root", x1.get(1).getFieldValue("ia_name"));
 		assertEquals("get inherited name of e2", "root", x1.get(2).getFieldValue("ia_name"));
+		
 		assertEquals("get p-sibling name of e2", "ch1", x1.get(2).getFieldValue("sa_name"));
 		
+		assertEquals("get element name of inline", "inline", x1.get(3).getFieldValue("name"));
 		assertEquals("get inherited name of inline", "root", x1.get(3).getFieldValue("ia_name"));
+		assertEquals("get depth of inline", 3, x1.get(3).getFieldValue("depth"));
+		assertEquals("get pos/treeloc of inline", "1.2.1", x1.get(3).getFieldValue("pos"));
 		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));
 		
 	}
@@ -242,10 +250,11 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
 		
 		findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0006 AND -prop_abx.TranslationLocale:*")).getResults();
-		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		assertEquals("Should find a para", 1, findUsingRid.getNumFound());
 		elem = findUsingRid.get(0);
+		assertEquals("verify it is a para", "p", elem.getFieldValue("name")); 
 		assertEquals("get the rid attribute", "2gyvymn15kv0006", elem.getFieldValue("a_cms.rid")); 
-		assertEquals("get the inherited rid attribute (same as element itself)", "2gyvymn15kv0006", elem.getFieldValue("ia_cms.rid"));
+		assertEquals("get the inherited rid attribute (in this case parent rid)", "2gyvymn15kv0004", elem.getFieldValue("ia_cms.rid"));
 		assertEquals("get the root rid attribute", "2gyvymn15kv0000", elem.getFieldValue("ra_cms.rid"));
 		assertEquals("get the preceding sibling rid attribute", "2gyvymn15kv0005", elem.getFieldValue("sa_cms.rid"));
 		assertNull("get the project id attribute", elem.getFieldValue("a_cms.translation-project"));
