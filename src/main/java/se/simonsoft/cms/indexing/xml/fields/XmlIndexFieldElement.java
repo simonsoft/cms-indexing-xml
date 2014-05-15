@@ -117,7 +117,7 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
 		
-		// Namespaces are by definition inherited, by the XmlSourceElement API provides 'namespacesIntroduced'.
+		// Namespaces are by definition inherited, but the XmlSourceElement API provides 'namespacesIntroduced'.
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			String f = "ins_" + n.getName();
 			if (!doc.containsKey(f)) {
