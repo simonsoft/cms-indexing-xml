@@ -122,15 +122,23 @@
 		<field name="pos" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 		
 		<!-- 
+		Ancestor attributes, excluding self, near overrides far
+		-->
+		<dynamicField name="aa_*" type="string"
+			indexed="true" stored="true"
+			multiValued="false" />
+		
+		<!-- 
 		"Inherit" attributes, including self, near overrides far
 		-->
 		<dynamicField name="ia_*" type="string"
 			indexed="true" stored="true"
 			multiValued="false" />
 
-		
+		<!-- Namespaces introduced on this element. -->
 		<dynamicField name="ns_*" type="string" indexed="true" stored="true" multiValued="false" />
-		<dynamicField name="ins_*" type="string" indexed="true" stored="true" multiValued="false" />
+		<!-- Namespaces introduced on ancestors. -->
+		<dynamicField name="ans_*" type="string" indexed="true" stored="true" multiValued="false" />
 			
 		<!--
 		Parent element name

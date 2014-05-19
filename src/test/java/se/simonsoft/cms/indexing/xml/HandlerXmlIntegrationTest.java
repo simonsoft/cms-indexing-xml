@@ -220,7 +220,10 @@ public class HandlerXmlIntegrationTest {
 		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
 		assertEquals("get id of e2", "e2", x1.get(2).getFieldValue("a_id"));
 		
-		assertEquals("get inherited name of e1 - also tests that inherited attr is not overridden by local attr", "root", x1.get(1).getFieldValue("ia_name"));
+		assertEquals("get ancestor name of e1 - tests that inherited attr is not overridden by local attr", "root", x1.get(1).getFieldValue("aa_name"));
+		assertEquals("get inherited name of e1 - overridden by local attr", "ch1", x1.get(1).getFieldValue("ia_name"));
+		
+		assertEquals("get ancestor name of e2", "root", x1.get(2).getFieldValue("aa_name"));
 		assertEquals("get inherited name of e2", "root", x1.get(2).getFieldValue("ia_name"));
 		
 		assertEquals("get p-sibling name of e2", "ch1", x1.get(2).getFieldValue("sa_name"));
@@ -254,7 +257,8 @@ public class HandlerXmlIntegrationTest {
 		elem = findUsingRid.get(0);
 		assertEquals("verify it is a para", "p", elem.getFieldValue("name")); 
 		assertEquals("get the rid attribute", "2gyvymn15kv0006", elem.getFieldValue("a_cms.rid")); 
-		assertEquals("get the inherited rid attribute (in this case parent rid)", "2gyvymn15kv0004", elem.getFieldValue("ia_cms.rid"));
+		assertEquals("get the ancestor rid attribute (in this case parent rid)", "2gyvymn15kv0004", elem.getFieldValue("aa_cms.rid"));
+		assertEquals("get the inherited rid attribute (in this case context element rid)", "2gyvymn15kv0006", elem.getFieldValue("ia_cms.rid"));
 		assertEquals("get the root rid attribute", "2gyvymn15kv0000", elem.getFieldValue("ra_cms.rid"));
 		assertEquals("get the preceding sibling rid attribute", "2gyvymn15kv0005", elem.getFieldValue("sa_cms.rid"));
 		assertNull("get the project id attribute", elem.getFieldValue("a_cms.translation-project"));

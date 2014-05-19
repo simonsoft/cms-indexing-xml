@@ -21,6 +21,8 @@ public interface SchemaFieldNames {
 	
 	String getAttributeInherited(String xmlAttributeName);
 	
+	String getAttributeAncestor(String xmlAttributeName);
+	
 	String getAttributeRoot(String xmlAttributeName);
 
 	String getAttributeSiblingPreceding(String xmlAttributeName);

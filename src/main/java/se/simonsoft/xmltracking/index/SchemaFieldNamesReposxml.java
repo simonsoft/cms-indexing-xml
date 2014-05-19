@@ -29,6 +29,11 @@ public class SchemaFieldNamesReposxml implements SchemaFieldNames {
 	public String getAttributeInherited(String xmlAttributeName) {
 		return "i" + getAttribute(xmlAttributeName);
 	}
+	
+	@Override
+	public String getAttributeAncestor(String xmlAttributeName) {
+		return "a" + getAttribute(xmlAttributeName);
+	}
 
 	@Override
 	public String getAttributeRoot(String xmlAttributeName) {

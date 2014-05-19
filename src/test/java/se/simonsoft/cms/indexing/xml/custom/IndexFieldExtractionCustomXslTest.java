@@ -452,8 +452,8 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		sya.setField("prop_cms.status", "Released");
-		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
-		sya.setField("ia_cms.tsuppress", "whatever");
+		sya.setField("ans_cms", "http://www.simonsoft.se/namespace/cms");
+		sya.setField("aa_cms.tsuppress", "whatever");
 		
 		x.extract(null, sya);
 		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
@@ -502,8 +502,8 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		sya.setField("prop_cms.status", "Released");
-		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
-		sya.setField("ia_cms.tvalidate", "no");
+		sya.setField("ans_cms", "http://www.simonsoft.se/namespace/cms");
+		sya.setField("aa_cms.tvalidate", "no");
 		
 		x.extract(null, sya);
 		assertEquals("the children of tvalidate=no element is disqualified" ,"-7", sya.getFieldValue("reusevalue"));
@@ -563,7 +563,7 @@ public class IndexFieldExtractionCustomXslTest {
 		tna.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		tna.setField("prop_cms.status", "Released");
-		tna.setField("ia_markfortrans", "no");
+		tna.setField("aa_markfortrans", "no");
 		
 		x.extract(null, tna);
 		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));

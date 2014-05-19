@@ -30,7 +30,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.functions.IndexOf;
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.QName;
@@ -70,13 +69,16 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	public static final String DEPTH_FIELD_NAME = "depth";
-	public static final String TSUPPRESS_A_FIELD_NAME = "ia_cms.tsuppress";
+	
+	private static final String A_NS_FIELD_PREFIX = "ans_";
+	private static final String NS_FIELD_PREFIX = "ns_";
 	
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName DEPTH_PARAM = new QName("document-depth");
 	
 	private static final QName A_ATTR_PARAM = new QName("ancestor-attributes");
-	//private static final QName D_ATTR_PARAM = new QName("document-attributes");
+	private static final String A_ATTR_FIELD_PREFIX = "aa_";
+	//private static final QName R_ATTR_PARAM = new QName("root-attributes");
 	
 	@Inject
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
@@ -145,7 +147,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			// First extract namespaces.
 			Map<String,String> namespaces = new HashMap<String,String>();
 			for (String fieldName: fieldNames) {
-				if (fieldName.startsWith("ins_") || fieldName.startsWith("ns_")) {
+				if (fieldName.startsWith(A_NS_FIELD_PREFIX) || fieldName.startsWith(NS_FIELD_PREFIX)) {
 					String prefix = fieldName.substring(fieldName.indexOf('_') + 1);
 					namespaces.put(prefix, (String) fields.getFieldValue(fieldName));
 					//logger.trace("added NS to map: {} - {}", prefix, fields.getFieldValue(fieldName));
@@ -156,12 +158,12 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			// Add attributes to element.
 			for (String fieldName : fieldNames) {
 				try {
-					if (fieldName.startsWith("ia_")) {
+					if (fieldName.startsWith(A_ATTR_FIELD_PREFIX)) {
 						String value = (String) fields.getFieldValue(fieldName);
 						if (value != null) {
 							String name = fieldName.substring(3).replace('.', ':');
 							int nssep = name.indexOf(':');
-							if (nssep == -1 || fieldName.startsWith("ia_xml")) {
+							if (nssep == -1 || name.startsWith("xml:")) { // Handle xml namespace as no-namespace. 
 								Attr attr = doc.createAttribute(name);
 								attr.setValue(value);
 								elem.setAttributeNode(attr);
