@@ -70,8 +70,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	public static final String DEPTH_FIELD_NAME = "depth";
 	
-	private static final String A_NS_FIELD_PREFIX = "ans_";
-	private static final String NS_FIELD_PREFIX = "ns_";
+	private static final String I_NS_FIELD_PREFIX = "ins_";
 	
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName DEPTH_PARAM = new QName("document-depth");
@@ -147,7 +146,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			// First extract namespaces.
 			Map<String,String> namespaces = new HashMap<String,String>();
 			for (String fieldName: fieldNames) {
-				if (fieldName.startsWith(A_NS_FIELD_PREFIX) || fieldName.startsWith(NS_FIELD_PREFIX)) {
+				if (fieldName.startsWith(I_NS_FIELD_PREFIX)) {
 					String prefix = fieldName.substring(fieldName.indexOf('_') + 1);
 					namespaces.put(prefix, (String) fields.getFieldValue(fieldName));
 					//logger.trace("added NS to map: {} - {}", prefix, fields.getFieldValue(fieldName));

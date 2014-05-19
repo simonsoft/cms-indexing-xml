@@ -452,7 +452,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		sya.setField("prop_cms.status", "Released");
-		sya.setField("ans_cms", "http://www.simonsoft.se/namespace/cms");
+		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
 		sya.setField("aa_cms.tsuppress", "whatever");
 		
 		x.extract(null, sya);
@@ -502,7 +502,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
 		sya.setField("prop_cms.status", "Released");
-		sya.setField("ans_cms", "http://www.simonsoft.se/namespace/cms");
+		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
 		sya.setField("aa_cms.tvalidate", "no");
 		
 		x.extract(null, sya);

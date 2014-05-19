@@ -137,8 +137,8 @@
 
 		<!-- Namespaces introduced on this element. -->
 		<dynamicField name="ns_*" type="string" indexed="true" stored="true" multiValued="false" />
-		<!-- Namespaces introduced on ancestors. -->
-		<dynamicField name="ans_*" type="string" indexed="true" stored="true" multiValued="false" />
+		<!-- Namespaces inherited and introduced on this elemen. -->
+		<dynamicField name="ins_*" type="string" indexed="true" stored="true" multiValued="false" />
 			
 		<!--
 		Parent element name

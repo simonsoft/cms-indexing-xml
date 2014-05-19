@@ -59,6 +59,7 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		doc.addField("name", element.getName());
 		doc.addField("source", getSource(element));
 		for (XmlSourceNamespace n : element.getNamespaces()) {
+			// The 'ns_' fields will only contain 'namespacesIntroduced', which might be unexpected. See 'ins_'.
 			doc.addField("ns_" + n.getName(), n.getUri());
 		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
@@ -118,9 +119,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		// bottom first
 		
 		// Namespaces are by definition inherited, but the XmlSourceElement API provides 'namespacesIntroduced'.
-		// Consequently renaming to Ancestor Namespaces in 0.12.
+		// Treating them similar to inherited attributes renders a useful result in 'ins_'.
 		for (XmlSourceNamespace n : element.getNamespaces()) {
-			String f = "ans_" + n.getName();
+			String f = "ins_" + n.getName();
 			if (!doc.containsKey(f)) {
 				doc.addField(f, n.getUri());
 			}
