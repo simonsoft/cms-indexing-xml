@@ -61,6 +61,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexFieldExtractionCustomXsl.class);
 	
+	private transient Configuration config;
+	private transient Processor processor;
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
 	
@@ -85,8 +87,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 	
 	private void init(Source xslt) {
-		Configuration config = new Configuration();
-		Processor processor = new Processor(config);
+		config = new Configuration();
+		processor = new Processor(config);
 		
 		XsltCompiler compiler = processor.newXsltCompiler();
 		try {
@@ -136,7 +138,9 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 
 	private XdmValue getAttributeInheritedDoc(IndexingDoc fields) {
 	
-		net.sf.saxon.s9api.DocumentBuilder db = new Processor(false).newDocumentBuilder();
+		// Saxon 9.5.1 requires that parameter element uses same Configuration as Source/Stylesheet.
+		// Having different Configurations also caused massive Heap issues with net.sf.saxon.om.NamePool.NameEntry.
+		net.sf.saxon.s9api.DocumentBuilder db = processor.newDocumentBuilder();
 		try {
 			org.w3c.dom.Document doc = createDomDocument("attributes");
 			org.w3c.dom.Element elem = doc.getDocumentElement();
