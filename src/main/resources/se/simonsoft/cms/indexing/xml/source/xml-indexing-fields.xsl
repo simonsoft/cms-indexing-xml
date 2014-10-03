@@ -40,9 +40,6 @@
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in //text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
-		<!-- Variables detecting markfortrans='no' or equivalent. -->
-		<xsl:variable name="no_translate" select="($ancestor-attributes[@markfortrans = 'no'])"/>
-	
 		<doc>
 
 			<!-- skip name and attributes, already extracted -->
