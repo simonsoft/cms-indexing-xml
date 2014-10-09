@@ -74,5 +74,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		}
 		docHandler.add(doc);
 	}
+
+	@Override
+	public void end(XmlSourceElement element) {
+		
+	}
 	
 }

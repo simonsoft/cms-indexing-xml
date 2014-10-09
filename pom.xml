@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>cms-indexing-xml</artifactId>
-	<version>0.11.8</version>
+	<version>0.14-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<name>${project.artifactId}-${project.version}</name>
@@ -30,12 +30,6 @@
 	
 	<dependencies>
 		<dependency>
-			<!-- Temporarily overriding xmlsource for improved memory consumption. -->
-			<groupId>net.sf.saxon</groupId>
-			<artifactId>Saxon-HE</artifactId>
-			<version>9.5.1-5</version>
-		</dependency>
-		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
 			<version>0.7.2</version>
@@ -43,7 +37,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
-			<version>0.9</version>
+			<version>0.14-SNAPSHOT</version>
 		</dependency>	
 	  	<dependency>
 	  		<groupId>org.apache.solr</groupId>
