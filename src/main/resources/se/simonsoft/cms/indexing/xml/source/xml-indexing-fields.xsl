@@ -167,6 +167,10 @@
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 	
+	<xsl:template match="ph/node()" mode="source-reuse-child" priority="90">
+		<!-- Suppress content of ph elements (inserted/replaced during publishing) but allow all attributes to propagate. -->
+	</xsl:template>
+	
 	
 	<!-- Text Normalization -->
 

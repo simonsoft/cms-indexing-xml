@@ -194,6 +194,41 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "4");
 	}
 	
+	/**
+	 * Ensure that ph element content is excluded from source_reuse.
+	 */
+	@Test
+	public void testPhElement() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		IndexingDoc fields = mock(IndexingDoc.class);
+		when(fields.getFieldValue("source")).thenReturn(
+				"<document xml:lang=\"en\">\n" +
+				"<section><title>GUI Strings</title>\n" +
+				"<p>Press button <ph keyref=\"btn_success\" a=\"first\">SUCCESS</ph> and ...</p>\n" +
+				"<p>Press button <ph keyref=\"btn_success\"><?Pub _previewtext text=\"SUCCESS PI\"?></ph> and ...</p>\n" +
+				"</section>\n" +					
+				"</document>");
+		
+		x.extract(null, fields);
+		verify(fields).addField("text", "GUI Strings Press button SUCCESS and ... Press button and ...");
+		verify(fields).addField("words_text", "11"); // Preferably excluding ph content also in text field, but that would be complex in the XSL.
+		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
+		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
+				//"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + 
+				"<p>Press button <ph keyref=\"btn_success\" a=\"first\"></ph> and ...</p>" + // Currently demonstrates that attributes are NOT sorted!
+				"<p>Press button <ph keyref=\"btn_success\"></ph> and ...</p>" + 
+				"</section></document>");
+	}
+	
 	@Test
 	public void testProcessInstruction() {
 		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
