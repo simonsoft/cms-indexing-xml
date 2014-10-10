@@ -31,7 +31,9 @@
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
 
-	<xsl:template match="/">
+
+	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
+	<xsl:template match="*">
 	
 		<!-- <xsl:variable name="whitespace" select="'&#x20;&#xD;&#xA;&#x9;'"/>-->
 		<xsl:variable name="whitespace" select="' '"/>

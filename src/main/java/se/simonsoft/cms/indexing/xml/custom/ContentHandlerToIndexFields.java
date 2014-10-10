@@ -56,6 +56,7 @@ class ContentHandlerToIndexFields implements ContentHandler {
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
+		//logger.trace("Transform field: {}", localName);
 		if ("field".equals(localName)) {
 			curfield = attributes.getValue("name");
 		}
