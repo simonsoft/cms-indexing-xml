@@ -79,6 +79,11 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Issue with duplicate flag?", 1, flagged.get(0).getFieldValues("flag").size());
 
 		assertEquals("Should index all elements", 4, reposxml.query(new SolrQuery("*:*")).getResults().size());
+		
+		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
+		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
+		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
+		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
 	}
 
 	@Test
