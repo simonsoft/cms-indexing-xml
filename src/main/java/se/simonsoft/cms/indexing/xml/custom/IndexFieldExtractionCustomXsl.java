@@ -52,6 +52,8 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 /**
  * 
@@ -60,8 +62,8 @@ import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexFieldExtractionCustomXsl.class);
-	
-	private transient Configuration config;
+
+	private transient Configuration config = XmlSourceReaderS9api.getConfiguration();
 	private transient Processor processor;
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
@@ -87,7 +89,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 	
 	private void init(Source xslt) {
-		config = new Configuration();
+		
 		processor = new Processor(config);
 		
 		XsltCompiler compiler = processor.newXsltCompiler();
@@ -197,33 +199,20 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 
 	@Override
 	public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
-		Object source = fields.getFieldValue("source");
-		if (source == null) {
-			throw new IllegalArgumentException("Prior to text extraction, 'source' field must have been extracted.");
-		}
-		Reader sourceReader;
-		if (source instanceof Reader) {
-			sourceReader = (Reader) source;
-		} else if (source instanceof String) {
-			sourceReader = new StringReader((String) source);
+		
+		if (processedElement instanceof XmlSourceElementS9api) {
+			//logger.debug("reusing XdmNode for transformation");
+			setSourceXdm((XmlSourceElementS9api) processedElement);
 		} else {
-			throw new IllegalArgumentException("Unexpected source field " + source.getClass() + " in " + fields);
+			//logger.debug("parsing element source for transformation");
+			setSourceFromField(fields, transformer);
 		}
-		Source xmlInput = new StreamSource(sourceReader);
 		
 		ContentHandler transformOutputHandler = new ContentHandlerToIndexFields(fields);
 		Destination xmltrackingFieldsHandler = new SAXDestination(transformOutputHandler);
 		//Destination xmltrackingFieldsHandler = new net.sf.saxon.s9api.Serializer(System.out);
 		
 		transformer.setErrorListener(new LoggingErrorListener());
-		
-		try {
-			transformer.setSource(xmlInput);
-		} catch (SaxonApiException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
-		}
-		
 		transformer.setDestination(xmltrackingFieldsHandler);
 		
 		// Status as parameter to XSL.
@@ -252,6 +241,50 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			throw new RuntimeException("Extraction aborted with error at " + processedElement, e);
 		}
 		
+	}
+	
+	private void setSourceXdm(XmlSourceElementS9api element) {
+		
+		
+		try {
+			XdmNode node = element.getElement();			
+			transformer.setInitialContextNode(node);
+			
+		} catch (Exception e) {
+
+			throw new RuntimeException("failed to set context node for transformation", e);
+		}
+		
+	}
+	
+	/**
+	 * Places the original code (2012) into a separate method. 
+	 * This approach re-parses each element during the recursion.
+	 * @param fields
+	 * @param transformer
+	 */
+	private void setSourceFromField(IndexingDoc fields, XsltTransformer transformer) {
+		
+		Object source = fields.getFieldValue("source");
+		if (source == null) {
+			throw new IllegalArgumentException("Prior to text extraction, 'source' field must have been extracted.");
+		}
+		Reader sourceReader;
+		if (source instanceof Reader) {
+			sourceReader = (Reader) source;
+		} else if (source instanceof String) {
+			sourceReader = new StringReader((String) source);
+		} else {
+			throw new IllegalArgumentException("Unexpected source field " + source.getClass() + " in " + fields);
+		}
+		Source xmlInput = new StreamSource(sourceReader);
+		
+		try {
+			transformer.setSource(xmlInput);
+		} catch (SaxonApiException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error not handled", e);
+		}
 	}
 
 	@Override
