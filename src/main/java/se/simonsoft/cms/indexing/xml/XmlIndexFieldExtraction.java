@@ -26,6 +26,15 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
  */
 public interface XmlIndexFieldExtraction {
 
+	
+	/**
+	 * Notification that the element will be extracted when reaching the end of the element.
+	 * 
+	 * @param processedElement
+	 * @throws XmlNotWellFormedException
+	 */
+	//void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException;
+	
 	/**
 	 * Extracts element fields for per-element indexing in xml core.
 	 * 
@@ -35,6 +44,7 @@ public interface XmlIndexFieldExtraction {
 	 * @param processedElement original element
 	 * @param error that should make the current document empty in index, but allow indexing to proceed to next item
 	 */
+	// TODO: Refactor into "end" with same params.
 	void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException;
 	
 	

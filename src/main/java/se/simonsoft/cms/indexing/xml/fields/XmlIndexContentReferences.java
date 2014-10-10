@@ -35,7 +35,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	 */
 	Map<XmlSourceElement, List<XmlSourceElement>> content2 = new HashMap<XmlSourceElement, List<XmlSourceElement>>();
 	
-	// Can do any number of child levels.
+	// Can do any number of child levels by looking at stack position.
 	
 
 	@Override
