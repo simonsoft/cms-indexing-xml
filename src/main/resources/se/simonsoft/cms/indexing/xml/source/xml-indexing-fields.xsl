@@ -38,7 +38,7 @@
 	
 		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
-		<xsl:variable name="text" select="for $elemtext in //text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
 		<doc>
 
@@ -73,7 +73,7 @@
 			<!-- Disabling reusevalue from the root node of the XML onto all children (done by an XmlIndexFieldExtraction class). -->
 			<!-- TODO: Consider if we should only perform this extraction for root node (depth = 1), if performance is heavily degraded. -->
 			<field name="reuseridduplicate">
-				<xsl:value-of select="//*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
+				<xsl:value-of select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
 			</field>
 
 			
@@ -218,7 +218,7 @@
 		<xsl:choose>
 			<!-- #716 Mechanism for suppressing parts of a document without regard to rlogicalid. -->
 			<!-- Ancestors and element itself where tsuppress is set. -->
-			<xsl:when test="//*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-4</xsl:when>
+			<xsl:when test="descendant-or-self::*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-4</xsl:when>
 			<!-- #716 Children where tsuppress is set above (attribute exists and its value is not-'no'). -->
 			<xsl:when test="$ancestor-attributes/*/@cms:tsuppress and not($ancestor-attributes/*/@cms:tsuppress = 'no')">-5</xsl:when>
 			
@@ -230,7 +230,7 @@
 			<!-- Rid should not have been removed from a child, but note that removal must always be done on complete includes -->
 			<!-- There is now the option to selectively remove RIDs below tsuppress (#716). -->
 			<!-- Some installations don't set rids below certain stop tags -->
-			<xsl:when test="//*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
+			<xsl:when test="descendant-or-self::*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->
 			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
 			
