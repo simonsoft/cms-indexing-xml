@@ -39,12 +39,14 @@ public class HandlerLogicalIdFromUrlTest {
 		String itemurl = repourl.concat("/xml/reference/cms/User%20interface.xml");
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
 		CmsChangesetItem pi = mock(CmsChangesetItem.class);
-		when(pi.getRevisionChanged()).thenReturn(new RepoRevision(145, null));
+		when(pi.getRevisionChanged()).thenReturn(new RepoRevision(83, null));
 		when(p.getItem()).thenReturn(pi);
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
 		when(p.getFields()).thenReturn(doc);
 		when(p.getRepository()).thenReturn(new CmsRepository(repourl));
 		doc.addField("url", itemurl);
+		doc.addField("rev", 145L);
+		doc.addField("revc", 83L);
 		
 		IndexingItemHandler handler = new HandlerLogicalIdFromUrl();
 		handler.handle(p);
@@ -52,7 +54,7 @@ public class HandlerLogicalIdFromUrlTest {
 		assertNotNull("Should set field", urlid);
 		CmsItemIdArg id = new CmsItemIdArg(urlid);
 		assertEquals("/xml/reference/cms/User interface.xml", id.getRelPath().getPath());
-		assertEquals("Revision should not be from base but from commit rev", new Long(145), id.getPegRev());
+		assertEquals("Revision should not be from base but from path rev", new Long(145), id.getPegRev());
 		assertEquals("Logicalid with rev and host", logicalId, id.getLogicalIdFull());
 
 	}

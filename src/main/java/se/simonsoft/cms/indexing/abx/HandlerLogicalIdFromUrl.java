@@ -34,6 +34,7 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 	
 	public static final String URL_ITEM_FIELD = "url";
+	public static final String REV_ITEM_FIELD = "rev";
 	
 	@Override
 	protected CmsItemId getItemId(IndexingItemProgress progress) {
@@ -47,7 +48,8 @@ public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 			throw new AssertionError("Missing " + URL_ITEM_FIELD + " field for " + item + ", can not set logical ID");
 		}
 
-		CmsItemId id = repo.getItemId(url).withPegRev(item.getRevisionChanged().getNumber());
+		Long rev = (Long) progress.getFields().getFieldValue(REV_ITEM_FIELD); // should be path revision
+		CmsItemId id = repo.getItemId(url).withPegRev(rev);
 		return id;
 	}
 	
