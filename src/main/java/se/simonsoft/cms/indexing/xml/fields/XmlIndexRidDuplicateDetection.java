@@ -31,9 +31,14 @@ public class XmlIndexRidDuplicateDetection implements XmlIndexFieldExtraction {
 	
 	private String ridDuplicate = null;
 	
+	
+	@Override
+	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+	}
 
 	@Override
-	public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		// Will be null before seeing the document root element, then empty string or a list of RIDs.
 		if (this.ridDuplicate == null) {

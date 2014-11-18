@@ -33,7 +33,7 @@ public interface XmlIndexFieldExtraction {
 	 * @param processedElement
 	 * @throws XmlNotWellFormedException
 	 */
-	//void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException;
+	void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException;
 	
 	/**
 	 * Extracts element fields for per-element indexing in xml core.
@@ -45,7 +45,7 @@ public interface XmlIndexFieldExtraction {
 	 * @param error that should make the current document empty in index, but allow indexing to proceed to next item
 	 */
 	// TODO: Refactor into "end" with same params.
-	void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException;
+	void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException;
 	
 	
 	/**

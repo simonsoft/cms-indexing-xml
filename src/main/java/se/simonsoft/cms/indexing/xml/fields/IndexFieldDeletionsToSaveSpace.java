@@ -17,12 +17,18 @@ package se.simonsoft.cms.indexing.xml.fields;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 
 	@Override
-	public void extract(XmlSourceElement processedElemen, IndexingDoc fields) {
+	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+	}
+	
+	@Override
+	public void end(XmlSourceElement processedElemen, IndexingDoc fields) {
 		fields.removeField("prop_abx.Dependencies");
 	}
 

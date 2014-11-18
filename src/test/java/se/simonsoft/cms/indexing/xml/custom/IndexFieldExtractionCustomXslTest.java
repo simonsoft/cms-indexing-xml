@@ -54,7 +54,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure><title>Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		//verify(fields).addField("text", "section & stuff TitleFigure");
 		verify(fields).addField("text", "section & stuff Title Figure");
 		verify(fields).addField(eq("source_reuse"), anyString());
@@ -91,7 +91,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure><title>Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
 		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. Title Figure");
 		verify(fields).addField("words_text", "13");
@@ -123,7 +123,7 @@ public class IndexFieldExtractionCustomXslTest {
 		when(fields.getFieldValue("source")).thenReturn(
 				"<p>Ett <code>två</code><code>tre</code> <code>fyra</code>  <code>fem</code>   <code> sex </code> sju.</p>");
 
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("text", "Ett två tre fyra fem sex sju.");
 		verify(fields).addField("words_text", "7");
 
@@ -155,7 +155,7 @@ public class IndexFieldExtractionCustomXslTest {
 						"/> are combination machines designed for direct seed drilling.</p\n" +
 						">");
 
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("text", "Väderstad are combination machines designed for direct seed drilling.");
 		verify(fields).addField("words_text", "9");
 
@@ -186,7 +186,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</code>\n" +
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("text", "Indented code Double space");
 		//verify(fields).addField("text", "Indented code Double space");
 		verify(fields).addField("source_reuse", "<document><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
@@ -218,7 +218,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</section>\n" +					
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("text", "GUI Strings Press button SUCCESS and ... Press button and ...");
 		verify(fields).addField("words_text", "11"); // Preferably excluding ph content also in text field, but that would be complex in the XSL.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
@@ -251,7 +251,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</section>\n" +					
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
 		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
@@ -282,7 +282,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</section>\n" +					
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		verify(fields).addField("words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
 		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
@@ -313,7 +313,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure cms:rid=\"abc005\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
 		// Bursted attributes should definitely be excluded from root. Potentially all attributes excluded on root.
 		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
@@ -346,7 +346,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure cms:rid=\"abc005\" cms:tvalidate=\"no\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("words_text"));
@@ -378,10 +378,10 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure cms:rid=\"abc005\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
 				"</document>");
 		
-		x.extract(null, fields);
+		x.end(null, fields);
 		
 		XmlIndexFieldExtraction r = new XmlIndexRidDuplicateDetection();
-		r.extract(null, fields);
+		r.end(null, fields);
 		
 		assertEquals("section title Testing cms attributes including tvalidate. Duplicate RID. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section title</title><p>Testing cms attributes including tvalidate.</p><p>Duplicate RID.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
@@ -415,7 +415,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		root.setField("prop_cms.status", "Released");
 		
-		x.extract(null, root);
+		x.end(null, root);
 		assertEquals("a child is disqualified from reuse so this element has to be too", "-3", root.getFieldValue("reusevalue"));
 		assertEquals("the element is status=Released so reuseready is not affected", "1", root.getFieldValue("reuseready"));
 		
@@ -424,7 +424,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" >section</section>");
 		norid.setField("prop_cms.status", "Released");
 		
-		x.extract(null, norid);
+		x.end(null, norid);
 		assertEquals("-2", norid.getFieldValue("reusevalue"));
 		
 		IndexingDoc sibling = new IndexingDocIncrementalSolrj();
@@ -432,7 +432,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>");
 		sibling.setField("prop_cms.status", "Released");
 		
-		x.extract(null, sibling);
+		x.end(null, sibling);
 		assertEquals("1", sibling.getFieldValue("reusevalue"));
 		assertEquals("1", sibling.getFieldValue("reuseready"));
 		
@@ -462,7 +462,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		root.setField("prop_cms.status", "Released");
 		
-		x.extract(null, root);
+		x.end(null, root);
 		assertEquals("a child is disqualified from reuse so this element has to be too", "-4", root.getFieldValue("reusevalue"));
 		assertEquals("the element is status=Released so reuseready is not affected", "1", root.getFieldValue("reuseready"));
 		
@@ -471,7 +471,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsuppress=\"yes\"><p cms:rid=\"r02b\">section</p></section>");
 		syes.setField("prop_cms.status", "Released");
 		
-		x.extract(null, syes);
+		x.end(null, syes);
 		assertEquals("the suppressed element itself is disqualified" ,"-4", syes.getFieldValue("reusevalue"));
 		
 		IndexingDoc sno = new IndexingDocIncrementalSolrj();
@@ -479,7 +479,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsuppress=\"no\"><p cms:rid=\"r02b\">section</p></section>");
 		sno.setField("prop_cms.status", "Released");
 		
-		x.extract(null, sno);
+		x.end(null, sno);
 		assertEquals("tsuppress attr can be set to 'no', no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tsuppress:ed element is disqualified.
@@ -490,7 +490,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
 		sya.setField("aa_cms.tsuppress", "whatever");
 		
-		x.extract(null, sya);
+		x.end(null, sya);
 		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
 		
 	}
@@ -520,7 +520,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		root.setField("prop_cms.status", "Released");
 		
-		x.extract(null, root);
+		x.end(null, root);
 		assertEquals("a child is tvalidate=no, parent unaffected", "1", root.getFieldValue("reusevalue"));
 		
 				
@@ -529,7 +529,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tvalidate=\"no\"><p cms:rid=\"r02b\">section</p></section>");
 		sno.setField("prop_cms.status", "Released");
 		
-		x.extract(null, sno);
+		x.end(null, sno);
 		assertEquals("tvalidate=no of element itself, no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tvalidate=no element is disqualified.
@@ -540,7 +540,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
 		sya.setField("aa_cms.tvalidate", "no");
 		
-		x.extract(null, sya);
+		x.end(null, sya);
 		assertEquals("the children of tvalidate=no element is disqualified" ,"-7", sya.getFieldValue("reusevalue"));
 		
 	}
@@ -568,7 +568,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		root.setField("prop_cms.status", "Released");
 		
-		x.extract(null, root);
+		x.end(null, root);
 		assertEquals("a child is markfortrans but that does NOT disqualify parent (because markfortrans attribute is included in checksum", "1", root.getFieldValue("reusevalue"));
 		assertEquals("the element is status=Released so reuseready is of course ok", "1", root.getFieldValue("reuseready"));
 		
@@ -577,7 +577,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"no\"><p cms:rid=\"r02b\">section</p></section>");
 		tno.setField("prop_cms.status", "Released");
 		
-		x.extract(null, tno);
+		x.end(null, tno);
 		assertEquals("the markfortrans element has markfortrans attr in checksum/source_reuse" ,"<section markfortrans=\"no\"><p>section</p></section>", tno.getFieldValue("source_reuse"));
 		assertEquals("the markfortrans element is not disqualified since including markfortrans/translate attr in checksum" ,"1", tno.getFieldValue("reusevalue"));
 		//assertEquals("the markfortrans element itself is disqualified (can be discussed, alternative would be to include markfortrans/translate attr in checksum)" ,"-20", syes.getFieldValue("reusevalue"));
@@ -589,7 +589,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"yes\"><p cms:rid=\"r02b\">section</p></section>");
 		tyes.setField("prop_cms.status", "Released");
 		
-		x.extract(null, tyes);
+		x.end(null, tyes);
 		assertEquals("the markfortrans element has markfortrans attr in checksum/source_reuse" ,"<section markfortrans=\"yes\"><p>section</p></section>", tyes.getFieldValue("source_reuse"));
 		assertEquals("markfortrans attr can be set to 'yes', no disqualification" ,"1", tyes.getFieldValue("reusevalue"));
 		
@@ -600,7 +600,7 @@ public class IndexFieldExtractionCustomXslTest {
 		tna.setField("prop_cms.status", "Released");
 		tna.setField("aa_markfortrans", "no");
 		
-		x.extract(null, tna);
+		x.end(null, tna);
 		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
 		
@@ -622,14 +622,14 @@ public class IndexFieldExtractionCustomXslTest {
 		doc2.addField("prop_cms.status", "In_Translation");
 		doc2.addField("source", "<doc/>");
 		
-		x.extract(null, doc2);
+		x.end(null, doc2);
 		assertEquals("-2", doc2.getFieldValue("reusevalue"));
 		assertEquals("status is not released", "0", doc2.getFieldValue("reuseready"));
 		
 		IndexingDoc doc3 = new IndexingDocIncrementalSolrj();
 		doc3.setField("prop_cms.status", null);
 		doc3.setField("source", "<doc/>");
-		x.extract(null, doc3);
+		x.end(null, doc3);
 		assertEquals("-2", doc3.getFieldValue("reusevalue"));
 		assertEquals("0", doc3.getFieldValue("reuseready"));
 	}
@@ -649,7 +649,7 @@ public class IndexFieldExtractionCustomXslTest {
 		when(fields.getFieldValue("source")).thenReturn(element);
 		
 		try {
-			xsl.extract(null, fields);
+			xsl.end(null, fields);
 			fail("Should throw declared exception for xml error");
 		} catch (XmlNotWellFormedException e) { // any other exception would abort indexing
 			// expected

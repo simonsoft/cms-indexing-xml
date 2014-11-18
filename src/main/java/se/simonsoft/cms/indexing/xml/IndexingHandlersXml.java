@@ -24,6 +24,7 @@ import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromUrl;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexContentReferences;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
@@ -52,6 +53,8 @@ public abstract class IndexingHandlersXml {
 			add(XmlIndexRidDuplicateDetection.class);
 			// Remove some fields that are not needed on each XML element.
 			add(IndexFieldDeletionsToSaveSpace.class);
+			// References to all child elements
+			add(XmlIndexContentReferences.class);
 		}
 	};
 	

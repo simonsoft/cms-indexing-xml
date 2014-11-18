@@ -68,15 +68,23 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	@Override
 	public void begin(XmlSourceElement element) {
-		IndexingDoc doc = this.baseDoc.deepCopy();
+		
+		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.extract(element, doc);
+			ex.begin(element);
+			//ex.end(element, doc);
 		}
-		docHandler.add(doc);
+		//docHandler.add(doc);
 	}
 
 	@Override
 	public void end(XmlSourceElement element) {
+		
+		IndexingDoc doc = this.baseDoc.deepCopy();
+		for (XmlIndexFieldExtraction ex : fieldExtraction) {
+			ex.end(element, doc);
+		}
+		docHandler.add(doc);
 		
 	}
 	

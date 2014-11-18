@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml.fields;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 
@@ -28,7 +29,12 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 public class IndexReuseJoinFields implements XmlIndexFieldExtraction {
 
 	@Override
-	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
+	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+	}
+	
+	@Override
+	public void end(XmlSourceElement processedElement, IndexingDoc fields) {
 		String translationmaster = (String) fields.getFieldValue("prop_abx.TranslationMaster");
 		if (translationmaster != null) {
 			CmsItemIdArg id = new CmsItemIdArg(translationmaster);

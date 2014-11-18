@@ -30,7 +30,7 @@ public class IndexReuseJoinFieldsTest {
 		fields.addField("prop_abx.TranslationMaster", "x-svn:///svn/testaut1^/tms/release/R001/xml/Docs/My%20First%20Novel.xml?p=6");
 		fields.addField("prop_abx.TranslationLocale", "nb-NO");
 		fields.addField("reusevalue", "2");
-		new IndexReuseJoinFields().extract(null, fields);
+		new IndexReuseJoinFields().end(null, fields);
 		assertEquals("should get release corresponding to pathfull field", "/svn/testaut1/tms/release/R001/xml/Docs/My First Novel.xml", fields.getFieldValue("reuserelease"));
 		assertEquals("should use 1 for reusevalue in concat field", "1nb-NO", fields.getFieldValue("reusevaluelocale"));
 	}
@@ -40,7 +40,7 @@ public class IndexReuseJoinFieldsTest {
 		IndexingDoc fields = new IndexingDocIncrementalSolrj();
 		fields.addField("prop_abx.TranslationMaster", "x-svn:///svn/testaut1^/tms/release/R001/xml/Docs/My%20Second%20Novel.xml?p=6");
 		fields.addField("prop_abx.TranslationMaster", "x-svn:///svn/testaut1^/tms/lang/en-US/release/R001/xml/Docs/My%20Second%20Novel.xml?p=10");
-		new IndexReuseJoinFields().extract(null, fields);
+		new IndexReuseJoinFields().end(null, fields);
 		assertEquals("should get the first value of TranslationMaster multi-value", "/svn/testaut1/tms/release/R001/xml/Docs/My Second Novel.xml", fields.getFieldValue("reuserelease"));
 	}	
 	

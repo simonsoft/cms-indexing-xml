@@ -46,7 +46,12 @@ public class HandlerXmlTest {
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
 		fe.add(new XmlIndexFieldExtraction() {
 			@Override
-			public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+			public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+				
+			}
+			
+			@Override
+			public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
 				calls.add(processedElement);
 				throw new XmlNotWellFormedException("something went wrong", new RuntimeException("some xml lib's cause"));
 			}
@@ -82,7 +87,12 @@ public class HandlerXmlTest {
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
 		fe.add(new XmlIndexFieldExtraction() {
 			@Override
-			public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+			public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+				
+			}
+			
+			@Override
+			public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
 				calls.add(processedElement);
 				throw new RuntimeException("something went badly wrong");
 			}

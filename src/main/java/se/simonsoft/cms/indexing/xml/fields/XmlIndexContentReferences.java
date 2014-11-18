@@ -16,9 +16,14 @@
 package se.simonsoft.cms.indexing.xml.fields;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -27,6 +32,7 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 
+	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Add element during begin and remove at end when setting content fields.
@@ -37,11 +43,17 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	 * All descendant elements.
 	 * Add each element to all lists in this map (should be same elements as in stack). 
 	 */
-	Map<XmlSourceElement, List<XmlSourceElement>> contentRecursive = new HashMap<XmlSourceElement, List<XmlSourceElement>>();
+	Map<XmlSourceElement, List<String>> contentRecursive = new HashMap<XmlSourceElement, List<String>>();
+	
+	/**
+	 * Three levels of descendant elements.
+	 * Add each element to the lists in this map for 3 most recent ancestors. 
+	 */
+	Map<XmlSourceElement, List<String>> content1_3 = new HashMap<XmlSourceElement, List<String>>();
 	
 	/**
 	 * Direct children.
-	 * Add each element that to list of the "peek" element in stack.
+	 * Add each element to list of the "peek" element in stack.
 	 */
 	Map<XmlSourceElement, List<XmlSourceElement>> content1 = new HashMap<XmlSourceElement, List<XmlSourceElement>>();
 	
@@ -52,17 +64,70 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	
 	// Can do any number of child levels by looking at stack position.
 	
-
+	/**
+	 * Clear all data structures.
+	 */
+	private void init() {
+		
+		parentsStack = new Stack<XmlSourceElement>();
+		contentRecursive = new HashMap<XmlSourceElement, List<String>>();
+		content1_3 = new HashMap<XmlSourceElement, List<String>>();
+	}
+	
+	
 	@Override
-	public void extract(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
-		// TODO Auto-generated method stub
-
+	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+		parentsStack.push(processedElement);
+		contentRecursive.put(processedElement, new LinkedList<String>());
+		content1_3.put(processedElement, new LinkedList<String>());
+	}
+	
+	@Override
+	public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+		
+		XmlSourceElement popped = parentsStack.pop();
+		if (!popped.equals(processedElement)) {
+			throw new IllegalStateException("end of element which is not at the top of the stack: " + processedElement);
+		}
+		// Remove the list for this element
+		List<String> listR = contentRecursive.remove(popped);
+		List<String> list1_3 = content1_3.remove(popped);
+		//logger.info("{} children: {}", processedElement.getName(), listR.size());
+		//logger.info("{} children_1-3: {}", processedElement.getName(), list1_3.size());
+		// Add to a single-value field (with keyword analysis)
+		String joined1_3 = StringUtils.join(list1_3, " ");
+		fields.addField("content_c_1_3", joined1_3);
+		/* For multi-value field.
+		for (String s: list1_3) {
+			fields.addField("patharea", s);
+		}
+		*/
+		
+		// Add this element to list of all ancestor elements
+		String sha1 = (String) fields.getFieldValue("c_sha1_source_reuse");
+		if (sha1 == null || sha1.isEmpty()) {
+			throw new IllegalStateException("element lacks \"c_sha1_source_reuse\"");
+		}
+		/*
+		for (XmlSourceElement e: contentRecursive.keySet()) {
+			List<String> list = contentRecursive.get(e);
+			list.add(sha1);
+		}
+		*/
+		// Add this element to the 3 closest ancestors' child-lists.
+		List<XmlSourceElement> parent1_3 = parentsStack.subList(Math.max(0, parentsStack.size()-3), parentsStack.size());
+		for (XmlSourceElement e: parent1_3) {
+			List<String> list = content1_3.get(e);
+			list.add(sha1);
+		}
+		
 	}
 
 	@Override
 	public void endDocument() {
-		// TODO Auto-generated method stub
-
+		
+		init();
 	}
 
 }

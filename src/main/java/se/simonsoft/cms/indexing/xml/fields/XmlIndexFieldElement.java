@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceAttribute;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceNamespace;
@@ -44,13 +46,20 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	 */
 	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
 	
+	
 	public void endDocument() {
 		
 		assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
 	}
 	
 	@Override
-	public void extract(XmlSourceElement element, IndexingDoc doc) {
+	public void begin(XmlSourceElement element) throws XmlNotWellFormedException {
+		
+		// TODO: keepElementId(element, id);
+	}
+	
+	@Override
+	public void end(XmlSourceElement element, IndexingDoc doc) {
 		String id = (String) doc.getFieldValue("id");
 		if (id == null) {
 			throw new IllegalStateException("The id field must be set before adding other fields");

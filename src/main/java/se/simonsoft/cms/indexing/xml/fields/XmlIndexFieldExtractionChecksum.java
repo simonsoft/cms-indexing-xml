@@ -26,6 +26,7 @@ import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 /**
@@ -48,7 +49,12 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	}
 	
 	@Override
-	public void extract(XmlSourceElement processedElement, IndexingDoc fields) {
+	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+	}
+	
+	@Override
+	public void end(XmlSourceElement processedElement, IndexingDoc fields) {
 		Collection<String> orgFieldNames = new LinkedList<String>(fields.getFieldNames());
 		for (String n : orgFieldNames) {
 			for (String p : prefixes) {

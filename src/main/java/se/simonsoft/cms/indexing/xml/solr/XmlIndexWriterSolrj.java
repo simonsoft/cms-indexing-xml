@@ -47,7 +47,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	 * try to keep reasonably small batches by also checking total text+source length,
 	 * triggering batchReady if above a certain limit instead of waiting for the number of elements.
 	 */
-	private static final long BATCH_TEXT_TOTAL_MAX = 10 * 1000 * 1000;	
+	private static final long BATCH_TEXT_TOTAL_MAX = 5 * 1000 * 1000;	
 	
 	private static final long SIZE_INFO_ABOVE = 50000;
 	

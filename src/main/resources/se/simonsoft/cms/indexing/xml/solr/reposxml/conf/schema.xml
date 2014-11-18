@@ -201,11 +201,17 @@
 		<!-- 
 		Special filtered extractions, source - checksum - word count.
 		Store sources? - No, because it is lots of data and verbatim source can most likely be used.
+		               - Assist uses source_reuse because it is preferable to remove attributes and normalize before insert.
 		Index sources? - Maybe not because we need the analysis to be done before the checksum anyway.
 		-->
 		<dynamicField name="source_*" type="string" indexed="false" stored="true" multiValued="false" /><!-- stored during development -->
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
+		
+		<!-- 
+		Fields related to checksums of child elements
+		-->
+		<dynamicField name="content_c_*" type="content_checksums" indexed="true" stored="true" multiValued="false" />
 		
 		<!--
 		Different transformations of the original XML.
@@ -275,6 +281,14 @@
 				<filter class="solr.LowerCaseFilterFactory" />
 				<!-- When outputting unigrams, single words will be included. -->
 				<filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="5" outputUnigrams="true"/>
+			</analyzer>
+		</fieldType>
+		
+		<!-- Content checksums -->
+		<fieldType class="solr.TextField" name="content_checksums">
+			<analyzer>
+				<tokenizer class="solr.StandardTokenizerFactory" />
+				<filter class="solr.LowerCaseFilterFactory" />
 			</analyzer>
 		</fieldType>
 	</types>

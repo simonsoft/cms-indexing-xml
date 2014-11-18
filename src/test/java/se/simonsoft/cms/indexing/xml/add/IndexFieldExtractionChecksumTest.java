@@ -34,7 +34,7 @@ public class IndexFieldExtractionChecksumTest {
 		fields.addField("source_2", "<p>some text</p>");
 		fields.addField("other", "ooooo");
 		XmlIndexFieldExtraction checksum = new XmlIndexFieldExtractionChecksum("text", "source");
-		checksum.extract(null, fields);
+		checksum.end(null, fields);
 		assertEquals("552e21cd4cd9918678e3c1a0df491bc3", fields.getFieldValue("c_md5_text"));
 		assertEquals("37aa63c77398d954473262e1a0057c1e632eda77", fields.getFieldValue("c_sha1_text"));
 		assertEquals("352ce7ce1c6dc7d4e1cdb05ae7a49a96", fields.getFieldValue("c_md5_source"));

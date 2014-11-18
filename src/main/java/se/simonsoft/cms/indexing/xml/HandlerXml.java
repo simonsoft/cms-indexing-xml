@@ -33,6 +33,7 @@ import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 public class HandlerXml implements IndexingItemHandler {
 
@@ -61,6 +62,8 @@ public class HandlerXml implements IndexingItemHandler {
 			) {
 		this.fieldExtraction = fieldExtraction;
 		this.sourceReader = xmlSourceReader;
+		// TODO: Better way of overriding Dependency injection!
+		this.sourceReader = new XmlSourceReaderS9api();
 	}
 
 	@Inject
