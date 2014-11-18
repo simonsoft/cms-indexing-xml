@@ -57,7 +57,8 @@ import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 /**
  * 
- * Depends on "source" field extraction from {@link XmlSourceReaderJdom}.
+ * Depends on "source" field extraction from {@link XmlSourceReaderJdom} when using that impl (old).
+ * Depends on getElement() returning an S9API XdmNode in {@link XmlSourceReaderS9api} when using that impl.
  */
 public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	

@@ -15,8 +15,10 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.util.LinkedHashSet;
@@ -34,13 +36,13 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 public class HandlerXmlTest {
 
 	@Test
 	public void testXmlSourceElementInvalid() {
-		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
+		XmlSourceReader xmlReader = new XmlSourceReaderS9api();
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
@@ -64,7 +66,8 @@ public class HandlerXmlTest {
 		
 		HandlerXml handlerXml = new HandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
-		handlerXml.setDependenciesXml(fe, xmlReader);
+		handlerXml.setFieldExtraction(fe);
+		handlerXml.setSourceReader(xmlReader);
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);
@@ -81,7 +84,7 @@ public class HandlerXmlTest {
 
 	@Test
 	public void testXmlSourceElementFatalError() {
-		XmlSourceReader xmlReader = new XmlSourceReaderJdom();
+		XmlSourceReader xmlReader = new XmlSourceReaderS9api();
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
@@ -105,7 +108,8 @@ public class HandlerXmlTest {
 		
 		HandlerXml handlerXml = new HandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
-		handlerXml.setDependenciesXml(fe, xmlReader);
+		handlerXml.setFieldExtraction(fe);
+		handlerXml.setSourceReader(xmlReader);
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);

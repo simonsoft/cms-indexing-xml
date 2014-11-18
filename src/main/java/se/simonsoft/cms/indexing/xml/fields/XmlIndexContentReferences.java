@@ -29,6 +29,7 @@ import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 
 public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 
@@ -77,6 +78,11 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	
 	@Override
 	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+		
+		if (!(processedElement instanceof XmlSourceElementS9api)) {
+			// Well, we are technically not constrained to S9API, but JDOM would require a massive Heap.
+			throw new IllegalArgumentException("This field extraction handler can not participate unless XML Source impl is S9API");
+		}
 		
 		parentsStack.push(processedElement);
 		contentRecursive.put(processedElement, new LinkedList<String>());

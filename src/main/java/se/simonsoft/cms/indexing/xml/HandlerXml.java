@@ -45,7 +45,7 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
-	private XmlSourceReader sourceReader = null;
+	private XmlSourceReader sourceReader = new XmlSourceReaderS9api(); // Hard coding this impl for now (might want to keep injecting JDOM impl in other modules).
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
@@ -56,20 +56,26 @@ public class HandlerXml implements IndexingItemHandler {
 	 * @param xmlSourceReader that processes the XML into {@link XmlSourceElement}s for the extractors
 	 */
 	@Inject
-	public void setDependenciesXml(
-			Set<XmlIndexFieldExtraction> fieldExtraction,
-			XmlSourceReader xmlSourceReader
+	public void setFieldExtraction (
+			Set<XmlIndexFieldExtraction> fieldExtraction
 			) {
 		this.fieldExtraction = fieldExtraction;
-		this.sourceReader = xmlSourceReader;
-		// TODO: Better way of overriding Dependency injection!
-		this.sourceReader = new XmlSourceReaderS9api();
 	}
 
 	@Inject
 	public void setDependenciesIndexing(
 			XmlIndexWriter indexAddProvider) {
 		this.indexWriter = indexAddProvider;
+	}
+	
+	/**
+	 * Intentionally not injected since we currently want to select implementation independently
+	 * of what other modules use.
+	 * @param xmlSourceReader
+	 */
+	public void setSourceReader(XmlSourceReader xmlSourceReader) {
+		
+		this.sourceReader = xmlSourceReader;
 	}
 	
 	@Override
@@ -98,6 +104,11 @@ public class HandlerXml implements IndexingItemHandler {
 	}
 
 	protected void index(IndexingItemProgress progress) {
+		
+		if (sourceReader == null) {
+			throw new IllegalStateException("No XmlSourceHandler has been provided.");
+		}
+		
 		IndexingDoc itemDoc = cloneItemFields(progress.getFields());
 		supportLegacySchema.handle(itemDoc);
 		XmlIndexAddSession docHandler = indexWriter.get();

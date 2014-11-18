@@ -24,7 +24,7 @@ import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -33,7 +33,7 @@ public class IndexingConfigXml extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);		
+		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);		
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrj.class);
 		
 		// XML field extraction
