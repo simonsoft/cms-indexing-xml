@@ -18,6 +18,9 @@ package se.simonsoft.cms.indexing.xml.fields;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
@@ -28,6 +31,8 @@ import se.simonsoft.xmltracking.index.SchemaFieldNames;
 import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
+	
+	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldElement.class);
 
 	private static final int hashmapInitialCapacity = 10000;
 	
@@ -68,7 +73,8 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
 		}
 		doc.addField("depth", element.getDepth());
-		doc.addField("position", element.getLocation().getOrdinal());
+		int position = element.getLocation().getOrdinal();
+		doc.addField("position", position);
 		addAncestorData(element, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
@@ -77,6 +83,8 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			for (XmlSourceAttribute a : sp.getAttributes()) {
 				doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
 			}
+		} else if (position > 1) {
+			logger.warn("failed to navigate to preceding sibling despite position: {}", position);
 		}
 	}
 	
