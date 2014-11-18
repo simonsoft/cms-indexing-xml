@@ -84,6 +84,8 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
 		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
 		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
+		
+		assertEquals("should extract source", "<elem>text</elem>", x1.get(0).getFieldValue("source"));
 	}
 
 	@Test

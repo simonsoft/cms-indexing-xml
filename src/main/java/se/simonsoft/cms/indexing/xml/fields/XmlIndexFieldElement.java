@@ -15,20 +15,17 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
-import java.io.IOException;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.xmltracking.index.SchemaFieldNames;
-import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceAttribute;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceNamespace;
+import se.simonsoft.xmltracking.index.SchemaFieldNames;
+import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 
@@ -63,7 +60,6 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	public void end(XmlSourceElement element, String id, IndexingDoc doc) {
 		
 		doc.addField("name", element.getName());
-		doc.addField("source", getSource(element));
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			// The 'ns_' fields will only contain 'namespacesIntroduced', which might be unexpected. See 'ins_'.
 			doc.addField("ns_" + n.getName(), n.getUri());
@@ -92,24 +88,6 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		return assigned.get(sp);
 	}
 
-	/**
-	 * Source is currently stored in index but could be very large xml chunks.
-	 * @param element
-	 * @return
-	 */
-	private String getSource(XmlSourceElement element) {
-		Reader s = element.getSource();
-		StringBuffer b = new StringBuffer();
-		int c;
-		try {
-			while ((c = s.read()) > -1) {
-				b.append((char) c);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading XML source for indexing", e);
-		}
-		return b.toString();
-	}
 
 	/**
 	 * Recursive from the actual element and up to root, aggregating field values.

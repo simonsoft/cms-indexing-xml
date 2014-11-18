@@ -27,6 +27,7 @@ import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexContentReferences;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 
 /**
@@ -42,6 +43,8 @@ public abstract class IndexingHandlersXml {
 		{
 			// ID generation is no longer done in a normal handler.
 			add(XmlIndexFieldElement.class);
+			// Source is now a separate handler
+			add(XmlIndexFieldExtractionSource.class);
 			// Saxon based text and word count extraction
 			add(IndexFieldExtractionCustomXsl.class);
 			// Checksums of text and source fields (default settings)
