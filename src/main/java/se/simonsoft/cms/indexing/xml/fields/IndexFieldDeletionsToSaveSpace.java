@@ -23,12 +23,12 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 
 	@Override
-	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
 		
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElemen, IndexingDoc fields) {
+	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) {
 		fields.removeField("prop_abx.Dependencies");
 	}
 

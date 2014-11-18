@@ -27,7 +27,6 @@ import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexContentReferences;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 
 /**
@@ -41,7 +40,7 @@ public abstract class IndexingHandlersXml {
 	public static final Iterable<Class<? extends XmlIndexFieldExtraction>> STANDARD_XML_EXTRACTION = new LinkedList<Class<? extends XmlIndexFieldExtraction>>() {
 		private static final long serialVersionUID = 1L;
 		{
-			add(XmlIndexIdAppendTreeLocation.class);
+			// ID generation is no longer done in a normal handler.
 			add(XmlIndexFieldElement.class);
 			// Saxon based text and word count extraction
 			add(IndexFieldExtractionCustomXsl.class);

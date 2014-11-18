@@ -77,7 +77,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	
 	
 	@Override
-	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
 		
 		if (!(processedElement instanceof XmlSourceElementS9api)) {
 			// Well, we are technically not constrained to S9API, but JDOM would require a massive Heap.
@@ -90,7 +90,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		XmlSourceElement popped = parentsStack.pop();
 		if (!popped.equals(processedElement)) {

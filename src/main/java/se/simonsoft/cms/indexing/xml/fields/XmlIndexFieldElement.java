@@ -53,18 +53,15 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	}
 	
 	@Override
-	public void begin(XmlSourceElement element) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement element, String id) throws XmlNotWellFormedException {
 		
-		// TODO: keepElementId(element, id);
+		// TODO: Remodel into a stack and scrap the preceding sibling feature.
+		keepElementId(element, id);
 	}
 	
 	@Override
-	public void end(XmlSourceElement element, IndexingDoc doc) {
-		String id = (String) doc.getFieldValue("id");
-		if (id == null) {
-			throw new IllegalStateException("The id field must be set before adding other fields");
-		}
-		keepElementId(element, id);
+	public void end(XmlSourceElement element, String id, IndexingDoc doc) {
+		
 		doc.addField("name", element.getName());
 		doc.addField("source", getSource(element));
 		for (XmlSourceNamespace n : element.getNamespaces()) {

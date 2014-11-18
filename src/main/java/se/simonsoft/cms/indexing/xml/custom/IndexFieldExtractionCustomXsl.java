@@ -199,12 +199,12 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 
 	@Override
-	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
 		
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		if (processedElement instanceof XmlSourceElementS9api) {
 			//logger.debug("reusing XdmNode for transformation");

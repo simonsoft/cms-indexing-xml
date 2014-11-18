@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceDoctype;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
@@ -33,8 +34,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private static final Logger logger = LoggerFactory.getLogger(XmlSourceHandlerFieldExtractors.class);
 	
 	private IndexingDoc baseDoc;
+	private String beseId;
 	private Set<XmlIndexFieldExtraction> fieldExtraction;
 	private XmlIndexAddSession docHandler;
+	
+	private XmlIndexIdAppendTreeLocation idAppender = new XmlIndexIdAppendTreeLocation(); // TODO: Extract ID generation into an interface.
 
 	/**
 	 * @param commonFieldsDoc fieds that should be set/kept same for all elements
@@ -43,6 +47,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	 */
 	public XmlSourceHandlerFieldExtractors(IndexingDoc commonFieldsDoc, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
 		this.baseDoc = commonFieldsDoc;
+		this.beseId = (String) commonFieldsDoc.getFieldValue("id");
+		if (beseId == null) {
+			throw new IllegalArgumentException("Missing id field in indexing doc");
+		}
 		this.fieldExtraction = fieldExtraction;
 		this.docHandler = docHandler;
 	}
@@ -69,9 +77,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void begin(XmlSourceElement element) {
 		
+		String id = idAppender.getIdAppended(element, this.beseId);
+		
 		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.begin(element);
+			ex.begin(element, id);
 			//ex.end(element, doc);
 		}
 		//docHandler.add(doc);
@@ -80,9 +90,13 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void end(XmlSourceElement element) {
 		
+		String id = idAppender.getIdAppended(element, this.beseId);
+		
 		IndexingDoc doc = this.baseDoc.deepCopy();
+		doc.setField("id", id);
+		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.end(element, doc);
+			ex.end(element, id, doc);
 		}
 		docHandler.add(doc);
 		

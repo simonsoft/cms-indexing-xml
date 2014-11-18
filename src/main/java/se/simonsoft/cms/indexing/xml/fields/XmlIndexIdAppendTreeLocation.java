@@ -15,30 +15,18 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
-import se.repos.indexing.IndexingDoc;
-import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
-public class XmlIndexIdAppendTreeLocation implements XmlIndexFieldExtraction {
+//TODO: Define interface for ID generation.
+public class XmlIndexIdAppendTreeLocation  {
 
-	@Override
-	public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
-		
-	}
 	
-	@Override
-	public void end(XmlSourceElement processedElement, IndexingDoc fields) {
-		String fileid = (String) fields.getFieldValue("id");
-		if (fileid == null) {
-			throw new IllegalArgumentException("Missing id field in indexing doc");
-		}
-		fields.setField("id", fileid + "|" + processedElement.getLocation());
+	
+	public String getIdAppended(XmlSourceElement processedElement, String baseId) {
+		
+		return new String(baseId + "|" + processedElement.getLocation());
 	}
 
-	@Override
-	public void endDocument() {
-
-	}
+	
 
 }

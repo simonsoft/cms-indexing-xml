@@ -48,12 +48,12 @@ public class HandlerXmlTest {
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
 		fe.add(new XmlIndexFieldExtraction() {
 			@Override
-			public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+			public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
 				
 			}
 			
 			@Override
-			public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+			public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
 				calls.add(processedElement);
 				throw new XmlNotWellFormedException("something went wrong", new RuntimeException("some xml lib's cause"));
 			}
@@ -73,6 +73,7 @@ public class HandlerXmlTest {
 		when(p1i.isFile()).thenReturn(true);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
+		p1f.addField("id", "base-id");
 		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
 		when(p1.getItem()).thenReturn(p1i);
 		when(p1.getFields()).thenReturn(p1f);
@@ -90,12 +91,12 @@ public class HandlerXmlTest {
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
 		fe.add(new XmlIndexFieldExtraction() {
 			@Override
-			public void begin(XmlSourceElement processedElement) throws XmlNotWellFormedException {
+			public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
 				
 			}
 			
 			@Override
-			public void end(XmlSourceElement processedElement, IndexingDoc fields) throws XmlNotWellFormedException {
+			public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
 				calls.add(processedElement);
 				throw new RuntimeException("something went badly wrong");
 			}
@@ -115,6 +116,7 @@ public class HandlerXmlTest {
 		when(p1i.isFile()).thenReturn(true);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
+		p1f.addField("id", "base-id");
 		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
 		when(p1.getItem()).thenReturn(p1i);
 		when(p1.getFields()).thenReturn(p1f);
