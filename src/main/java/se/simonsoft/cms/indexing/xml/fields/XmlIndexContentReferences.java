@@ -16,12 +16,12 @@
 package se.simonsoft.cms.indexing.xml.fields;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,12 +97,13 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 			throw new IllegalStateException("end of element which is not at the top of the stack: " + processedElement);
 		}
 		// Remove the list for this element
+		@SuppressWarnings("unused")
 		List<String> listR = contentRecursive.remove(popped);
 		List<String> list1_3 = content1_3.remove(popped);
 		//logger.info("{} children: {}", processedElement.getName(), listR.size());
 		//logger.info("{} children_1-3: {}", processedElement.getName(), list1_3.size());
 		// Add to a single-value field (with keyword analysis)
-		String joined1_3 = StringUtils.join(list1_3, " ");
+		String joined1_3 = join(list1_3, " ");
 		fields.addField("content_c_1_3", joined1_3);
 		/* For multi-value field.
 		for (String s: list1_3) {
@@ -134,6 +135,20 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	public void endDocument() {
 		
 		init();
+	}
+	
+	private String join(List<String> list, String sep) {
+		
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> it = list.iterator();
+		if (it.hasNext()) {
+			sb.append(it.next());
+		}
+		while (it.hasNext()) {
+			sb.append(sep);
+			sb.append(it.next());
+		}
+		return sb.toString();
 	}
 
 }
