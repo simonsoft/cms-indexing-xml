@@ -32,6 +32,8 @@ import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	
+	private static final boolean ENABLE_SIBLING_ID = false;
+	
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldElement.class);
 
 	private static final int hashmapInitialCapacity = 10000;
@@ -78,6 +80,7 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		addAncestorData(element, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
+			// This works only if ENABLE_SIBLING_ID is true (no cleanup of hashmap during end()).
 			doc.addField("id_s", getElementId(sp));
 			doc.addField("sname", sp.getName());
 			for (XmlSourceAttribute a : sp.getAttributes()) {
@@ -85,6 +88,12 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			}
 		} else if (position > 1) {
 			logger.warn("failed to navigate to preceding sibling despite position: {}", position);
+		}
+		
+		// By removing during end() we only keep ancestors in the hashmap.
+		// This disables preceding sibling id (id_s).
+		if (!ENABLE_SIBLING_ID) {
+			assigned.remove(element);
 		}
 	}
 	
