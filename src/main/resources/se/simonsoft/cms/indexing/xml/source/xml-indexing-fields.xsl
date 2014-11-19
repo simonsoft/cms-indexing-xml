@@ -35,6 +35,11 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 	
+		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
+        <xsl:if test="$cms-namespace-source!='http://www.simonsoft.se/namespace/cms'">
+            <xsl:message terminate="yes">The namespace with prefix 'cms' must be 'http://www.simonsoft.se/namespace/cms'.</xsl:message>
+        </xsl:if>
+	
 		<!-- <xsl:variable name="whitespace" select="'&#x20;&#xD;&#xA;&#x9;'"/>-->
 		<xsl:variable name="whitespace" select="' '"/>
 	
@@ -160,6 +165,7 @@
 		<xsl:copy/>
 	</xsl:template>
 	
+	
 	<xsl:template match="@*" mode="source-reuse-serialize">
 		<!-- Serialize the attribute information. -->
 		<xsl:value-of select="' '"/>
@@ -168,6 +174,17 @@
 		<xsl:value-of select="."/>
 		<xsl:text>"</xsl:text>
 	</xsl:template>
+	
+	<xsl:template match="@*[namespace-uri()='http://www.simonsoft.se/namespace/cms']" mode="source-reuse-serialize">
+		<!-- Serialize the attribute information. -->
+		<!-- This template ensures that the prefix for CMS namespace is 'cms'. -->
+		<xsl:value-of select="' '"/>
+		<xsl:value-of select="concat('cms:', local-name())"/>
+		<xsl:text>="</xsl:text>
+		<xsl:value-of select="."/>
+		<xsl:text>"</xsl:text>
+	</xsl:template>
+	
 	
 	<xsl:template match="ph/node()" mode="source-reuse-child" priority="90">
 		<!-- Suppress content of ph elements (inserted/replaced during publishing) but allow all attributes to propagate. -->

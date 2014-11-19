@@ -44,6 +44,7 @@ import net.sf.saxon.s9api.XsltTransformer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 import org.w3c.dom.Attr;
 import org.xml.sax.ContentHandler;
 
@@ -206,6 +207,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	@Override
 	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
 		
+		// processedElement is null during some unit testing. 
+		
 		if (processedElement instanceof XmlSourceElementS9api) {
 			//logger.debug("reusing XdmNode for transformation");
 			setSourceXdm((XmlSourceElementS9api) processedElement);
@@ -242,7 +245,8 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			transformer.transform();
 		} catch (SaxonApiException e) {
 			if (e.getCause() instanceof TransformerException) { // including net.sf.saxon.trans.XPathException
-				throw new XmlNotWellFormedException("XML invalid for transformation at " + processedElement, e);
+				String msg = MessageFormatter.format("XML invalid for transformation at {}: {}", processedElement, e.getMessage()).getMessage();
+				throw new XmlNotWellFormedException(msg, e);
 			}
 			throw new RuntimeException("Extraction aborted with error at " + processedElement, e);
 		}

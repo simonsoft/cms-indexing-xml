@@ -352,6 +352,71 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("10", fields.getFieldValue("words_text"));
 	}
 	
+	/**
+	 * Tests consequences of having a different prefix assigned to the CMS namespace.
+	 * The output in source_reuse will normalize to 'cms', but there is no general support.
+	 * The source field will contain the original.
+	 * Interesting transform:
+	 * http://lenzconsulting.com/namespace-normalizer/
+	 */
+	@Test
+	public void testAttributesCmsPrefixNormalize() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		
+		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
+		fields.setField("source",
+				"<document xmlns:odd=\"http://www.simonsoft.se/namespace/cms\" xml:lang=\"en\" odd:rwords=\"10\" odd:rlogicalid=\"xy1\" odd:rid=\"abc001\" odd:twords=\"15\">\n" +
+				"<section odd:rlogicalid=\"xy2\" odd:rid=\"abc002\">\n" +
+				"<title odd:rid=\"abc003\">section &amp; stuff</title>\n" +
+				"<p odd:rid=\"abc004\" odd:tstatus=\"Released\" odd:tlogicalid=\"x-svn...\" odd:tmatch=\"element1\" odd:tpos=\"1.x.x\" odd:trid=\"xyz006\" odd:twords=\"5\">Testing cms attributes\n" +
+				"including tvalidate.</p>\n" +
+				"</section>\n" +
+				"<figure odd:rid=\"abc005\" odd:tvalidate=\"no\"><title odd:rid=\"abc006\">Title</title>Figure</figure>\n" +						
+				"</document>");
+		
+		x.end(null, null, fields);
+		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
+		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("10", fields.getFieldValue("words_text"));
+	}
+	
+	@Test (expected=Exception.class) 
+	public void testAttributesCmsPrefixOccupied() {
+		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
+			@Override
+			public Source getXslt() {
+				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
+				assertNotNull("Should find an xsl file to test with", xsl);
+				return new StreamSource(xsl);
+			}
+		});
+		
+		
+		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
+		fields.setField("source",
+				"<document xmlns:odd=\"http://www.simonsoft.se/namespace/cms\" xmlns:cms=\"http://www.simonsoft.se/namespace/crap\" xml:lang=\"en\" odd:rwords=\"10\" odd:rlogicalid=\"xy1\" odd:rid=\"abc001\" odd:twords=\"15\">\n" +
+				"<section odd:rlogicalid=\"xy2\" odd:rid=\"abc002\">\n" +
+				"<title odd:rid=\"abc003\" cms:foo=\"unknown\">section &amp; stuff</title>\n" +
+				"<p odd:rid=\"abc004\" odd:tstatus=\"Released\" odd:tlogicalid=\"x-svn...\" odd:tmatch=\"element1\" odd:tpos=\"1.x.x\" odd:trid=\"xyz006\" odd:twords=\"5\">Testing cms attributes\n" +
+				"including tvalidate.</p>\n" +
+				"</section>\n" +
+				"<figure odd:rid=\"abc005\" odd:tvalidate=\"no\"><title odd:rid=\"abc006\">Title</title>Figure</figure>\n" +						
+				"</document>");
+		
+		x.end(null, null, fields);
+
+	}
+	
 	
 	@Test
 	public void testPretranslateDisqualifyOnDuplicateRid() {
