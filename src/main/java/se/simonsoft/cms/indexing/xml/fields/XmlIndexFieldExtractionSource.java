@@ -35,7 +35,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 * This is a hack to remove Abx Change Tracking namespace from source.
 	 * Finalize Release aborts if there is CT in the document, so there should be none in Translations.
 	 */
-	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
+	private static final boolean REMOVE_ABXCT_NAMESPACE = false;
 	
 	
 	public void endDocument() {
@@ -59,6 +59,12 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 				logger.warn("Patharea translation: {}", patharea.contains("translation"));
 				source = source.replaceAll(" xmlns:atict=\"http://www.arbortext.com/namespace/atict\"", "");
 			}
+		}
+		
+		String nsUnused = (String) doc.getFieldValue("ns_unused");
+		if (nsUnused != null && !nsUnused.isEmpty()) {
+			logger.debug("Unused Namespaces: {}", nsUnused);
+			//throw new RuntimeException(nsUnused);
 		}
 		
 		doc.addField("source", source);

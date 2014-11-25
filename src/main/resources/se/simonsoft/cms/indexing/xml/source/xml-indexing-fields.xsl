@@ -30,6 +30,10 @@
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
+	
+	<!-- Experimental support for determining which declared namespaces are not actually used. -->
+	<xsl:key name="ns_elem" match="*[namespace-uri() != '']" use="namespace-uri()"/>
+    <xsl:key name="ns_attr" match="*/@*[namespace-uri() != '']" use="namespace-uri()"/>
 
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
@@ -82,7 +86,14 @@
 			<field name="reuseridduplicate">
 				<xsl:value-of select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
 			</field>
-
+			
+			<!-- Experimental support for determining which declared namespaces are not actually used. -->
+			<!-- TODO: Discuss whether the feature is worth the performance hit.  -->
+			<!-- Tests with 860k indicates 5-10% higher execution time, close to 5% when test file has no unused ns. -->
+			<!-- Likely increasing processing time with a larger number of declared namespaces. -->
+			<field name="ns_unused">
+				<xsl:apply-templates select="." mode="i-ns-unused"/>
+			</field>
 			
 		</doc>
 		
@@ -264,6 +275,24 @@
 			<xsl:when test="$document-status = 'Released'">1</xsl:when>
 			<xsl:otherwise>0</xsl:otherwise>
 		</xsl:choose>
+	</xsl:template>
+	
+	<!-- Experimental support for determining which declared namespaces are not actually used. -->
+	<!-- Investigates all namespaces declared on parent, which means they are inherited by this element. -->
+	<xsl:template match="*" mode="i-ns-unused">
+		<xsl:variable name="namespace-parent" select="parent::node()/namespace::*[string() != 'http://www.w3.org/XML/1998/namespace']"/>
+		
+		<xsl:for-each select="$namespace-parent">
+            <xsl:variable name="nsuri" select="."></xsl:variable>
+            
+            <xsl:if test="count(key('ns_attr', $nsuri)) = 0 and count(key('ns_elem', $nsuri)) = 0">
+                <!-- TODO: Support multi-value fields using Solr arr/str notation. -->
+                    <xsl:value-of select="$nsuri"></xsl:value-of>
+					<xsl:value-of select="'&#xA;'"></xsl:value-of>
+            </xsl:if>
+            
+        </xsl:for-each>
+		
 	</xsl:template>
 	
 </xsl:stylesheet>

@@ -43,8 +43,6 @@ public abstract class IndexingHandlersXml {
 		{
 			// ID generation is no longer done in a normal handler.
 			add(XmlIndexFieldElement.class);
-			// Source is now a separate handler
-			add(XmlIndexFieldExtractionSource.class);
 			// Saxon based text and word count extraction
 			add(IndexFieldExtractionCustomXsl.class);
 			// Checksums of text and source fields (default settings)
@@ -57,6 +55,8 @@ public abstract class IndexingHandlersXml {
 			add(IndexFieldDeletionsToSaveSpace.class);
 			// References to all child elements
 			add(XmlIndexContentReferences.class);
+			// Source is now a separate handler, must be after IndexFieldExtractionCustomXsl.
+			add(XmlIndexFieldExtractionSource.class);
 		}
 	};
 	

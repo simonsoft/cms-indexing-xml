@@ -139,6 +139,8 @@
 		<dynamicField name="ns_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- Namespaces inherited and introduced on this elemen. -->
 		<dynamicField name="ins_*" type="string" indexed="true" stored="true" multiValued="false" />
+		<!-- Namespaces unused below this element. -->
+		<field name="ns_unused" type="string" indexed="true" stored="true" multiValued="true" />
 			
 		<!--
 		Parent element name
