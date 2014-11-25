@@ -387,6 +387,10 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("words_text"));
+		// Are we currently (Java extraction of a_*) normalizing the cms namespace?
+		/*
+		assertEquals("xy1", fields.getFieldValue("a_cms.rlogicalid"));
+		*/
 	}
 	
 	@Test (expected=Exception.class) 
