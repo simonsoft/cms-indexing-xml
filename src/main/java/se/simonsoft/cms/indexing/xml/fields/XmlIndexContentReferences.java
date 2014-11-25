@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -137,16 +138,16 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 		init();
 	}
 	
-	private String join(List<String> list, String sep) {
+	public static String join(Collection<?> list, String sep) {
 		
 		StringBuilder sb = new StringBuilder();
-		Iterator<String> it = list.iterator();
+		Iterator<?> it = list.iterator();
 		if (it.hasNext()) {
-			sb.append(it.next());
+			sb.append(it.next().toString());
 		}
 		while (it.hasNext()) {
 			sb.append(sep);
-			sb.append(it.next());
+			sb.append(it.next().toString());
 		}
 		return sb.toString();
 	}
