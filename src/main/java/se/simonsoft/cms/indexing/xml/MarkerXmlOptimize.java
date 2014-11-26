@@ -26,6 +26,9 @@ public class MarkerXmlOptimize extends MarkerOptimizeSolrj {
 
 	@Inject
 	public MarkerXmlOptimize(@Named("reposxml") SolrServer core) {
+		// Optimize can take significant time (have seen above 30min).
+		// Ideally perform optimize during night time.
+		// Currently uses the same interval as repositem core.
 		super(core);
 	}
 	
