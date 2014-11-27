@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
-import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
+import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -94,6 +94,12 @@ public class HandlerXml implements IndexingItemHandler {
 				} else {
 					indexWriter.deletePath(progress.getRepository(), c);
 					index(progress);
+					// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
+					// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
+					// TODO: Determine if the XML file was large.
+					boolean expunge = true;
+					logger.warn("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
+					indexWriter.commit(expunge);
 				}
 			} else {
 				logger.trace("Ignoring content update item {}, not an XML candidate file type", c);

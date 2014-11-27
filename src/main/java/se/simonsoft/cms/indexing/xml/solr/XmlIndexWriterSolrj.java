@@ -26,6 +26,8 @@ import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +96,20 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		logger.debug("Deleting previous revision of {} using query {}", c, query);
 		try {
 			solrServer.deleteByQuery(query);
+		} catch (SolrServerException e) {
+			throw new RuntimeException("not handled", e);
+		} catch (IOException e) {
+			throw new RuntimeException("not handled", e);
+		}		
+	}
+	
+	@Override
+	public void commit(boolean expungeDeletes) {
+		
+		// Workaround for Solrj not exposing 'expungeDeletes' in commit().
+		AbstractUpdateRequest req = new UpdateRequest().setAction(UpdateRequest.ACTION.COMMIT, true, true, 0, false, expungeDeletes);
+		try {
+			req.process(solrServer);
 		} catch (SolrServerException e) {
 			throw new RuntimeException("not handled", e);
 		} catch (IOException e) {
