@@ -22,6 +22,11 @@ import org.apache.solr.client.solrj.SolrServer;
 
 import se.repos.indexing.solrj.MarkerOptimizeSolrj;
 
+/**
+ * Deprecated because optimize should only run at carefully selected occasions,
+ * given the high data volumes in xml index.
+ */
+@Deprecated
 public class MarkerXmlOptimize extends MarkerOptimizeSolrj {
 
 	@Inject

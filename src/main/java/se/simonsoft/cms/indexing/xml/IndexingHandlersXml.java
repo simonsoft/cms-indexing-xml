@@ -87,7 +87,6 @@ public abstract class IndexingHandlersXml {
 	public static void configureLast(Object guiceMultibinder) {
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
 		IndexingHandlers.to(guiceMultibinder, MarkerXmlCommit.class);
-		IndexingHandlers.to(guiceMultibinder, MarkerXmlOptimize.class); // needed in XML indexing because we delete (overwrite) records all the time
 	}
 	
 	public static void configureXmlFieldExtraction(Object guiceMultibinderXmlIndexFieldExtraction) {
