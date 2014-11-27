@@ -49,6 +49,7 @@ import org.w3c.dom.Attr;
 import org.xml.sax.ContentHandler;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -200,12 +201,12 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 
 	@Override
-	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		// processedElement is null during some unit testing. 
 		

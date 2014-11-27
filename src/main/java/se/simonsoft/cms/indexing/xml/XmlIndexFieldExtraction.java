@@ -31,10 +31,10 @@ public interface XmlIndexFieldExtraction {
 	 * Notification that the element will be extracted when reaching the end of the element.
 	 * 
 	 * @param processedElement
-	 * @param id identifying the element in index
+	 * @param idProvider of IDs identifying elements in index
 	 * @throws XmlNotWellFormedException
 	 */
-	void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException;
+	void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException;
 	
 	/**
 	 * Extracts element fields for per-element indexing in xml core.
@@ -42,10 +42,10 @@ public interface XmlIndexFieldExtraction {
 	 * Indexing should be aborted for all errors except the declared. Index must never be inconsistent.
 	 * 
 	 * @param processedElement original element
-	 * @param id identifying the element in index
+	 * @param idProvider of IDs identifying elements in index
 	 * @param fields collection of fields for the index
 	 */
-	void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException;
+	void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException;
 	
 	
 	/**

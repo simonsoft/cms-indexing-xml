@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -43,12 +44,12 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	}
 	
 	@Override
-	public void begin(XmlSourceElement element, String id) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement element, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
 	}
 	
 	@Override
-	public void end(XmlSourceElement element, String id, IndexingDoc doc) {
+	public void end(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc) {
 		
 		String source = getSource(element);
 

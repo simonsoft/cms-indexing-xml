@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -78,7 +79,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	
 	
 	@Override
-	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
 		if (!(processedElement instanceof XmlSourceElementS9api)) {
 			// Well, we are technically not constrained to S9API, but JDOM would require a massive Heap.
@@ -91,7 +92,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		XmlSourceElement popped = parentsStack.pop();
 		if (!popped.equals(processedElement)) {

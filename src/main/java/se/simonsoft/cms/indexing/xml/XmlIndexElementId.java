@@ -12,5 +12,5 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 public interface XmlIndexElementId {
 
 	
-	public String getXmlElementId(XmlSourceElement processedElement);
+	public String getXmlElementId(XmlSourceElement element);
 }

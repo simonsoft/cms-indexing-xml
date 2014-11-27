@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
@@ -49,12 +50,12 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	}
 	
 	@Override
-	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
 	}
 	
 	@Override
-	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) {
+	public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) {
 		Collection<String> orgFieldNames = new LinkedList<String>(fields.getFieldNames());
 		for (String n : orgFieldNames) {
 			for (String p : prefixes) {

@@ -76,12 +76,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	@Override
 	public void begin(XmlSourceElement element) {
-		
-		String id = idAppender.getXmlElementId(element);
 
 		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.begin(element, id);
+			ex.begin(element, idAppender);
 			//ex.end(element, doc);
 		}
 		//docHandler.add(doc);
@@ -96,7 +94,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		doc.setField("id", id);
 		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.end(element, id, doc);
+			ex.end(element, idAppender, doc);
 		}
 		docHandler.add(doc);
 		

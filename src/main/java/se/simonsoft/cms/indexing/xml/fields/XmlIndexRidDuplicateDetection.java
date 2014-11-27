@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml.fields;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -33,12 +34,12 @@ public class XmlIndexRidDuplicateDetection implements XmlIndexFieldExtraction {
 	
 	
 	@Override
-	public void begin(XmlSourceElement processedElement, String id) throws XmlNotWellFormedException {
+	public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
 	}
 
 	@Override
-	public void end(XmlSourceElement processedElement, String id, IndexingDoc fields) throws XmlNotWellFormedException {
+	public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException {
 		
 		// Will be null before seeing the document root element, then empty string or a list of RIDs.
 		if (this.ridDuplicate == null) {
