@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
+import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 
 /**
  * Preprocesses the doc for common fields so that the old reposxml schema is supported while transitioning to the new repositem fields.
@@ -57,6 +59,16 @@ public class XmlIndexRestrictFields {
 		// would be useful to have urlid also, but that introduces a dependency to another handler
 	}};
 	
+	public static final Map<String, String> FIELDS_PROP_SKIP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
+		put("abx.BaseLogicalId", null);
+		put("prop_abx.Dependencies", null);
+		put("prop_abx.CrossRefs", null);
+		put("abx.x-raomContentStructure", null);
+		put("abx.x-raomFirstTagName", null);
+		// Keeping abx:x-raomDocTypeName since it can not be extracted.
+		
+	}};
+	
 	public void handle(IndexingDoc itemDoc) {
 		Set<String> keep = FIELDS_KEEP.keySet();
 		Set<String> remove = new LinkedHashSet<String>();
@@ -70,6 +82,33 @@ public class XmlIndexRestrictFields {
 		for (String r : remove) {
 			itemDoc.removeField(r);
 		}
+	}
+	
+	public IndexingDoc clone(IndexingDoc itemDoc) {
+		Set<String> keep = FIELDS_KEEP.keySet();
+		Set<String> prop_skip = FIELDS_PROP_SKIP.keySet();
+		Set<String> keepComplete = new LinkedHashSet<String>();
+		IndexingDoc clone = new IndexingDocIncrementalSolrj();
+		
+		for (String name : itemDoc.getFieldNames()) {
+			if (name.startsWith("prop_") && !prop_skip.contains(name)) {
+				keepComplete.add(name);
+			}
+			if (keep.contains(name)) {
+				keepComplete.add(name);
+			}
+		}
+		
+		for (String name : keepComplete) {
+			Collection<Object> values = itemDoc.getFieldValues(name);
+			
+			for (Object val: values) {
+				clone.addField(name, val);
+			}
+		}
+		
+		
+		return clone;
 	}
 
 }

@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
@@ -82,6 +83,15 @@ public class HandlerXmlLargeFileTest {
 		SolrServer reposxml = indexing.getCore("reposxml");
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
 		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
+		
+		SolrDocument e1 = all.get(0);
+		
+		assertEquals(79, e1.getFieldNames().size());
+		//assertEquals("...", e1.getFieldValue("pathname"));
+		/* Can not assert on props since repositem is not involved.
+		assertEquals("xml", e1.getFieldValue("prop_abx.ContentType"));
+		assertNull(e1.getFieldValue("prop_abx.Dependencies"));
+		*/
 	}
 
 }

@@ -108,7 +108,6 @@ public class HandlerXml implements IndexingItemHandler {
 		}
 		
 		IndexingDoc itemDoc = cloneItemFields(progress.getFields());
-		supportLegacySchema.handle(itemDoc);
 		XmlIndexAddSession docHandler = indexWriter.get();
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		try {
@@ -127,8 +126,14 @@ public class HandlerXml implements IndexingItemHandler {
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
-		// TODO: Do copy of selective fields instead of clone.
+		/*
 		IndexingDoc doc = fields.deepCopy();
+		supportLegacySchema.handle(doc);
+		*/
+		// Now doing copy of selective fields instead of clone.
+		// Not really a deep copy of the values. Assumes that the values are immutable objects.
+		// TODO: A better way might be to implement an IndexingDoc impl that can keep a read-only set of fields in another IndexingDoc.
+		IndexingDoc doc = supportLegacySchema.clone(fields);
 		return doc;
 	}
 	
