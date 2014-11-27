@@ -16,9 +16,14 @@
 package se.simonsoft.cms.indexing.xml.solr;
 
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -146,6 +151,25 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			return contentSize;
 		}
 		
+		private Entry<String, Integer> getLargestField(IndexingDoc e) {
+			final Set<String> largeCandidates = new HashSet<String>(Arrays.asList("id", "prop_abx.Dependencies", "source", "source_reuse"));
+			
+			String name = null;
+			int size = 0;
+			for (String f : largeCandidates) {
+				int valSize = 0;
+				Object val = e.getFieldValue(f);
+				if (val instanceof String) {
+					valSize = ((String) val).length();
+				}
+				if (valSize > size) {
+					size = valSize;
+					name = f;
+				}
+			}
+			return new AbstractMap.SimpleEntry<String, Integer>(name, size);
+		}
+		
 		@Override
 		public boolean add(IndexingDoc e) {
 			if (size() == 0) {
@@ -153,7 +177,8 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			}
 			int s = e.getContentSize();
 			if (s >= SIZE_INFO_ABOVE && ((Integer) e.getFieldValue("depth")) > 1) {
-				logger.info("Large element {}, content size {}", e.getFieldValue("id"), s);
+				Entry<String, Integer> l = getLargestField(e);
+				logger.info("Large element {}, content size {}, {}:{}", e.getFieldValue("id"), s, l.getKey(), l.getValue());
 			}
 			if (!pending.add(getSolrDoc(e))) {
 				throw new IllegalArgumentException("Doc add failed for " + e);
