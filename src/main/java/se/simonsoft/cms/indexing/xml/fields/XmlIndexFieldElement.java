@@ -15,9 +15,6 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,36 +30,18 @@ import se.simonsoft.xmltracking.index.SchemaFieldNamesReposxml;
 
 public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	
-	private static final boolean ENABLE_SIBLING_ID = false;
-	
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldElement.class);
-
-	private static final int hashmapInitialCapacity = 10000;
 	
 	private SchemaFieldNames fieldNames = new SchemaFieldNamesReposxml();
-	
-	/**
-	 * not very efficient but we've done like this since the start of xml indexing, also impossible to use for next sibling
-	 * 
-	 * This map is a scalability problem making RAM requirement highly dependent on largest XML.
-	 * TODO: Consider using a separate "service" within the extraction that provides a stack of ancestors (just ancestors, not the whole tree in RAM).
-	 * Is Preceeding Sibling important? Can't the consumer of the index deduce that id based on the pos? 
-	 * Yes, but that breaks the id-strategy abstraction. Would a query on parent-id and processed pos be an acceptable alternative?  
-	 */
-	private Map<XmlSourceElement, String> assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
-	
+		
 	
 	public void endDocument() {
 		
-		assigned = new HashMap<XmlSourceElement, String>(hashmapInitialCapacity);
 	}
 	
 	@Override
 	public void begin(XmlSourceElement element, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
 		
-		// TODO: Remodel into a stack and scrap the preceding sibling feature.
-		String id = idProvider.getXmlElementId(element);
-		keepElementId(element, id);
 	}
 	
 	@Override
@@ -79,11 +58,10 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		doc.addField("depth", element.getDepth());
 		int position = element.getLocation().getOrdinal();
 		doc.addField("position", position);
-		addAncestorData(element, doc);
+		addAncestorData(element, idProvider, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
-			// This works only if ENABLE_SIBLING_ID is true (no cleanup of hashmap during end()).
-			doc.addField("id_s", getElementId(sp));
+			doc.addField("id_s", idProvider.getXmlElementId(sp));
 			doc.addField("sname", sp.getName());
 			for (XmlSourceAttribute a : sp.getAttributes()) {
 				doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
@@ -92,32 +70,19 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			logger.warn("failed to navigate to preceding sibling despite position: {}", position);
 		}
 		
-		// By removing during end() we only keep ancestors in the hashmap.
-		// This disables preceding sibling id (id_s).
-		if (!ENABLE_SIBLING_ID) {
-			assigned.remove(element);
-		}
 	}
 	
-	private void keepElementId(XmlSourceElement e, String id) {
-		assigned.put(e, id);
-	}
-	
-	private String getElementId(XmlSourceElement sp) {
-		return assigned.get(sp);
-	}
-
 
 	/**
 	 * Recursive from the actual element and up to root, aggregating field values.
 	 * @param element Initial call with the element from {@link #begin(XmlSourceElement)}
 	 * @param doc Field value holder
 	 */
-	protected void addAncestorData(XmlSourceElement element, IndexingDoc doc) {
-		addAncestorData(element, doc, new StringBuffer());
+	protected void addAncestorData(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc) {
+		addAncestorData(element, idProvider, doc, new StringBuffer());
 	}
 	
-	protected void addAncestorData(XmlSourceElement element, IndexingDoc doc, StringBuffer pos) {
+	protected void addAncestorData(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc, StringBuffer pos) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
 		
@@ -149,7 +114,7 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		}
 		// handle root or recurse
 		if (element.isRoot()) {
-			doc.addField("id_r", getElementId(element));
+			doc.addField("id_r", idProvider.getXmlElementId(element));
 			doc.addField("rname", element.getName());
 			for (XmlSourceAttribute a : element.getAttributes()) {
 				doc.addField(fieldNames.getAttributeRoot(a.getName()), a.getValue());
@@ -157,17 +122,17 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		} else {
 			XmlSourceElement parent = element.getParent();
 			if (isSelf) {
-				doc.addField("id_p", getElementId(parent));
+				doc.addField("id_p", idProvider.getXmlElementId(parent));
 				doc.addField("pname", parent.getName());
 			}
-			addAncestorData(parent, doc, pos);
+			addAncestorData(parent, idProvider, doc, pos);
 		}
 		pos.append('.').append(element.getLocation().getOrdinal());
 		if (isSelf) {
 			doc.addField("pos", pos.substring(1));
 		} else {
 			doc.addField("aname", element.getName());
-			doc.addField("id_a", getElementId(element));
+			doc.addField("id_a", idProvider.getXmlElementId(element));
 		}
 	}	
 
