@@ -34,12 +34,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private static final Logger logger = LoggerFactory.getLogger(XmlSourceHandlerFieldExtractors.class);
 	
 	private IndexingDoc baseDoc;
-	private String beseId;
+	private String baseId;
 	private Set<XmlIndexFieldExtraction> fieldExtraction;
 	private XmlIndexAddSession docHandler;
 	
-	private XmlIndexIdAppendTreeLocation idAppender = new XmlIndexIdAppendTreeLocation(); // TODO: Extract ID generation into an interface.
-
+	private XmlIndexElementId idAppender;
 	/**
 	 * @param commonFieldsDoc fieds that should be set/kept same for all elements
 	 * @param fieldExtraction the extractors to run for this xml file
@@ -47,10 +46,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	 */
 	public XmlSourceHandlerFieldExtractors(IndexingDoc commonFieldsDoc, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
 		this.baseDoc = commonFieldsDoc;
-		this.beseId = (String) commonFieldsDoc.getFieldValue("id");
-		if (beseId == null) {
+		this.baseId = (String) commonFieldsDoc.getFieldValue("id");
+		if (baseId == null) {
 			throw new IllegalArgumentException("Missing id field in indexing doc");
 		}
+		this.idAppender = new XmlIndexIdAppendTreeLocation(baseId);
 		this.fieldExtraction = fieldExtraction;
 		this.docHandler = docHandler;
 	}
@@ -77,8 +77,8 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void begin(XmlSourceElement element) {
 		
-		String id = idAppender.getIdAppended(element, this.beseId);
-		
+		String id = idAppender.getXmlElementId(element);
+
 		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
 			ex.begin(element, id);
@@ -90,7 +90,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void end(XmlSourceElement element) {
 		
-		String id = idAppender.getIdAppended(element, this.beseId);
+		String id = idAppender.getXmlElementId(element);
 		
 		IndexingDoc doc = this.baseDoc.deepCopy();
 		doc.setField("id", id);

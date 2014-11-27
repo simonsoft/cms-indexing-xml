@@ -15,14 +15,20 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
+import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
-//TODO: Define interface for ID generation.
-public class XmlIndexIdAppendTreeLocation  {
+public class XmlIndexIdAppendTreeLocation implements XmlIndexElementId {
 
+	private String baseId;
+
+	public XmlIndexIdAppendTreeLocation(String baseId) {
+		
+		this.baseId = baseId;
+	}
 	
-	
-	public String getIdAppended(XmlSourceElement processedElement, String baseId) {
+	@Override
+	public String getXmlElementId(XmlSourceElement processedElement) {
 		
 		return new String(baseId + "|" + processedElement.getLocation());
 	}
