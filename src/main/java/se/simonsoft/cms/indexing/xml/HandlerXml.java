@@ -127,6 +127,7 @@ public class HandlerXml implements IndexingItemHandler {
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
+		// TODO: Do copy of selective fields instead of clone.
 		IndexingDoc doc = fields.deepCopy();
 		return doc;
 	}
