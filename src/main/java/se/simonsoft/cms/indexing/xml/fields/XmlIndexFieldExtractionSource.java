@@ -36,7 +36,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 * This is a hack to remove Abx Change Tracking namespace from source.
 	 * Finalize Release aborts if there is CT in the document, so there should be none in Translations.
 	 */
-	private static final boolean REMOVE_ABXCT_NAMESPACE = false;
+	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
 	
 	public void endDocument() {
