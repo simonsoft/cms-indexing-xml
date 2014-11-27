@@ -35,14 +35,11 @@ import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 public class HandlerXmlTest {
 
 	@Test
 	public void testXmlSourceElementInvalid() {
-		XmlSourceReader xmlReader = new XmlSourceReaderS9api();
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
@@ -67,7 +64,6 @@ public class HandlerXmlTest {
 		HandlerXml handlerXml = new HandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
-		handlerXml.setSourceReader(xmlReader);
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);
@@ -85,7 +81,7 @@ public class HandlerXmlTest {
 
 	@Test
 	public void testXmlSourceElementFatalError() {
-		XmlSourceReader xmlReader = new XmlSourceReaderS9api();
+
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
 		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
@@ -110,7 +106,6 @@ public class HandlerXmlTest {
 		HandlerXml handlerXml = new HandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
-		handlerXml.setSourceReader(xmlReader);
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);

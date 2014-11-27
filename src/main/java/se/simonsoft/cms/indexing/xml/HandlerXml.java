@@ -33,6 +33,7 @@ import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 public class HandlerXml implements IndexingItemHandler {
@@ -45,7 +46,7 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
-	private XmlSourceReader sourceReader = new XmlSourceReaderS9api(); // Hard coding this impl for now (might want to keep injecting JDOM impl in other modules).
+	private XmlSourceReaderS9api sourceReader = new XmlSourceReaderS9api(); // 
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
@@ -68,16 +69,7 @@ public class HandlerXml implements IndexingItemHandler {
 		this.indexWriter = indexAddProvider;
 	}
 	
-	/**
-	 * Intentionally not injected since we currently want to select implementation independently
-	 * of what other modules use.
-	 * @param xmlSourceReader
-	 */
-	public void setSourceReader(XmlSourceReader xmlSourceReader) {
-		
-		this.sourceReader = xmlSourceReader;
-	}
-	
+
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();
@@ -120,7 +112,9 @@ public class HandlerXml implements IndexingItemHandler {
 		XmlIndexAddSession docHandler = indexWriter.get();
 		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		try {
-			sourceReader.read(progress.getContents(), sourceHandler);
+			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
+			// TODO: Perform repositem extraction.
+			sourceReader.handle(xmlDoc, sourceHandler);
 			// success, flag this
 			progress.getFields().addField("flag", FLAG_XML);
 		} catch (XmlNotWellFormedException e) { 
