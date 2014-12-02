@@ -52,6 +52,9 @@
 		<!-- identifies the "main" area, i.e. main branch, i.e trunk with the purpose of filtering out endless amount of copies, but does not recognize if copies have changed or not -->
 		<field name="pathmain" type="boolean" indexed="true" stored="true" multiValued="false" />		
 		
+		<!-- Custom tags from added handlers, normally used for filtering -->
+		<field name="flag" type="string" indexed="true" stored="true" multiValued="true"/>
+		
 		<!-- 
 		Index time analysis of the quality of the element for suggest/assist/reuse features, higher number is better, <0 is discouraging.
 		-->
