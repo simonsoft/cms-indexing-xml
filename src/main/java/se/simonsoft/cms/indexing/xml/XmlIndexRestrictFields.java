@@ -56,6 +56,7 @@ public class XmlIndexRestrictFields {
 		put("repoid", null);
 		put("repoparent", null);
 		put("repohost", null);
+		put("flag", null); // Using flag to communicate booleans from repositem extraction to reposxml extraction.
 		// would be useful to have urlid also, but that introduces a dependency to another handler
 	}};
 	

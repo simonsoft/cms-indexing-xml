@@ -54,6 +54,7 @@ public abstract class IndexingHandlersXml {
 			// Remove some fields that are not needed on each XML element.
 			add(IndexFieldDeletionsToSaveSpace.class);
 			// References to all child elements
+			// TODO: Re-enable content references.
 			//add(XmlIndexContentReferences.class);
 			// Source is now a separate handler, must be after IndexFieldExtractionCustomXsl.
 			add(XmlIndexFieldExtractionSource.class);

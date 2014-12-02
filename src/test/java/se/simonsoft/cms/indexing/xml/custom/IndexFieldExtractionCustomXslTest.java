@@ -447,6 +447,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<figure cms:rid=\"abc005\"><title cms:rid=\"abc006\">Title</title>Figure</figure>\n" +						
 				"</document>");
 		
+		fields.addField("flag", "hasridduplicate"); // Must flag the duplicate rid, done by repositem extraction.
 		x.end(null, null, fields);
 		
 		XmlIndexFieldExtraction r = new XmlIndexRidDuplicateDetection();
@@ -456,7 +457,7 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("<document><section><title>section title</title><p>Testing cms attributes including tvalidate.</p><p>Duplicate RID.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
 		assertEquals("abc004 abc004", fields.getFieldValue("reuseridduplicate"));
-		assertEquals(-5, fields.getFieldValue("reusevalue"));
+		assertEquals(-5, fields.getFieldValue("reusevalue")); // Requires the flag to be set by repositem extract.
 	}
 	
 	

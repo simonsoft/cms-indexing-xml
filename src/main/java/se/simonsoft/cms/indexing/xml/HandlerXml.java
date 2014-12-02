@@ -28,11 +28,11 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
+import se.simonsoft.cms.indexing.xml.custom.HandlerXmlRepositem;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
@@ -51,6 +51,8 @@ public class HandlerXml implements IndexingItemHandler {
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
 	private XmlIndexWriter indexWriter;
+	
+	private HandlerXmlRepositem handlerXmlRepositem = new HandlerXmlRepositem();
 	
 	/**
 	 * @param fieldExtraction a sequence of pluggable extractors that add fields
@@ -107,12 +109,16 @@ public class HandlerXml implements IndexingItemHandler {
 			throw new IllegalStateException("No XmlSourceHandler has been provided.");
 		}
 		
-		IndexingDoc itemDoc = cloneItemFields(progress.getFields());
 		XmlIndexAddSession docHandler = indexWriter.get();
-		XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
 		try {
 			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
-			// TODO: Perform repositem extraction.
+			// Perform repositem extraction.
+			handlerXmlRepositem.handle(progress, xmlDoc);
+			
+			// Clone the repositem document selectively. Used as base for creating one clone per element.
+			IndexingDoc itemDoc = cloneItemFields(progress.getFields());
+			XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
+			
 			sourceReader.handle(xmlDoc, sourceHandler);
 			// success, flag this
 			progress.getFields().addField("flag", FLAG_XML);
