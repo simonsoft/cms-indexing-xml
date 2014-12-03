@@ -61,7 +61,11 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		
 		Set<CmsItemId> dependencyIds = new HashSet<CmsItemId>();
 		for (String propertyName : abxProperties) {
-			dependencyIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
+			try {
+				dependencyIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
+			} catch (Exception e) {
+				logger.warn("Failed to parse {}: {}", propertyName, e.getMessage(), e);
+			}
 		}
 		
 		String refId;

@@ -56,6 +56,27 @@ public class HandlerAbxDependenciesTest {
 		
 	}
 	
+	@Test // Should NOT throw an exception.	
+	public void testInvalid() {
+		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/in valid.png\n" + // Incorrectly accepted.
+				"invalid.png\n" + // Unfortunately needed to trigger the issue.
+				"x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml\n" +
+				"x-svn:///svn/documentation^/xml/reference/cms/User_interface.xml?p=123";
+		IndexingItemProgress p = mock(IndexingItemProgress.class);
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		when(p.getFields()).thenReturn(doc);
+		when(p.getRepository()).thenReturn(new CmsRepository("http://host:123/svn/documentation"));
+		doc.addField("repohost", "host:123");
+		doc.addField("prop_abx.Dependencies", abxdeps);
+		doc.addField("ref_link", "/existing/url/");
+		
+		IndexingItemHandler handler = new HandlerAbxDependencies(new IdStrategyDefault());
+		handler.handle(p);
+		Collection<Object> refid = doc.getFieldValues("ref_abx.Dependencies");
+		assertEquals("Should have failed to add the dependencies as refid", 1, refid.size()); // Should really be zero.
+		
+	}
+	
 	@Test
 	public void testAggregatedDependenciesOnly() {
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png\n" +
