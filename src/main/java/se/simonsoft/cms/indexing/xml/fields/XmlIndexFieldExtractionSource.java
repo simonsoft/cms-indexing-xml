@@ -38,6 +38,8 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 */
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
+	private Integer MAX_CHARACTERS_SOURCE = null; //2000; // null means 'always extract source'
+	
 	
 	public void endDocument() {
 
@@ -51,7 +53,19 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	@Override
 	public void end(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc) {
 		
+		Integer depth = (Integer) doc.getFieldValue("depth");
+		if (depth == null || depth < 1) {
+			throw new IllegalStateException("The 'depth' must be extracted before 'source'");
+		}
+		
 		String source = getSource(element);
+		
+		// Always extract source for the whole file. (?)
+		if (depth != 1 && MAX_CHARACTERS_SOURCE != null && source.length() > MAX_CHARACTERS_SOURCE) {
+			logger.info("Suppressing 'source' field ({}) from index for element: {}", source.length(), element);
+			doc.removeField("source_reuse");
+			return;
+		}
 
 		if (REMOVE_ABXCT_NAMESPACE) {
 			// Remove the Arbortext CT namespace in translations.
