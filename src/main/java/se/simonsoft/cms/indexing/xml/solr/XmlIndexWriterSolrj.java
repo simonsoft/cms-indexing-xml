@@ -204,7 +204,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 //				batchTextTotal = 0;
 //			}
 			if (contentSize >= BATCH_TEXT_TOTAL_MAX) {
-				logger.warn("Reached max batch add size {} after {} elements, forcing send to solr", BATCH_TEXT_TOTAL_MAX, pending.size());
+				logger.info("Reached max batch add size {} after {} elements, forcing send to solr", BATCH_TEXT_TOTAL_MAX, pending.size());
 				batchSend(this);
 			}
 			return true;

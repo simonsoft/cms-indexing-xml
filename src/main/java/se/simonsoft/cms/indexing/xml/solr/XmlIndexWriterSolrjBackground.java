@@ -48,15 +48,21 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	@Override
 	protected void batchSend(Session session) {
 		
+		if (session.size() == 0) {
+			logger.warn("Send to solr attempted with empty document list");
+			return;
+		}
+		submitSend(session);
+	}
+	
+	private void submitSend(Session session) {
+		
 		if (executor == null) {
 			executor = Executors.newSingleThreadExecutor();
 		}
 		
 		Collection<SolrInputDocument> pending = session.rotatePending();
-		if (pending.size() == 0) {
-			logger.warn("Send to solr attempted with empty document list");
-			return;
-		}
+		
 		logger.debug("Scheduling xml batch {}, {} elements, {} total", ++count, session.size(), session.sizeContentTotal());
 		executor.submit(new IndexSend(pending, count)); // Throws RejectedExecutionException if executor is shutting down.
 	}
@@ -64,11 +70,16 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	@Override
 	protected void sessionEnd(Session session) {
 		
-		batchSend(session);
+		// Send the last batch.
+		if (session.size() != 0) {
+			submitSend(session);
+		}
+		
 		Date start = new Date();
 		waitForCompletion();
 		Date completed = new Date();
-		logger.debug("Awaited completion of Solr Background executor: {} ms", completed.getTime() - start.getTime());
+		// Logging in info level because this can show if XML processing outpaces Solr, which would build RAM consumption.
+		logger.info("Awaited completion of Solr Background executor: {} ms", completed.getTime() - start.getTime());
 	}
 	
 	// Probably needed for unit tests
