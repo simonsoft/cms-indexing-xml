@@ -22,7 +22,7 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
@@ -34,7 +34,7 @@ public class IndexingConfigXml extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);		
-		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrj.class);
+		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class); // Fallback if background sending does not work: XmlIndexWriterSolrj.class
 		
 		// XML field extraction
 		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);

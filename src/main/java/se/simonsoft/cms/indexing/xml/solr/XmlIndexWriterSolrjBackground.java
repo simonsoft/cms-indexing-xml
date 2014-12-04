@@ -15,6 +15,8 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -49,16 +52,23 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			executor = Executors.newSingleThreadExecutor();
 		}
 		
-		logger.debug("Scheduling xml batch {}, {} elements", ++count, session.size());
-		executor.submit(new IndexSend(session, count)); // Throws RejectedExecutionException if executor is shutting down.
+		Collection<SolrInputDocument> pending = session.rotatePending();
+		if (pending.size() == 0) {
+			logger.warn("Send to solr attempted with empty document list");
+			return;
+		}
+		logger.debug("Scheduling xml batch {}, {} elements, {} total", ++count, session.size(), session.sizeContentTotal());
+		executor.submit(new IndexSend(pending, count)); // Throws RejectedExecutionException if executor is shutting down.
 	}
 	
 	@Override
 	protected void sessionEnd(Session session) {
 		
 		batchSend(session);
+		Date start = new Date();
 		waitForCompletion();
-		logger.debug("Awaited completion of Solr Background executor");
+		Date completed = new Date();
+		logger.debug("Awaited completion of Solr Background executor: {} ms", completed.getTime() - start.getTime());
 	}
 	
 	// Probably needed for unit tests
@@ -75,24 +85,20 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		executor = null;
 	}
 	
-	// Access from unit tests would probably require some design changes unless we expose waiting this ugly way
-	public static void testingWaitForCompletion() {
-		// TODO in that case
-	}
 	
 	private class IndexSend implements Callable<Object> {
 		
-		private Session session;
+		private Collection<SolrInputDocument> pending;
 		private long id;
 		
-		IndexSend(Session session, long id) {
-			this.session = session;
+		IndexSend(Collection<SolrInputDocument> pending, long id) {
+			this.pending = pending;
 			this.id = id;
 		}
 		
 		@Override
 		public Object call() throws Exception {
-			doBatchSend(session);
+			doBatchSend(pending);
 			logger.debug("Scheduled batch {} completed", id);
 			return null;
 		}

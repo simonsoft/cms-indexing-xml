@@ -75,16 +75,17 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	protected void batchSend(Session session) {
 		
-		doBatchSend(session);
-	}
-	
-	protected void doBatchSend(Session session) {
-		Collection<SolrInputDocument> pending = session.pending;
+		Collection<SolrInputDocument> pending = session.rotatePending();
 		if (pending.size() == 0) {
 			logger.warn("Send to solr attempted with empty document list");
 			return;
 		}
 		logger.info("Sending {} elements size {} to Solr starting with id {}", pending.size(), session.sizeContentTotal(), pending.iterator().next().getFieldValue("id"));
+		doBatchSend(pending);
+	}
+	
+	protected void doBatchSend(Collection<SolrInputDocument> pending) {
+		
 		try {
 			solrServer.add(pending);
 		} catch (SolrServerException e) {
@@ -92,7 +93,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		} catch (IOException e) {
 			throw new RuntimeException("Error not handled", e);
 		}
-		pending.clear();
+
 	}
 	
 	protected void sessionEnd(Session session) {
@@ -143,6 +144,13 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 				return ((IndexingDocIncrementalSolrj) doc).getSolrDoc();
 			}
 			throw new IllegalArgumentException("Unsupported IndexingDoc type " + doc.getClass());
+		}
+		
+		public Collection<SolrInputDocument> rotatePending() {
+			
+			Collection<SolrInputDocument> returnPending = this.pending;
+			pending = new LinkedList<SolrInputDocument>();
+			return returnPending;
 		}
 		
 		@Override
