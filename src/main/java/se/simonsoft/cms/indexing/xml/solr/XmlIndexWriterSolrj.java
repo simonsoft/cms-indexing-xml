@@ -74,6 +74,11 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	}
 	
 	protected void batchSend(Session session) {
+		
+		doBatchSend(session);
+	}
+	
+	protected void doBatchSend(Session session) {
 		Collection<SolrInputDocument> pending = session.pending;
 		if (pending.size() == 0) {
 			logger.warn("Send to solr attempted with empty document list");

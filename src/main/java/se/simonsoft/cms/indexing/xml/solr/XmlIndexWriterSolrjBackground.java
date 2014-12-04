@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml.solr;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,12 +26,14 @@ import javax.inject.Named;
 import org.apache.solr.client.solrj.SolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+
 
 public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 
 	private final Logger logger = LoggerFactory.getLogger(XmlIndexWriterSolrjBackground.class);
 	
-	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	private ExecutorService executor = null;
 
 	private long count = 0;
 	
@@ -41,13 +44,35 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 
 	@Override
 	protected void batchSend(Session session) {
+		
+		if (executor == null) {
+			executor = Executors.newSingleThreadExecutor();
+		}
+		
 		logger.debug("Scheduling xml batch {}, {} elements", ++count, session.size());
-		executor.submit(new IndexSend(session, count));
+		executor.submit(new IndexSend(session, count)); // Throws RejectedExecutionException if executor is shutting down.
+	}
+	
+	@Override
+	protected void sessionEnd(Session session) {
+		
+		batchSend(session);
+		waitForCompletion();
+		logger.debug("Awaited completion of Solr Background executor");
 	}
 	
 	// Probably needed for unit tests
 	public void waitForCompletion() {
-		// TODO is there anything in the ExecutorService API for this?
+		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
+		executor.shutdown();
+		try {
+			executor.awaitTermination(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			String msg = MessageFormatter.format("Failed to await shutdown of Solr Background executor: {}", e.getMessage()).getMessage();
+			logger.warn(msg, e);
+			throw new RuntimeException(msg);
+		}
+		executor = null;
 	}
 	
 	// Access from unit tests would probably require some design changes unless we expose waiting this ugly way
@@ -67,7 +92,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		
 		@Override
 		public Object call() throws Exception {
-			batchSend(session);
+			doBatchSend(session);
 			logger.debug("Scheduled batch {} completed", id);
 			return null;
 		}
