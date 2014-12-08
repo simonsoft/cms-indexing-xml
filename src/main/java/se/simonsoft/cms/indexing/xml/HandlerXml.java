@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,11 @@ public class HandlerXml implements IndexingItemHandler {
 		this.indexWriter = indexAddProvider;
 	}
 	
+	//@Inject
+	public void setConfigIndexing(
+			@Named("se.simonsoft.cms.indexing.xml.maxFilesize") Integer maxFilesize) {
+		throw new UnsupportedOperationException("not implemented");
+	}
 
 	@Override
 	public void handle(IndexingItemProgress progress) {
