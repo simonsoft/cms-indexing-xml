@@ -38,7 +38,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 */
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
-	private Integer MAX_CHARACTERS_SOURCE = null; //2000; // null means 'always extract source'
+	private Integer MAX_CHARACTERS_SOURCE = 2000; // null means 'always extract source'
 	
 	
 	public void endDocument() {
@@ -58,12 +58,26 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 			throw new IllegalStateException("The 'depth' must be extracted before 'source'");
 		}
 		
+		String sourceReuse = (String) doc.getFieldValue("source_reuse");
+		if (sourceReuse == null || sourceReuse.isEmpty()) {
+			// No source_reuse, then we suppress source as well.
+			return;
+		}
+		// If source_reuse is large, we avoid getting source completely.
+		if (MAX_CHARACTERS_SOURCE != null && sourceReuse.length() > MAX_CHARACTERS_SOURCE) {
+			logger.debug("Suppressing 'source' and 'source_reuse' field ({}) from index for element: {}", sourceReuse.length(), element);
+			//doc.removeField("source_reuse");
+			// Suppress source by returning early.
+			return;
+		}
+		
+		
+		
 		String source = getSource(element);
 		
-		// Always extract source for the whole file. (?)
-		if (depth != 1 && MAX_CHARACTERS_SOURCE != null && source.length() > MAX_CHARACTERS_SOURCE) {
-			logger.info("Suppressing 'source' field ({}) from index for element: {}", source.length(), element);
-			doc.removeField("source_reuse");
+		// No longer extracting source for the whole file unconditionally.
+		if (MAX_CHARACTERS_SOURCE != null && source.length() > MAX_CHARACTERS_SOURCE) {
+			logger.debug("Suppressing 'source' field ({}) from index for element: {}", source.length(), element);
 			return;
 		}
 
