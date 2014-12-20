@@ -57,15 +57,15 @@ public class XmlIndexRestrictFields {
 		put("repoparent", null);
 		put("repohost", null);
 		put("flag", null); // Using flag to communicate booleans from repositem extraction to reposxml extraction.
-		// would be useful to have urlid also, but that introduces a dependency to another handler
+		put("urlid", null);
 	}};
 	
 	public static final Map<String, String> FIELDS_PROP_SKIP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
-		put("abx.BaseLogicalId", null);
+		put("prop_abx.BaseLogicalId", null);
 		put("prop_abx.Dependencies", null);
 		put("prop_abx.CrossRefs", null);
-		put("abx.x-raomContentStructure", null);
-		put("abx.x-raomFirstTagName", null);
+		put("prop_abx.x-raomContentStructure", null);
+		put("prop_abx.x-raomFirstTagName", null);
 		// Keeping abx:x-raomDocTypeName since it can not be extracted.
 		
 	}};
