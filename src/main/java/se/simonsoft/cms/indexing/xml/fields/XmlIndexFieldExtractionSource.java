@@ -38,7 +38,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 */
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
-	private Integer MAX_CHARACTERS_SOURCE = 2000; // null means 'always extract source'
+	private Integer MAX_CHARACTERS_SOURCE = 0; // null means 'always extract source'
 	
 	
 	public void endDocument() {
