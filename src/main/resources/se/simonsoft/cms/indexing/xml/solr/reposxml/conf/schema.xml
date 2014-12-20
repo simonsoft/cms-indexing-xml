@@ -41,6 +41,7 @@
 		<field name="pathfull"  type="string" indexed="true"  stored="true" multiValued="false"/><!-- stored during development -->
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
 		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
+		<field name="urlid"      type="string" indexed="false" stored="true" multiValued="false"/><!-- Logical ID (not indexed here) -->
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repoid"     type="string" indexed="true" stored="true" multiValued="false"/>		
 		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -211,7 +212,8 @@
 		-->
 		<dynamicField name="source_*" type="string" indexed="false" stored="true" multiValued="false" /><!-- stored during development -->
 		<dynamicField name="c_*" type="string" indexed="true" stored="true" multiValued="false" />
-		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" />
+		<dynamicField name="count_*" type="long" indexed="true" stored="true" multiValued="false" />
+		<dynamicField name="words_*" type="int" indexed="true" stored="true" multiValued="false" /><!-- Consider deprecating in favour of count_words_... -->
 		
 		<!-- 
 		Fields related to checksums of child elements
