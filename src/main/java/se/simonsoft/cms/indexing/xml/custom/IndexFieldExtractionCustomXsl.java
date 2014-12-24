@@ -299,6 +299,10 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	}
 
 	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
+	@Override
 	public void endDocument() {
 		
 	}

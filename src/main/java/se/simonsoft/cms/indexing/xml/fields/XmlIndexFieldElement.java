@@ -34,6 +34,10 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	
 	private SchemaFieldNames fieldNames = new SchemaFieldNamesReposxml();
 		
+	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
 	
 	public void endDocument() {
 		

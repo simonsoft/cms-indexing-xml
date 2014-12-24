@@ -23,6 +23,8 @@ import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
+import se.simonsoft.cms.xmlsource.content.XmlSourceLookup;
+import se.simonsoft.cms.xmlsource.content.XmlSourceLookupImpl;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
@@ -49,6 +51,9 @@ public class IndexingConfigXml extends AbstractModule {
 		
 		// hook into repos-indexing actions
 		bind(IndexAdminXml.class).asEagerSingleton();
+		
+		// Getting source from Svn
+		bind(XmlSourceLookup.class).to(XmlSourceLookupImpl.class).asEagerSingleton();
 	}
 
 }

@@ -69,6 +69,11 @@ public class XmlIndexRidDuplicateDetection implements XmlIndexFieldExtraction {
 	}
 
 	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
+	
+	@Override
 	public void endDocument() {
 		
 	}

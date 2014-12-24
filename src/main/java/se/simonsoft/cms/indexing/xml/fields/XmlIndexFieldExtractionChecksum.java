@@ -84,6 +84,10 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	}
 
 	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
+	@Override
 	public void endDocument() {
 		// TODO Should prefixes be cleaned? Very little data anyway.
 		

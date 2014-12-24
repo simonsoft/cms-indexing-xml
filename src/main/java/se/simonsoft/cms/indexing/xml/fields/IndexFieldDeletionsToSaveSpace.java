@@ -38,4 +38,9 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 		
 	}
 
+	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
+
 }

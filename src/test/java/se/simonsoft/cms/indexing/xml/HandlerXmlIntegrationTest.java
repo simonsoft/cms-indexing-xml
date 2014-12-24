@@ -278,7 +278,7 @@ public class HandlerXmlIntegrationTest {
 	}
 	
 	@Test
-	public void testAttributesReleasetranslation() throws SolrServerException {
+	public void testAttributesReleasetranslationRelease() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
@@ -306,6 +306,38 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
 		
 		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
+	}
+	
+	@Test
+	public void testAttributesReleasetranslationTranslation() throws SolrServerException {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		
+		SolrDocument elem;
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		elem = findUsingRid.get(0);
+		assertEquals("get the rid attribute", "2gyvymn15kv0001", elem.getFieldValue("a_cms.rid"));
+		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
+		
+		findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0006 AND prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find a para", 1, findUsingRid.getNumFound());
+		elem = findUsingRid.get(0);
+		assertEquals("verify it is a para", "p", elem.getFieldValue("name")); 
+		assertEquals("get the rid attribute", "2gyvymn15kv0006", elem.getFieldValue("a_cms.rid")); 
+		assertEquals("get the ancestor rid attribute (in this case parent rid)", "2gyvymn15kv0004", elem.getFieldValue("aa_cms.rid"));
+		assertEquals("get the inherited rid attribute (in this case context element rid)", "2gyvymn15kv0006", elem.getFieldValue("ia_cms.rid"));
+		assertEquals("get the root rid attribute", "2gyvymn15kv0000", elem.getFieldValue("ra_cms.rid"));
+		assertEquals("get the preceding sibling rid attribute", "2gyvymn15kv0005", elem.getFieldValue("sa_cms.rid"));
+		assertNull("get the project id attribute", elem.getFieldValue("a_cms.translation-project"));
+		assertEquals("get the parent project id attribute", "0001", elem.getFieldValue("ia_cms.translation-project"));
+		
+		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
+		assertEquals("get Release checksum (based on first test result)", "c5fed03ed1304cecce75d63aee2ada2b0f2326af", elem.getFieldValue("c_sha1_release_source_reuse"));
 	}
 
 	

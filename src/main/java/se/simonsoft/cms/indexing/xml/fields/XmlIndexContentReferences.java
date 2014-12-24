@@ -132,6 +132,11 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 		}
 		
 	}
+	
+	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
 
 	@Override
 	public void endDocument() {

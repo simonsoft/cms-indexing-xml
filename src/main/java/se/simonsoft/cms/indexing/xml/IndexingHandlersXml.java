@@ -28,6 +28,7 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexContentReferences;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionSource;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexReleaseReuseChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 
 /**
@@ -58,6 +59,8 @@ public abstract class IndexingHandlersXml {
 			//add(XmlIndexContentReferences.class);
 			// Source is now a separate handler, must be after IndexFieldExtractionCustomXsl.
 			add(XmlIndexFieldExtractionSource.class);
+			// Get checksum from the Release
+			add(XmlIndexReleaseReuseChecksum.class);
 		}
 	};
 	

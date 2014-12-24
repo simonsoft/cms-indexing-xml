@@ -63,6 +63,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 			baseDoc.setField("typesystem", doctype.getSystemID());
 		}
 		logger.debug("Source handler starts with {} fields, extractors {}", this.baseDoc.getFieldNames().size(), fieldExtraction);
+		
+		for (XmlIndexFieldExtraction ex : fieldExtraction) {
+			ex.startDocument(baseDoc);
+		}
 	}
 
 	@Override

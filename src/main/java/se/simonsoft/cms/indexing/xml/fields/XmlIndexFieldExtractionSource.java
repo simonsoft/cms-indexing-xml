@@ -40,6 +40,10 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	
 	private Integer MAX_CHARACTERS_SOURCE = 0; // null means 'always extract source'
 	
+	@Override
+	public void startDocument(IndexingDoc baseDoc) {
+		
+	}
 	
 	public void endDocument() {
 

@@ -59,6 +59,11 @@ public class HandlerXmlTest {
 			public void endDocument() {
 				
 			}
+
+			@Override
+			public void startDocument(IndexingDoc baseDoc) {
+
+			}
 		});
 		
 		HandlerXml handlerXml = new HandlerXml();
@@ -99,6 +104,11 @@ public class HandlerXmlTest {
 
 			@Override
 			public void endDocument() {
+				
+			}
+
+			@Override
+			public void startDocument(IndexingDoc baseDoc) {
 				
 			}
 		});
