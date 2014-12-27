@@ -37,7 +37,6 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
-import se.simonsoft.cms.xmlsource.content.XmlSourceLookup;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
@@ -53,7 +52,6 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private XmlSourceReaderS9api sourceReader = new XmlSourceReaderS9api();
 	private ItemContentBufferStrategy contentStrategy;
-	private XmlSourceLookup xmlLookup;
 
 	InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 			"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
@@ -66,11 +64,6 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	public XmlIndexReleaseReuseChecksum() {
 
-	}
-
-	@Inject
-	public void setXmlSourceLookup(XmlSourceLookup xmlLookup) {
-		this.xmlLookup = xmlLookup;
 	}
 
 	@Inject
@@ -151,7 +144,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		//contentsReader.getContents(xmlProgress.getRepository(), itemId.getPegRev(), itemId.getRelPath(), out);
 		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer((CmsRepositoryInspection) xmlProgress.getRepository(), new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
-		XmlSourceElementS9api releaseElement = sourceReader.buildSourceElement(sourceReader.getDocumentElement(releaseDoc.getXdmDoc()));
+		XmlSourceElementS9api releaseElement = sourceReader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(releaseDoc.getXdmDoc()));
 		// Execute Transform that calculates checksums on Release.
 		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, new HashMap<String, Object>());
 		
