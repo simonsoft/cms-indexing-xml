@@ -58,6 +58,7 @@ public class XmlIndexRestrictFields {
 		put("repohost", null);
 		put("flag", null); // Using flag to communicate booleans from repositem extraction to reposxml extraction.
 		put("urlid", null);
+		put("size", null); // Needed in order to use ItemContentsMemory to fetch Release document. 
 	}};
 	
 	public static final Map<String, String> FIELDS_PROP_SKIP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{

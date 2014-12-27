@@ -25,6 +25,7 @@ import java.util.List;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.item.Checksum;
 import se.simonsoft.cms.item.impl.ChecksumRead;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
@@ -84,7 +85,7 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	}
 
 	@Override
-	public void startDocument(IndexingDoc baseDoc) {
+	public void startDocument(XmlIndexProgress xmlProgress) {
 		
 	}
 	@Override

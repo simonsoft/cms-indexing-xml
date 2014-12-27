@@ -61,7 +61,7 @@ public class HandlerXmlTest {
 			}
 
 			@Override
-			public void startDocument(IndexingDoc baseDoc) {
+			public void startDocument(XmlIndexProgress xmlProgress) {
 
 			}
 		});
@@ -108,7 +108,7 @@ public class HandlerXmlTest {
 			}
 
 			@Override
-			public void startDocument(IndexingDoc baseDoc) {
+			public void startDocument(XmlIndexProgress xmlProgress) {
 				
 			}
 		});

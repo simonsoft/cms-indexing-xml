@@ -52,7 +52,7 @@ public interface XmlIndexFieldExtraction {
 	 * Enable handlers to prepare for the document.
 	 * @param base indexing doc that will be cloned for each element (read-only)
 	 */
-	public void startDocument(IndexingDoc baseDoc);
+	public void startDocument(XmlIndexProgress xmlProgress);
 	
 	/**
 	 * Enable handlers to clean up after document.

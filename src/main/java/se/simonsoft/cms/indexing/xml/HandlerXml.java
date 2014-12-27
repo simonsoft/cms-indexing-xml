@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.eclipse.jetty.xml.XmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,9 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.indexing.xml.custom.HandlerXmlRepositem;
+import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
@@ -114,7 +117,7 @@ public class HandlerXml implements IndexingItemHandler {
 		if (sourceReader == null) {
 			throw new IllegalStateException("No XmlSourceHandler has been provided.");
 		}
-		
+		CmsRepository r = (CmsRepositoryInspection) progress.getRepository();
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
 			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
@@ -123,7 +126,8 @@ public class HandlerXml implements IndexingItemHandler {
 			
 			// Clone the repositem document selectively. Used as base for creating one clone per element.
 			IndexingDoc itemDoc = cloneItemFields(progress.getFields());
-			XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(itemDoc, fieldExtraction, docHandler);
+			XmlIndexProgress xmlProgress = new XmlIndexProgress(progress.getRepository(), itemDoc);
+			XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(xmlProgress, fieldExtraction, docHandler);
 			
 			sourceReader.handle(xmlDoc, sourceHandler);
 			// success, flag this

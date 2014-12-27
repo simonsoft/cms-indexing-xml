@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
@@ -134,7 +135,7 @@ public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 	}
 	
 	@Override
-	public void startDocument(IndexingDoc baseDoc) {
+	public void startDocument(XmlIndexProgress xmlProgress) {
 		
 	}
 

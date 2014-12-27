@@ -20,6 +20,7 @@ import java.util.Collection;
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
@@ -69,7 +70,7 @@ public class XmlIndexRidDuplicateDetection implements XmlIndexFieldExtraction {
 	}
 
 	@Override
-	public void startDocument(IndexingDoc baseDoc) {
+	public void startDocument(XmlIndexProgress xmlProgress) {
 		
 	}
 	

@@ -33,6 +33,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlSourceHandlerFieldExtractors.class);
 	
+	private XmlIndexProgress xmlProgress;
 	private IndexingDoc baseDoc;
 	private String baseId;
 	private Set<XmlIndexFieldExtraction> fieldExtraction;
@@ -44,9 +45,10 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	 * @param fieldExtraction the extractors to run for this xml file
 	 * @param docHandler Where to put the documents for each element that has been completed
 	 */
-	public XmlSourceHandlerFieldExtractors(IndexingDoc commonFieldsDoc, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
-		this.baseDoc = commonFieldsDoc;
-		this.baseId = (String) commonFieldsDoc.getFieldValue("id");
+	public XmlSourceHandlerFieldExtractors(XmlIndexProgress xmlProgress, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
+		this.xmlProgress = xmlProgress;
+		this.baseDoc = xmlProgress.getBaseDoc();
+		this.baseId = (String) this.baseDoc.getFieldValue("id");
 		if (baseId == null) {
 			throw new IllegalArgumentException("Missing id field in indexing doc");
 		}
@@ -65,7 +67,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		logger.debug("Source handler starts with {} fields, extractors {}", this.baseDoc.getFieldNames().size(), fieldExtraction);
 		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
-			ex.startDocument(baseDoc);
+			ex.startDocument(this.xmlProgress);
 		}
 	}
 
