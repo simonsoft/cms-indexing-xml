@@ -57,7 +57,7 @@ public class HandlerAbxDependenciesTest {
 		
 	}
 	
-	@Test // Should NOT throw an exception.	
+	@Test
 	public void testInvalid() {
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/in valid.png\n" + // Incorrectly accepted.
 				"invalid.png\n" + // Unfortunately needed to trigger the issue.
@@ -77,6 +77,7 @@ public class HandlerAbxDependenciesTest {
 			fail("Expected HandlerException in handler.");
 		} catch (HandlerException ex) {
 			// expected
+			assertTrue(ex.getMessage().startsWith("Failed to parse abx.Dependencies"));
 		}
 		Collection<Object> refid = doc.getFieldValues("ref_abx.Dependencies");
 		assertEquals("Should have failed to add the dependencies as refid", 1, refid.size()); // Should really be zero.
