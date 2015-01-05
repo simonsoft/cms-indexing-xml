@@ -29,6 +29,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsItemPath;
@@ -135,5 +136,60 @@ public class HandlerXmlTest {
 		
 		assertEquals("Should have called the extract method", 1, calls.size());
 	}	
+	
+	
+	@Test
+	public void testHandlerXmlFilesize() {
+
+		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
+		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
+		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
+		fe.add(new XmlIndexFieldExtraction() {
+			@Override
+			public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
+				
+			}
+			
+			@Override
+			public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException {
+				calls.add(processedElement);
+				throw new RuntimeException("should not extract");
+			}
+
+			@Override
+			public void endDocument() {
+				
+			}
+
+			@Override
+			public void startDocument(XmlIndexProgress xmlProgress) {
+				
+			}
+		});
+		
+		HandlerXml handlerXml = new HandlerXml();
+		handlerXml.setDependenciesIndexing(indexWriter);
+		handlerXml.setFieldExtraction(fe);
+		handlerXml.setConfigIndexing(10 * 1048576);
+		
+		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
+		when(p1i.isFile()).thenReturn(true);
+		when(p1i.getFilesize()).thenReturn(11 * 1048576L);
+		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
+		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
+		p1f.addField("id", "base-id");
+		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
+		when(p1.getItem()).thenReturn(p1i);
+		when(p1.getFields()).thenReturn(p1f);
+		when(p1.getContents()).thenReturn(new ByteArrayInputStream("<p>P</p>".getBytes()));
+		try {
+			handlerXml.handle(p1); // should catch and log the exception but proceed to next item
+			fail("Should not proceed on unknown indexing errors, because we might unknowingly get an incomplete index");
+		} catch (IndexingHandlerException e) {
+			// expected
+		}
+		
+		assertEquals("Should NOT have called the extract method", 0, calls.size());
+	}
 	
 }

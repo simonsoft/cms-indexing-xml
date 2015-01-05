@@ -30,6 +30,7 @@ import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 
 public class IndexingConfigXml extends AbstractModule {
 
@@ -54,6 +55,9 @@ public class IndexingConfigXml extends AbstractModule {
 		
 		// Getting source from Svn
 		bind(XmlSourceLookup.class).to(XmlSourceLookupImpl.class).asEagerSingleton();
+		
+		// Set up test config defaults.
+		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));
 	}
 
 }

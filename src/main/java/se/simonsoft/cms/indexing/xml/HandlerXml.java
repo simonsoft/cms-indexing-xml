@@ -23,6 +23,7 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
@@ -56,6 +57,8 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	private HandlerXmlRepositem handlerXmlRepositem = new HandlerXmlRepositem();
 	
+	private Integer maxFilesize = null;
+	
 	/**
 	 * @param fieldExtraction a sequence of pluggable extractors that add fields
 	 * @param xmlSourceReader that processes the XML into {@link XmlSourceElement}s for the extractors
@@ -73,10 +76,11 @@ public class HandlerXml implements IndexingItemHandler {
 		this.indexWriter = indexAddProvider;
 	}
 	
-	//@Inject
+	@Inject
 	public void setConfigIndexing(
 			@Named("se.simonsoft.cms.indexing.xml.maxFilesize") Integer maxFilesize) {
-		throw new UnsupportedOperationException("not implemented");
+		
+		this.maxFilesize = maxFilesize;
 	}
 
 	@Override
@@ -95,7 +99,11 @@ public class HandlerXml implements IndexingItemHandler {
 				} else {
 					indexWriter.deletePath(progress.getRepository(), c);
 					
-					// TODO: Determine if the XML file was large.
+					// Determine if the XML file is too large.
+					if (maxFilesize != null && c.getFilesize() > maxFilesize) {
+						String msg = MessageFormatter.format("Deferring XML extraction when file size {} > {}: " + c, c.getFilesize(), maxFilesize).getMessage();
+						throw new IndexingHandlerException(msg);
+					}
 					
 					try {
 						index(progress);
