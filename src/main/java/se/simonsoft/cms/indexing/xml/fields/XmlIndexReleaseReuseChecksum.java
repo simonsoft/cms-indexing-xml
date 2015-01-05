@@ -17,6 +17,7 @@ package se.simonsoft.cms.indexing.xml.fields;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,9 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
+import se.repos.indexing.HandlerException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.ItemContentBuffer;
 import se.repos.indexing.item.ItemContentBufferStrategy;
@@ -86,9 +89,13 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		if (this.ridChecksums != null && rid != null) {
 			String releaseChecksum = this.ridChecksums.get(rid);
 			if (releaseChecksum == null || releaseChecksum.isEmpty()) {
-				logger.warn("RID {} missing in Release: {}", rid, this.releaseId);
-				// TODO: Add some flag?
+				String msg = MessageFormatter.format("RID {} missing in Release: {}", rid, this.releaseId).getMessage();
+				logger.warn(msg);
+				throw new HandlerException(msg);
+				// Verifies that elements have not been removed from Release. Will not notice if elements without RID have been added to Translation.
+				// This could trigger error if the Translation has inline element with RID, but the Release does not.
 			}
+			// TODO: Identify if there are missing elements in Translation. Perhaps introduce a "Validate Translation" early in HandlerXml instead.
 
 			fields.addField(RELEASE_CHECKSUM, releaseChecksum);
 			logger.info("Added Release checksum {} to RID {}", releaseChecksum, rid);
@@ -112,27 +119,31 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		logger.info("File is a Translation: " + id);
 		String tmProp = (String) baseDoc.getFieldValue("prop_abx.TranslationMaster");
 		if (tmProp == null) {
-			throw new IllegalArgumentException("Document can not be classified 'translation' when TranslationMaster is not specified.");
+			throw new HandlerException("Document can not be classified 'translation' when TranslationMaster is not specified.");
 		}
 
 		CmsItemId tmId = new CmsItemIdArg(tmProp);
 		// The version of Release requested must be same as indexed.
 		CmsItemId revId = tmId.withPegRev(rev);
 		
+		Date start = new Date();
 		XmlSourceDocumentS9api docReuse;
 		try {
 			docReuse = getDocumentChecksum(xmlProgress, revId);
 		} catch (Exception e) {
-			logger.warn("Failed to process related Release document: {}", revId, e);
-			// TODO: Set some flag or throw good exception!
-			return;
+			String msg = MessageFormatter.format("Failed to process related Release document: {}", revId, e).getMessage();
+			logger.warn(msg);
+			throw new HandlerException(msg);
+					
 		}
 
 		XmlSourceAttributeMapRid map = new XmlSourceAttributeMapRid("c_sha1_source_reuse");
 		sourceReader.handle(docReuse, map);
 		this.ridChecksums = map.getAttributeMap();
 		this.releaseId = tmId;
-		logger.info("Processed RID-map ({}) for Release: {}", this.ridChecksums.size(), tmId);
+		Date end = new Date();
+		logger.info("Processed RID-map ({}) in {} ms for Release: {}", this.ridChecksums.size(), end.getTime() - start.getTime(), tmId);
+		// TODO: Send to a cache.
 	}
 
 	private XmlSourceDocumentS9api getDocumentChecksum(XmlIndexProgress xmlProgress, CmsItemId itemId) {

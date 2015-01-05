@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
-			<version>0.8.0</version>
+			<version>0.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-testing</artifactId>
-			<version>0.8.2</version>
+			<version>0.9-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

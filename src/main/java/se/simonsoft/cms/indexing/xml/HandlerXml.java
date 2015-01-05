@@ -100,6 +100,9 @@ public class HandlerXml implements IndexingItemHandler {
 					boolean expunge = true;
 					logger.warn("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
 					indexWriter.commit(expunge);
+					
+					// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
+					// Perhaps a deletePath and commit.
 				}
 			} else {
 				logger.trace("Ignoring content update item {}, not an XML candidate file type", c);
@@ -132,6 +135,7 @@ public class HandlerXml implements IndexingItemHandler {
 		} catch (XmlNotWellFormedException e) { 
 			// We assume that fulltext indexing will get the same error and set a text_error for this item.
 			// Otherwise there'll be no trace other than the log of why the file was skipped.
+			// TODO: Throw HandlerException.
 			logger.error("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause(), e);
 			// Leave a trace, but don't overwrite text_error
 			progress.getFields().addField("flag", FLAG_XML + "error");
