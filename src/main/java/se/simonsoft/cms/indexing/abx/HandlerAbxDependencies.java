@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.repos.indexing.HandlerException;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
@@ -66,7 +66,7 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 				dependencyIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
 			} catch (Exception e) {
 				logger.warn("Failed to parse {}: {}", propertyName, e.getMessage(), e);
-				throw new HandlerException("Failed to parse " + propertyName + ": " + e.getMessage(), e);
+				throw new IndexingHandlerException("Failed to parse " + propertyName + ": " + e.getMessage(), e);
 			}
 		}
 		

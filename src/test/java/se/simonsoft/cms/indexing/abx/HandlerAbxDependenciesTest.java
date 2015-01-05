@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import se.repos.indexing.HandlerException;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.simonsoft.cms.item.indexing.IdStrategyDefault;
@@ -75,7 +75,7 @@ public class HandlerAbxDependenciesTest {
 		try {
 			handler.handle(p);
 			fail("Expected HandlerException in handler.");
-		} catch (HandlerException ex) {
+		} catch (IndexingHandlerException ex) {
 			// expected
 			assertTrue(ex.getMessage().startsWith("Failed to parse abx.Dependencies"));
 		}
