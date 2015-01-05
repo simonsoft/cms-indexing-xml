@@ -152,6 +152,8 @@ public class HandlerXml implements IndexingItemHandler {
 			// success, flag this
 			progress.getFields().addField("flag", FLAG_XML);
 		} catch (XmlNotWellFormedException e) { 
+			// failure, flag with error
+			progress.getFields().addField("flag", FLAG_XML + "error");
 			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
