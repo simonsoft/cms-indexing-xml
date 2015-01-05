@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-import se.repos.indexing.HandlerException;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.ItemContentBuffer;
 import se.repos.indexing.item.ItemContentBufferStrategy;
@@ -91,7 +91,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			if (releaseChecksum == null || releaseChecksum.isEmpty()) {
 				String msg = MessageFormatter.format("RID {} missing in Release: {}", rid, this.releaseId).getMessage();
 				logger.warn(msg);
-				throw new HandlerException(msg);
+				throw new IndexingHandlerException(msg);
 				// Verifies that elements have not been removed from Release. Will not notice if elements without RID have been added to Translation.
 				// This could trigger error if the Translation has inline element with RID, but the Release does not.
 			}
@@ -119,7 +119,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		logger.info("File is a Translation: " + id);
 		String tmProp = (String) baseDoc.getFieldValue("prop_abx.TranslationMaster");
 		if (tmProp == null) {
-			throw new HandlerException("Document can not be classified 'translation' when TranslationMaster is not specified.");
+			throw new IndexingHandlerException("Document can not be classified 'translation' when TranslationMaster is not specified.");
 		}
 
 		CmsItemId tmId = new CmsItemIdArg(tmProp);
@@ -133,7 +133,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		} catch (Exception e) {
 			String msg = MessageFormatter.format("Failed to process related Release document: {}", revId, e).getMessage();
 			logger.warn(msg);
-			throw new HandlerException(msg);
+			throw new IndexingHandlerException(msg);
 					
 		}
 
