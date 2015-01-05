@@ -152,12 +152,9 @@ public class HandlerXml implements IndexingItemHandler {
 			// success, flag this
 			progress.getFields().addField("flag", FLAG_XML);
 		} catch (XmlNotWellFormedException e) { 
-			// We assume that fulltext indexing will get the same error and set a text_error for this item.
-			// Otherwise there'll be no trace other than the log of why the file was skipped.
-			// TODO: Throw HandlerException.
-			logger.error("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause(), e);
-			// Leave a trace, but don't overwrite text_error
-			progress.getFields().addField("flag", FLAG_XML + "error");
+			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
+			logger.error(msg, e);
+			throw new IndexingHandlerException(msg, e);
 		}
 	}
 	
