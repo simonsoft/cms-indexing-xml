@@ -24,6 +24,7 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
@@ -93,16 +94,26 @@ public class HandlerXml implements IndexingItemHandler {
 					indexWriter.deletePath(progress.getRepository(), c);
 				} else {
 					indexWriter.deletePath(progress.getRepository(), c);
-					index(progress);
-					// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
-					// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
-					// TODO: Determine if the XML file was large.
-					boolean expunge = true;
-					logger.warn("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
-					indexWriter.commit(expunge);
 					
-					// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
-					// Perhaps a deletePath and commit.
+					// TODO: Determine if the XML file was large.
+					
+					try {
+						index(progress);
+						// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
+						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
+						boolean expunge = true;
+						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
+						indexWriter.commit(expunge);
+					} catch (IndexingHandlerException ex) {
+						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
+						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
+						indexWriter.deletePath(progress.getRepository(), c);
+						indexWriter.commit(true);
+						// The message/stacktrace in exception will be logged in repositem.
+						throw ex;
+					}
+					
+					
 				}
 			} else {
 				logger.trace("Ignoring content update item {}, not an XML candidate file type", c);
