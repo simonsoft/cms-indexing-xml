@@ -15,10 +15,24 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XPathCompiler;
+import net.sf.saxon.s9api.XPathExecutable;
+import net.sf.saxon.s9api.XPathSelector;
+import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XdmValue;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -37,6 +51,10 @@ import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformerService;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 public class HandlerXmlLargeFileTest {
 
@@ -93,5 +111,59 @@ public class HandlerXmlLargeFileTest {
 		assertNull(e1.getFieldValue("prop_abx.Dependencies"));
 		*/
 	}
+	
+	
+	@Test
+	public void testSingle860kReuseNormalize() throws Exception {
+		
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		Source xslt = new StreamSource(xsl);
+		
+		TransformerService t = TransformerServiceFactory.buildTransformerService(xslt);
+				
+		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
+		
+		XmlSourceReaderS9api reader = new XmlSourceReaderS9api();
+		XmlSourceDocumentS9api sDoc = reader.read(xml);
+		
+		// Not yet happy with the XmlSourceReaderS9api APIs regarding XmlSourceDocumentS9api.
+		XmlSourceDocumentS9api rDoc = t.transform(reader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(sDoc.getXdmDoc())), null);
+		
+		assertChecksums(rDoc);
+	}
 
+	private void assertChecksums(XmlSourceDocumentS9api doc) {
+		
+		XdmNode root = doc.getXdmDoc();
+		XPathCompiler xpath = root.getProcessor().newXPathCompiler(); // Getting exception here, one that Saxon author did not expect to ever happen.
+		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
+		
+		String ATTRNAME = "cms:c_sha1_source_reuse";
+		HashMap<String, String> tests = new HashMap<String, String>();
+		tests.put("/document", "a90bbfb8ea5aaac6b406959f9d998903c1722106");
+		
+		try {
+			XPathExecutable xe1 = xpath.compile("/document/@docno");
+			XPathSelector xs1 = xe1.load();
+			xs1.setContextItem(root);
+			XdmValue r1 = xs1.evaluate();
+			assertEquals("Basic test of XPath", "docno=\"T559600\"", r1.toString());
+			
+			for (Entry<String, String> t : tests.entrySet()) {
+				XPathExecutable xe = xpath.compile(t.getKey() + "/@" + ATTRNAME);
+				XPathSelector xs = xe.load();
+				xs.setContextItem(root);
+				assertEquals(t.getValue(), xs.evaluateSingle().getStringValue());
+			}
+			
+			
+		} catch (SaxonApiException e) {
+
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
 }
