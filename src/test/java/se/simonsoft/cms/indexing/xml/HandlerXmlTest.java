@@ -80,8 +80,12 @@ public class HandlerXmlTest {
 		when(p1.getItem()).thenReturn(p1i);
 		when(p1.getFields()).thenReturn(p1f);
 		when(p1.getContents()).thenReturn(new ByteArrayInputStream("<p>P</p>".getBytes()));
-		handlerXml.handle(p1); // should catch and log the exception but proceed to next item
-		
+		try {
+			handlerXml.handle(p1); // should catch and log the exception but proceed to next item
+			fail("should catch and log the exception but proceed to next item");
+		} catch (IndexingHandlerException e) {
+			// expected
+		}	
 		assertEquals("Should have called the extract method", 1, calls.size());
 	}
 
