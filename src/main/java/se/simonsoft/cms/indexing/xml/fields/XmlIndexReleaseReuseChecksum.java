@@ -42,6 +42,7 @@ import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
@@ -53,19 +54,25 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
 
-	private XmlSourceReaderS9api sourceReader = new XmlSourceReaderS9api();
+	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
+	private TransformerServiceFactory transformerService;
 
 	InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 			"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
-	private TransformerService t = TransformerServiceFactory.buildTransformerService(new StreamSource(xsl));
+	private TransformerService t;
 
 	private Map<String, String> ridChecksums = null;
 	private CmsItemId releaseId = null;
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexReleaseReuseChecksum.class);
 
-	public XmlIndexReleaseReuseChecksum() {
+	@Inject
+	public XmlIndexReleaseReuseChecksum(XmlSourceReader sourceReader, TransformerServiceFactory transformerService) {
+		
+		this.sourceReader = (XmlSourceReaderS9api) sourceReader;
+		this.transformerService = transformerService;
+		t = transformerService.buildTransformerService(new StreamSource(xsl));
 
 	}
 

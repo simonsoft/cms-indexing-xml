@@ -67,7 +67,6 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexFieldExtractionCustomXsl.class);
 
-	private transient Configuration config = XmlSourceReaderS9api.getConfiguration();
 	private transient Processor processor;
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
@@ -88,13 +87,12 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	//private static final QName R_ATTR_PARAM = new QName("root-attributes");
 	
 	@Inject
-	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource) {
+	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource, Processor processor) {
+		this.processor = processor;
 		init(xslSource.getXslt());
 	}
 	
 	private void init(Source xslt) {
-		
-		processor = new Processor(config);
 		
 		XsltCompiler compiler = processor.newXsltCompiler();
 		try {
@@ -259,7 +257,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		
 		
 		try {
-			XdmNode node = element.getElement();			
+			XdmNode node = element.getElementXdm();			
 			transformer.setInitialContextNode(node);
 			
 		} catch (Exception e) {

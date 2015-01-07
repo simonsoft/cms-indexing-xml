@@ -21,6 +21,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import net.sf.saxon.s9api.Processor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -49,15 +51,27 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
-	private XmlSourceReaderS9api sourceReader = new XmlSourceReaderS9api(); // 
+	private Processor processor;
+	
+	private XmlSourceReaderS9api sourceReader;
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
 	private XmlIndexWriter indexWriter;
 	
-	private HandlerXmlRepositem handlerXmlRepositem = new HandlerXmlRepositem();
+	private HandlerXmlRepositem handlerXmlRepositem;
 	
 	private Integer maxFilesize = null;
+	
+	
+	@Inject
+	public HandlerXml(Processor processor, XmlSourceReaderS9api sourceReader) {
+		
+		this.processor = processor;
+		this.sourceReader = sourceReader;
+		
+		this.handlerXmlRepositem = new HandlerXmlRepositem(processor);
+	}
 	
 	/**
 	 * @param fieldExtraction a sequence of pluggable extractors that add fields

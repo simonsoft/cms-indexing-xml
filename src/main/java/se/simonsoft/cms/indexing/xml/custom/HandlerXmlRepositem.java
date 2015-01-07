@@ -22,7 +22,6 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.saxon.Configuration;
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.QName;
@@ -44,7 +43,6 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
-import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 
 /**
  * Extract XML information for repositem core.
@@ -56,7 +54,6 @@ public class HandlerXmlRepositem {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerXmlRepositem.class);
 
-	private transient Configuration config = XmlSourceReaderS9api.getConfiguration();
 	private transient Processor processor;
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
@@ -68,7 +65,9 @@ public class HandlerXmlRepositem {
 	private static final QName STATUS_PARAM = new QName("document-status");
 
 	@Inject
-	public HandlerXmlRepositem() {
+	public HandlerXmlRepositem(Processor processor) {
+		
+		this.processor = processor;
 		// Hard-coding the XSL for now. Need to discuss whether to inject or configure with svn properties.
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
@@ -76,8 +75,6 @@ public class HandlerXmlRepositem {
 	}
 
 	private void init(Source xslt) {
-
-		processor = new Processor(config);
 
 		XsltCompiler compiler = processor.newXsltCompiler();
 		try {

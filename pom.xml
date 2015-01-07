@@ -38,6 +38,12 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
 			<version>0.15-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jdom2</artifactId>
+					<groupId>org.jdom</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>	
 	  	<dependency>
 	  		<groupId>org.apache.solr</groupId>

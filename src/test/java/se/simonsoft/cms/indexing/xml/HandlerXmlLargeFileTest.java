@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathExecutable;
@@ -51,6 +52,7 @@ import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
@@ -59,6 +61,8 @@ import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 public class HandlerXmlLargeFileTest {
 
 	private ReposTestIndexing indexing;
+	TransformerServiceFactory tf;
+	XmlSourceReaderS9api sourceReader;
 	
 	private long startTime = 0;
 	
@@ -73,6 +77,10 @@ public class HandlerXmlLargeFileTest {
 				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
 				.addModule(new IndexingConfigXml());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
+		
+		Processor p = new SaxonConfiguration().get();
+		sourceReader = new XmlSourceReaderS9api(p);
+		tf = new TransformerServiceFactory(p, sourceReader);
 	}
 	
 	@After
@@ -120,16 +128,15 @@ public class HandlerXmlLargeFileTest {
 				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
 		Source xslt = new StreamSource(xsl);
 		
-		TransformerService t = TransformerServiceFactory.buildTransformerService(xslt);
+		TransformerService t = tf.buildTransformerService(xslt);
 				
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
 		
-		XmlSourceReaderS9api reader = new XmlSourceReaderS9api();
-		XmlSourceDocumentS9api sDoc = reader.read(xml);
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml);
 		
 		// Not yet happy with the XmlSourceReaderS9api APIs regarding XmlSourceDocumentS9api.
-		XmlSourceDocumentS9api rDoc = t.transform(reader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(sDoc.getXdmDoc())), null);
+		XmlSourceDocumentS9api rDoc = t.transform(sourceReader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(sDoc.getXdmDoc())), null);
 		
 		assertChecksums(rDoc);
 	}

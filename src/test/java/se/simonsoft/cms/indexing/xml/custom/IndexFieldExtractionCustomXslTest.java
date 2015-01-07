@@ -23,6 +23,8 @@ import java.io.InputStream;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.s9api.Processor;
+
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
@@ -31,9 +33,12 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
+import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 
 public class IndexFieldExtractionCustomXslTest {
+	
+	Processor p = new SaxonConfiguration().get();
 
 	@Test
 	public void test() {
@@ -45,7 +50,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -78,7 +83,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -117,7 +122,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -147,7 +152,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -175,7 +180,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -207,7 +212,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -239,7 +244,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -270,7 +275,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -299,7 +304,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -332,7 +337,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -369,7 +374,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -403,7 +408,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -432,7 +437,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});
+		}, p);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -475,7 +480,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});		
+		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -522,7 +527,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});		
+		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -580,7 +585,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});		
+		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -628,7 +633,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});		
+		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -686,7 +691,7 @@ public class IndexFieldExtractionCustomXslTest {
 				assertNotNull("Should find an xsl file to test with", xsl);
 				return new StreamSource(xsl);
 			}
-		});	
+		}, p);	
 		
 		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
@@ -713,7 +718,7 @@ public class IndexFieldExtractionCustomXslTest {
 		// but does the current element "source" concept handle entities that are actually declared?
 		String element = "<p>Conference R&D;</p>";
 		
-		XmlIndexFieldExtraction xsl = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault());
+		XmlIndexFieldExtraction xsl = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault(), p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(element);

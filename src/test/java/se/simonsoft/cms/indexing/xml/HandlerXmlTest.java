@@ -26,19 +26,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 public class HandlerXmlTest {
 
+	private Injector injector;
+	
+	@Before
+	public void setUp() {
+		
+		injector = Guice.createInjector(new IndexingConfigXml());
+		
+	}
+	
 	@Test
 	public void testXmlSourceElementInvalid() {
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
@@ -67,7 +82,8 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = new HandlerXml();
+		
+		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		
@@ -118,7 +134,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = new HandlerXml();
+		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		
@@ -171,7 +187,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = new HandlerXml();
+		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		handlerXml.setConfigIndexing(10 * 1048576);
