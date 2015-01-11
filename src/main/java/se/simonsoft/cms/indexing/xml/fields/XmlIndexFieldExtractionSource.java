@@ -39,7 +39,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 */
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
-	private Integer MAX_CHARACTERS_SOURCE = 0; // null means 'always extract source'
+	private Integer MAX_CHARACTERS_SOURCE = 1000; // null means 'always extract source'
 	
 	@Override
 	public void startDocument(XmlIndexProgress xmlProgress) {
@@ -71,7 +71,8 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 		// If source_reuse is large, we avoid getting source completely.
 		if (MAX_CHARACTERS_SOURCE != null && sourceReuse.length() > MAX_CHARACTERS_SOURCE) {
 			logger.debug("Suppressing 'source' and 'source_reuse' field ({}) from index for element: {}", sourceReuse.length(), element);
-			//doc.removeField("source_reuse");
+			// Remove source_reuse which is added by another field extractor.
+			doc.removeField("source_reuse");
 			// Suppress source by returning early.
 			return;
 		}
