@@ -78,7 +78,14 @@ public class HandlerXmlLargeFileTest {
 				.addModule(new IndexingConfigXml());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
 		
-		Processor p = SaxonConfiguration.getForTesting();
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
+		assumeResourceExists(repoSource, "/T501007.xml");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		Processor p = indexing.getContext().getInstance(Processor.class);
 		sourceReader = new XmlSourceReaderS9api(p);
 		tf = new TransformerServiceFactory(p, sourceReader);
 	}
@@ -99,12 +106,7 @@ public class HandlerXmlLargeFileTest {
 	
 	@Test
 	public void testSingle860k() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
-		assumeResourceExists(repoSource, "/T501007.xml");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
 
 		SolrServer reposxml = indexing.getCore("reposxml");
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
