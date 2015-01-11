@@ -54,18 +54,7 @@ public class IndexingConfigXmlBase extends AbstractModule {
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
-		// This base config uses a stub to avoid a full setup.
-		bind(XmlIndexWriter.class).to(XmlIndexWriterStub.class);
-				
-		// XML field extraction
-		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
-		IndexingHandlersXml.configureXmlFieldExtraction(fieldExtraction);		
-		// Used in field extraction. We don't have a strategy yet for placement of the custom xsl, read from jar
-		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
-		bind(IndexFieldExtractionCustomXsl.class).asEagerSingleton();
-		
-		// This base config uses a stub to avoid a full setup.
-		bind(ItemContentBufferStrategy.class).to(ItemContentBufferStub.class);
+
 		
 		// Set up test config defaults.
 		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));

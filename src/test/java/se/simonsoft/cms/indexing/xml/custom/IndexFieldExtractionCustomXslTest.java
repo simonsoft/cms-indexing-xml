@@ -39,6 +39,7 @@ import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 
 import com.google.inject.Guice;
@@ -52,7 +53,7 @@ public class IndexFieldExtractionCustomXslTest {
 	@Before
 	public void setUp() {
 		
-		injector = Guice.createInjector(new IndexingConfigXmlBase());
+		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
 		p = injector.getInstance(Processor.class);
 	}
 

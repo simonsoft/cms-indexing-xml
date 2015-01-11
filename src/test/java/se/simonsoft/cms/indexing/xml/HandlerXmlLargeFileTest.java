@@ -50,21 +50,35 @@ import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSource;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
 import se.simonsoft.cms.item.CmsItemPath;
-import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public class HandlerXmlLargeFileTest {
 
+	private Injector injector;
+	private Processor p;
 	private ReposTestIndexing indexing;
-	TransformerServiceFactory tf;
-	XmlSourceReaderS9api sourceReader;
+	private TransformerServiceFactory tf;
+	private XmlSourceReaderS9api sourceReader;
 	
 	private long startTime = 0;
+	
+
+	
+	@Before
+	public void setUp() {
+		
+		
+		
+	}
 	
 	/**
 	 * Manual dependency injection.
@@ -73,19 +87,15 @@ public class HandlerXmlLargeFileTest {
 	public void setUpIndexing() {
 		startTime = System.currentTimeMillis();
 		
+		injector = Guice.createInjector(new IndexingConfigXmlBase());
+		
 		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
 				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXml());
+				.addModule(new IndexingConfigXmlDefault());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
 		
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
-		assumeResourceExists(repoSource, "/T501007.xml");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		Processor p = indexing.getContext().getInstance(Processor.class);
+		p = injector.getInstance(Processor.class);
 		sourceReader = new XmlSourceReaderS9api(p);
 		tf = new TransformerServiceFactory(p, sourceReader);
 	}
@@ -107,14 +117,20 @@ public class HandlerXmlLargeFileTest {
 	@Test
 	public void testSingle860k() throws Exception {
 		
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
+		assumeResourceExists(repoSource, "/T501007.xml");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml), injector);
 
 		SolrServer reposxml = indexing.getCore("reposxml");
-		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
+		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
 		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
 		
 		SolrDocument e1 = all.get(0);
 		
-		assertEquals(79, e1.getFieldNames().size());
+		assertEquals(80, e1.getFieldNames().size());
 		//assertEquals("...", e1.getFieldValue("pathname"));
 		/* Can not assert on props since repositem is not involved.
 		assertEquals("xml", e1.getFieldValue("prop_abx.ContentType"));

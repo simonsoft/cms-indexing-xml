@@ -15,7 +15,11 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -39,7 +43,8 @@ import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
 
 public class HandlerXmlIntegrationTest {
 
@@ -52,7 +57,8 @@ public class HandlerXmlIntegrationTest {
 	public void setUpIndexing() {
 		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
 				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXml());
+				.addModule(new IndexingConfigXmlBase())
+				.addModule(new IndexingConfigXmlDefault());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
 	}
 	

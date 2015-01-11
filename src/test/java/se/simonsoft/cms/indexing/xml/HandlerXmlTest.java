@@ -33,8 +33,8 @@ import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
@@ -50,8 +50,7 @@ public class HandlerXmlTest {
 	@Before
 	public void setUp() {
 		
-		injector = Guice.createInjector(new IndexingConfigXmlBase());
-		
+		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
 	}
 	
 	@Test
