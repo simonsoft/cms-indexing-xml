@@ -17,10 +17,14 @@ package se.simonsoft.cms.indexing.xml.testconfig;
 
 import javax.inject.Singleton;
 
+import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
+
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.s9api.Processor;
-import se.repos.indexing.IndexingItemHandler;
-import se.simonsoft.cms.indexing.xml.IndexAdminXml;
+import se.repos.indexing.item.ItemContentBufferStrategy;
+import se.repos.indexing.twophases.ItemContentsMemory;
+import se.simonsoft.cms.backend.svnkit.svnlook.CmsContentsReaderSvnkitLook;
+import se.simonsoft.cms.backend.svnkit.svnlook.SvnlookClientProviderStateless;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
@@ -28,9 +32,8 @@ import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
+import se.simonsoft.cms.item.inspection.CmsContentsReader;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
-import se.simonsoft.cms.xmlsource.content.XmlSourceLookup;
-import se.simonsoft.cms.xmlsource.content.XmlSourceLookupImpl;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
@@ -41,7 +44,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
-public class IndexingConfigXml extends AbstractModule {
+public class IndexingConfigXmlBase extends AbstractModule {
 
 	@Override
 	protected void configure() {
@@ -50,9 +53,10 @@ public class IndexingConfigXml extends AbstractModule {
 		transformerFunctions.addBinding().to(GetChecksum.class);
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
-		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);		
-		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class); // Fallback if background sending does not work: XmlIndexWriterSolrj.class
-		
+		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
+		// This base config uses a stub to avoid a full setup.
+		bind(XmlIndexWriter.class).to(XmlIndexWriterStub.class);
+				
 		// XML field extraction
 		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
 		IndexingHandlersXml.configureXmlFieldExtraction(fieldExtraction);		
@@ -60,13 +64,8 @@ public class IndexingConfigXml extends AbstractModule {
 		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
 		bind(IndexFieldExtractionCustomXsl.class).asEagerSingleton();
 		
-		// Item indexing, add XML handler
-		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
-		IndexingHandlersXml.configureFirst(handlers);
-		IndexingHandlersXml.configureLast(handlers);
-		
-		// hook into repos-indexing actions
-		bind(IndexAdminXml.class).asEagerSingleton();
+		// This base config uses a stub to avoid a full setup.
+		bind(ItemContentBufferStrategy.class).to(ItemContentBufferStub.class);
 		
 		// Set up test config defaults.
 		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));

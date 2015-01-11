@@ -15,8 +15,14 @@
  */
 package se.simonsoft.cms.indexing.xml.custom;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 
@@ -25,20 +31,30 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.s9api.Processor;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
-import se.simonsoft.cms.xmlsource.SaxonConfiguration;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class IndexFieldExtractionCustomXslTest {
 	
-	Processor p = new SaxonConfiguration().get();
+	private Injector injector;
+	Processor p;
+	
+	@Before
+	public void setUp() {
+		
+		injector = Guice.createInjector(new IndexingConfigXmlBase());
+		p = injector.getInstance(Processor.class);
+	}
 
 	@Test
 	public void test() {

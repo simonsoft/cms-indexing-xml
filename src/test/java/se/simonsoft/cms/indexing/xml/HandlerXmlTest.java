@@ -29,19 +29,19 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXml;
+import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
-import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class HandlerXmlTest {
 
@@ -50,7 +50,7 @@ public class HandlerXmlTest {
 	@Before
 	public void setUp() {
 		
-		injector = Guice.createInjector(new IndexingConfigXml());
+		injector = Guice.createInjector(new IndexingConfigXmlBase());
 		
 	}
 	

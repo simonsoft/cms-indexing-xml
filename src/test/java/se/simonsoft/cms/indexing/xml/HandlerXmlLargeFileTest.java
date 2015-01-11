@@ -78,7 +78,7 @@ public class HandlerXmlLargeFileTest {
 				.addModule(new IndexingConfigXml());
 		indexing = ReposTestIndexing.getInstance(indexOptions);
 		
-		Processor p = new SaxonConfiguration().get();
+		Processor p = SaxonConfiguration.getForTesting();
 		sourceReader = new XmlSourceReaderS9api(p);
 		tf = new TransformerServiceFactory(p, sourceReader);
 	}
