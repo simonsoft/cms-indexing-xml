@@ -56,7 +56,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
-	private TransformerServiceFactory transformerService;
+	private TransformerServiceFactory transformerServiceFactory;
 
 	InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 			"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
@@ -68,11 +68,11 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexReleaseReuseChecksum.class);
 
 	@Inject
-	public XmlIndexReleaseReuseChecksum(XmlSourceReader sourceReader, TransformerServiceFactory transformerService) {
+	public XmlIndexReleaseReuseChecksum(XmlSourceReader sourceReader, TransformerServiceFactory transformerServiceFactory) {
 		
 		this.sourceReader = (XmlSourceReaderS9api) sourceReader;
-		this.transformerService = transformerService;
-		t = transformerService.buildTransformerService(new StreamSource(xsl));
+		this.transformerServiceFactory = transformerServiceFactory;
+		t = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
 
 	}
 
@@ -105,7 +105,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			// TODO: Identify if there are missing elements in Translation. Perhaps introduce a "Validate Translation" early in HandlerXml instead.
 
 			fields.addField(RELEASE_CHECKSUM, releaseChecksum);
-			logger.info("Added Release checksum {} to RID {}", releaseChecksum, rid);
+			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
 		}
 	}
 
@@ -130,7 +130,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		}
 
 		CmsItemId tmId = new CmsItemIdArg(tmProp);
-		// The version of Release requested must be same as indexed.
+		// The version of Release requested must be same as indexed (Release is same commit or most recent).
 		CmsItemId revId = tmId.withPegRev(rev);
 		
 		Date start = new Date();
@@ -155,11 +155,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private XmlSourceDocumentS9api getDocumentChecksum(XmlIndexProgress xmlProgress, CmsItemId itemId) {
 
-		// Requires lookup, which is available in webapp and testing but not in indexing.
-		//XmlSourceElementS9api releaseDoc = (XmlSourceElementS9api) xmlLookup.getElementDocument(revId);
-		// XmlSourceDocumentS9api docReuse = t.transform(releaseDoc, new HashMap<String, Object>());
-		// Not sure how we could access content here without using the deprecated multi-repo methods.
-		//contentsReader.getContents(xmlProgress.getRepository(), itemId.getPegRev(), itemId.getRelPath(), out);
+		// Possible to use the XmlSourceReader in combination with the Indexing Content Buffer concept.
+		// The ItemContentBuffer API are multi-repo and should remain that way.
 		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer((CmsRepositoryInspection) xmlProgress.getRepository(), new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
 		XmlSourceElementS9api releaseElement = sourceReader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(releaseDoc.getXdmDoc()));
@@ -171,6 +168,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	@Override
 	public void endDocument() {
+		// Clearing the RID data structures. Too dangerous to do caching by just keeping them.
 		this.ridChecksums = null;
 		this.releaseId = null;
 
