@@ -34,16 +34,16 @@
 		CMS item fields.
 		-->
 		<field name="path"     type="string" indexed="true"  stored="true"  multiValued="false"/>
-		<field name="pathname" type="string" indexed="false"  stored="false" multiValued="false"/>
-		<field name="pathext"  type="string" indexed="false"  stored="false" multiValued="false"/>
-		<field name="pathdir"  type="string" indexed="false"  stored="false" multiValued="false"/>
+		<field name="pathname" type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathext"  type="string" indexed="true"  stored="false" multiValued="false"/>
+		<field name="pathdir"  type="string" indexed="true"  stored="false" multiValued="false"/>
 		<field name="pathin"   type="string" indexed="true"  stored="false" multiValued="true"/>
 		<field name="pathfull"  type="string" indexed="true"  stored="true" multiValued="false"/><!-- stored during development -->
 		<field name="rev"  type="long" indexed="true" stored="true" multiValued="false"/>
 		<field name="revt" type="date" indexed="true" stored="true" multiValued="false"/>
 		<field name="urlid"      type="string" indexed="false" stored="true" multiValued="false"/><!-- Logical ID (not indexed here) -->
 		<field name="repo"       type="string" indexed="true" stored="true" multiValued="false"/>
-		<field name="repoid"     type="string" indexed="false" stored="true" multiValued="false"/>		
+		<field name="repoid"     type="string" indexed="true" stored="true" multiValued="false"/>		
 		<field name="repoparent" type="string" indexed="true" stored="true" multiValued="false"/>
 		<field name="repohost"   type="string" indexed="true" stored="true" multiValued="false"/>
 		<dynamicField name="prop_*" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -88,9 +88,9 @@
 		<!--
 		Doctype
 		-->
-		<field name="typename"   type="string" indexed="false" stored="true" multiValued="false"/>
-		<field name="typepublic" type="string" indexed="false" stored="true" multiValued="false"/>
-		<field name="typesystem" type="string" indexed="false" stored="true" multiValued="false"/>
+		<field name="typename"   type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="typepublic" type="string" indexed="true" stored="true" multiValued="false"/>
+		<field name="typesystem" type="string" indexed="true" stored="true" multiValued="false"/>
 
 		<!--
 		XML element name including namespace
@@ -140,11 +140,11 @@
 			multiValued="false" />
 
 		<!-- Namespaces introduced on this element. -->
-		<dynamicField name="ns_*" type="string" indexed="false" stored="true" multiValued="false" />
+		<dynamicField name="ns_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- Namespaces inherited and introduced on this elemen. -->
-		<dynamicField name="ins_*" type="string" indexed="false" stored="true" multiValued="false" />
+		<dynamicField name="ins_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- Namespaces unused below this element. -->
-		<field name="ns_unused" type="string" indexed="false" stored="true" multiValued="true" />
+		<field name="ns_unused" type="string" indexed="true" stored="true" multiValued="true" />
 			
 		<!--
 		Parent element name
@@ -182,7 +182,7 @@
 		Preceding sibling's attributes 
 		-->
 		<dynamicField name="sa_*" type="string"
-			indexed="false" stored="true"
+			indexed="true" stored="true"
 			multiValued="false" />
 			
 		<!--
