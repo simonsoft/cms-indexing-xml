@@ -98,8 +98,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		try {
 			xsltCompiled = compiler.compile(xslt);
 		} catch (SaxonApiException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error not handled", e);
+			throw new RuntimeException("Error not handled: " + e.getMessage(), e);
 		}
 		
 		transformer = xsltCompiled.load();
