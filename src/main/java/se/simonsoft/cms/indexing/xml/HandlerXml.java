@@ -115,7 +115,7 @@ public class HandlerXml implements IndexingItemHandler {
 					
 					// Determine if the XML file is too large.
 					if (maxFilesize != null && c.getFilesize() > maxFilesize) {
-						String msg = MessageFormatter.format("Deferring XML extraction when file size {} > {}: " + c, c.getFilesize(), maxFilesize).getMessage();
+						String msg = MessageFormatter.format("Deferring XML extraction when file size {} gt {}: " + c, c.getFilesize(), maxFilesize).getMessage();
 						throw new IndexingHandlerException(msg);
 					}
 					
