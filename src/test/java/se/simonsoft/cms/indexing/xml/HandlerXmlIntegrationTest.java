@@ -89,6 +89,9 @@ public class HandlerXmlIntegrationTest {
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertEquals("Issue with duplicate flag?", 1, flags.size());
+		
+		//Statistics in repositem schema
+		assertEquals("Should count elements", 4L, flagged.get(0).getFieldValue("count_elements"));
 
 		assertEquals("Should index all elements", 4, reposxml.query(new SolrQuery("*:*")).getResults().size());
 		
