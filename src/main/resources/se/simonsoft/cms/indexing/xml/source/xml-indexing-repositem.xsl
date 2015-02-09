@@ -61,9 +61,8 @@
 			<field name="text"><xsl:value-of select="$text"/></field>
 			
 			<!-- Word count is simple when each word is a text node. -->
-			<!-- 
-			<field name="words_text"><xsl:value-of select="count($text)"/></field>
-			-->
+			<field name="count_words_text"><xsl:value-of select="count($text)"/></field>
+
 			
 			<!-- Lists all duplicated RID (duplicates included twice) -->
 			<!-- Rids should not be duplicated in the document, but that can only be identified from the root node.-->
