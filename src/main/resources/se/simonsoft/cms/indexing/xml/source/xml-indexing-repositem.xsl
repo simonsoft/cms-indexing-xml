@@ -36,6 +36,7 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
+		<xsl:variable name="titles" select="//title"/>
 	
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
         <xsl:if test="$cms-namespace-source!='http://www.simonsoft.se/namespace/cms'">
@@ -61,7 +62,10 @@
 			
 			<!-- Title, there is a specific field in repositem schema -->
 			<!-- Do we need to normalize the content? -->
-			<field name="title"><xsl:value-of select="//title[1]"/></field>
+			<xsl:if test="$titles">
+				<field name="title"><xsl:value-of select="$titles[1]"/></field>
+			</xsl:if>
+			
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
