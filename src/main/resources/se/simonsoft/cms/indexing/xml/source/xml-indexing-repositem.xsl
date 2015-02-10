@@ -35,6 +35,7 @@
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
+		<xsl:variable name="root" select="."/>
 	
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
         <xsl:if test="$cms-namespace-source!='http://www.simonsoft.se/namespace/cms'">
@@ -49,12 +50,21 @@
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
 		<doc>
-
 			<!-- TODO: name and attributes -->
 
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
+			
+			<xsl:if test="@cms:twords">
+				<field name="count_twords_total"><xsl:value-of select="@cms:twords"/></field>
+				
+				<xsl:for-each select="distinct-values(//@cms:tstatus)">
+					<xsl:variable name="status" select="."/> 
+					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
+					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
+				</xsl:for-each>
+			</xsl:if>
 			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
