@@ -50,8 +50,18 @@
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
 		<doc>
-			<!-- TODO: name and attributes -->
-
+			<!-- name and attributes -->
+			<!-- using the embd_ field for now -->
+			<!-- TODO: Decision on field names, some test coverage in xml-tracking. -->
+			<field name="embd_name"><xsl:value-of select="name($root)"/></field>
+			<xsl:for-each select="$root/@*">
+				<xsl:variable name="fieldname" select="concat('embd_a_', replace(name(.), ':', '.'))"/>
+				<field name="{$fieldname}"><xsl:value-of select="."/></field>
+			</xsl:for-each>
+			
+			<!-- Title, there is a specific field in repositem schema -->
+			<!-- Do we need to normalize the content? -->
+			<field name="title"><xsl:value-of select="//title[1]"/></field>
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
