@@ -71,7 +71,7 @@
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
 			
 			<xsl:if test="@cms:twords">
-				<field name="count_twords_total"><xsl:value-of select="@cms:twords"/></field>
+				<field name="count_twords"><xsl:value-of select="@cms:twords"/></field>
 				
 				<xsl:for-each select="distinct-values(//@cms:tstatus)">
 					<xsl:variable name="status" select="."/> 
