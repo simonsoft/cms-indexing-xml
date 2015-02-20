@@ -30,7 +30,11 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
  */
 public class XmlFileFilterExtensionAndSvnMimeType implements XmlFileFilter {
 
-	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml", "dita", "ditamap", "xlf", "xhtml", "html", "htm", "svg"));
+	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml", "dita", "ditamap", 
+			"xlf", 
+			"xhtml", "html", "htm", 
+			"x-svg" // #871 Disabling SVG until we can protect SolR from whatever.
+			));
 
 	@Override
 	public boolean isXml(CmsChangesetItem c, IndexingDoc fields) {
