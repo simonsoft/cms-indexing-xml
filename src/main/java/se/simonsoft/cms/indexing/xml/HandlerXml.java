@@ -70,7 +70,7 @@ public class HandlerXml implements IndexingItemHandler {
 		this.processor = processor;
 		this.sourceReader = sourceReader;
 		
-		this.handlerXmlRepositem = new HandlerXmlRepositem(processor);
+		this.handlerXmlRepositem = new HandlerXmlRepositem(this.processor);
 	}
 	
 	/**
@@ -150,6 +150,12 @@ public class HandlerXml implements IndexingItemHandler {
 		if (sourceReader == null) {
 			throw new IllegalStateException("No XmlSourceHandler has been provided.");
 		}
+		
+		boolean indexReposxml = true;
+		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Obsolete".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
+			logger.info("Suppressing reposxml indexing of 'Obsolete' item: {}", progress.getItem());
+			indexReposxml = false;
+		}
 
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
@@ -157,14 +163,16 @@ public class HandlerXml implements IndexingItemHandler {
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
 			
-			// Clone the repositem document selectively. Used as base for creating one clone per element.
-			IndexingDoc itemDoc = cloneItemFields(progress.getFields());
-			XmlIndexProgress xmlProgress = new XmlIndexProgress(progress.getRepository(), itemDoc);
-			XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(xmlProgress, fieldExtraction, docHandler);
+			if (indexReposxml) {
+				// Clone the repositem document selectively. Used as base for creating one clone per element.
+				IndexingDoc itemDoc = cloneItemFields(progress.getFields());
+				XmlIndexProgress xmlProgress = new XmlIndexProgress(progress.getRepository(), itemDoc);
+				XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(xmlProgress, fieldExtraction, docHandler);
 			
-			sourceReader.handle(xmlDoc, sourceHandler);
-			// success, flag this
-			progress.getFields().addField("flag", FLAG_XML);
+				sourceReader.handle(xmlDoc, sourceHandler);
+				// success, flag this
+				progress.getFields().addField("flag", FLAG_XML);
+			}
 		} catch (XmlNotWellFormedException e) { 
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML + "error");
