@@ -192,15 +192,14 @@ public class HandlerXmlLargeFileTest {
 
 		XmlSourceDocumentS9api sDoc = sourceReader.read(xml);
 
-		// Not yet happy with the XmlSourceReaderS9api APIs regarding XmlSourceDocumentS9api.
-		XmlSourceDocumentS9api rDoc = t.transform(sourceReader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(sDoc.getXdmDoc())), null);
+		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
 		assertChecksums(rDoc);
 	}
 
 	private void assertChecksums(XmlSourceDocumentS9api doc) {
 
-		XdmNode root = doc.getXdmDoc();
+		XdmNode root = doc.getDocumentNodeXdm(); // Not sure...
 		XPathCompiler xpath = root.getProcessor().newXPathCompiler(); // Getting exception here, one that Saxon author did not expect to ever happen.
 		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
 

@@ -159,7 +159,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// The ItemContentBuffer API are multi-repo and should remain that way.
 		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer((CmsRepositoryInspection) xmlProgress.getRepository(), new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
-		XmlSourceElementS9api releaseElement = sourceReader.buildSourceElement(XmlSourceReaderS9api.getDocumentElement(releaseDoc.getXdmDoc()));
+		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
 		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, new HashMap<String, Object>());
 		

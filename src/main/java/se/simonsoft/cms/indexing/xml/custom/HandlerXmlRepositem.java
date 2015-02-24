@@ -93,7 +93,7 @@ public class HandlerXmlRepositem {
 		CmsChangesetItem processedFile = progress.getItem();
 
 		try {
-			XdmNode node = xmlDoc.getXdmDoc();
+			XdmNode node = xmlDoc.getDocumentNodeXdm(); //Starting from the actual DOCUMENT node.
 			transformer.setInitialContextNode(node);
 
 		} catch (Exception e) {
