@@ -161,7 +161,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
 		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
-		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, new HashMap<String, Object>());
+		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, null);
 		
 		return docReuse;
 	}
