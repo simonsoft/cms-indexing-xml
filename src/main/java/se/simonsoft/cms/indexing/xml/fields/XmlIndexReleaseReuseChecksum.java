@@ -18,7 +18,6 @@ package se.simonsoft.cms.indexing.xml.fields;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -28,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.ItemContentBuffer;
 import se.repos.indexing.item.ItemContentBufferStrategy;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
@@ -161,7 +160,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
 		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
-		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, new HashMap<String, Object>());
+		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, null);
 		
 		return docReuse;
 	}
