@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
@@ -103,6 +104,11 @@ public class XmlIndexRestrictFields {
 		
 		for (String name : keepComplete) {
 			Collection<Object> values = itemDoc.getFieldValues(name);
+			
+			// Scenario-testing triggered a situation where a field exists but the value is null.
+			if (values == null) {
+				throw new IndexingHandlerException("The field '" + name + "' exists but contains null.");
+			}
 			
 			for (Object val: values) {
 				clone.addField(name, val);
