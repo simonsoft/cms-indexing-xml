@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -117,7 +116,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 			DocumentBuilderFactory factory =
 					DocumentBuilderFactory.newInstance();
 			// then we have to create document-loader:
-			DocumentBuilder loader = factory.newDocumentBuilder();
+			javax.xml.parsers.DocumentBuilder loader = factory.newDocumentBuilder();
 
 			// createing a new DOM-document...
 			org.w3c.dom.Document document = loader.newDocument();
