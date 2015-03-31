@@ -202,6 +202,10 @@
 		<!-- Suppress content of ph elements (inserted/replaced during publishing) but allow all attributes to propagate. -->
 	</xsl:template>
 	
+	<xsl:template match="varref/node()" mode="source-reuse-child" priority="90">
+		<!-- Suppress content of varref elements (used by some customers before Keyref) but allow all attributes to propagate. -->
+	</xsl:template>
+	
 	
 	<!-- Text Normalization -->
 
