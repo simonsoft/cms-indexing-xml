@@ -47,7 +47,7 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndSvnMimeType(); // TODO inject, important customization point
+	private XmlFileFilter xmlFileFilter = new XmlFileFilterExtensionAndTikaContentType(); // TODO inject, important customization point
 	
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
@@ -96,7 +96,7 @@ public class HandlerXml implements IndexingItemHandler {
 		
 		this.maxFilesize = maxFilesize;
 	}
-
+	
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();

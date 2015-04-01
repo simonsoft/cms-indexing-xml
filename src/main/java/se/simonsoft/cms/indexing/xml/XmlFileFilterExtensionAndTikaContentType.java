@@ -35,11 +35,21 @@ public class XmlFileFilterExtensionAndTikaContentType implements XmlFileFilter {
 			"xhtml", "html", "htm", 
 			"x-svg" // #871 Disabling SVG until we can protect SolR from whatever.
 			));
+	private Set<String> contentTypesToTry = new HashSet<String>(Arrays.asList(
+			"application/xml",
+			"application/xhtml+xml",
+			"application/dita+xml"
+			));
 
 	@Override
 	public boolean isXml(CmsChangesetItem c, IndexingDoc fields) {
 		// TODO legacy behavior now, add check for svn prop
-		return extensionsToTry.contains(c.getPath().getExtension());
+		return extensionsToTry.contains(c.getPath().getExtension()) &&
+				contentTypesToTry.contains(parseContentType((String)fields.getFieldValue("embd_Content-Type")));	
+	}
+	
+	protected String parseContentType(String contentType) {
+		return contentType != null && contentType.contains(";") ? contentType.split(";")[0].trim() : contentType;
 	}
 	
 }
