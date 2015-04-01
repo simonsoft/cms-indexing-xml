@@ -29,6 +29,8 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
  * or detected content type from fulltext/metadata extraction.
  */
 public class XmlFileFilterExtensionAndTikaContentType implements XmlFileFilter {
+	
+	private static final String CONTENT_TYPE_KEY = "embd_Content-Type";
 
 	private Set<String> extensionsToTry = new HashSet<String>(Arrays.asList("xml", "dita", "ditamap", 
 			"xlf", 
@@ -44,12 +46,15 @@ public class XmlFileFilterExtensionAndTikaContentType implements XmlFileFilter {
 	@Override
 	public boolean isXml(CmsChangesetItem c, IndexingDoc fields) {
 		// TODO legacy behavior now, add check for svn prop
-		return extensionsToTry.contains(c.getPath().getExtension()) &&
-				contentTypesToTry.contains(parseContentType((String)fields.getFieldValue("embd_Content-Type")));	
+		return extensionsToTry.contains(c.getPath().getExtension()) && (!fields.containsKey(CONTENT_TYPE_KEY) ||
+				contentTypesToTry.contains(parseContentType((String)fields.getFieldValue(CONTENT_TYPE_KEY))));	
 	}
 	
 	protected String parseContentType(String contentType) {
-		return contentType != null && contentType.contains(";") ? contentType.split(";")[0].trim() : contentType;
+		if (contentType != null) {
+			contentType = contentType.contains(";") ? contentType.split(";")[0].trim() : contentType.trim();
+		}
+		return contentType;
 	}
 	
 }
