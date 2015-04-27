@@ -100,10 +100,7 @@ public class HandlerXml implements IndexingItemHandler {
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();
-		if (c.isOverwritten()) {
-			logger.debug("Head indexing skips later overwritten {} at {}", c.getPath(), progress.getRevision());
-			return;
-		}
+		
 		if (c.isFile()) {
 			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
@@ -152,6 +149,11 @@ public class HandlerXml implements IndexingItemHandler {
 		}
 		
 		boolean indexReposxml = true;
+		CmsChangesetItem c = progress.getItem();
+		if (c.isOverwritten()) {
+			logger.debug("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
+			indexReposxml = false;
+		}
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Obsolete".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Obsolete' item: {}", progress.getItem());
 			indexReposxml = false;
