@@ -190,7 +190,7 @@ public class HandlerXmlLargeFileTest {
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
 
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xml);
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
@@ -225,6 +225,30 @@ public class HandlerXmlLargeFileTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+	}
+	
+	/**
+	 * Intended to demonstrate whether a small file also triggers issues with PushbackInputStream on build server.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testTinyReuseNormalize() throws Exception {
+
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		Source xslt = new StreamSource(xsl);
+
+		TransformerService t = tf.buildTransformerService(xslt);
+
+		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/indexing/xml/datasets/tiny-inline/test1.xml");
+
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); 
+
+		@SuppressWarnings("unused")
+		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
+
 	}
 
 }
