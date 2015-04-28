@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -154,6 +155,8 @@ public class HandlerXmlLargeFileTest {
 		*/
 
 		assertChecksums(reposxml);
+		
+		fail("Just investigating why build server skips this test...");
 	}
 
 	private void assertChecksums(SolrServer reposxml) {
@@ -190,7 +193,8 @@ public class HandlerXmlLargeFileTest {
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
 
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
+		XmlSourceDocumentS9api sDoc = sourceReader.read(new BufferedInputStream(xml));
+		//XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
