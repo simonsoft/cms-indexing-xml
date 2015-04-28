@@ -20,8 +20,12 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -155,8 +159,6 @@ public class HandlerXmlLargeFileTest {
 		*/
 
 		assertChecksums(reposxml);
-		
-		fail("Just investigating why build server skips this test...");
 	}
 
 	private void assertChecksums(SolrServer reposxml) {
@@ -190,12 +192,19 @@ public class HandlerXmlLargeFileTest {
 
 		TransformerService t = tf.buildTransformerService(xslt);
 
+		/*
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
 
-		XmlSourceDocumentS9api sDoc = sourceReader.read(new BufferedInputStream(xml));
 		//XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
-
+		*/
+		
+		// The classloader returns a file:/.. URL.
+		InputStream xml = new FileInputStream(new File(this.getClass().getClassLoader().getResource(
+				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml").toURI()));
+				
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml);
+		
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
 		assertChecksums(rDoc);
