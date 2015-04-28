@@ -19,12 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -199,11 +195,11 @@ public class HandlerXmlLargeFileTest {
 		//XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
 		*/
 		
-		// The classloader returns a file:/.. URL.
-		InputStream xml = new FileInputStream(new File(this.getClass().getClassLoader().getResource(
-				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml").toURI()));
-				
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xml);
+		// The classloader returns different forms of URLs depending how classes are loaded.
+		URL xml = this.getClass().getClassLoader().getResource(
+				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
+		System.out.println("Resource URL: " + xml);
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml.openStream());
 		
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
