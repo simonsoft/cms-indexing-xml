@@ -15,14 +15,11 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -67,6 +64,13 @@ import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+/**
+ * These tests require test data that is large and non-Open-Source.
+ * 
+ * The tests will be skipped unless T501007.xml is exported into the dataset single-860k, see scenario-testing.
+ * 
+ * TODO: The tests should also be executed in scenario-testing. Ensures that the shipped combinations of jars passes and provides consistent checksums.
+ */
 public class HandlerXmlLargeFileTest {
 
 	private Injector injector;
@@ -75,6 +79,8 @@ public class HandlerXmlLargeFileTest {
 	private TransformerServiceFactory tf;
 	private XmlSourceReaderS9api sourceReader;
 
+	private String classPath = "se/simonsoft/cms/indexing/xml/datasets/";
+	
 	private long startTime = 0;
 
 	private static HashMap<String, String> tests = new HashMap<String, String>();
@@ -134,8 +140,9 @@ public class HandlerXmlLargeFileTest {
 
 	@Test
 	public void testSingle860k() throws Exception {
-
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/single-860k");
+		
+		// NOTE: The test will be skipped if T501007.xml is not provided.
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
 		assumeResourceExists(repoSource, "/T501007.xml");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
@@ -183,6 +190,10 @@ public class HandlerXmlLargeFileTest {
 	@Test
 	public void testSingle860kReuseNormalize() throws Exception {
 
+		// NOTE: The test will be skipped if T501007.xml is not provided.
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
+		assumeResourceExists(repoSource, "/T501007.xml");
+				
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
 		Source xslt = new StreamSource(xsl);
@@ -190,19 +201,10 @@ public class HandlerXmlLargeFileTest {
 		TransformerService t = tf.buildTransformerService(xslt);
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
+				classPath.concat("single-860k/T501007.xml"));
 
-		//XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
-		
-		// The classloader returns different forms of URLs depending how classes are loaded. Null on Jenkins.
-		
-		URL xmlUrl = this.getClass().getClassLoader().getResource(
-				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
-		
-		System.out.println("Resource URL: " + xmlUrl);
-		
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xmlUrl.openStream());
-		
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
+
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
 		assertChecksums(rDoc);
@@ -239,26 +241,16 @@ public class HandlerXmlLargeFileTest {
 	}
 	
 	/**
-	 * Intended to demonstrate whether a small file also triggers issues with PushbackInputStream on build server.
+	 * Intended to flag that 'T501007.xml' is not provided.
 	 * 
-	 * @throws Exception
 	 */
 	@Test
-	public void testTinyReuseNormalize() throws Exception {
-
-		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
-		Source xslt = new StreamSource(xsl);
-
-		TransformerService t = tf.buildTransformerService(xslt);
+	public void testDatasetAvailable() {
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/indexing/xml/datasets/tiny-inline/test1.xml");
-
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); 
-
-		@SuppressWarnings("unused")
-		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
+				classPath.concat("single-860k/T501007.xml"));
+		
+		assertNotNull("The dataset file 'T501007.xml' is required in order to execute all tests.'", xml);
 
 	}
 
