@@ -44,6 +44,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.testing.indexing.ReposTestIndexing;
@@ -244,8 +245,8 @@ public class HandlerXmlLargeFileTest {
 	 * Intended to flag that 'T501007.xml' is not provided.
 	 * 
 	 */
-	@Test
-	public void testDatasetAvailable() {
+	@Test @Ignore
+	public void testSingle860kDatasetAvailable() {
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				classPath.concat("single-860k/T501007.xml"));
