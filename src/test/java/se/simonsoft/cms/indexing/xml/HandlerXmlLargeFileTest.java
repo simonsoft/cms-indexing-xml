@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -188,18 +189,19 @@ public class HandlerXmlLargeFileTest {
 
 		TransformerService t = tf.buildTransformerService(xslt);
 
-		/*
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
 
 		//XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when getting the 860k resource.
-		*/
 		
-		// The classloader returns different forms of URLs depending how classes are loaded.
-		URL xml = this.getClass().getClassLoader().getResource(
+		// The classloader returns different forms of URLs depending how classes are loaded. Null on Jenkins.
+		
+		URL xmlUrl = this.getClass().getClassLoader().getResource(
 				"se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml");
-		System.out.println("Resource URL: " + xml);
-		XmlSourceDocumentS9api sDoc = sourceReader.read(xml.openStream());
+		
+		System.out.println("Resource URL: " + xmlUrl);
+		
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xmlUrl.openStream());
 		
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
