@@ -60,10 +60,10 @@
 				<field name="{$fieldname}"><xsl:value-of select="."/></field>
 			</xsl:for-each>
 			
-			<!-- Title, there is a specific field in repositem schema -->
+			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
 			<!-- Do we need to normalize the content? -->
 			<xsl:if test="$titles">
-				<field name="title"><xsl:value-of select="$titles[1]"/></field>
+				<field name="embd_title"><xsl:value-of select="$titles[1]"/></field>
 			</xsl:if>
 			
 			
