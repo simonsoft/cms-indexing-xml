@@ -136,6 +136,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		XmlSourceDocumentS9api docReuse;
 		try {
 			docReuse = getDocumentChecksum(xmlProgress, revId);
+		} catch (UnsupportedOperationException e) {
+			throw new RuntimeException("The indexing backend can not support this handler.", e);
 		} catch (Exception e) {
 			String msg = MessageFormatter.format("Failed to process related Release document: {}", revId, e).getMessage();
 			logger.warn(msg);
