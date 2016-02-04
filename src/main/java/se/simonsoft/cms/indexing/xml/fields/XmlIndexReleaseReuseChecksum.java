@@ -121,11 +121,19 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			logger.debug("File is not a Translation: " + id);
 			return;
 		}
-
+		
 		logger.info("File is a Translation: " + id);
 		String tmProp = (String) baseDoc.getFieldValue("prop_abx.TranslationMaster");
 		if (tmProp == null) {
 			throw new IndexingHandlerException("Document can not be classified 'translation' when TranslationMaster is not specified.");
+		}
+		
+		// Make sure the Translation was made with CMS 2.0 or later.
+		// Verifying property containing the top RID would make most sense but it might not be set on very early Translations.
+		String tProjectProp = (String) baseDoc.getFieldValue("prop_abx.TranslationProject");
+		if (tProjectProp == null) {
+			logger.info("File is a Translation created with CMS 1.x: " + id);
+			return;
 		}
 
 		CmsItemId tmId = new CmsItemIdArg(tmProp);
