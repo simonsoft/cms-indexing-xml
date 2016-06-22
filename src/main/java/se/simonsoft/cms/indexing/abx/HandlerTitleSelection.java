@@ -57,7 +57,7 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 		for(String key: getFieldKeys()) {
 			if(doc.containsKey(key)){
 			 	String value = doc.getFieldValues(key).iterator().next().toString();
-				if(value != null && !value.equals("")) {
+				if(value != null && !value.trim().equals("")) {
 					doc.setField(TITLE_FIELD, value);
 					logger.info("Indexing value from: " + key + ", the value: " + value);
 					break;
