@@ -54,6 +54,7 @@
 			<!-- name and attributes -->
 			<!-- using the embd_ field for now -->
 			<!-- TODO: Decision on field names, some test coverage in xml-tracking. -->
+			<!-- NOTE: Indexing will fail if field name overlaps with Tika extraction. -->
 			<field name="embd_name"><xsl:value-of select="name($root)"/></field>
 			<xsl:for-each select="$root/@*">
 				<xsl:variable name="fieldname" select="concat('embd_a_', replace(name(.), ':', '.'))"/>
@@ -63,7 +64,7 @@
 			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
 			<!-- Do we need to normalize the content? -->
 			<xsl:if test="$titles">
-				<field name="embd_title"><xsl:value-of select="$titles[1]"/></field>
+				<field name="embd_xml_title"><xsl:value-of select="$titles[1]"/></field>
 			</xsl:if>
 			
 			
