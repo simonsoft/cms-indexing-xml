@@ -39,7 +39,8 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 	public HandlerTitleSelection() {
 		super();
 		fieldTitleKeys.add("prop_cms.title");
-		fieldTitleKeys.add("embd_title");
+		fieldTitleKeys.add("embd_xml_title"); // cms-indexing-xml
+		fieldTitleKeys.add("embd_title"); // Tika
 		fieldTitleKeys.add("xmp_dc.title");
 		fieldTitleKeys.add("xmp_dc.subject");
 		fieldTitleKeys.add("xmp_dc.description");
