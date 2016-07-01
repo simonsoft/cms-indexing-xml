@@ -147,7 +147,7 @@ public class HandlerXml implements IndexingItemHandler {
 		try {
 			logger.debug("Commit first attempt (expunge: {})", expunge);
 			indexWriter.commit(expunge);
-			logger.debug("Commit first attempt successful");
+			logger.info("Commit first attempt successful");
 		} catch (Exception e) {
 			long pause = 10000;
 			logger.warn("Commit first attempt failed, retry in {} ms", pause, e);
@@ -157,9 +157,9 @@ public class HandlerXml implements IndexingItemHandler {
 				throw new RuntimeException("Recovery sleep after failed indexing commit attempt interrupted: " +  e.getMessage());
 			}
 			
-			logger.debug("Commit second attempt (expunge: {})", expunge);
+			logger.info("Commit second attempt (expunge: {})", expunge);
 			indexWriter.commit(expunge);
-			logger.debug("Commit second attempt successful");
+			logger.info("Commit second attempt successful");
 		}
 	}
 
