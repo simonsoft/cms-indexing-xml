@@ -44,7 +44,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.testing.indexing.ReposTestIndexing;
@@ -245,9 +244,13 @@ public class HandlerXmlLargeFileTest {
 	 * Intended to flag that 'T501007.xml' is not provided.
 	 * 
 	 */
-	@Test @Ignore
+	@Test
 	public void testSingle860kDatasetAvailable() {
-
+		
+		// TODO Use assume in Before instead?
+		String username = System.getProperty("user.name");
+		org.junit.Assume.assumeFalse("jenkins".equals(username));
+		
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				classPath.concat("single-860k/T501007.xml"));
 		
