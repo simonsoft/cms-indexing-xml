@@ -122,12 +122,12 @@ public class HandlerXml implements IndexingItemHandler {
 						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
 						boolean expunge = true;
 						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
-						indexWriter.commit(expunge);
+						this.commit(expunge);
 					} catch (IndexingHandlerException ex) {
 						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
 						indexWriter.deletePath(progress.getRepository(), c);
-						indexWriter.commit(true);
+						this.commit(true);
 						// The message/stacktrace in exception will be logged in repositem.
 						throw ex;
 					}
@@ -139,6 +139,27 @@ public class HandlerXml implements IndexingItemHandler {
 			}
 		} else {
 			logger.trace("Ignoring changeset item {}, not a file", c);
+		}
+	}
+	
+	private void commit(boolean expunge) {
+		
+		try {
+			logger.debug("Commit first attempt (expunge: {})", expunge);
+			indexWriter.commit(expunge);
+			logger.debug("Commit first attempt successful");
+		} catch (Exception e) {
+			long pause = 10000;
+			logger.warn("Commit first attempt failed, retry in {} ms", pause, e);
+			try {
+				Thread.sleep(pause);
+			} catch (InterruptedException e1) {
+				throw new RuntimeException("Recovery sleep after failed indexing commit attempt interrupted: " +  e.getMessage());
+			}
+			
+			logger.debug("Commit second attempt (expunge: {})", expunge);
+			indexWriter.commit(expunge);
+			logger.debug("Commit second attempt successful");
 		}
 	}
 
