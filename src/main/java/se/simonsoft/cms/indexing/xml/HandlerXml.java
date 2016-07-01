@@ -102,11 +102,13 @@ public class HandlerXml implements IndexingItemHandler {
 		CmsChangesetItem c = progress.getItem();
 		
 		if (c.isFile()) {
-			// TODO here we should probably read mime type too, or probably after conversion to CmsItem
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.trace("Changeset content update item {} found", c);
 				if (c.isDelete()) {
 					indexWriter.deletePath(progress.getRepository(), c);
+					boolean expunge = true;
+					logger.info("Performing commit (expunge: {}) of deleted changeset item: {}", expunge, c);
+					this.commit(expunge);
 				} else {
 					indexWriter.deletePath(progress.getRepository(), c);
 					
