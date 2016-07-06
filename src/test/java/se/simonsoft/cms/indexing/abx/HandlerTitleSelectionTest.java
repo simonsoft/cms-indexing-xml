@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.Test;
 
 import se.repos.indexing.IndexingDoc;
@@ -28,14 +26,6 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 
 public class HandlerTitleSelectionTest {
-
-	@Test
-	public void thereShoudlBeFiveFieldKeys() {
-		HandlerTitleSelection handler = new HandlerTitleSelection();
-		Set<String> fieldNames = handler.getFieldKeys();
-		assertEquals("Should contain 6 fields", 6, fieldNames.size());
-		assertEquals("prop_cms.title", fieldNames.iterator().next().toString());
-	}
 	
 	
 	@Test
