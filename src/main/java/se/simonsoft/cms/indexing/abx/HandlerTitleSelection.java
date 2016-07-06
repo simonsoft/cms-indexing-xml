@@ -54,7 +54,7 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 	public void handle(IndexingItemProgress progress) {
 		IndexingDoc doc = progress.getFields();
 		
-		for(String key: getFieldKeys()) {
+		for(String key: this.fieldTitleKeys) {
 			if(doc.containsKey(key)){
 			 	String value = doc.getFieldValues(key).iterator().next().toString();
 				if(value != null && !value.trim().equals("")) {
@@ -73,14 +73,6 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 			add(HandlerPathinfo.class);
 			add(HandlerProperties.class);
 		}};
-	}
-
-	public void setFieldKeys(Set<String> fieldTitleKeys) {
-		this.fieldTitleKeys = fieldTitleKeys;
-	}
-
-	public Set<String> getFieldKeys() {
-		return fieldTitleKeys;
 	}
 
 }
