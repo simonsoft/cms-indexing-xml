@@ -83,7 +83,11 @@
 			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
-			<field name="text"><xsl:value-of select="$text"/></field>
+			<!-- Using field 'text' seems unable to override Tika extraction. -->
+			<!-- TODO: Consider the impact of storing the text field. -->
+			<!--
+			<field name="embd_xml_text"><xsl:value-of select="$text"/></field>
+			-->
 			
 			<!-- Word count is simple when each word is a text node. -->
 			<field name="count_words_text"><xsl:value-of select="count($text)"/></field>
