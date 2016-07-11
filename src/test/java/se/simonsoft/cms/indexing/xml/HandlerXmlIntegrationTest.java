@@ -287,8 +287,40 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get inherited name of inline", "root", x1.get(3).getFieldValue("ia_name"));
 		assertEquals("get depth of inline", 3, x1.get(3).getFieldValue("depth"));
 		assertEquals("get pos/treeloc of inline", "1.2.1", x1.get(3).getFieldValue("pos"));
-		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));
+		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));	
+	}
+	
+	@Test
+	public void testTinyAttributesPeriod() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-period");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
+		SolrDocumentList x1 = reposxml.query(q1).getResults();
+		assertEquals(4, x1.getNumFound());
+		
+		assertEquals("get name of root element", "doc", x1.get(0).getFieldValue("name"));
+		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
+		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("get name attribute on root", "root", x1.get(0).getFieldValue("a_name"));
+		assertNull("attribute doc.number is skipped due to conflict with our namespace handling", x1.get(0).getFieldValue("a_doc.number"));
+		
+		assertEquals("get name attribute on e1", "ch1", x1.get(1).getFieldValue("a_name"));
+		assertNull("attribute doc.number is skipped due to conflict with our namespace handling", x1.get(1).getFieldValue("aa_doc.number"));
+
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrQuery qi1 = new SolrQuery("type:file");
+		SolrDocumentList i1 = repositem.query(qi1).getResults();
+		assertEquals(1, i1.getNumFound());
+		
+		assertEquals("get name of root element", "doc", i1.get(0).getFieldValue("embd_xml_name"));
+		assertEquals("get name attribute on root", "root", i1.get(0).getFieldValue("embd_xml_a_name"));
+		assertNull("attribute doc.number is skipped due to conflict with our namespace handling", i1.get(0).getFieldValue("embd_xml_a_doc.number"));
 	}
 	
 	@Test

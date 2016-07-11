@@ -58,6 +58,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField("ns_" + n.getName(), n.getUri());
 		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
+			if (a.getName().contains(".")) {
+				continue;
+			}
 			doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
 		}
 		doc.addField("depth", element.getDepth());
@@ -69,6 +72,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField("id_s", idProvider.getXmlElementId(sp));
 			doc.addField("sname", sp.getName());
 			for (XmlSourceAttribute a : sp.getAttributes()) {
+				if (a.getName().contains(".")) {
+					continue;
+				}
 				doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
 			}
 		} else if (position > 1) {
@@ -102,6 +108,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		
 		// Inherited includes self
 		for (XmlSourceAttribute a : element.getAttributes()) {
+			if (a.getName().contains(".")) {
+				continue;
+			}
 			String f = fieldNames.getAttributeInherited(a.getName());
 			if (!doc.containsKey(f)) {
 				doc.addField(f, a.getValue());
@@ -111,6 +120,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		// Ancestor does not include self
 		if (!isSelf) {
 		for (XmlSourceAttribute a : element.getAttributes()) {
+			if (a.getName().contains(".")) {
+				continue;
+			}
 			String f = fieldNames.getAttributeAncestor(a.getName());
 			if (!doc.containsKey(f)) {
 				doc.addField(f, a.getValue());
@@ -122,6 +134,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField("id_r", idProvider.getXmlElementId(element));
 			doc.addField("rname", element.getName());
 			for (XmlSourceAttribute a : element.getAttributes()) {
+				if (a.getName().contains(".")) {
+					continue;
+				}
 				doc.addField(fieldNames.getAttributeRoot(a.getName()), a.getValue());
 			}
 		} else {

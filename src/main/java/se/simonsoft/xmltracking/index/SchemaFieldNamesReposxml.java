@@ -22,6 +22,9 @@ public class SchemaFieldNamesReposxml implements SchemaFieldNames {
 
 	@Override
 	public String getAttribute(String xmlAttributeName) {
+		if (xmlAttributeName.contains(".")) {
+			throw new IllegalArgumentException("Attributes with name containing '.' is not supported, should be ignored.");
+		}
 		return "a_" + xmlAttributeName.replace(':', '.');
 	}
 
