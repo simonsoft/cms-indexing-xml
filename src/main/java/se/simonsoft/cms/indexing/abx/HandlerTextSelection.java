@@ -38,7 +38,7 @@ public class HandlerTextSelection implements IndexingItemHandler{
 	 */
 	public HandlerTextSelection() {
 		super();
-		fields.add("embd_xml_textX"); // cms-indexing-xml
+		fields.add("embd_xml_text"); // cms-indexing-xml
 	}
 
 	/***
