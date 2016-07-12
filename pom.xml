@@ -30,8 +30,8 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>se.simonsoft</groupId>
-			<artifactId>cms-indexing</artifactId>
+			<groupId>se.repos</groupId>
+			<artifactId>repos-indexing</artifactId>
 			<version>0.12.1</version>
 		</dependency>
 		<dependency>
