@@ -6,3 +6,5 @@
 
 .settings
 /bin/
+
+src/test/resources/se/simonsoft/cms/indexing/xml/datasets/single-860k/T501007.xml
