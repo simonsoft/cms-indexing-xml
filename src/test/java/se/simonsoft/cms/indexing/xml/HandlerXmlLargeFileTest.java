@@ -213,7 +213,7 @@ public class HandlerXmlLargeFileTest {
 	private void assertChecksums(XmlSourceDocumentS9api doc) {
 
 		XdmNode root = doc.getDocumentNodeXdm(); // Not sure...
-		XPathCompiler xpath = root.getProcessor().newXPathCompiler(); // Getting exception here, one that Saxon author did not expect to ever happen.
+		XPathCompiler xpath = p.newXPathCompiler();
 		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
 
 		String ATTRNAME = "cms:c_sha1_source_reuse";
