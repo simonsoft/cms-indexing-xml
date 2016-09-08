@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
@@ -69,6 +70,11 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
 	
+	// we request a DOM-implementation:
+	private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	// we have to create document-loader:
+	private static javax.xml.parsers.DocumentBuilder db;
+	
 	/**
 	 * How to get document status from already extracted fields.
 	 */
@@ -88,6 +94,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	public IndexFieldExtractionCustomXsl(XmlMatchingFieldExtractionSource xslSource, Processor processor) {
 		this.processor = processor;
 		init(xslSource.getXslt());
+		initDom();
 	}
 	
 	private void init(Source xslt) {
@@ -102,6 +109,15 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		transformer = xsltCompiled.load();
 	}
 	
+	private void initDom() {
+		
+		try {
+			db = dbf.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException("Error not handled: " + e.getMessage(), e);
+		}
+	}
+	
 	
 	/** Just need a way to get a DOM element/document. 
 	 * Unsure what APIs we should use so this was a sample using pure W3C DOM. 
@@ -111,15 +127,10 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	private org.w3c.dom.Document createDomDocument(String rootElementName) {
 
 		try {
-			// first of all we request out 
-			// DOM-implementation:
-			DocumentBuilderFactory factory =
-					DocumentBuilderFactory.newInstance();
-			// then we have to create document-loader:
-			javax.xml.parsers.DocumentBuilder loader = factory.newDocumentBuilder();
-
-			// createing a new DOM-document...
-			org.w3c.dom.Document document = loader.newDocument();
+			// Moved init to constructor.
+			
+			// creating a new DOM-document...
+			org.w3c.dom.Document document = db.newDocument();
 
 			// initially it has no root-element, ... so we create it:
 			org.w3c.dom.Element root = document.createElement(rootElementName);
