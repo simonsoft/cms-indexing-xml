@@ -18,12 +18,18 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.s9api.Processor;
@@ -31,9 +37,12 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathExecutable;
 import net.sf.saxon.s9api.XPathSelector;
+import net.sf.saxon.s9api.XdmDestination;
 import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
+import net.sf.saxon.s9api.XsltExecutable;
+import net.sf.saxon.s9api.XsltTransformer;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -45,6 +54,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
@@ -58,6 +69,7 @@ import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.NullEntityResolver;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
@@ -188,6 +200,7 @@ public class HandlerXmlLargeFileTest {
 	}
 
 	@Test
+	// Some 700 ms slower in 9.7
 	public void testSingle860kReuseNormalize() throws Exception {
 
 		// NOTE: The test will be skipped if T501007.xml is not provided.
@@ -238,6 +251,61 @@ public class HandlerXmlLargeFileTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+	}
+	
+	
+	@Test // Some 300 ms slower in 9.7
+	public void testSingle860kIdentity() throws Exception {
+
+		// NOTE: The test will be skipped if T501007.xml is not provided.
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
+		assumeResourceExists(repoSource, "/T501007.xml");
+				
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/indexing/xml/transform/identity.xsl");
+		Source xslt = new StreamSource(xsl);
+
+		TransformerService t = tf.buildTransformerService(xslt);
+
+		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
+				classPath.concat("single-860k/T501007.xml"));
+
+		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
+
+		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
+	}
+	
+	@Test // Some 300 ms slower in 9.7
+	public void testSingle860kIdentityNoFramework() throws Exception {
+
+		// NOTE: The test will be skipped if T501007.xml is not provided.
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
+		assumeResourceExists(repoSource, "/T501007.xml");
+				
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/indexing/xml/transform/identity.xsl");
+		Source xslt = new StreamSource(xsl);
+
+		Processor p = new Processor(false);
+		XsltExecutable e = p.newXsltCompiler().compile(xslt);
+
+		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
+				classPath.concat("single-860k/T501007.xml"));
+		
+		SAXParserFactory spf = SAXParserFactory.newInstance();
+		spf.setNamespaceAware(true);
+		spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+		xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		xmlReader.setEntityResolver(new NullEntityResolver());
+
+		SAXSource source = new SAXSource(xmlReader, new InputSource(new InputStreamReader(xml)));
+
+		XdmDestination dest = new XdmDestination();
+		XsltTransformer t = e.load();
+		t.setSource(source);
+		t.setDestination(dest);
+		t.transform();
 	}
 	
 	/**
