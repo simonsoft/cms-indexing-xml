@@ -21,6 +21,7 @@
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
 	>
 
+	<xsl:strip-space elements="*"/>
 
 	<xsl:template match="@*|node()" mode="#all">
         <xsl:copy>
