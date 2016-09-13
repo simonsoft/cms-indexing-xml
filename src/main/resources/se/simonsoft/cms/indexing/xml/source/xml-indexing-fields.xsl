@@ -31,10 +31,6 @@
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
-	
-	<!-- Experimental support for determining which declared namespaces are not actually used. -->
-	<xsl:key name="ns_elem" match="*[namespace-uri() != '']" use="namespace-uri()"/>
-    <xsl:key name="ns_attr" match="*/@*[namespace-uri() != '']" use="namespace-uri()"/>
 
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
@@ -282,22 +278,27 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	
 	<!-- Experimental support for determining which declared namespaces are not actually used. -->
 	<!-- Investigates all namespaces declared on parent, which means they are inherited by this element. -->
 	<xsl:template match="*" mode="i-ns-unused">
 		<xsl:variable name="namespace-parent" select="parent::node()/namespace::*[string() != 'http://www.w3.org/XML/1998/namespace']"/>
 		
+		<xsl:variable name="namespace-elem" select="descendant-or-self::*[namespace-uri() != '']"/>
+		<xsl:variable name="namespace-attr" select="descendant-or-self::*/@*[namespace-uri() != '']"/>
+		
+		<xsl:variable name="ns-uris" as="xs:anyURI*" select="for $e in ($namespace-elem union $namespace-attr) return namespace-uri($e)" />
+		
 		<xsl:for-each select="$namespace-parent">
-            <xsl:variable name="nsuri" select="."></xsl:variable>
+            <xsl:variable name="ns-uri" select="."></xsl:variable>
             
-            <xsl:if test="count(key('ns_attr', $nsuri)) = 0 and count(key('ns_elem', $nsuri)) = 0">
+            <xsl:if test="$ns-uri != $ns-uris">
                 <!-- TODO: Support multi-value fields using Solr arr/str notation. -->
-                    <xsl:value-of select="$nsuri"></xsl:value-of>
+                    <xsl:value-of select="$ns-uri"></xsl:value-of>
 					<xsl:value-of select="'&#xA;'"></xsl:value-of>
             </xsl:if>
-            
         </xsl:for-each>
-		
 	</xsl:template>
+	
 	
 </xsl:stylesheet>
