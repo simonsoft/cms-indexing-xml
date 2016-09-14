@@ -98,7 +98,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 		
 		String nsUnused = (String) doc.getFieldValue("ns_unused");
 		if (nsUnused != null && !nsUnused.isEmpty()) {
-			logger.debug("Unused Namespaces: {}", nsUnused);
+			logger.trace("Unused Namespaces: {}", nsUnused);
 			//throw new RuntimeException(nsUnused);
 		}
 		
