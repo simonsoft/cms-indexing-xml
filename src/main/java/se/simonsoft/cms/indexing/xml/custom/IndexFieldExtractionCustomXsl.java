@@ -48,6 +48,7 @@ import org.w3c.dom.Attr;
 import org.xml.sax.ContentHandler;
 
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.IndexingHandlerException;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
@@ -194,16 +195,19 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 						}
 					}
 				} catch (Exception e) {
-					logger.error("failed to pass attribute in field {} to XSLT", fieldName);
-					throw e;
+					String msg = MessageFormatter.format("failed to pass attribute in field '{}' to XSLT: {}", fieldName, e.getMessage()).getMessage();
+					logger.error(msg);
+					throw new IndexingHandlerException(msg);
 				}
 			}
 
 			
 			XdmNode xdmDoc = db.build(new DOMSource(doc));
 			return xdmDoc;
+		} catch (IndexingHandlerException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new RuntimeException("failed to pass attributes to XSLT", e);
+			throw new IndexingHandlerException("failed to pass attributes to XSLT", e);
 		}
 	}
 
