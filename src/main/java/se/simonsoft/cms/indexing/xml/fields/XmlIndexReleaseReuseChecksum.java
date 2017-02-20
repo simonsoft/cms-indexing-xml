@@ -111,6 +111,10 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	@Override
 	public void startDocument(XmlIndexProgress xmlProgress) {
 
+		// Clearing the RID data structures. Can carry over from previous document if it failed with exception.
+		this.ridChecksums = null;
+		this.releaseId = null;
+				
 		IndexingDoc baseDoc = xmlProgress.getBaseDoc();
 
 		String id = (String) baseDoc.getFieldValue("id");
