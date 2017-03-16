@@ -23,31 +23,39 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
-import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
+import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
- * Uses the abx:Dependencies and abx:CrossRefs properties splitting on newline.
+ * Replacement of the abx:Dependencies and abx:CrossRefs properties.
+ * Depends on extraction of references from XML. 
  */
-public class HandlerAbxDependencies extends HandlerAbxFolders {
+public class HandlerXmlReferences extends HandlerAbxFolders {
 
-	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxDependencies.class);
+	private static final Logger logger = LoggerFactory.getLogger(HandlerXmlReferences.class);
 	
 	private static final String HOSTFIELD = "repohost";
+	
+	private static final String REF_FIELD_PREFIX = "ref_";
+	private static final String REFID_FIELD_PREFIX = "ref_id";
+	
+	private static final String TEMP_FIELD_PREFIX = "xmltemp_";
+	
+	private static final String CATEGORY_DEPENDENCIES = "dependencies";
 	
 	/**
 	 * @param idStrategy to fill the refid field
 	 */
 	@Inject
-	public HandlerAbxDependencies(IdStrategy idStrategy) {
+	public HandlerXmlReferences(IdStrategy idStrategy) {
 		super(idStrategy);
 	}
 	
@@ -58,34 +66,28 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		if (host == null) {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
-		String[] abxProperties = {"abx.Dependencies", "abx.CrossRefs"};
 		
-		Set<CmsItemId> dependencyIds = new HashSet<CmsItemId>();
-		for (String propertyName : abxProperties) {
+		Set<CmsItemId> dependencyIds = null;
+		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "graphics"};
+		
+		for (String referenceName : referenceCategories) {
 			try {
-				dependencyIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
+				Set<CmsItemId> ids = handleReferences(fields, host, referenceName);
+				
+				if (referenceName.equals(CATEGORY_DEPENDENCIES)) {
+					dependencyIds = ids;
+				}
 			} catch (Exception e) {
-				logger.warn("Failed to parse {}: {}", propertyName, e.getMessage(), e);
-				throw new IndexingHandlerException("Failed to parse " + propertyName + ": " + e.getMessage(), e);
+				logger.warn("Failed to parse {}: {}", referenceName, e.getMessage(), e);
+				throw new IndexingHandlerException("Failed to parse " + referenceName + ": " + e.getMessage(), e);
 			}
 		}
 		
-		// This handler does no longer set "refid", moved to XML extraction.
-		/*
-		String refId;
-		for (CmsItemId depItemId : dependencyIds) {
-			
-			refId = depItemId.getPegRev() == null ?
-					idStrategy.getIdHead(depItemId) :
-					idStrategy.getId(depItemId, new RepoRevision(depItemId.getPegRev(), null));
-			
-			fields.addField("refid", refId);
-			
-		}
-		
+		// Add the output of the full dependency list to refid, the generic field.
+		handleCmsItemIds(fields, "refid", dependencyIds);
 		handleFolders(fields, "ref_pathparents", dependencyIds);
-		*/
 	}
+	
 
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
@@ -95,17 +97,22 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}};
 	}
 	
-	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName, String abxprop) {
+	protected Set<CmsItemId> handleReferences(IndexingDoc fields, String host, String refName) {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
+		String itemIds = (String) fields.getFieldValue(TEMP_FIELD_PREFIX + refName);
+		if (itemIds != null && !itemIds.trim().isEmpty()) {
+			logger.debug("Refs '{}' extracted by XSL: {}", refName, itemIds);
+		}
+		
 
-		if (abxprop != null) {
+		if (itemIds != null) {
 			
-			if (abxprop.length() != 0) {
+			if (itemIds.length() != 0) {
 				
 				String strategyId;
 				
-				for (String d : abxprop.split("\n")) {
+				for (String d : itemIds.split(" ")) {
 					CmsItemIdArg id = new CmsItemIdArg(d);
 					id.setHostname(host);
 					
@@ -113,19 +120,19 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
 							idStrategy.getIdHead(id);
 					
-					fields.addField("ref_" + propertyName, strategyId);
+					fields.addField("ref_" + refName, strategyId);
 					
 					result.add(id);
 				}
 				
-			} else {
-				logger.debug("{} property exists but is empty", propertyName);
-			}
+			} 
 			
 		}
-		
+		// Add as deduplicated set of indexing IDs.
+		handleCmsItemIds(fields, REFID_FIELD_PREFIX + refName, result);
+		// Remove the temporary field.
+		fields.removeField(TEMP_FIELD_PREFIX + refName);
 		return result;
-
 	}
 
 }

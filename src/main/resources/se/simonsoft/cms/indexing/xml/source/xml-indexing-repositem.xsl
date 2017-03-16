@@ -25,6 +25,10 @@
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
 	
+	<!-- Names of attributes that can be references. -->
+	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref'"/>
+	<xsl:variable name="ref-attrs-seq" as="xs:string+" select="tokenize($ref-attrs, ' ')"/>
+	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
 
@@ -109,9 +113,22 @@
 				</field>
 			</xsl:if>
 			
+			<field name="xmltemp_dependencies"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/></field>
+			<!---
+			<field name="xmltemp_graphics"><xsl:apply-templates select="@*[name() = $ref-attrs-seq]" mode="refid"/></field>
+			-->
 		</doc>
 		
 	</xsl:template>
 
+	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refdeps">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	
+	<xsl:template match="@*" mode="refdeps" priority="-1">
+		<!-- Suppress non-reference attributes. -->
+	</xsl:template>
 	
 </xsl:stylesheet>
