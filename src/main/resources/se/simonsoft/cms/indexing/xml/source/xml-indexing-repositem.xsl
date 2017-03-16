@@ -113,6 +113,10 @@
 				</field>
 			</xsl:if>
 			
+			<!-- Detect non-CMS references in XML files. -->
+			<field name="ref_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))]" mode="refnoncms"/></field>
+			
+			<!-- Extract all dependencies in document order, including duplicates. -->
 			<field name="xmltemp_dependencies"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/></field>
 			<!---
 			<field name="xmltemp_graphics"><xsl:apply-templates select="@*[name() = $ref-attrs-seq]" mode="refid"/></field>
@@ -121,10 +125,17 @@
 		
 	</xsl:template>
 
+	<xsl:template match="@*" mode="refnoncms">
+		<xsl:message select="concat('Encountered non-CMS reference: ', .)"/>
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+
 	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refdeps">
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
 	</xsl:template>
+	
 	
 	
 	<xsl:template match="@*" mode="refdeps" priority="-1">
