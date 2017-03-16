@@ -12,17 +12,15 @@
 	<parent>
 		<groupId>se.simonsoft</groupId>
 		<artifactId>cms-maven-parent</artifactId>
-		<version>2.2</version>
+		<version>4.1.0</version>
 		<relativePath/>
 	</parent>
 
-	<repositories>
-		<repository>
-			<id>repos.open.repo</id>
-			<name>Repos Open Repository</name>
-			<url>http://reposserver.sourceforge.net/maven/</url>
-		</repository>		
-	</repositories>
+	<repository>
+    	<id>repos.open.repo</id>
+        <name>Simonsoft / Repos Open Repository</name>
+        <url>http://opensource.simonsoft.se/maven/</url>
+    </repository>
 	
 	<properties>
 		<solr-version>4.7.2</solr-version>
