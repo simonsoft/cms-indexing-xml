@@ -45,9 +45,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	private static final String HOSTFIELD = "repohost";
 	
 	private static final String REF_FIELD_PREFIX = "ref_";
-	private static final String REFID_FIELD_PREFIX = "ref_id";
-	
-	private static final String TEMP_FIELD_PREFIX = "xmltemp_";
+	private static final String REF_ITEMID_FIELD_PREFIX = "ref_itemid_";
 	
 	private static final String CATEGORY_DEPENDENCIES = "dependencies";
 	
@@ -68,7 +66,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		}
 		
 		Set<CmsItemId> dependencyIds = null;
-		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "graphics"};
+		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "graphics", "xml"};
 		
 		for (String referenceName : referenceCategories) {
 			try {
@@ -83,7 +81,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 			}
 		}
 		
-		// Add the output of the full dependency list to refid, the generic field.
+		// Add the output of the full dependency list (deduplicated) to refid, the generic field.
 		handleCmsItemIds(fields, "refid", dependencyIds);
 		handleFolders(fields, "ref_pathparents", dependencyIds);
 	}
@@ -100,7 +98,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	protected Set<CmsItemId> handleReferences(IndexingDoc fields, String host, String refName) {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
-		String itemIds = (String) fields.getFieldValue(TEMP_FIELD_PREFIX + refName);
+		String itemIds = (String) fields.getFieldValue(REF_ITEMID_FIELD_PREFIX + refName);
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.debug("Refs '{}' extracted by XSL: {}", refName, itemIds);
 		}
@@ -120,7 +118,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
 							idStrategy.getIdHead(id);
 					
-					fields.addField("ref_" + refName, strategyId);
+					fields.addField(REF_FIELD_PREFIX + refName, strategyId);
 					
 					result.add(id);
 				}
@@ -128,10 +126,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 			} 
 			
 		}
-		// Add as deduplicated set of indexing IDs.
-		handleCmsItemIds(fields, REFID_FIELD_PREFIX + refName, result);
-		// Remove the temporary field.
-		fields.removeField(TEMP_FIELD_PREFIX + refName);
+
 		return result;
 	}
 
