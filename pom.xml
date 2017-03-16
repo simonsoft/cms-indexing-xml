@@ -16,11 +16,13 @@
 		<relativePath/>
 	</parent>
 
-	<repository>
-    	<id>repos.open.repo</id>
-        <name>Simonsoft / Repos Open Repository</name>
-        <url>http://opensource.simonsoft.se/maven/</url>
-    </repository>
+	<repositories>
+		<repository>
+    		<id>repos.open.repo</id>
+        	<name>Simonsoft / Repos Open Repository</name>
+        	<url>http://opensource.simonsoft.se/maven/</url>
+    	</repository>
+    </repositories>
 	
 	<properties>
 		<solr-version>4.7.2</solr-version>
