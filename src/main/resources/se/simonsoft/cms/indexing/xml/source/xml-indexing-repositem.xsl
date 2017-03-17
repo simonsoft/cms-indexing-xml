@@ -119,9 +119,9 @@
 			<!-- Extract all dependencies in document order, including duplicates. -->
 			<field name="ref_itemid_dependencies"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/></field>
 			<!-- Extract xml dependencies. -->
-			<field name="ref_itemid_xml"><xsl:apply-templates select="@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refxml"/></field>
+			<field name="ref_itemid_includes"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
 			<!-- Extract graphics dependencies. -->
-			<field name="ref_itemid_graphics"><xsl:apply-templates select="@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refgraphics"/></field>
+			<field name="ref_itemid_graphics"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refgraphics"/></field>
 			
 		</doc>
 		
@@ -138,11 +138,23 @@
 		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
+	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refinclude">
+			<xsl:value-of select="."/>
+			<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refgraphics" priority="100">
+		<!-- Suppress XInclude when processing graphics references. -->
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refgraphics">
+			<xsl:value-of select="."/>
+			<xsl:value-of select="' '"/>
+	</xsl:template>
 	
 	
 	
-	
-	<xsl:template match="@*" mode="refdeps refxml refgraphics" priority="-1">
+	<xsl:template match="@*" mode="refdeps refinclude refgraphics" priority="-1">
 		<!-- Suppress non-reference attributes. -->
 	</xsl:template>
 	

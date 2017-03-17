@@ -66,7 +66,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		}
 		
 		Set<CmsItemId> dependencyIds = null;
-		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "graphics", "xml"};
+		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "graphics", "includes"};
 		
 		for (String referenceName : referenceCategories) {
 			try {
