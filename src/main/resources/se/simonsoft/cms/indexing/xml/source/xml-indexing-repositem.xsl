@@ -117,14 +117,21 @@
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))]" mode="refnoncms"/></field>
 			
 			<!-- Extract all dependencies in document order, including duplicates. -->
-			<field name="ref_itemid_dependencies"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/></field>
+			<field name="ref_itemid_dependencies">
+				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refdeps"/>
+				<xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/>
+			</field>
+			<!-- Extract keydef maps. -->
+			<field name="ref_itemid_keydefmaps">
+				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refkeydefmaps"/>
+				<xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refkeydefmaps"/>
+			</field>
 			<!-- Extract xml dependencies. -->
-			<field name="ref_itemid_includes"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
+			<field name="ref_itemid_includes"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refincludes"/></field>
 			<!-- Extract graphics dependencies. -->
 			<field name="ref_itemid_graphics"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refgraphics"/></field>
 			
 		</doc>
-		
 	</xsl:template>
 
 	<xsl:template match="@*" mode="refnoncms">
@@ -138,7 +145,12 @@
 		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
-	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refinclude">
+	<xsl:template match="@*[name() = 'keyrefhref']" mode="refdeps refkeydefmaps">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refincludes">
 			<xsl:value-of select="."/>
 			<xsl:value-of select="' '"/>
 	</xsl:template>
@@ -154,7 +166,7 @@
 	
 	
 	
-	<xsl:template match="@*" mode="refdeps refinclude refgraphics" priority="-1">
+	<xsl:template match="@*" mode="refdeps refkeydefmaps refincludes refgraphics" priority="-1">
 		<!-- Suppress non-reference attributes. -->
 	</xsl:template>
 	
