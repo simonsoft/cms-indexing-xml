@@ -114,12 +114,12 @@
 			</xsl:if>
 			
 			<!-- Detect non-CMS references in XML files.  -->
-			<field name="ref_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))]" mode="refnoncms"/></field>
+			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))]" mode="refnoncms"/></field>
 			
 			<!-- Extract all dependencies in document order, including duplicates. -->
 			<field name="ref_itemid_dependencies"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refdeps"/></field>
 			<!-- Extract xml dependencies. -->
-			<field name="ref_itemid_graphics"><xsl:apply-templates select="@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refxml"/></field>
+			<field name="ref_itemid_xml"><xsl:apply-templates select="@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refxml"/></field>
 			<!-- Extract graphics dependencies. -->
 			<field name="ref_itemid_graphics"><xsl:apply-templates select="@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refgraphics"/></field>
 			
@@ -137,6 +137,8 @@
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
 	</xsl:template>
+	
+	
 	
 	
 	

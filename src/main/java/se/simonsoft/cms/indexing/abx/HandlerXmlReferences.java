@@ -44,7 +44,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	
 	private static final String HOSTFIELD = "repohost";
 	
-	private static final String REF_FIELD_PREFIX = "ref_";
+	private static final String REF_FIELD_PREFIX = "ref_xml_";
 	private static final String REF_ITEMID_FIELD_PREFIX = "ref_itemid_";
 	
 	private static final String CATEGORY_DEPENDENCIES = "dependencies";
