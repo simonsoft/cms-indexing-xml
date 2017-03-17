@@ -110,7 +110,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				
 				String strategyId;
 				
-				for (String d : itemIds.split(" ")) {
+				for (String d : itemIds.trim().split("\\s+")) {
 					CmsItemIdArg id = new CmsItemIdArg(d);
 					id.setHostname(host);
 					
