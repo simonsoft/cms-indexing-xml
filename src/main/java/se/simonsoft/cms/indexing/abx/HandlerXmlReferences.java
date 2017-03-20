@@ -48,6 +48,8 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	private static final String REF_FIELD_PREFIX = "ref_xml_";
 	private static final String REF_ITEMID_FIELD_PREFIX = "ref_itemid_";
 	
+	private static final String REF_FIELD_NONCMS = "ref_xml_noncms";
+	
 	private static final String CATEGORY_DEPENDENCIES = "dependencies";
 	
 	/**
@@ -64,6 +66,15 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		String host = (String) fields.getFieldValue(HOSTFIELD);
 		if (host == null) {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
+		}
+		
+		String nonCms = (String) fields.getFieldValue(REF_FIELD_NONCMS);
+		if (nonCms != null) {
+			if (nonCms.trim().isEmpty()) {
+				fields.removeField(REF_FIELD_NONCMS);
+			} else {
+				logger.warn("Detected non-CMS references: {}", nonCms);
+			}
 		}
 		
 		Set<CmsItemId> dependencyIds = null;
@@ -100,6 +111,9 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REF_ITEMID_FIELD_PREFIX + refName);
+		if (itemIds != null && itemIds.trim().isEmpty()) {
+			fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
+		}
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.debug("Refs '{}' extracted by XSL: {}", refName, itemIds);
 		}
