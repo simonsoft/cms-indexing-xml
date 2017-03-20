@@ -32,6 +32,7 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
+import se.simonsoft.cms.item.impl.CmsItemIdFragment;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
@@ -111,7 +112,8 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				String strategyId;
 				
 				for (String d : itemIds.trim().split("\\s+")) {
-					CmsItemIdArg id = new CmsItemIdArg(d);
+					CmsItemIdFragment idFrag = new CmsItemIdFragment(d);
+					CmsItemIdArg id = (CmsItemIdArg) idFrag.getItemId();
 					id.setHostname(host);
 					
 					strategyId = id.getPegRev() != null ?
