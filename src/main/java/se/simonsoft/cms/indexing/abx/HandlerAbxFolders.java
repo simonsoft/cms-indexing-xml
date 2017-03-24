@@ -78,7 +78,22 @@ public abstract class HandlerAbxFolders implements IndexingItemHandler {
 		}
 		
 		return fields;
-		
+	}
+	
+	protected void handleCmsItemIds(IndexingDoc fields, String fieldName, Set<CmsItemId> ids) {
+
+		if (ids != null) {
+			String refId;
+			for (CmsItemId itemId : ids) {
+
+				refId = itemId.getPegRev() == null ?
+						idStrategy.getIdHead(itemId) :
+						idStrategy.getId(itemId, new RepoRevision(itemId.getPegRev(), null));
+
+				fields.addField(fieldName, refId);
+
+			}
+		}
 	}
 
 }

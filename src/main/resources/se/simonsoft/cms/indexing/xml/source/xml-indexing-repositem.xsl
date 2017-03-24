@@ -20,14 +20,28 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
+	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
 
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
 	
+	<!-- filename extension -->
+	<xsl:param name="pathext" required="yes"/>
+	
+	<!-- Names of attributes that can be references. -->
+	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref'"/>
+	<xsl:variable name="ref-attrs-seq" as="xs:string+" select="tokenize($ref-attrs, ' ')"/>
+	<xsl:variable name="ref-attrs-conref-seq" as="xs:string+" select="$ref-attrs-seq, 'conref'">
+		
+	</xsl:variable>
+	
+	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*"/>
 
+	<xsl:variable name="is-dita-map" select="$pathext = 'ditamap'"/>
+	<xsl:variable name="is-dita-topic" select="$pathext = 'dita'"/>
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
@@ -109,9 +123,108 @@
 				</field>
 			</xsl:if>
 			
+			<!-- Detect non-CMS references in XML files.  -->
+			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))]" mode="refnoncms"/></field>
+			
+			<!-- Extract all dependencies in document order, including duplicates. -->
+			<field name="ref_itemid_dependency">
+				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refdep"/>
+				<xsl:apply-templates select="//@*[name() = $ref-attrs-conref-seq][starts-with(., 'x-svn:')]" mode="refdep"/>
+			</field>
+			<!-- Extract keydef maps. -->
+			<field name="ref_itemid_keydefmap">
+				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
+				<xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
+			</field>
+			<!-- Extract xml dependencies. -->
+			<field name="ref_itemid_include"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
+			<!-- Extract graphics dependencies. -->
+			<field name="ref_itemid_graphic"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
+			
+			<!-- Extract DITA conref dependencies. -->
+			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
+			
+			<!-- 
+			<xsl:if test="$is-dita-map">
+			 -->
+				<!-- Extract DITA topicref dependencies. -->
+				<field name="ref_itemid_topicref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
+			<!--
+			</xsl:if>
+			 -->
+			<xsl:if test="$is-dita-topic">
+				<!-- Extract DITA xref dependencies. -->
+				<field name="ref_itemid_xref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="refxref"/></field>
+			</xsl:if>
+			
 		</doc>
-		
 	</xsl:template>
 
+	<xsl:template match="@*" mode="refnoncms">
+		<xsl:message select="concat('Encountered non-CMS reference: ', .)"/>
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+
+	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refdep">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'keyrefhref']" mode="refdep refkeydefmap">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refinclude">
+			<xsl:value-of select="."/>
+			<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refgraphic" priority="100">
+		<!-- Suppress XInclude when processing graphics references. -->
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refgraphic">
+			<xsl:value-of select="."/>
+			<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href']" mode="refdep reftopicref" priority="10">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'conref']" mode="refdep refconref" priority="10">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*[name() = 'href']" mode="refxref" priority="10">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@*" mode="refdep refkeydefmap refinclude refgraphic reftopicref refxref refconref" priority="-1">
+		<!-- Suppress non-reference attributes. -->
+	</xsl:template>
+	
+	<!-- Versioned in cms-xmlsource. -->
+	<xsl:function name="cmsfn:is-format-dita" as="xs:boolean">
+		<xsl:param name="refelem" as="element()"/>
+		<xsl:variable name="ditaext" as="xs:string+" select="tokenize('dita ditamap', ' ')"/>
+		
+		
+		<xsl:choose>
+			<xsl:when test="$refelem/@format">
+				<!-- The format attribute is used if set. -->
+				<xsl:sequence select="$refelem/@format = $ditaext"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<!-- The CMS requires DITA files to have extensions dita or ditamap, lowercase. -->
+				<xsl:sequence select="matches($refelem/@href, '^[^#]*\.dita(map)?(#.*)?$')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:function>
 	
 </xsl:stylesheet>

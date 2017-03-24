@@ -70,6 +70,8 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 			}
 		}
 		
+		// This handler does no longer set "refid", moved to XML extraction.
+		/*
 		String refId;
 		for (CmsItemId depItemId : dependencyIds) {
 			
@@ -82,7 +84,7 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 		}
 		
 		handleFolders(fields, "ref_pathparents", dependencyIds);
-		
+		*/
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import net.sf.saxon.s9api.SAXDestination;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
@@ -63,6 +64,7 @@ public class HandlerXmlRepositem {
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	private static final QName STATUS_PARAM = new QName("document-status");
+	private static final QName PATHEXT_PARAM = new QName("pathext");
 
 	@Inject
 	public HandlerXmlRepositem(Processor processor) {
@@ -109,6 +111,8 @@ public class HandlerXmlRepositem {
 		if (status != null) {
 			transformer.setParameter(STATUS_PARAM, new XdmAtomicValue((String) status));
 		}
+		// The file extension field must always be extracted.
+		transformer.setParameter(PATHEXT_PARAM, new XdmAtomicValue((String) fields.getFieldValue("pathext")));
 
 		transformer.setErrorListener(new LoggingErrorListener());
 		transformer.setDestination(xmltrackingFieldsHandler);
