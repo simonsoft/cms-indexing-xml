@@ -50,7 +50,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	
 	private static final String REF_FIELD_NONCMS = "ref_xml_noncms";
 	
-	private static final String CATEGORY_DEPENDENCIES = "dependencies";
+	private static final String CATEGORY_DEPENDENCY = "dependency";
 	
 	/**
 	 * @param idStrategy to fill the refid field
@@ -78,13 +78,13 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		}
 		
 		Set<CmsItemId> dependencyIds = null;
-		String[] referenceCategories = {CATEGORY_DEPENDENCIES, "keydefmaps", "graphics", "includes"};
+		String[] referenceCategories = {CATEGORY_DEPENDENCY, "keydefmap", "graphic", "include", "topicref", "xref", "conref"};
 		
 		for (String referenceName : referenceCategories) {
 			try {
 				Set<CmsItemId> ids = handleReferences(fields, host, referenceName);
 				
-				if (referenceName.equals(CATEGORY_DEPENDENCIES)) {
+				if (referenceName.equals(CATEGORY_DEPENDENCY)) {
 					dependencyIds = ids;
 				}
 			} catch (Exception e) {
