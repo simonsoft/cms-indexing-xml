@@ -20,6 +20,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.Collection;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.indexing.IndexingHandlerException;
@@ -84,7 +85,7 @@ public class HandlerAbxDependenciesTest {
 		
 	}
 	
-	@Test
+	@Test  @Ignore
 	public void testAggregatedDependenciesOnly() {
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png\n" +
 				"x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml\n" +
@@ -110,7 +111,7 @@ public class HandlerAbxDependenciesTest {
 		// pathparents are tested in HandlerAbxFoldersTest.java
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testAggregated() {
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png\n";
 		String abxcross = "x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml\n";

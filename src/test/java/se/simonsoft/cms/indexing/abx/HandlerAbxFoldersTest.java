@@ -19,7 +19,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,8 +59,9 @@ public class HandlerAbxFoldersTest {
 
 	/**
 	 * Testing parent path handling for dependencies.
+	 * Tested in scenariotesting now.
 	 */
-	@Test
+	@Test @Ignore
 	public void testHandleDependenciesParents() {
 		
 		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/op-edit.png\n" +
