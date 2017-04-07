@@ -87,7 +87,11 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
 		executor.shutdown();
 		try {
-			executor.awaitTermination(10, TimeUnit.SECONDS);
+			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
+			boolean terminated = executor.awaitTermination(30, TimeUnit.SECONDS);
+			if (!terminated) {
+				logger.warn("Completion of Solr Background executor timed out, XML index will likely be incomplete until next commit.");
+			}
 		} catch (InterruptedException e) {
 			String msg = MessageFormatter.format("Failed to await shutdown of Solr Background executor: {}", e.getMessage()).getMessage();
 			logger.warn(msg, e);
