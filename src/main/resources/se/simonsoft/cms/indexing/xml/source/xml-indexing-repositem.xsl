@@ -157,6 +157,9 @@
 				<field name="ref_itemid_xref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="refxref"/></field>
 			</xsl:if>
 			
+			<!-- Extract rlogicalid slaves. -->
+			<field name="rel_itemid_rlogicalid"><xsl:apply-templates select="//@cms:rlogicalid" mode="relrlogicalid"/></field>
+			
 		</doc>
 	</xsl:template>
 
@@ -207,6 +210,11 @@
 	
 	<xsl:template match="@*" mode="refdep refkeydefmap refinclude refgraphic reftopicref refxref refconref" priority="-1">
 		<!-- Suppress non-reference attributes. -->
+	</xsl:template>
+	
+	<xsl:template match="@cms:rlogicalid" mode="relrlogicalid">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
 	<!-- Versioned in cms-xmlsource. -->
