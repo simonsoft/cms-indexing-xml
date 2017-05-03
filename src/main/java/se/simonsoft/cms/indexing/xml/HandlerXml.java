@@ -109,6 +109,8 @@ public class HandlerXml implements IndexingItemHandler {
 					boolean expunge = true;
 					logger.info("Performing commit (expunge: {}) of deleted changeset item: {}", expunge, c);
 					this.commit(expunge);
+				} else if (c.getFilesize() == 0) {
+					logger.info("Deferring XML extraction when file is empty: {}", c);
 				} else {
 					indexWriter.deletePath(progress.getRepository(), c);
 					
