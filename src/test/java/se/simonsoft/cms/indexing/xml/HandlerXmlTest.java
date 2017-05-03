@@ -86,6 +86,7 @@ public class HandlerXmlTest {
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);
+		when(p1i.getFilesize()).thenReturn(1L);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
 		p1f.addField("id", "base-id");
@@ -138,6 +139,7 @@ public class HandlerXmlTest {
 		
 		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
 		when(p1i.isFile()).thenReturn(true);
+		when(p1i.getFilesize()).thenReturn(1L);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
 		p1f.addField("id", "base-id");
