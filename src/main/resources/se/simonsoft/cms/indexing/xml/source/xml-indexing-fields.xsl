@@ -30,7 +30,7 @@
 	<xsl:param name="ancestor-attributes"/>
 	
 	<!-- key definition for cms:rid lookup -->
-	<xsl:key name="rid" use="@cms:rid" match="*"/>
+	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
