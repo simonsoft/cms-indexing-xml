@@ -130,6 +130,11 @@ public class HandlerXmlIntegrationTest {
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertTrue("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertEquals("2 flags", 2, flags.size());
+		
+		Collection<Object> duplicates = flagged.get(0).getFieldValues("embd_xml_ridduplicate");
+		assertEquals("one duplicate, mentioned once", 1, duplicates.size());
+		assertEquals("List the duplicate RIDs in repositem core", "2gyvymn15kv0002", duplicates.iterator().next());
+		
 
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));

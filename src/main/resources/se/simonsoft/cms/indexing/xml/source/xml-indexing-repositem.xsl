@@ -114,10 +114,14 @@
 			
 			<!--  
 			The admin report of RID duplicates is currently querying reposxml.
-			<field name="xml_reuseridduplicate">
-				<xsl:value-of select="$ridduplicate"/>
-			</field>
+			Can now be changed to use repositem.
 			-->
+			<xsl:if test="count($ridduplicate) > 0">
+				<field name="embd_xml_ridduplicate">
+					<xsl:value-of select="distinct-values($ridduplicate)"/>
+				</field>
+			</xsl:if>
+			
 			<!-- Boolean flag for rid duplicate. -->
 			<xsl:if test="count($ridduplicate) > 0">
 				<field name="flag">
