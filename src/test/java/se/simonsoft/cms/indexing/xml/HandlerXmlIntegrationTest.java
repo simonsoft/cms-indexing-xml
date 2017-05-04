@@ -119,7 +119,7 @@ public class HandlerXmlIntegrationTest {
 		SolrServer reposxml = indexing.getCore("reposxml");
 		
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").addSort("pos", ORDER.asc)).getResults();
-		assertEquals("Should index all elements", 4, x1.getNumFound());
+		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
 		SolrServer repositem = indexing.getCore("repositem");
@@ -132,8 +132,9 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Issue with duplicate flags?", 2, flags.size());
 
 		// Back to asserting on reposxml.
-		assertEquals("second element", "elem", x1.get(1).getFieldValue("name"));
-		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0001\">text</elem>", x1.get(1).getFieldValue("source"));
+		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
+		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
+		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
 	}
 	
 	@Test

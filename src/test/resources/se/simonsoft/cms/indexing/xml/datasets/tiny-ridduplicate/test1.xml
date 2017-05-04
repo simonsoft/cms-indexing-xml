@@ -19,6 +19,8 @@
 <!DOCTYPE document PUBLIC "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN" "techdoc.dtd">
 <doc name="root" xmlns:cms="http://www.simonsoft.se/namespace/cms"
 cms:rid="2gyvymn15kv0000">
-<elem name="ch1" cms:rid="2gyvymn15kv0001">text</elem>
-<elem id="e2" cms:rid="2gyvymn15kv0001">elem <inline>text</inline></elem>
+<section cms:rid="2gyvymn15kv0001">
+<elem name="ch1" cms:rid="2gyvymn15kv0002">text</elem>
+<elem id="e2" cms:rid="2gyvymn15kv0002">elem <inline>text</inline></elem>
+</section>
 </doc>
