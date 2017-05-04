@@ -118,18 +118,47 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrServer reposxml = indexing.getCore("reposxml");
 		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").addSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("pos", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
 		SolrServer repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertTrue("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("Issue with duplicate flags?", 2, flags.size());
+		assertEquals("2 flags", 2, flags.size());
+
+		// Back to asserting on reposxml.
+		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
+		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
+		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+	}
+	
+	@Test
+	public void testTinyRidDuplicateTsuppress() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-ridduplicate", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("pos", ORDER.asc)).getResults();
+		assertEquals("Should index all elements", 5, x1.getNumFound());
+		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
+	
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1-tsuppress.xml AND flag:hasxml")).getResults();
+		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
+		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
+		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
+		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
+		assertEquals("only hasxml flag", 1, flags.size());
 
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));

@@ -38,7 +38,7 @@
 	
 	
 	<!-- key definition for cms:rid lookup -->
-	<xsl:key name="rid" use="@cms:rid" match="*"/>
+	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
 	<xsl:variable name="is-dita-map" select="$pathext = 'ditamap'"/>
 	<xsl:variable name="is-dita-topic" select="$pathext = 'dita'"/>
@@ -108,10 +108,12 @@
 			<!-- This field can only identify duplicates among its children, not whether the element itself is a duplicate in the document context. -->
 			<!-- Disabling reusevalue from the root node of the XML onto all children (done by an XmlIndexFieldExtraction class). -->
 			<!-- TODO: Consider if we should only perform this extraction for root node (depth = 1), if performance is heavily degraded. -->
+			<!-- The key does not contain RIDs within tsuppress area. -->
 			<xsl:variable name="ridduplicate" as="attribute()*"
 				select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
 			
 			<!--  
+			The admin report of RID duplicates is currently querying reposxml.
 			<field name="xml_reuseridduplicate">
 				<xsl:value-of select="$ridduplicate"/>
 			</field>
