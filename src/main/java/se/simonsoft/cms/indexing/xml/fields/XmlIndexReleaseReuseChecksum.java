@@ -91,6 +91,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// Must remove size at this time.
 		fields.removeField("size");
 		
+		// TODO: Likely need to take tsuppress, tvalidate into account.
+		
 		String rid = (String) fields.getFieldValue("a_cms.rid");
 		if (this.ridChecksums != null && rid != null) {
 			String releaseChecksum = this.ridChecksums.get(rid);
