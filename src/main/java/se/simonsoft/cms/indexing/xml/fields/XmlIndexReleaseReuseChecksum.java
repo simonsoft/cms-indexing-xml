@@ -91,9 +91,19 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// Must remove size at this time.
 		fields.removeField("size");
 		
-		// TODO: Likely need to take tsuppress, tvalidate into account.
-		
 		String rid = (String) fields.getFieldValue("a_cms.rid");
+		
+		// TODO: Likely need to take tsuppress, tvalidate into account.
+		if (hasAncestorAttributeCmsActive(fields, "tsuppress")) {
+			logger.info("Suppressing element due to ancestor tsuppress attribute: {}", rid);
+			return;
+		}
+		if (hasAncestorAttributeCmsInActive(fields, "tvalidate")) {
+			logger.info("Suppressing element due to ancestor tvalidate attribute: {}", rid);
+			return;
+		}
+		
+		
 		if (this.ridChecksums != null && rid != null) {
 			String releaseChecksum = this.ridChecksums.get(rid);
 			if (releaseChecksum == null || releaseChecksum.isEmpty()) {
@@ -187,6 +197,26 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		this.ridChecksums = null;
 		this.releaseId = null;
 
+	}
+	
+	private boolean hasAncestorAttributeCmsActive(IndexingDoc fields, String attrname) {
+		
+		String value = (String) fields.getFieldValue("aa_cms." + attrname);
+		
+		if (value != null && !"no".equalsIgnoreCase(value)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean hasAncestorAttributeCmsInActive(IndexingDoc fields, String attrname) {
+		
+		String value = (String) fields.getFieldValue("aa_cms." + attrname);
+		
+		if (value != null && !"yes".equalsIgnoreCase(value)) {
+			return true;
+		}
+		return false;
 	}
 
 }
