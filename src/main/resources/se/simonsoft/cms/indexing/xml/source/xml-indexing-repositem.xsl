@@ -77,6 +77,9 @@
 				<field name="embd_xml_title"><xsl:value-of select="$titles[1]"/></field>
 			</xsl:if>
 			
+			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
+			<field name="embd_xml_ids"><xsl:value-of select="//@*[name() = 'xml:id' or name() = 'id']"/></field>
+			
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
