@@ -188,6 +188,11 @@
 		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
+	<xsl:template match="mapref/@href[../@processing-role = 'resource-only']" mode="refkeydefmap">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
 	<xsl:template match="@*[name() = 'href'][parent::element()[local-name() = 'include'][namespace-uri() = 'http://www.w3.org/2001/XInclude']]" mode="refinclude">
 			<xsl:value-of select="."/>
 			<xsl:value-of select="' '"/>
