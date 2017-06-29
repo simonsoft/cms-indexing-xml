@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -36,7 +39,8 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
  */
 public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction {
 
-	private List<String> prefixes;
+	private final List<String> prefixes;
+	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldExtractionChecksum.class);
 
 	public XmlIndexFieldExtractionChecksum() {
 		this("text", "source");
@@ -63,9 +67,12 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 				if (n.startsWith(p)) {
 					Object v = fields.getFieldValue(n);
 					if (v instanceof String) {
-						Checksum c = getChecksum((String) v);
+						String s = (String) v;
+						Checksum c = getChecksum(s);
 						fields.addField("c_md5_" + n, c.getMd5());
 						fields.addField("c_sha1_" + n, c.getSha1());
+						// TODO: Comment out this logging when issue resolved.
+						logger.debug("{} {}", c.getSha1(), s.substring(0, Math.min(100, s.length())));
 					} else {
 						throw new IllegalArgumentException("Only string fields can be checksummed, field " + n + " was " + v.getClass() + " " + v);
 					}
@@ -90,7 +97,6 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	}
 	@Override
 	public void endDocument() {
-		// TODO Should prefixes be cleaned? Very little data anyway.
 		
 	}
 
