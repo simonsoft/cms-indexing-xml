@@ -84,7 +84,7 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	private Checksum getChecksum(String value) {
 		ChecksumRead c = new ChecksumRead();
 		try {
-			c.add(new ByteArrayInputStream(value.getBytes()));
+			c.add(new ByteArrayInputStream(value.getBytes("UTF-8"))); // Added explicit charset in 0.18.2, could require reindexing depending on JVM default charset on the platform.
 		} catch (IOException e) { // would be very odd when we use byte array
 			throw new RuntimeException("Value read error");
 		}
