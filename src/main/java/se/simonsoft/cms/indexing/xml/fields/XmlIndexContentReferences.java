@@ -34,6 +34,12 @@ import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 
+/**
+ * An experiment that stores descendant checksums as tokens in a field. Could search for similar sections with a certain level of fuzziness.
+ * 
+ * This is likely simple to achieve with XSL assuming that we use the XSL normalization/checksum transform.
+ *
+ */
 public class XmlIndexContentReferences implements XmlIndexFieldExtraction {
 
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
