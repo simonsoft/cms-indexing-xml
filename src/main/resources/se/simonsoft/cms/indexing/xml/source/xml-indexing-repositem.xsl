@@ -133,7 +133,7 @@
 			</xsl:if>
 			
 			<!-- Detect non-CMS references in XML files.  -->
-			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))]" mode="refnoncms"/></field>
+			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
 			
 			<!-- Extract all dependencies in document order, including duplicates. -->
 			<field name="ref_itemid_dependency">
