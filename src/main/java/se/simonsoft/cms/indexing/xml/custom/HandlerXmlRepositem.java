@@ -44,6 +44,7 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
+import se.simonsoft.cms.xmlsource.transform.SaxonMessageListener;
 
 /**
  * Extract XML information for repositem core.
@@ -115,6 +116,7 @@ public class HandlerXmlRepositem {
 		transformer.setParameter(PATHEXT_PARAM, new XdmAtomicValue((String) fields.getFieldValue("pathext")));
 
 		transformer.setErrorListener(new LoggingErrorListener());
+		transformer.setMessageListener(new SaxonMessageListener());
 		transformer.setDestination(xmltrackingFieldsHandler);
 
 		try {
