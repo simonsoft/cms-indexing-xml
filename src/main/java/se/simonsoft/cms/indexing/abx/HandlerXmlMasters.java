@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,6 +47,9 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerXmlMasters.class);
 	
 	private static final String HOSTFIELD = "repohost";
+	private static final String ABX_AM_FIELD = "rel_abx.AuthorMaster";
+	private static final String ABX_RM_FIELD = "rel_abx.ReleaseMaster";
+	private static final String ABX_TM_FIELD = "rel_abx.TranslationMaster";
 	
 	private static final String REL_FIELD_PREFIX = "rel_xml_";
 	private static final String REL_ITEMID_FIELD_PREFIX = "rel_itemid_";
@@ -79,6 +83,8 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 			}
 		}
 		
+		// Copy rlogicalid field to different fields depending on whether this item is a Release or Translation.
+		handleRelationsRlogicalid(fields);
 	}
 	
 
@@ -125,8 +131,35 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 			} 
 			
 		}
-
 		return result;
+	}
+	
+	
+	
+	protected void handleRelationsRlogicalid(IndexingDoc fields) {
+		
+		Collection<Object> rlogicalId = fields.getFieldValues(REL_FIELD_PREFIX + "rlogicalid");
+		
+		if (rlogicalId == null || rlogicalId.isEmpty()) {
+			return;
+		}
+	
+		if (fields.containsKey(ABX_AM_FIELD)) {
+			addFieldValues(fields, REL_FIELD_PREFIX + "AuthorMaster", rlogicalId);
+		}
+		if (fields.containsKey(ABX_RM_FIELD)) {
+			addFieldValues(fields, REL_FIELD_PREFIX + "ReleaseMaster", rlogicalId);
+		}
+		if (fields.containsKey(ABX_TM_FIELD)) {
+			addFieldValues(fields, REL_FIELD_PREFIX + "TranslationMaster", rlogicalId);
+		}
+	}
+	
+	private void addFieldValues(IndexingDoc fields, String fieldname, Collection<Object> values) {
+		
+		for (Object v: values) {
+			fields.addField(fieldname, v);
+		}
 	}
 
 }
