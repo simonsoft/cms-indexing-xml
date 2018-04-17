@@ -77,6 +77,10 @@
 				<field name="embd_xml_title"><xsl:value-of select="$titles[1]"/></field>
 			</xsl:if>
 			
+			<xsl:if test="cmsfn:get-docno(.)">
+				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
+			</xsl:if>
+			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_ids"><xsl:value-of select="//@*[name() = 'xml:id' or name() = 'id']"/></field>
 			
@@ -233,6 +237,31 @@
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
 	</xsl:template>
+	
+	
+	<xsl:function name="cmsfn:get-docno" as="xs:string?">
+		<xsl:param name="root" as="element()"/>
+		
+		<xsl:choose>
+			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
+				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
+			</xsl:when>
+			
+			<xsl:when test="$root//docinfogroup/docinfo[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root//docinfogroup/docinfo[@xml:lang = /*/@xml:lang]/docno"/>
+			</xsl:when>
+			
+			<xsl:when test="$root/@docno">
+				<xsl:value-of select="$root/@docno"/>
+			</xsl:when>
+		</xsl:choose>
+		<!-- Empty result if no match. -->
+	</xsl:function>
+	
 	
 	<!-- Versioned in cms-xmlsource. -->
 	<xsl:function name="cmsfn:is-format-dita" as="xs:boolean">
