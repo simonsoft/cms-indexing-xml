@@ -104,7 +104,7 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 			fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
 		}
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
-			logger.debug("Rels '{}' extracted by XSL: {}", relName, itemIds);
+			logger.trace("Rels '{}' extracted by XSL: {}", relName, itemIds);
 		}
 		
 

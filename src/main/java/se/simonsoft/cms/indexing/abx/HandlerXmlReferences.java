@@ -115,7 +115,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 			fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
 		}
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
-			logger.debug("Refs '{}' extracted by XSL: {}", refName, itemIds);
+			logger.trace("Refs '{}' extracted by XSL: {}", refName, itemIds);
 		}
 		
 
