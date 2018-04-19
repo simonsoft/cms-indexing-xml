@@ -72,7 +72,7 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 						fields.addField("c_md5_" + n, c.getMd5());
 						fields.addField("c_sha1_" + n, c.getSha1());
 						// TODO: Comment out this logging when issue resolved.
-						logger.debug("{} {}", c.getSha1(), s.substring(0, Math.min(100, s.length())));
+						logger.trace("{} {}", c.getSha1(), s.substring(0, Math.min(100, s.length())));
 					} else {
 						throw new IllegalArgumentException("Only string fields can be checksummed, field " + n + " was " + v.getClass() + " " + v);
 					}
