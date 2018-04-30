@@ -84,6 +84,9 @@
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_ids"><xsl:value-of select="//@*[name() = 'xml:id' or name() = 'id']"/></field>
 			
+			<!-- Linkend attribute should be searchable, will concat the tokens separated by a space. -->
+			<field name="embd_xml_linkends"><xsl:value-of select="//@*[name() = 'linkend']"/></field>
+			
 			<!-- Reference attributes with fragment should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][contains(., '#')] return substring-after($ref, '#')"/></field>
 			
