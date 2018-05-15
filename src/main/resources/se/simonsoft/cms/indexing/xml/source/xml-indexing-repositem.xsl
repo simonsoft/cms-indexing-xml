@@ -66,6 +66,7 @@
 			<!-- TODO: Decision on field names, some test coverage in xml-tracking. -->
 			<!-- NOTE: Indexing will fail if field name overlaps with Tika extraction. -->
 			<field name="embd_xml_name"><xsl:value-of select="name($root)"/></field>
+			<!-- attributes on the root element -->
 			<xsl:for-each select="$root/@*">
 				<xsl:variable name="fieldname" select="concat('embd_xml_a_', replace(name(.), ':', '.'))"/>
 				<field name="{$fieldname}"><xsl:value-of select="."/></field>
