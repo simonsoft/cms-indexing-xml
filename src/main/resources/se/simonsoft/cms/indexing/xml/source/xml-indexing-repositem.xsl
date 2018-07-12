@@ -147,6 +147,7 @@
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
 			
 			<!-- Extract all dependencies in document order, including duplicates. -->
+			<!-- ref-attrs-conref-seq contains the union of ref-attrs-seq and 'conref'. -->
 			<field name="ref_itemid_dependency">
 				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refdep"/>
 				<xsl:apply-templates select="//@*[name() = $ref-attrs-conref-seq][starts-with(., 'x-svn:')]" mode="refdep"/>
