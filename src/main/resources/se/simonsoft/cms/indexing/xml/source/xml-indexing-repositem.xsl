@@ -260,6 +260,11 @@
 				<xsl:value-of select="$root//docinfogroup/docinfo[@xml:lang = /*/@xml:lang]/docno"/>
 			</xsl:when>
 			
+			<xsl:when test="$root//docinfogroup/docinfo[not(@market)] and $root//docinfogroup/docinfo[not(@xml:lang)] and count($root//docinfogroup/docinfo) = 1">
+				<!-- Exactly one docinfo element, no @market / @xml:lang attribute set. -->
+				<xsl:value-of select="$root//docinfogroup/docinfo[1]/docno"/>
+			</xsl:when>
+			
 			<xsl:when test="$root/@docno">
 				<xsl:value-of select="$root/@docno"/>
 			</xsl:when>
