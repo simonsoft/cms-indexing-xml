@@ -191,7 +191,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			int s = e.getContentSize();
 			if (s >= SIZE_INFO_ABOVE && ((Integer) e.getFieldValue("depth")) > 1) {
 				Entry<String, Integer> l = getLargestField(e);
-				logger.info("Large element '{}' {}, fields {},  total size {}, largest field {}:{}", 
+				logger.info("Large element '{}' {}, fields {}, total size {}, largest field {}:{}", 
 						new Object[] {e.getFieldValue("name"), e.getFieldValue("id"), e.size(), s, l.getKey(), l.getValue()});
 			}
 			if (!pending.add(getSolrDoc(e))) {
