@@ -165,11 +165,14 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		}
 		
 		private Entry<String, Integer> getLargestField(IndexingDoc e) {
+			@SuppressWarnings("unused")
 			final Set<String> largeCandidates = new HashSet<String>(Arrays.asList("id", "prop_abx.Dependencies", "source", "source_reuse"));
+			// text is also large
 			
 			String name = null;
 			int size = 0;
-			for (String f : largeCandidates) {
+			for (String f : e.getFieldNames()) {
+			//for (String f : largeCandidates) {
 				int valSize = 0;
 				Object val = e.getFieldValue(f);
 				if (val instanceof String) {
