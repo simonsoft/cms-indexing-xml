@@ -88,7 +88,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		executor.shutdown();
 		try {
 			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
-			boolean terminated = executor.awaitTermination(30, TimeUnit.SECONDS);
+			boolean terminated = executor.awaitTermination(60, TimeUnit.SECONDS);
 			if (!terminated) {
 				logger.warn("Completion of Solr Background executor timed out, XML index will likely be incomplete until next commit.");
 			}
