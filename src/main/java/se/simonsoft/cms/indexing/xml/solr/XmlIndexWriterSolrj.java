@@ -57,7 +57,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	// Tests indicate that with a 300MB heap, the performance is optimal around 500 kB batch size.
 	private static final long BATCH_TEXT_TOTAL_MAX = 500 * 1000;	
 	
-	private static final long SIZE_INFO_ABOVE = 50000;
+	private static final long SIZE_INFO_ABOVE = 20000;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
