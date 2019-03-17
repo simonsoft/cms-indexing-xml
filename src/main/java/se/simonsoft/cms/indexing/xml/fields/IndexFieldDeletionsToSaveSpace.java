@@ -43,7 +43,7 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 		
 		String text = (String) fields.getFieldValue("text");
 		if (text.length() > MAX_CHARACTERS_TEXT) {
-			logger.info("Suppressing large text field for element {}", fields.getFieldValue("name"));
+			logger.debug("Suppressing large text field for element {}", fields.getFieldValue("name"));
 			fields.removeField("text");
 		}
 	}
