@@ -89,7 +89,7 @@
 			<field name="embd_xml_linkends"><xsl:value-of select="//@*[name() = 'linkend']"/></field>
 			
 			<!-- Reference attributes with fragment should be searchable, will concat the tokens separated by a space. -->
-			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][contains(., '#')] return substring-after($ref, '#')"/></field>
+			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
 			
 			
 			<!-- What about number of elements? -->	
