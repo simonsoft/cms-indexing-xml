@@ -68,6 +68,7 @@ public class XmlIndexRestrictFields {
 		put("prop_abx.CrossRefs", null);
 		put("prop_abx.x-raomContentStructure", null);
 		put("prop_abx.x-raomFirstTagName", null);
+		put("prop_abx.Ditamap", null);
 		// Keeping abx:x-raomDocTypeName since it can not be extracted.
 		
 	}};
