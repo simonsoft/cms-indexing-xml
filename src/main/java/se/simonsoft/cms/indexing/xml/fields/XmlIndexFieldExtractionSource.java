@@ -91,7 +91,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 			// Remove the Arbortext CT namespace in translations.
 			Collection<Object> patharea = doc.getFieldValues("patharea");
 			if (patharea != null && patharea.contains("translation")) {
-				logger.debug("Patharea translation: {}", patharea.contains("translation"));
+				logger.trace("Patharea translation: {}", patharea.contains("translation"));
 				source = source.replaceAll(" xmlns:atict=\"http://www.arbortext.com/namespace/atict\"", "");
 			}
 		}
