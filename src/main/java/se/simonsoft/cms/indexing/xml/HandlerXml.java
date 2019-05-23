@@ -179,10 +179,17 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.debug("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
 			indexReposxml = false;
 		}
+		// Don't index "Obsolete" in reposxml.
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Obsolete".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Obsolete' item: {}", progress.getItem());
 			indexReposxml = false;
 		}
+		// Don't index "Pending_Pretranslate" in reposxml.
+		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Pending_Pretranslate".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
+			logger.info("Suppressing reposxml indexing of 'Pending_Pretranslate' item: {}", progress.getItem());
+			indexReposxml = false;
+		}
+		
 
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
