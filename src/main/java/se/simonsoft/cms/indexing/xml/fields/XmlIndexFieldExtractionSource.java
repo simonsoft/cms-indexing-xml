@@ -39,7 +39,8 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	 */
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
-	private Integer MAX_CHARACTERS_SOURCE = 1000; // null means 'always extract source'
+	// Having source_reuse is helpful when investigating issues. Conflicts with keeping small index size.
+	private Integer MAX_CHARACTERS_SOURCE = 2000; // null means 'always extract source'
 	
 	@Override
 	public void startDocument(XmlIndexProgress xmlProgress) {
