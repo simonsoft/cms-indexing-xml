@@ -194,8 +194,8 @@
 	</xsl:template>
 	
 	
-	<xsl:template match="ph/node()" mode="source-reuse-child" priority="90">
-		<!-- Suppress content of ph elements (inserted/replaced during publishing) but allow all attributes to propagate. -->
+	<xsl:template match="*[@keyref]/node()" mode="source-reuse-child" priority="90">
+		<!-- #1252 Suppress content of ph or other elements with @keyref (inserted/replaced during publishing) but allow all attributes to propagate. -->
 	</xsl:template>
 	
 	<xsl:template match="varref/node()" mode="source-reuse-child" priority="90">

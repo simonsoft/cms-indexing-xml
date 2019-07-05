@@ -237,17 +237,19 @@ public class IndexFieldExtractionCustomXslTest {
 				"<section><title>GUI Strings</title>\n" +
 				"<p>Press button <ph keyref=\"btn_success\" a=\"first\">SUCCESS</ph> and ...</p>\n" +
 				"<p>Press button <ph keyref=\"btn_success\"><?Pub _previewtext text=\"SUCCESS PI\"?></ph> and ...</p>\n" +
+				"<p>Press button <ph>This is not a keyref</ph> and ...</p>\n" +
 				"</section>\n" +					
 				"</document>");
 		
 		x.end(null, null, fields);
-		verify(fields).addField("text", "GUI Strings Press button SUCCESS and ... Press button and ...");
-		verify(fields).addField("words_text", "11"); // Preferably excluding ph content also in text field, but that would be complex in the XSL.
+		verify(fields).addField("text", "GUI Strings Press button SUCCESS and ... Press button and ... Press button This is not a keyref and ...");
+		verify(fields).addField("words_text", "20"); // Preferably excluding ph content also in text field, but that would be complex in the XSL.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
 		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
 				//"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + 
 				"<p>Press button <ph keyref=\"btn_success\" a=\"first\"></ph> and ...</p>" + // Currently demonstrates that attributes are NOT sorted!
 				"<p>Press button <ph keyref=\"btn_success\"></ph> and ...</p>" + 
+				"<p>Press button <ph>This is not a keyref</ph> and ...</p>" +
 				"</section></document>");
 	}
 	
