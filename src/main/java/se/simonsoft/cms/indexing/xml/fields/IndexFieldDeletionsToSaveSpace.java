@@ -29,7 +29,7 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexFieldDeletionsToSaveSpace.class);
 	
-	private Integer MAX_CHARACTERS_TEXT = 10000;
+	private Integer MAX_CHARACTERS_TEXT = 3000;
 
 	@Override
 	public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
