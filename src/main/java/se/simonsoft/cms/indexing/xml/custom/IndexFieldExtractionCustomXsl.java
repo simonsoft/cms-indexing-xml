@@ -186,6 +186,9 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 							} else {
 								String nsuri = namespaces.get(name.substring(0, nssep));
 								//logger.trace("adding attribute with NS uri: {}", nsuri);
+								if (nsuri == null) {
+									logger.warn("Namespace not declared for: {}", fieldName);
+								}
 								Attr attr = doc.createAttributeNS(nsuri, name);
 								attr.setValue(value);
 								elem.setAttributeNode(attr);
@@ -196,7 +199,7 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 					}
 				} catch (Exception e) {
 					String msg = MessageFormatter.format("failed to pass attribute in field '{}' to XSLT: {}", fieldName, e.getMessage()).getMessage();
-					logger.error(msg);
+					logger.error(msg, e);
 					throw new IndexingHandlerException(msg);
 				}
 			}
