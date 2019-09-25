@@ -327,6 +327,50 @@ public class HandlerXmlIntegrationTest {
 	}
 	
 	@Test
+	public void testTinyAttributesNs() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer reposxml = indexing.getCore("reposxml");
+		
+		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
+		SolrDocumentList x1 = reposxml.query(q1).getResults();
+		assertEquals(4, x1.getNumFound());
+		
+		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
+		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
+		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("get RID of root", "2gyvymn15kv0000", x1.get(0).getFieldValue("a_cms.rid"));
+		assertEquals("get doc.code of root", "period", x1.get(0).getFieldValue("a_doc,code"));
+		
+		
+		assertEquals("get name of e1", "ch1", x1.get(1).getFieldValue("a_name"));
+		assertEquals("get RID of e1", "2gyvymn15kv0001", x1.get(1).getFieldValue("a_cms.rid"));
+		assertEquals("get doc.code of e1", "period-child", x1.get(1).getFieldValue("a_doc,code"));
+		
+		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
+		assertEquals("get id of e2", "e2", x1.get(2).getFieldValue("a_id"));
+		assertEquals("get RID of e2", "2gyvymn15kv0002", x1.get(2).getFieldValue("a_cms.rid"));
+		assertEquals("get doc.code of e2, empty", "", x1.get(2).getFieldValue("a_doc,code"));
+		assertNull("Non-existant attributes are null in schema", x1.get(2).getFieldValue("a_nonexist"));
+		
+		// Also test ancestor attributes
+		assertEquals("get ancestor RID of e1", "2gyvymn15kv0000", x1.get(1).getFieldValue("aa_cms.rid"));
+		assertEquals("get inherited RID of e1", "2gyvymn15kv0001", x1.get(1).getFieldValue("ia_cms.rid"));
+		assertEquals("get ancestor doc.code of e1", "period", x1.get(1).getFieldValue("aa_doc,code"));
+		assertEquals("get inherited doc.code of e1", "period-child", x1.get(1).getFieldValue("ia_doc,code"));
+		
+		assertEquals("get ancestor RID of e2", "2gyvymn15kv0000", x1.get(2).getFieldValue("aa_cms.rid"));
+		assertEquals("get inherited RID of e2", "2gyvymn15kv0002", x1.get(2).getFieldValue("ia_cms.rid"));
+		assertEquals("get ancestor doc.code of e2", "period", x1.get(2).getFieldValue("aa_doc,code"));
+		assertEquals("get inherited doc.code of e2", "", x1.get(2).getFieldValue("ia_doc,code"));
+	}
+	
+	
+	@Test
 	public void testAttributesReleasetranslationRelease() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);

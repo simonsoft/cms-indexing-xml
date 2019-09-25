@@ -17,11 +17,16 @@ package se.simonsoft.xmltracking.index;
 
 /**
  * Attribute fields prefixed with "a_", names not escaped at all.
+ * Namespace separator ':' replaced with '.' and '.' replaced with ','.
  */
 public class SchemaFieldNamesReposxml implements SchemaFieldNames {
 
 	@Override
 	public String getAttribute(String xmlAttributeName) {
+		// #1261 Attribute names are allowed to contain '.' which makes the NS replacement ambiguous.
+		// Attribute names are not allowed to contain ',' (comma) which is also not an important character in SolR.
+		xmlAttributeName = xmlAttributeName.replace('.', ',');
+		
 		return "a_" + xmlAttributeName.replace(':', '.');
 	}
 

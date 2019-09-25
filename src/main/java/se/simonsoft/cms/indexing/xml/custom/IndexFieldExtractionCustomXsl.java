@@ -177,7 +177,11 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 					if (fieldName.startsWith(A_ATTR_FIELD_PREFIX)) {
 						String value = (String) fields.getFieldValue(fieldName);
 						if (value != null) {
+							// Consider moving the field name transformation to SchemaFieldNames implementation.
 							String name = fieldName.substring(3).replace('.', ':');
+							// #1261 Also replacing '.' with ',' in extraction.
+							name = name.replace(',', '.');
+							
 							int nssep = name.indexOf(':');
 							if (nssep == -1 || name.startsWith("xml:")) { // Handle xml namespace as no-namespace. 
 								Attr attr = doc.createAttribute(name);
