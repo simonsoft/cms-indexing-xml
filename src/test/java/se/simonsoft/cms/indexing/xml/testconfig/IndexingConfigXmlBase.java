@@ -58,6 +58,7 @@ public class IndexingConfigXmlBase extends AbstractModule {
 		
 		// Set up test config defaults.
 		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));
+		bind(String.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.suppressRidBefore")).toInstance(new String(""));
 	}
 
 }

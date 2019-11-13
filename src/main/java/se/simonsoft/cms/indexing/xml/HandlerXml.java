@@ -62,6 +62,7 @@ public class HandlerXml implements IndexingItemHandler {
 	private HandlerXmlRepositem handlerXmlRepositem;
 	
 	private Integer maxFilesize = null;
+	private String suppressRidBefore = null;
 	
 	
 	@Inject
@@ -92,9 +93,12 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	@Inject
 	public void setConfigIndexing(
-			@Named("se.simonsoft.cms.indexing.xml.maxFilesize") Integer maxFilesize) {
+			@Named("se.simonsoft.cms.indexing.xml.maxFilesize") Integer maxFilesize,
+			@Named("se.simonsoft.cms.indexing.xml.suppressRidBefore") String suppressRidBefore
+			) {
 		
 		this.maxFilesize = maxFilesize;
+		this.suppressRidBefore = suppressRidBefore;
 	}
 	
 	@Override
@@ -179,6 +183,12 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.debug("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
 			indexReposxml = false;
 		}
+		// Don't index in reposxml if Finalized before configured timestamp (RID).
+		if (suppressRidBefore != null && !suppressRidBefore.isEmpty() && progress.getFields().containsKey(HandlerXmlRepositem.RID_PROP_FIELD_NAME) && suppressRidBefore.compareTo((String) progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME)) > 0) {
+			logger.info("Suppressing reposxml indexing of item finalized before {}: {}", suppressRidBefore, progress.getItem());
+			indexReposxml = false;
+		}
+		
 		// Don't index "Obsolete" in reposxml.
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Obsolete".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Obsolete' item: {}", progress.getItem());
