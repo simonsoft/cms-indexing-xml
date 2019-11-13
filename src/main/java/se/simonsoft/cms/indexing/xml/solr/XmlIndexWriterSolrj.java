@@ -58,7 +58,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	private static final long BATCH_TEXT_TOTAL_MAX = 500 * 1000;	
 	
 	// Limit triggering logging of large element. Should likely be in range 4000-10000.
-	private static final long SIZE_INFO_ABOVE = 6000;
+	private static final long SIZE_INFO_ABOVE = 8000;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
