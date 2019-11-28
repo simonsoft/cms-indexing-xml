@@ -99,6 +99,11 @@ public class HandlerXml implements IndexingItemHandler {
 		
 		this.maxFilesize = maxFilesize;
 		this.suppressRidBefore = suppressRidBefore;
+		
+		logger.info("Configured to suppress files with size above: {}", this.maxFilesize);
+		if (suppressRidBefore != null && !suppressRidBefore.isEmpty()) {
+			logger.info("Configured to suppress reposxml before RID: {}", this.suppressRidBefore);
+		}
 	}
 	
 	@Override
