@@ -65,6 +65,7 @@ public class HandlerXmlRepositem {
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	public static final String RID_PROP_FIELD_NAME = "prop_abx.ReleaseId";
+	public static final String TPROJECT_PROP_FIELD_NAME = "prop_abx.TranslationProject";
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName PATHEXT_PARAM = new QName("pathext");
 

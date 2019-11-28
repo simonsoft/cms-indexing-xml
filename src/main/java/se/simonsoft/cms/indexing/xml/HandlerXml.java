@@ -189,9 +189,13 @@ public class HandlerXml implements IndexingItemHandler {
 			indexReposxml = false;
 		}
 		// Don't index in reposxml if Finalized before configured timestamp (RID).
-		logger.info("RID property: {} {}", progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME));
 		if (suppressRidBefore != null && !suppressRidBefore.isEmpty() && progress.getFields().containsKey(HandlerXmlRepositem.RID_PROP_FIELD_NAME) && suppressRidBefore.compareTo((String) progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME)) > 0) {
 			logger.info("Suppressing reposxml indexing of item finalized before {}: {}", suppressRidBefore, progress.getItem());
+			indexReposxml = false;
+		}
+		// Don't index in reposxml if Translation was prepared with old CMS (2.0-3.?) and there is a configured timestamp (RID).
+		if (suppressRidBefore != null && !suppressRidBefore.isEmpty() && progress.getFields().containsKey(HandlerXmlRepositem.TPROJECT_PROP_FIELD_NAME) && !progress.getFields().containsKey(HandlerXmlRepositem.RID_PROP_FIELD_NAME)) {
+			logger.info("Suppressing reposxml indexing of Translation without RID property: {}", suppressRidBefore, progress.getItem());
 			indexReposxml = false;
 		}
 		
