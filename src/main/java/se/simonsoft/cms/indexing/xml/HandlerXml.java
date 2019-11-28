@@ -189,6 +189,7 @@ public class HandlerXml implements IndexingItemHandler {
 			indexReposxml = false;
 		}
 		// Don't index in reposxml if Finalized before configured timestamp (RID).
+		logger.info("RID property: {} {}", progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME), suppressRidBefore.compareTo((String) progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME)) > 0);
 		if (suppressRidBefore != null && !suppressRidBefore.isEmpty() && progress.getFields().containsKey(HandlerXmlRepositem.RID_PROP_FIELD_NAME) && suppressRidBefore.compareTo((String) progress.getFields().getFieldValue(HandlerXmlRepositem.RID_PROP_FIELD_NAME)) > 0) {
 			logger.info("Suppressing reposxml indexing of item finalized before {}: {}", suppressRidBefore, progress.getItem());
 			indexReposxml = false;
