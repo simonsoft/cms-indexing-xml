@@ -42,8 +42,9 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 		fieldTitleKeys.add("embd_xml_a_cms.title"); // cms-indexing-xml - namespaced attribute
 		fieldTitleKeys.add("embd_xml_title"); // cms-indexing-xml
 		fieldTitleKeys.add("embd_title"); // Tika
+		fieldTitleKeys.add("embd_subject"); // Tika extracts PDF subject (without keywords)
 		fieldTitleKeys.add("xmp_dc.title");
-		fieldTitleKeys.add("xmp_dc.subject");
+		fieldTitleKeys.add("xmp_dc.subject"); // Can contain PDF keywords instead. Deprecated by Tika.
 		fieldTitleKeys.add("xmp_dc.description");
 	}
 
