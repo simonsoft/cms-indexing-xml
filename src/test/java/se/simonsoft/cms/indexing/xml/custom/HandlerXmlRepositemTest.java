@@ -118,12 +118,12 @@ public class HandlerXmlRepositemTest {
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
-		//assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertTrue("Flag 'hasridmixedunsafe'", doc.get(0).getFieldValues("flag").contains("hasridmixedunsafe"));
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
-		assertEquals("one duplicate, mentioned once", 1, mixedUnsafe.size());
-		assertEquals("List the duplicate RIDs in repositem core", "2gyvymn15kv0001", mixedUnsafe.iterator().next());
+		assertEquals("one unsafe mixed RID", 1, mixedUnsafe.size());
+		assertEquals("List the unsafe mixed RIDs in repositem core", "2gyvymn15kv0001", mixedUnsafe.iterator().next());
 	}
 	
 }

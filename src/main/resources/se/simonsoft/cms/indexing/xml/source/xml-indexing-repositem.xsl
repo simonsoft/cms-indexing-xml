@@ -162,6 +162,12 @@
 				</field>
 			</xsl:if>
 			
+			<xsl:if test="count($rid_mixed_unsafe) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hasridmixedunsafe'"/>
+				</field>
+			</xsl:if>
+			
 			
 			<!-- Detect non-CMS references in XML files.  -->
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
