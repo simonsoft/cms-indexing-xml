@@ -60,6 +60,11 @@
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
+		<!-- Detect text in non-RID places. -->
+		<!-- Elements containing both text and RID-children. -->
+		<xsl:variable name="rid_mixed_unsafe" as="attribute()*"
+			select="//element()[@cms:rid][element()[@cms:rid]][text()][count(for $elemtext in text() return tokenize(normalize-space($elemtext), $whitespace)) > 0]/@cms:rid"/>
+
 		<doc>
 			<!-- name and attributes -->
 			<!-- using the embd_ field for now (with addition of xml_) -->
@@ -142,6 +147,14 @@
 					<xsl:value-of select="'hasridduplicate'"/>
 				</field>
 			</xsl:if>
+			
+			<!-- Mixed content, unsafe wrt RID -->
+			<xsl:if test="count($rid_mixed_unsafe) > 0">
+				<field name="embd_xml_ridmixedunsafe">
+					<xsl:value-of select="distinct-values($rid_mixed_unsafe)"/>
+				</field>
+			</xsl:if>
+			
 			
 			<!-- Detect non-CMS references in XML files.  -->
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
