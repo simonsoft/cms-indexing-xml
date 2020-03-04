@@ -148,6 +148,13 @@
 				</field>
 			</xsl:if>
 			
+			<!-- Boolean flag for tsuppress. -->
+			<xsl:if test="count(//@cms:tsuppress[not(. = 'no')]) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hastsuppress'"/>
+				</field>
+			</xsl:if>
+			
 			<!-- Mixed content, unsafe wrt RID -->
 			<xsl:if test="count($rid_mixed_unsafe) > 0">
 				<field name="embd_xml_ridmixedunsafe">
