@@ -128,6 +128,11 @@
 				<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
 			</xsl:if>
 			
+			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
+			
+			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
+			
+			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<!-- Using field 'text' seems unable to override Tika extraction. -->
