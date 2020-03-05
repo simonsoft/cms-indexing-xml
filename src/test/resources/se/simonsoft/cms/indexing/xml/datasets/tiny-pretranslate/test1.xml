@@ -22,5 +22,6 @@ cms:rid="2gyvymn15kv0000">
 <section cms:rid="2gyvymn15kv0001">
 <p name="e1" cms:rid="2gyvymn15kv0002">text</p>
 <p id="e2" cms:rid="2gyvymn15kv0003">elem <inline>text</inline></p>
+<p id="e3" cms:rid="2gyvymn15kv0004"><ph keyref="dita">replaced</ph> </p>
 </section>
 </doc>
