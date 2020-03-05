@@ -77,6 +77,8 @@ public class HandlerXmlRepositemTest {
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertEquals("1 flag(s)", 1, flags.size());
 		
+		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
+		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
 		assertNull("no unsafe mixed content elements", mixedUnsafe);
 	}
