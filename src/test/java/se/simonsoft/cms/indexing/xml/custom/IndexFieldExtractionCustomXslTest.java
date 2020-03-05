@@ -242,8 +242,8 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		
 		x.end(null, null, fields);
-		verify(fields).addField("text", "GUI Strings Press button SUCCESS and ... Press button and ... Press button This is not a keyref and ...");
-		verify(fields).addField("words_text", "20"); // Preferably excluding ph content also in text field, but that would be complex in the XSL.
+		verify(fields).addField("text", "GUI Strings Press button and ... Press button and ... Press button This is not a keyref and ...");
+		verify(fields).addField("words_text", "19"); // #1283 Now excluding ph / @keyref content also in text field.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
 		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
 				//"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + 

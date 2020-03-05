@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2009-2013 Simonsoft Nordic AB
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<lists>
+   <list>
+      <entry kind="file">
+         <name>test1.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-complete.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-complete-section.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-partial.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+
+      <entry kind="file">
+         <name>test1-translate-no.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-translate-no-section.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      
+      <entry kind="file">
+         <name>test1-mixed-unsafe.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-rid-missing-empty.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-rid-missing-parent.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+      <entry kind="file">
+         <name>test1-rid-missing-sibling.xml</name>
+         <size>205</size>
+         <commit revision="2">
+            <author>test</author>
+            <date>2013-09-26T04:23:02.302994Z</date>
+         </commit>
+         <properties>
+			<property
+			   name="abx:lang">nl-NL</property>
+			<property
+			   name="cms:status">Released</property>
+			<property
+			   name="xml:title">text</property>
+		</properties>			
+      </entry>
+      
+   </list>
+</lists>

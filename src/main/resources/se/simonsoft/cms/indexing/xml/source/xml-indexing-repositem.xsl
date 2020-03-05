@@ -58,8 +58,13 @@
 	
 		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
-		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+		<xsl:variable name="text" select="for $elemtext in descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
+		<!-- Detect text in non-RID places. -->
+		<!-- Elements containing both text and RID-children. -->
+		<xsl:variable name="rid_mixed_unsafe" as="attribute()*"
+			select="//element()[@cms:rid][element()[@cms:rid]][text()][count(for $elemtext in text() return tokenize(normalize-space($elemtext), $whitespace)) > 0]/@cms:rid"/>
+
 		<doc>
 			<!-- name and attributes -->
 			<!-- using the embd_ field for now (with addition of xml_) -->
@@ -103,7 +108,30 @@
 					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
+				
+				<!-- #1283 Attempt to detect complete pretranslate -->
+				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
+				<!-- Not sure if this can be compatible with hastsuppress. Typical tsuppress meaning before Pretranslate: "require re-translation by TSP". Must be manual. -->
+				<!-- Since Pretranslate will not traverse into tsuppres, they will be counted here. -->
+				<xsl:variable name="tstatus_open_elements" as="element()*"
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])]"/>
+					<!-- Select: elements [with RID], [RID-leaf], [not Pretranslated], [not excluded from translation (2 variants)]  -->
+				
+				<field name="count_elements_translate"><xsl:value-of select="count($tstatus_open_elements)"/></field>
+				
+				<field name="embd_xml_ridtranslate">
+					<xsl:value-of select="distinct-values($tstatus_open_elements/@cms:rid)"/>
+				</field>
+				
+				<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+				
+				<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
 			</xsl:if>
+			
+			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
+			
+			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
+			
 			
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
@@ -142,6 +170,52 @@
 					<xsl:value-of select="'hasridduplicate'"/>
 				</field>
 			</xsl:if>
+			
+			<!-- Boolean flag for tsuppress. -->
+			<xsl:if test="count(//@cms:tsuppress[not(. = 'no')]) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hastsuppress'"/>
+				</field>
+			</xsl:if>
+			
+			<!-- Mixed content, unsafe wrt RID -->
+			<xsl:if test="count($rid_mixed_unsafe) > 0">
+				<field name="embd_xml_ridmixedunsafe">
+					<xsl:value-of select="distinct-values($rid_mixed_unsafe)"/>
+				</field>
+			</xsl:if>
+			
+			<xsl:if test="count($rid_mixed_unsafe) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hasridmixedunsafe'"/>
+				</field>
+			</xsl:if>
+			
+			<!-- Missing RIDs -->
+			<xsl:variable name="ridmissing_empty" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][element()/@cms:rid = '']/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing_parent" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][parent::element()][parent::element()[not(@cms:rid)]]/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing_sibling" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][element()[@cms:rid]][element()[not(@cms:rid)]]/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing" as="attribute()*"
+				select="$ridmissing_empty | $ridmissing_parent | $ridmissing_sibling"/>
+			
+			<xsl:if test="count($ridmissing) > 0">
+				<field name="embd_xml_ridmissing">
+					<xsl:value-of select="distinct-values($ridmissing)"/>
+				</field>
+			</xsl:if>
+			
+			<xsl:if test="count($ridmissing) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hasridmissing'"/>
+				</field>
+			</xsl:if>
+			
 			
 			<!-- Detect non-CMS references in XML files.  -->
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>

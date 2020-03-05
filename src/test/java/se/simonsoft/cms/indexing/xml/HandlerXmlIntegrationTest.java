@@ -163,7 +163,8 @@ public class HandlerXmlIntegrationTest {
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("only hasxml flag", 1, flags.size());
+		assertTrue("Flag 'hastsuppress'", flagged.get(0).getFieldValues("flag").contains("hastsuppress"));
+		assertEquals("only hasxml flag", 2, flags.size());
 
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
