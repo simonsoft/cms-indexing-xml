@@ -168,6 +168,31 @@
 				</field>
 			</xsl:if>
 			
+			<!-- Missing RIDs -->
+			<xsl:variable name="ridmissing_empty" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][element()/@cms:rid = '']/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing_parent" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][parent::element()][parent::element()[not(@cms:rid)]]/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing_sibling" as="attribute()*"
+				select="descendant-or-self::*[@cms:rid][element()[@cms:rid]][element()[not(@cms:rid)]]/@cms:rid"/>
+			
+			<xsl:variable name="ridmissing" as="attribute()*"
+				select="$ridmissing_empty | $ridmissing_parent | $ridmissing_sibling"/>
+			
+			<xsl:if test="count($ridmissing) > 0">
+				<field name="embd_xml_ridmissing">
+					<xsl:value-of select="distinct-values($ridmissing)"/>
+				</field>
+			</xsl:if>
+			
+			<xsl:if test="count($ridmissing) > 0">
+				<field name="flag">
+					<xsl:value-of select="'hasridmissing'"/>
+				</field>
+			</xsl:if>
+			
 			
 			<!-- Detect non-CMS references in XML files.  -->
 			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
