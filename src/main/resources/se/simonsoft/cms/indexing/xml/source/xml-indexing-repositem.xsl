@@ -113,11 +113,20 @@
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
 				<!-- Not sure if this can be compatible with hastsuppress. Typical tsuppress meaning before Pretranslate: "require re-translation by TSP". Must be manual. -->
 				<!-- Since Pretranslate will not traverse into tsuppres, they will be counted here. -->
-				<xsl:variable name="tstatus_open_elements" as="element()*"
+				<xsl:variable name="tstatus_open_elements_all" as="element()*"
 					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])]"/>
 					<!-- Select: elements [with RID], [RID-leaf], [not Pretranslated], [not excluded from translation (2 variants)]  -->
 				
+				<xsl:variable name="tstatus_open_elements" as="element()*"
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][count(for $elemtext in descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)) > 0]"/>
+				
+				
+				<field name="count_elements_translate_all"><xsl:value-of select="count($tstatus_open_elements_all)"/></field>
 				<field name="count_elements_translate"><xsl:value-of select="count($tstatus_open_elements)"/></field>
+				
+				<field name="embd_xml_ridtranslate_all">
+					<xsl:value-of select="distinct-values($tstatus_open_elements_all/@cms:rid)"/>
+				</field>
 				
 				<field name="embd_xml_ridtranslate">
 					<xsl:value-of select="distinct-values($tstatus_open_elements/@cms:rid)"/>

@@ -105,7 +105,8 @@ public class HandlerXmlRepositemTest {
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
-		assertEquals("elements to translate (includes the one with a keyref)", 1L, doc.get(0).getFieldValue("count_elements_translate"));
+		assertEquals("elements to translate (includes the one with a keyref)", 1L, doc.get(0).getFieldValue("count_elements_translate_all"));
+		assertEquals("elements to translate (with text)", 0L, doc.get(0).getFieldValue("count_elements_translate"));
 		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
@@ -186,7 +187,8 @@ public class HandlerXmlRepositemTest {
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
-		assertEquals("elements to translate (includes the one with a keyref)", 2L, doc.get(0).getFieldValue("count_elements_translate"));
+		assertEquals("elements to translate (includes the one with a keyref)", 2L, doc.get(0).getFieldValue("count_elements_translate_all"));
+		assertEquals("elements to translate (with text)", 1L, doc.get(0).getFieldValue("count_elements_translate"));
 		assertEquals("words to translate", 2L, doc.get(0).getFieldValue("count_words_translate"));
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
@@ -212,7 +214,8 @@ public class HandlerXmlRepositemTest {
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
-		assertEquals("elements to translate (includes the one with a keyref)", 1L, doc.get(0).getFieldValue("count_elements_translate"));
+		assertEquals("elements to translate (includes the one with a keyref)", 1L, doc.get(0).getFieldValue("count_elements_translate_all"));
+		assertEquals("elements to translate (with text)", 0L, doc.get(0).getFieldValue("count_elements_translate"));
 		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));
 		assertEquals("words to translate", 2L, doc.get(0).getFieldValue("count_words_translate_no"));
 		
