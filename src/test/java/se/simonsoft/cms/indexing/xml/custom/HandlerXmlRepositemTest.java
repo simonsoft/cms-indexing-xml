@@ -138,6 +138,34 @@ public class HandlerXmlRepositemTest {
 		assertNull("no unsafe mixed content elements", mixedUnsafe);
 	}
 	
+	@Test
+	public void testTinyPretranslateCompleteSectionTranslateNo() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrServer repositem = indexing.getCore("repositem");
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
+		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
+		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
+		assertEquals("1 flag(s)", 1, flags.size());
+		
+		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
+		
+		assertEquals("elements to translate (does not include the one with a keyref since it was part of a replacement)", 0L, doc.get(0).getFieldValue("count_elements_translate"));
+		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));
+		assertEquals("words to translate, must exclude text in Pretranslated elements", 0L, doc.get(0).getFieldValue("count_words_translate_no"));
+		
+		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
+		assertNull("no unsafe mixed content elements", mixedUnsafe);
+	}
+	
+	
 	
 	@Test
 	public void testTinyPretranslatePartial() throws Exception {
