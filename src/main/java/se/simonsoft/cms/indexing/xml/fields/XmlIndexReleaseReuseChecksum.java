@@ -154,6 +154,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 		CmsItemId tmId = new CmsItemIdArg(tmProp);
 		// The version of Release requested must be same as indexed (Release is same commit or most recent).
+		// Ensures identical result after re-indexing even if Release has been updated (must iterate Translation if updated Release checksums are desirable).
 		CmsItemId revId = tmId.withPegRev(rev);
 		
 		Date start = new Date();
