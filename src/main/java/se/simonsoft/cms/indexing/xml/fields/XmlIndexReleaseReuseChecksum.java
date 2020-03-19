@@ -45,6 +45,7 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
@@ -187,6 +188,12 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
 		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
+		
+		// Set parameters to not preserve text/comment/pi.
+		TransformOptions options = new TransformOptions();
+		options.setParameter("preserve-text", Boolean.FALSE);
+		options.setParameter("preserve-comment", Boolean.FALSE);
+		options.setParameter("preserve-pi", Boolean.FALSE);
 		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, null);
 		
 		return docReuse;
