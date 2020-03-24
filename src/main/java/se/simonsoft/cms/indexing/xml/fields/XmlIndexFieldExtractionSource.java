@@ -40,6 +40,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
 	// Having source_reuse is helpful when investigating issues. Conflicts with keeping small index size.
+	// Also depends on preprocess with reuse_normalize, which elements to preserve source_reuse for.
 	private Integer MAX_CHARACTERS_SOURCE = 2000; // null means 'always extract source'
 	
 	@Override
@@ -64,7 +65,19 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 			throw new IllegalStateException("The 'depth' must be extracted before 'source'");
 		}
 		
-		String sourceReuse = (String) doc.getFieldValue("source_reuse");
+		// The checksum is now moved to this Extractor since it is calculated by preprocess xsl.
+		// Only SHA1 now, removed MD5.
+		String sha1SourceReuse = (String) doc.getFieldValue("a_cms.c_sha1_source_reuse");
+		doc.removeField("a_cms.c_sha1_source_reuse");
+		if (sha1SourceReuse != null && !sha1SourceReuse.isEmpty()) {
+			doc.addField("c_sha1_source_reuse", sha1SourceReuse);
+		} else {
+			throw new IllegalStateException("hoppla");
+		}
+		
+		
+		String sourceReuse = (String) doc.getFieldValue("a_cms.source_reuse");
+		doc.removeField("a_cms.source_reuse");
 		if (sourceReuse == null || sourceReuse.isEmpty()) {
 			// No source_reuse, then we suppress source as well.
 			return;

@@ -63,10 +63,6 @@
 			<!-- Word count is simple when each word is a text node. -->
 			<field name="words_text"><xsl:value-of select="count($text)"/></field>
 			
-			<field name="source_reuse">
-				<xsl:apply-templates select="." mode="source-reuse-root"/>
-			</field>
-			
 			<field name="reusevalue">
 				<xsl:apply-templates select="." mode="rule-reusevalue"/>
 			</field>
@@ -96,153 +92,9 @@
 		
 	</xsl:template>
 
-	<xsl:template match="*" mode="source-reuse-root">
-	
-		<!-- The root node of each indexed element: 
-		- Basic rule is to exclude all attributes. 
-		- Some attributes might have a fundamental impact on the contained text (cause a variation in translation).
-		- Possible to customize how inherited attributes are potentially used and/or combined with local attributes.
-		-->
-		<xsl:variable name="attrs" as="attribute() *">
-			<xsl:apply-templates select="$ancestor-attributes/*/@*" mode="source-reuse-root-inherited"/>
-            <xsl:apply-templates select="@*" mode="source-reuse-root"/>
-        </xsl:variable>
-	
-		<xsl:text>&lt;</xsl:text>
-		<xsl:value-of select="name()" />
-		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
-		<xsl:text>&gt;</xsl:text>
-		<xsl:apply-templates mode="source-reuse-child" />
-		<xsl:text>&lt;/</xsl:text>
-		<xsl:value-of select="name()" />
-		<xsl:text>&gt;</xsl:text>
-	</xsl:template>
-	
-	<xsl:template match="@*" mode="source-reuse-root-inherited">
-		<!-- Exclude attributes that are not explicitly matched. -->
-	</xsl:template>
-	
-	<xsl:template match="@*" mode="source-reuse-root">
-		<!-- Exclude attributes that are not explicitly matched. -->
-	</xsl:template>
-	
-	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root-inherited">
-		<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
-		<!-- With this approach of including attr in checksum (with inheritance) we are 'neutral' to DTD default values. --> 
-		<!-- Defaulting to anything for non-inline elements is not recommended. -->
-		<!-- We consider the expected behaviour undefined when defaulting below an explicit 'yes'/'no'. -->
-		<!-- Consider also supporting a CMS-namespace attribute: cms:translate or cms:markfortrans -->
-		<xsl:copy/>
-	</xsl:template>
-	
-	<xsl:template match="@markfortrans|@translate" mode="source-reuse-root">
-		<!-- #743 Attribute defining no-translation of element: markfortrans, translate etc. -->
-		<xsl:copy/>
-	</xsl:template>
-	
-	
-	
 
-	<xsl:template match="*" mode="source-reuse-child">
-		<!-- NOTE: Empty elements are serialized in long form (start and end tag). -->
-		
-		<!-- This variable construction is not strictly required for 'source-reuse-child' (at this time). -->
-		<xsl:variable name="attrs" as="attribute() *">
-			<!-- filtering of attributes is done in match statements of templates, easier to customize. -->
-			<!-- Base rule is to include attributes. -->
-            <xsl:apply-templates select="@*" mode="source-reuse-child"/>
-        </xsl:variable>
-            
-		<xsl:text>&lt;</xsl:text>
-		<xsl:value-of select="name()" />
-		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
-		<xsl:text>&gt;</xsl:text>
-		<xsl:apply-templates mode="source-reuse-child" />
-		<xsl:text>&lt;/</xsl:text>
-		<xsl:value-of select="name()" />
-		<xsl:text>&gt;</xsl:text>
-	</xsl:template>
-	
-	<xsl:template match="@cms:rid | @cms:rlogicalid | @cms:rwords| @cms:twords | @cms:tstatus | @cms:trid | @cms:tpos | @cms:tlogicalid | @cms:tmatch" mode="source-reuse-child">
-        <!-- Simply doing nothing to suppress the CMS attributes. -->
-        <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
-    </xsl:template>
-	
-	<xsl:template match="@*" mode="source-reuse-child">
-		<!-- Include attributes that are not explicitly matched. -->
-		<xsl:copy/>
-	</xsl:template>
 	
 	
-	<xsl:template match="@*" mode="source-reuse-serialize">
-		<!-- Serialize the attribute information. -->
-		<xsl:value-of select="' '"/>
-		<xsl:value-of select="name()"/>
-		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
-		<xsl:text>"</xsl:text>
-	</xsl:template>
-	
-	<xsl:template match="@*[namespace-uri()='http://www.simonsoft.se/namespace/cms']" mode="source-reuse-serialize">
-		<!-- Serialize the attribute information. -->
-		<!-- This template ensures that the prefix for CMS namespace is 'cms'. -->
-		<xsl:value-of select="' '"/>
-		<xsl:value-of select="concat('cms:', local-name())"/>
-		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
-		<xsl:text>"</xsl:text>
-	</xsl:template>
-	
-	
-	<xsl:template match="*[@keyref]/node()" mode="source-reuse-child" priority="90">
-		<!-- #1252 Suppress content of ph or other elements with @keyref (inserted/replaced during publishing) but allow all attributes to propagate. -->
-	</xsl:template>
-	
-	<xsl:template match="varref/node()" mode="source-reuse-child" priority="90">
-		<!-- Suppress content of varref elements (used by some customers before Keyref) but allow all attributes to propagate. -->
-	</xsl:template>
-	
-	
-	<!-- Text Normalization -->
-
-	<xsl:template match="*[@xml:space='preserve']/text()" mode="source-reuse-child" priority="5">
-        <!-- Not normalizing space when xml:space is set. -->
-        <!-- Can not determine normalize from schema, will have to be acceptable -->
-        <!-- Important to use source instead of source-reuse for replacement. -->
-        <xsl:value-of select="." />
-    </xsl:template>
-    
-    <xsl:template match="text()" mode="source-reuse-child" priority="1">
-        <!-- Text: Normalize each text node. -->
-        <xsl:value-of select="normalize-space(.)" />
-    </xsl:template>
-    
-    <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="3">
-        <!-- Text: Normalize each text node. Preserve a starting space.-->
-        <!-- This template also matches white-space only and presents a single space. -->
-        <xsl:value-of select="concat(' ', normalize-space(.))" />
-    </xsl:template>
-    
-    <xsl:template match="text()[ends-with(., ' ')  and normalize-space(.) != '']" mode="source-reuse-child" priority="3">
-        <!-- Text: Normalize each text node. Preserve a trailing space. -->
-        <xsl:value-of select="concat(normalize-space(.), ' ')" />
-    </xsl:template>
-
-    <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="4">
-        <!-- Text: Normalize each text node. Preserve both starting and trailing space. -->
-        <!-- This template should NOT match '  ' (two+ spaces). -->
-        <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
-    </xsl:template>
-    
-	
-	<xsl:template match="processing-instruction()" mode="source-reuse-child">
-        <xsl:text>&lt;?</xsl:text>
-		<xsl:value-of select="name()"/>
-		<xsl:text> </xsl:text>
-		<!-- Suppressing RIDs to improve pretranslate use of translations prepared with early 2.0 adapters. -->
-		<xsl:value-of select="normalize-space(replace(., 'cms:rid=&quot;[a-z0-9]{15}&quot;', ''))"/>
-		<xsl:text>?&gt;</xsl:text>
-    </xsl:template>
 	
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
 	<xsl:template match="*" mode="rule-reusevalue">

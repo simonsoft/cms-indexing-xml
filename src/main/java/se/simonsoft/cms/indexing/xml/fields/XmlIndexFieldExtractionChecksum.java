@@ -43,7 +43,8 @@ public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction 
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldExtractionChecksum.class);
 
 	public XmlIndexFieldExtractionChecksum() {
-		this("text", "source");
+//		this("text", "source");
+		this("text");
 	}
 	
 	public XmlIndexFieldExtractionChecksum(String... fieldprefixes) {

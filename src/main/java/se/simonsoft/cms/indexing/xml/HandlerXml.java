@@ -15,13 +15,17 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,9 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformOptions;
+import se.simonsoft.cms.xmlsource.transform.TransformerService;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 public class HandlerXml implements IndexingItemHandler {
 
@@ -52,8 +59,8 @@ public class HandlerXml implements IndexingItemHandler {
 	private XmlIndexRestrictFields supportLegacySchema = new XmlIndexRestrictFields(); // TODO do away with gradually
 	
 	private Processor processor;
-	
 	private XmlSourceReaderS9api sourceReader;
+	private final TransformerServiceFactory transformerServiceFactory;
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
@@ -61,15 +68,22 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	private HandlerXmlRepositem handlerXmlRepositem;
 	
+	
+	InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+			"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+	private TransformerService t;
+	
 	private Integer maxFilesize = null;
 	private String suppressRidBefore = null;
 	
 	
 	@Inject
-	public HandlerXml(Processor processor, XmlSourceReaderS9api sourceReader) {
+	public HandlerXml(Processor processor, XmlSourceReaderS9api sourceReader, TransformerServiceFactory transformerServiceFactory) {
 		
 		this.processor = processor;
 		this.sourceReader = sourceReader;
+		this.transformerServiceFactory = transformerServiceFactory;
+		this.t = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
 		
 		this.handlerXmlRepositem = new HandlerXmlRepositem(this.processor);
 	}
@@ -213,7 +227,8 @@ public class HandlerXml implements IndexingItemHandler {
 
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
-			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
+			//XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
+			XmlSourceDocumentS9api xmlDoc = t.transform(new InputStreamReader(progress.getContents()), getTransformOptionsReuseNormalize()); 
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
 			
@@ -233,7 +248,31 @@ public class HandlerXml implements IndexingItemHandler {
 			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
+			
+		} catch (RuntimeException e) { // TODO: Verify that cause is a SaxonApiException and potentially SAXParseException below.
+			// failure, flag with error
+			progress.getFields().addField("flag", FLAG_XML + "error");
+			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
+			logger.error(msg, e);
+			throw new IndexingHandlerException(msg, e);
 		}
+	}
+	
+	
+	private TransformOptions getTransformOptionsReuseNormalize() {
+		
+		// Set parameters to preserve text/comment/pi, not needed, default is preserve.
+		// Set parameter controlling which elements get source_reuse (all get checksum).
+		TransformOptions options = new TransformOptions();
+		/*
+		options.setParameter("preserve-text", Boolean.FALSE);
+		options.setParameter("preserve-comment", Boolean.FALSE);
+		options.setParameter("preserve-pi", Boolean.FALSE);
+		*/
+//		options.setParameter("source-reuse-tags-param", "p title ph elem document"); // TODO: Make injectable.
+		options.setParameter("source-reuse-tags-param", ""); // TODO: Make injectable.
+		
+		return options;
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
