@@ -270,7 +270,9 @@ public class HandlerXml implements IndexingItemHandler {
 		options.setParameter("preserve-pi", Boolean.FALSE);
 		*/
 //		options.setParameter("source-reuse-tags-param", "p title ph elem document"); // TODO: Make injectable.
-		options.setParameter("source-reuse-tags-param", ""); // TODO: Make injectable.
+		options.setParameter("source-reuse-tags-param", ""); // TODO: Make injectable
+		
+		options.setParameter("count-words", Boolean.FALSE);
 		
 		return options;
 	}
