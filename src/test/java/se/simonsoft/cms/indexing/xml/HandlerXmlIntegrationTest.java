@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -402,6 +403,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testAttributesReleasetranslationTranslation() throws SolrServerException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
@@ -432,6 +434,11 @@ public class HandlerXmlIntegrationTest {
 		
 		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
 		assertEquals("get Release checksum (based on first test result)", "c5fed03ed1304cecce75d63aee2ada2b0f2326af", elem.getFieldValue("c_sha1_release_source_reuse"));
+
+		List<String> cList = (List<String>) elem.getFieldValue("reuse_c_sha1_release_descendants");
+		//assertEquals("debug contents", "...", cList);
+		assertTrue("should contain Release checksum", cList.contains("c5fed03ed1304cecce75d63aee2ada2b0f2326af"));
+		assertEquals("get RID by checksum", "2gyvymn15kv0006", elem.getFieldValue("reuse_rid_c5fed03ed1304cecce75d63aee2ada2b0f2326af"));
 	}
 
 	

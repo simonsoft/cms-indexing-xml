@@ -75,6 +75,15 @@
 				<xsl:apply-templates select="." mode="rule-reuseready"/>
 			</field>
 			
+			<!-- reuseridreusevalue - RIDs with reusevalue > 0 -->
+			<!-- Checksums added in Java extractor-->
+			<xsl:if test="true()">
+				<field name="reuseridreusevalue">
+					<xsl:apply-templates select="." mode="reuserid-value"/>
+				</field>
+			</xsl:if>
+			
+			
 			<!-- Lists all duplicated RID (duplicates included twice) -->
 			<!-- Rids should not be duplicated in the document, but that can only be identified from the root node.-->
 			<!-- This field can only identify duplicates among its children, not whether the element itself is a duplicate in the document context. -->

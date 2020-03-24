@@ -53,6 +53,8 @@ import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
+	private static String RELEASE_DESCENDANTS_CHECKSUM = "reuse_c_sha1_release_descendants";
+	private static String RELEASE_RID_PREFIX = "reuse_rid_";
 
 	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
@@ -104,7 +106,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			return;
 		}
 		
-		
+
 		if (this.ridChecksums != null && rid != null) {
 			String releaseChecksum = this.ridChecksums.get(rid);
 			if (releaseChecksum == null || releaseChecksum.isEmpty()) {
@@ -118,6 +120,17 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 			fields.addField(RELEASE_CHECKSUM, releaseChecksum);
 			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
+			
+			// Add checksums for elements with reusevalue > 0.
+			for (String key: this.ridChecksums.keySet()) {
+				String checksum = this.ridChecksums.get(key);
+				// Field (multivalue) with all valid checksums.
+				fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
+				// Field (dynamic) mapping checksum to RID.
+				String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+				fields.addField(fieldname, key);
+				logger.info("Added checksum map field {}", fieldname);
+			}
 		}
 	}
 
