@@ -194,7 +194,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		options.setParameter("preserve-text", Boolean.FALSE);
 		options.setParameter("preserve-comment", Boolean.FALSE);
 		options.setParameter("preserve-pi", Boolean.FALSE);
-		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, null);
+		XmlSourceDocumentS9api docReuse = t.transform(releaseElement, options);
 		
 		return docReuse;
 	}
