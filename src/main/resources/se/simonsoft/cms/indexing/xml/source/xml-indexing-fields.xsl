@@ -77,7 +77,7 @@
 			
 			<!-- reuseridreusevalue - RIDs with reusevalue > 0 -->
 			<!-- Checksums added in Java extractor-->
-			<xsl:if test="true()">
+			<xsl:if test="false()">
 				<field name="reuseridreusevalue">
 					<xsl:apply-templates select="." mode="reuserid-value"/>
 				</field>

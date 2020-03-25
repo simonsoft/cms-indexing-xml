@@ -122,14 +122,27 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
 			
 			// Add checksums for elements with reusevalue > 0.
-			for (String key: this.ridChecksums.keySet()) {
-				String checksum = this.ridChecksums.get(key);
-				// Field (multivalue) with all valid checksums.
-				fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
-				// Field (dynamic) mapping checksum to RID.
-				String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+			/*
+			if (rid.endsWith("0000")) {
+				//addDescendantChecksums(fields);
+			}
+			*/
+		}
+	}
+	
+	
+	private void addDescendantChecksums(IndexingDoc fields) {
+		
+		// Add checksums for elements with reusevalue > 0.
+		for (String key: this.ridChecksums.keySet()) {
+			String checksum = this.ridChecksums.get(key);
+			// Field (multivalue) with all valid checksums.
+			fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
+			// Field (dynamic) mapping checksum to RID.
+			String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+			if (!fields.containsKey(fieldname)) {
 				fields.addField(fieldname, key);
-				logger.info("Added checksum map field {}", fieldname);
+				//logger.info("Added checksum map field {}", fieldname);
 			}
 		}
 	}
