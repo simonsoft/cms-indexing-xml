@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -404,6 +405,9 @@ public class HandlerXmlIntegrationTest {
 		assertNull("get the project id attribute", elem.getFieldValue("a_cms.translation-project"));
 		
 		assertEquals("get the inherited rlogicalid attribute", "x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4", elem.getFieldValue("ia_cms.rlogicalid"));
+		
+		assertEquals("assist depends on patharea", Arrays.asList(new String[] {"release"}), elem.getFieldValue("patharea"));
+		assertEquals("assist depends on reusevalue even for a Release", 1, elem.getFieldValue("reusevalue"));		
 	}
 	
 	@SuppressWarnings("unchecked")

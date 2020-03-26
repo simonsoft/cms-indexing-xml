@@ -23,8 +23,12 @@
 	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
 
+	
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
+	
+	<!-- document's patharea (release, translation) -->
+	<xsl:param name="patharea"/>
 	
 	<!-- filename extension -->
 	<xsl:param name="pathext" required="yes"/>
@@ -35,9 +39,6 @@
 	<xsl:variable name="ref-attrs-conref-seq" as="xs:string+" select="$ref-attrs-seq, 'conref'">
 		
 	</xsl:variable>
-	
-	<!-- Detecting that file is a Translation based on existance of @cms:translation-project. Might exist on old Releases created by CMS 2.1.-->
-	<xsl:param name="is-translation" select="/*[@cms:translation-project]"/>
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
@@ -103,7 +104,7 @@
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
 			
 			<!-- Limit reposxml indexing depth for Translations. -->
-			<xsl:if test="$is-translation">
+			<xsl:if test="$patharea = 'translation'">
 				<field name="count_reposxml_depth">
 					<xsl:choose>
 						<!-- TODO: Dynamically adjust depth to get reasonably sized elements in reposxml. -->

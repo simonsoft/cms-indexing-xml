@@ -24,6 +24,8 @@
 
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
+	<!-- document's patharea (release, translation) -->
+	<xsl:param name="patharea"/>
 	<!-- depth of element relative to document -->
 	<xsl:param name="document-depth"/>
 	<!-- ancestor attributes on an element named 'attributes' -->
