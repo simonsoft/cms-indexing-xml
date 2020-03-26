@@ -18,7 +18,6 @@ package se.simonsoft.cms.indexing.xml.fields;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_RID_REUSEVALUE = "reuseridreusevalue";
 
+	private static String PROP_RELEASEID = "prop_abx.ReleaseId";
+
 	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
 	private TransformerServiceFactory transformerServiceFactory;
@@ -100,6 +101,16 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		fields.removeField("size");
 		
 		String rid = (String) fields.getFieldValue("a_cms.rid");
+		Integer depth = (Integer) fields.getFieldValue("depth");
+		String ridProp = (String) fields.getFieldValue(PROP_RELEASEID);
+		
+		// Translations prepared in earlier versions of CMS do not have the property abx:ReleaseId (now propagates from Release).
+		// This property is required by Pretranslate 2.0.x.
+		// The property should contain the RID of the root element. Simple fix when depth=1.
+		if (this.releaseId != null && ridProp == null && depth.equals(1)) {
+			logger.warn("Translation prepared without ReleaseId property, adding: " + rid);
+			fields.setField(PROP_RELEASEID, rid);
+		}
 		
 		// TODO: Likely need to take tsuppress, tvalidate into account.
 		if (hasAncestorAttributeCmsActive(fields, "tsuppress")) {
