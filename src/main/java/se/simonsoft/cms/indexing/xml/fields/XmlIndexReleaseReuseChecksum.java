@@ -132,13 +132,15 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 				// Verifies that elements have not been removed from Release. Will not notice if elements without RID have been added to Translation.
 				// This could trigger error if the Translation has inline element with RID, but the Release does not.
 			}
+			
 			// TODO: Identify if there are missing elements in Translation. Perhaps introduce a "Validate Translation" early in HandlerXml instead.
 
+			// Checksum field used by Pretranslate 1.x (non-join).
 			fields.addField(RELEASE_CHECKSUM, releaseChecksum);
 			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
 			
-			// Add checksums for elements with reusevalue > 0.
-			if (rid.endsWith("0000")) {
+			// Add checksums for elements with reusevalue > 0 (on root element only). Used by Pretranslate 2.0.x.
+			if (depth.equals(1)) {
 				addDescendantChecksums(fields);
 			}
 			
