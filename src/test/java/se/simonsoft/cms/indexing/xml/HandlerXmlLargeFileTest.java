@@ -175,7 +175,10 @@ public class HandlerXmlLargeFileTest {
 		assertEquals("xml", e1.getFieldValue("prop_abx.ContentType"));
 		assertNull(e1.getFieldValue("prop_abx.Dependencies"));
 		*/
-
+		
+		
+		// NOTE: The external file can no longer have attribute cms:translation-project. Will cause a shallow indexing (not possible to verify checksums).
+		// The checksums on Release is no longer used for Pretranslate. Might be used for processing Release (previously released sections). 
 		assertChecksums(reposxml);
 	}
 

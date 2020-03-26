@@ -23,7 +23,7 @@
 xml:lang="en-GB"
 cms:rlogicalid="x-svn:///svn/testaut1^/tms/xml/Docs/My%20First%20Novel.xml?p=5"
 xmlns:cms="http://www.simonsoft.se/namespace/cms"
-cms:rid="2gyvymn15kv0000" cms:translation-project="0001">
+cms:rid="2gyvymn15kv0000">
 <title cms:rid="2gyvymn15kv0001">My First Novel</title>
 <subtitle cms:rid="2gyvymn15kv0002">Translation test</subtitle>
 <body cms:rid="2gyvymn15kv0003">

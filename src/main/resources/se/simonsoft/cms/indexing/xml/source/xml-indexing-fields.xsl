@@ -48,6 +48,9 @@
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
+	
+		<!-- See comments below. -->
+		<xsl:variable name="ridduplicates" select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
 		<doc>
 
 			<!-- skip name and attributes, already extracted -->
@@ -77,9 +80,13 @@
 			
 			<!-- reuseridreusevalue - RIDs with reusevalue > 0 -->
 			<!-- Checksums added in Java extractor-->
-			<xsl:if test="false()">
+			<!-- Disable the whole document if there are RID duplicates. -->
+			<xsl:if test="empty($ridduplicates)">
+				<xsl:variable name="ridelements" as="element()*" select="descendant-or-self::*[@cms:rid]"/>
 				<field name="reuseridreusevalue">
-					<xsl:apply-templates select="." mode="reuserid-value"/>
+					<xsl:for-each select="$ridelements">
+						<xsl:apply-templates select="." mode="reuserid-value"/>
+					</xsl:for-each>
 				</field>
 			</xsl:if>
 			
@@ -90,7 +97,7 @@
 			<!-- Disabling reusevalue from the root node of the XML onto all children (done by an XmlIndexFieldExtraction class). -->
 			<!-- TODO: Consider if we should only perform this extraction for root node (depth = 1), if performance is heavily degraded. -->
 			<field name="reuseridduplicate">
-				<xsl:value-of select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
+				<xsl:value-of select="$ridduplicates"/>
 			</field>
 			
 			<!-- Experimental support for determining which declared namespaces are not actually used. -->
@@ -243,7 +250,6 @@
         <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
     </xsl:template>
     
-	
 	<xsl:template match="processing-instruction()" mode="source-reuse-child">
         <xsl:text>&lt;?</xsl:text>
 		<xsl:value-of select="name()"/>
@@ -252,6 +258,52 @@
 		<xsl:value-of select="normalize-space(replace(., 'cms:rid=&quot;[a-z0-9]{15}&quot;', ''))"/>
 		<xsl:text>?&gt;</xsl:text>
     </xsl:template>
+	
+	
+	<!-- Determine which elements / RIDs have reusevalue > 0 -->
+	<xsl:template match="element()[@cms:rid]" mode="reuserid-value">
+		<xsl:variable name="reusevalue" as="xs:integer">
+			<xsl:apply-templates select="." mode="rule-reusevalue-context"/>
+		</xsl:variable>
+		
+		<!--
+		<xsl:message select="concat(@cms:rid, ' ', $reusevalue)"></xsl:message>
+		-->
+		
+		<xsl:if test="$reusevalue > 0">
+			<xsl:value-of select="@cms:rid"/>
+			<xsl:value-of select="' '"/>
+		</xsl:if>
+	</xsl:template>
+
+
+	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
+	<!-- TODO: Can be removed? Will not work if we extract in multiple levels. No, need to merge $ancestor-attributes tests.-->
+	<xsl:template match="*" mode="rule-reusevalue-context">
+		<xsl:choose>
+			<!-- #716 Mechanism for suppressing parts of a document without regard to rlogicalid. -->
+			<!-- Ancestors and element itself where tsuppress is set. -->
+			<xsl:when test="descendant-or-self::*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-4</xsl:when>
+			<!-- #716 Children where tsuppress is set above (attribute exists and its value is not-'no'). -->
+			<xsl:when test="ancestor::*[@cms:tsuppress and not(@cms:tsuppress = 'no')]">-5</xsl:when>
+			
+			<!-- Children where tvalidate='no' is set above, disqualify. (value -6 is reserved but not used) -->
+			<xsl:when test="ancestor::*[@cms:tvalidate='no']">-7</xsl:when>
+			
+			<!-- Rid should not have been removed from the current node -->
+			<xsl:when test="not(@cms:rid)">-2</xsl:when>	
+			<!-- Rid should not have been removed from a child, but note that removal must always be done on complete includes -->
+			<!-- There is now the option to selectively remove RIDs below tsuppress (#716). -->
+			<!-- Some installations don't set rids below certain stop tags -->
+			<xsl:when test="descendant-or-self::*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
+			<!-- Marking a document Obsolete means we don't want to reuse from it -->
+			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
+			
+			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
+			<xsl:otherwise>1</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
 	
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
 	<xsl:template match="*" mode="rule-reusevalue">

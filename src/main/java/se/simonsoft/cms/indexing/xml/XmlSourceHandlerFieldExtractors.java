@@ -40,6 +40,9 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private XmlIndexAddSession docHandler;
 	
 	private XmlIndexElementId idAppender;
+	
+	private Integer maxDepth = null;
+	
 	/**
 	 * @param commonFieldsDoc fieds that should be set/kept same for all elements
 	 * @param fieldExtraction the extractors to run for this xml file
@@ -55,6 +58,13 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		this.idAppender = new XmlIndexIdAppendTreeLocation(baseId);
 		this.fieldExtraction = fieldExtraction;
 		this.docHandler = docHandler;
+		
+		// The reposxml indexing depth controlled by repositem XSL.
+		// Some Unit tests don't execute the repositem extraction.
+		String reposxmlDepth = (String) this.baseDoc.getFieldValue("count_reposxml_depth");
+		if (reposxmlDepth != null) {
+			this.maxDepth = Integer.parseInt(reposxmlDepth);
+		}
 	}
 	
 	@Override
@@ -82,6 +92,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	@Override
 	public void begin(XmlSourceElement element) {
+		
+		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
+			return;
+		}
+		
 
 		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
@@ -93,6 +108,11 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 
 	@Override
 	public void end(XmlSourceElement element) {
+		
+		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
+			return;
+		}
+		
 		
 		String id = idAppender.getXmlElementId(element);
 		

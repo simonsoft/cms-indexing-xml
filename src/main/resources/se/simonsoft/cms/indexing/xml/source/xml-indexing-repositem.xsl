@@ -36,6 +36,8 @@
 		
 	</xsl:variable>
 	
+	<!-- Detecting that file is a Translation based on existance of @cms:translation-project. Might exist on old Releases created by CMS 2.1.-->
+	<xsl:param name="is-translation" select="/*[@cms:translation-project]"/>
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
@@ -99,6 +101,21 @@
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
+			
+			<!-- Limit reposxml indexing depth for Translations. -->
+			<xsl:if test="$is-translation">
+				<field name="count_reposxml_depth">
+					<xsl:choose>
+						<!-- TODO: Dynamically adjust depth to get reasonably sized elements in reposxml. -->
+						<xsl:when test="false()">
+							<!-- ditabase is perfect for depth=2. -->
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="1"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</field>
+			</xsl:if>
 			
 			<xsl:if test="@cms:twords">
 				<field name="count_twords"><xsl:value-of select="@cms:twords"/></field>

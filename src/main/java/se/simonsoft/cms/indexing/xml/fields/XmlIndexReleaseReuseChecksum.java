@@ -16,8 +16,11 @@
 package se.simonsoft.cms.indexing.xml.fields;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -55,6 +58,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
 	private static String RELEASE_DESCENDANTS_CHECKSUM = "reuse_c_sha1_release_descendants";
 	private static String RELEASE_RID_PREFIX = "reuse_rid_";
+
+	private static String RELEASE_RID_REUSEVALUE = "reuseridreusevalue";
 
 	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
@@ -122,24 +127,40 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
 			
 			// Add checksums for elements with reusevalue > 0.
-			/*
 			if (rid.endsWith("0000")) {
-				//addDescendantChecksums(fields);
+				addDescendantChecksums(fields);
 			}
-			*/
+			
 		}
 	}
 	
 	
 	private void addDescendantChecksums(IndexingDoc fields) {
 		
+		String ridStr = (String) fields.getFieldValue(RELEASE_RID_REUSEVALUE);
+		logger.debug("RIDs with reusevalue > 0: {}", ridStr);
+		if (ridStr == null || ridStr.trim().isEmpty()) {
+			logger.warn("No RIDs with reusevalue > 0");
+			return;
+		}
+		
+		List<String> rids = Arrays.asList(ridStr.split(" "));
+		
 		// Add checksums for elements with reusevalue > 0.
-		for (String key: this.ridChecksums.keySet()) {
+		for (String key: rids) {
 			String checksum = this.ridChecksums.get(key);
+			if (checksum == null) {
+				logger.warn("RID has reusevalue > 0 but no checksum available in Release: {}", key);
+				continue;
+			}
+			logger.trace("RID with reusevalue > 0: {} {}", key, checksum);
+			
 			// Field (multivalue) with all valid checksums.
 			fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
 			// Field (dynamic) mapping checksum to RID.
 			String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+			
+			// Index the first instance when there are elements with identical checksum.
 			if (!fields.containsKey(fieldname)) {
 				fields.addField(fieldname, key);
 				//logger.info("Added checksum map field {}", fieldname);
