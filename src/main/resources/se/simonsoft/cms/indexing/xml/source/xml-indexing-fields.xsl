@@ -83,7 +83,7 @@
 			<!-- reuseridreusevalue - RIDs with reusevalue > 0 -->
 			<!-- Checksums added in Java extractor-->
 			<!-- Disable the whole document if there are RID duplicates. -->
-			<xsl:if test="empty($ridduplicates)">
+			<xsl:if test="$patharea = 'translation' and empty($ridduplicates)">
 				<xsl:variable name="ridelements" as="element()*" select="descendant-or-self::*[@cms:rid]"/>
 				<field name="reuseridreusevalue">
 					<xsl:for-each select="$ridelements">
