@@ -151,13 +151,14 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private void addDescendantChecksums(IndexingDoc fields) {
 		
 		String ridStr = (String) fields.getFieldValue(RELEASE_RID_REUSEVALUE);
-		logger.debug("RIDs with reusevalue > 0: {}", ridStr);
+		//logger.trace("RIDs with reusevalue > 0: {}", ridStr); // Very large logging.
 		if (ridStr == null || ridStr.trim().isEmpty()) {
 			logger.warn("No RIDs with reusevalue > 0");
 			return;
 		}
 		
 		List<String> rids = Arrays.asList(ridStr.split(" "));
+		logger.debug("RID count with reusevalue > 0: {}", rids.size());
 		
 		// Add checksums for elements with reusevalue > 0.
 		for (String key: rids) {
