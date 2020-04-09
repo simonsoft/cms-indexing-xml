@@ -61,9 +61,9 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			executor = Executors.newSingleThreadExecutor();
 		}
 		
-		Collection<SolrInputDocument> pending = session.rotatePending();
-		
 		logger.debug("Scheduling xml batch {}, {} elements, {} total", ++count, session.size(), session.sizeContentTotal());
+		
+		Collection<SolrInputDocument> pending = session.rotatePending();
 		executor.submit(new IndexSend(pending, count)); // Throws RejectedExecutionException if executor is shutting down.
 	}
 	
