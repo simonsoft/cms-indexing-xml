@@ -33,6 +33,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,10 +105,12 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	@Override
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
-		String query = "pathfull:\"" + repository.getPath() + c.getPath().toString() + '"';
+		String pathfull = repository.getPath() + c.getPath().toString();
+		String query = "pathfull:"+ quote(pathfull);
 		logger.debug("Deleting previous revision of {} using query {}", c, query);
 		try {
-			solrServer.deleteByQuery(query);
+			UpdateResponse response = solrServer.deleteByQuery(query);
+			logger.debug("Deleted elements: {}", response.getResponseHeader());
 		} catch (SolrServerException e) {
 			throw new RuntimeException("not handled", e);
 		} catch (IOException e) {
@@ -127,6 +130,11 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		} catch (IOException e) {
 			throw new RuntimeException("not handled", e);
 		}		
+	}
+	
+	// Copied from QueryEscapeDefault in cms-reporting.
+	public String quote(String fieldValue) {
+		return '"' + fieldValue.replace("\"", "\\\"") + '"';
 	}
 
 	class Session implements XmlIndexAddSession {
