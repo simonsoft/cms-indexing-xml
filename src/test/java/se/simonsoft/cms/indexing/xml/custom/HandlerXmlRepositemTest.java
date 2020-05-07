@@ -79,7 +79,7 @@ public class HandlerXmlRepositemTest {
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
-		assertNull("words to translate, not set for non-Pretranslated", doc.get(0).getFieldValue("count_words_translate"));
+		assertEquals("words to translate", 3L, doc.get(0).getFieldValue("count_words_translate"));
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
 		assertNull("no unsafe mixed content elements", mixedUnsafe);
