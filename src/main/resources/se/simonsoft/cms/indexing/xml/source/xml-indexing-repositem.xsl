@@ -119,6 +119,7 @@
 			</xsl:if>
 			
 			<xsl:if test="@cms:twords">
+				<!-- Only Pretranslated Translations -->
 				<field name="count_twords"><xsl:value-of select="@cms:twords"/></field>
 				
 				<xsl:for-each select="distinct-values(//@cms:tstatus)">
@@ -126,6 +127,10 @@
 					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
+			</xsl:if>
+			
+			<xsl:if test="@cms:rid">
+				<!-- All Finalized Release / Translations -->
 				
 				<!-- #1283 Attempt to detect complete pretranslate -->
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
