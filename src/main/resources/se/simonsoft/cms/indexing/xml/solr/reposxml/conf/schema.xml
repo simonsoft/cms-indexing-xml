@@ -65,11 +65,11 @@
 		List of RIDs that appear more than once in the element and children. 
 		Can not identify if the element itself is a duplicate.
 		-->
-		<field name="reuseridduplicate" type="string" indexed="true" stored="true" multiValued="false" />		
+		<field name="reuseridduplicate" type="content_checksums" indexed="true" stored="true" multiValued="false" />		
 		<!-- 
 		List of RIDs with reusevalue > 0.
 		-->
-		<field name="reuseridreusevalue" type="string" indexed="true" stored="true" multiValued="false" />		
+		<field name="reuseridreusevalue" type="content_checksums" indexed="true" stored="true" multiValued="false" />		
 		<!-- 
 		List of Release Checksums corresponding to RIDs with reusevalue > 0.
 		-->
