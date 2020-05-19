@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -63,10 +63,10 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private SolrServer solrServer;
+	private SolrClient solrServer;
 
 	@Inject
-	public XmlIndexWriterSolrj(@Named("reposxml") SolrServer core) {
+	public XmlIndexWriterSolrj(@Named("reposxml") SolrClient core) {
 		this.solrServer = core;
 	}
 	

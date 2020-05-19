@@ -18,14 +18,14 @@ package se.simonsoft.cms.indexing.xml;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 import se.repos.indexing.solrj.MarkerCommitSolrj;
 
 public class MarkerXmlCommit extends MarkerCommitSolrj {
 
 	@Inject
-	public MarkerXmlCommit(@Named("reposxml") SolrServer core) {
+	public MarkerXmlCommit(@Named("reposxml") SolrClient core) {
 		super(core);
 	}
 	

@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +39,11 @@ public class IndexAdminXml extends IndexAdminNotification implements IndexAdmin 
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private SolrServer reposxml;
+	private SolrClient reposxml;
 	private String query;
 
 	@Inject
-	public IndexAdminXml(CmsRepository repository, IdStrategy idStrategy, @Named("reposxml") SolrServer core) {
+	public IndexAdminXml(CmsRepository repository, IdStrategy idStrategy, @Named("reposxml") SolrClient core) {
 		this.query = "repoid:\"" + idStrategy.getIdRepository(repository).replace("\"", "\\\"") + '"';
 		this.reposxml = core;
 	}

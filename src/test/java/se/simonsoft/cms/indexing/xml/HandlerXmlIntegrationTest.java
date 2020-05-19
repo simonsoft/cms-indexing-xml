@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -77,13 +77,13 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
@@ -121,13 +121,13 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("pos", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
@@ -155,13 +155,13 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("pos", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1-tsuppress.xml AND flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
@@ -185,12 +185,12 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		
@@ -206,12 +206,12 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();		
 		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
 				0, x1.getNumFound());
 		
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror")).getResults();
 		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());		
 	}
@@ -224,7 +224,7 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		assertTrue("Should have indexed something", reposxml.query(new SolrQuery("*:*")).getResults().size() > 0);
 		
 		// IndexAdminXml is not bound in text context, we should probably switch to a real config module in this test
@@ -245,12 +245,12 @@ public class HandlerXmlIntegrationTest {
 	}
 	
 	@Test
-	public void testJoin() throws SolrServerException {
+	public void testJoin() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
 		assertEquals("all elements that have a parent, got " + j1, 3, j1.getNumFound());
@@ -302,7 +302,7 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
@@ -340,7 +340,7 @@ public class HandlerXmlIntegrationTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
@@ -377,12 +377,12 @@ public class HandlerXmlIntegrationTest {
 	
 	
 	@Test
-	public void testAttributesReleasetranslationRelease() throws SolrServerException {
+	public void testAttributesReleasetranslationRelease() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		SolrDocument elem;
 		// search for the first title
@@ -412,15 +412,15 @@ public class HandlerXmlIntegrationTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testAttributesReleasetranslationTranslation() throws SolrServerException {
+	public void testAttributesReleasetranslationTranslation() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
 		assertNull("Should NOT limit depth of Release", flagged.get(0).getFieldValue("count_reposxml_depth"));
@@ -446,12 +446,12 @@ public class HandlerXmlIntegrationTest {
 
 	
 	@Test
-	public void testJoinReleasetranslationNoExtraFields() throws SolrServerException {
+	public void testJoinReleasetranslationNoExtraFields() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
@@ -477,15 +477,16 @@ public class HandlerXmlIntegrationTest {
 	/** 
 	 * This kind of join is not used, just work in progress.
 	 * @throws SolrServerException
+	 * @throws IOException 
 	 */
 	@Test
 	@Ignore
-	public void testJoinReleasetranslation() throws SolrServerException {
+	public void testJoinReleasetranslation() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
@@ -503,15 +504,16 @@ public class HandlerXmlIntegrationTest {
 	/** 
 	 * This kind of join is not used, just work in progress.
 	 * @throws SolrServerException
+	 * @throws IOException 
 	 */
 	@Test
 	@Ignore
-	public void testJoinReleasetranslationRid() throws SolrServerException {
+	public void testJoinReleasetranslationRid() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
@@ -538,15 +540,16 @@ public class HandlerXmlIntegrationTest {
 	 * Test covering the search algorithm actually implemented in CMS 3.0.
 	 * The joins is performed on RID to match the Sha1 on the Release side while the Translation is the "primary" side of the join.
 	 * @throws SolrServerException
+	 * @throws IOException 
 	 */
 	@Test 
 	@Ignore // No longer possible, avoiding indexing the full depth of Translations.
-	public void testJoinReleasetranslationRidSha1() throws SolrServerException {
+	public void testJoinReleasetranslationRidSha1() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
 		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
 		
-		SolrServer reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
+		SolrClient reposxml = indexing.enable(new ReposTestBackendFilexml(filexml)).getCore("reposxml");
 		
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
@@ -618,9 +621,9 @@ public class HandlerXmlIntegrationTest {
 //		extractors.add(extractor1);
 //		extractors.add(extractor2);		
 //		
-//		SolrServer solrServer = mock(SolrServer.class, withSettings().verboseLogging());
+//		SolrClient SolrClient = mock(SolrClient.class, withSettings().verboseLogging());
 //		
-//		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
+//		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(SolrClient, idStrategy) {
 //			@Override protected void fieldCleanupTemporary(IndexingDoc doc) {}
 //		};
 //		handler.setFieldExtraction(extractors);
@@ -635,11 +638,11 @@ public class HandlerXmlIntegrationTest {
 //		handler.begin(e4);
 //		
 //		handler.endDocument();
-//		// commit not expected to be done by handler anymore //verify(solrServer, times(1)).commit();
+//		// commit not expected to be done by handler anymore //verify(SolrClient, times(1)).commit();
 //
 //		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
-//		verify(solrServer).add(addcapture.capture());
-//		verifyNoMoreInteractions(solrServer);
+//		verify(SolrClient).add(addcapture.capture());
+//		verifyNoMoreInteractions(SolrClient);
 //		
 //		List<SolrInputDocument> added = addcapture.getValue();
 //		assertEquals("Should have added all elements", 4, added.size());
@@ -774,9 +777,9 @@ public class HandlerXmlIntegrationTest {
 //		when(idStrategy.getElementId(e3)).thenReturn("testdoc1_e3");
 //		when(idStrategy.getElementId(e4)).thenReturn("testdoc1_e4");
 //	
-//		SolrServer solrServer = mock(SolrServer.class);	
+//		SolrClient SolrClient = mock(SolrClient.class);	
 //		
-//		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(solrServer, idStrategy) {
+//		XmlSourceHandlerSolrj handler = new XmlSourceHandlerSolrj(SolrClient, idStrategy) {
 //			@Override protected void fieldCleanupTemporary(IndexingDoc doc) {}
 //		};
 //		
@@ -802,7 +805,7 @@ public class HandlerXmlIntegrationTest {
 //		handler.endDocument();
 //
 //		ArgumentCaptor<List> addcapture = ArgumentCaptor.forClass(List.class);
-//		verify(solrServer).add(addcapture.capture());
+//		verify(SolrClient).add(addcapture.capture());
 //		
 //		List<SolrInputDocument> added = addcapture.getValue();
 //		assertEquals("Should have added all elements", 4, added.size());

@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -94,7 +94,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -121,7 +121,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -147,7 +147,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -176,7 +176,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-partial.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -203,7 +203,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -231,7 +231,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-section.xml AND flag:hasxml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -259,7 +259,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-mixed-unsafe.xml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -280,7 +280,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-parent.xml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -300,7 +300,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-sibling.xml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -320,7 +320,7 @@ public class HandlerXmlRepositemTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
-		SolrServer repositem = indexing.getCore("repositem");
+		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-empty.xml")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");

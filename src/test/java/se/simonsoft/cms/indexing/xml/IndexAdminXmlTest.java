@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class IndexAdminXmlTest {
 	@Test
 	public void testClear() throws SolrServerException, IOException {
 		IndexAdmin central = mock(IndexAdmin.class);
-		SolrServer reposxml = mock(SolrServer.class);
+		SolrClient reposxml = mock(SolrClient.class);
 		CmsRepository repository = mock(CmsRepository.class);
 		IdStrategy idStrategy = mock(IdStrategy.class);
 		when(idStrategy.getIdRepository(repository)).thenReturn("the/re\"po/id");

@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -75,7 +75,7 @@ public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 	/**
 	 * @return instance for injection when integration testing our logic with solr, for index testing we do fine with SolrTestCaseJ4 helper methods
 	 */
-	public SolrServer getTestServer() {
+	public SolrClient getTestServer() {
 		return new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName()); // cache between tests?
 	}
 	
@@ -84,7 +84,7 @@ public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 		// verify test setup
 		assertQ("index should be empty on each test run", req("*:*"), "//result[@numFound='0']");
 		// reference use of solr api
-		SolrServer solr = getTestServer();
+		SolrClient solr = getTestServer();
 		SolrInputDocument doc1 = new SolrInputDocument();
 		doc1.addField("id", "x");
 		doc1.addField("name", "x");

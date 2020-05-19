@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	private long count = 0;
 	
 	@Inject
-	public XmlIndexWriterSolrjBackground(@Named("reposxml") SolrServer core) {
+	public XmlIndexWriterSolrjBackground(@Named("reposxml") SolrClient core) {
 		super(core);
 	}
 

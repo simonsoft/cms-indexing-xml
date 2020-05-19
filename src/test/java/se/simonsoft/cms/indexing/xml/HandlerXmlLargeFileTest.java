@@ -46,7 +46,7 @@ import net.sf.saxon.s9api.XsltTransformer;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -163,7 +163,7 @@ public class HandlerXmlLargeFileTest {
 
 		indexing.enable(new ReposTestBackendFilexml(filexml), injector);
 
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
 		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
 
@@ -182,7 +182,7 @@ public class HandlerXmlLargeFileTest {
 		assertChecksums(reposxml);
 	}
 
-	private void assertChecksums(SolrServer reposxml) {
+	private void assertChecksums(SolrClient reposxml) {
 
 		// We are comparing checksum calculation in Indexing (for object itself) with XSL filter. 
 		String FIELDNAME = "c_sha1_source_reuse";
@@ -198,6 +198,9 @@ public class HandlerXmlLargeFileTest {
 				assertEquals("checksum for first " + t.getKey(), t.getValue(), e.get(0).getFieldValue(FIELDNAME));
 			}
 		} catch (SolrServerException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
