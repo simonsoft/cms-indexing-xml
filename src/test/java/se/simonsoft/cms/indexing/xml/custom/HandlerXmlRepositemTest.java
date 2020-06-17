@@ -238,6 +238,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
+		assertFalse("No flag 'hastsuppress'", doc.get(0).getFieldValues("flag").contains("hastsuppress"));
 		assertEquals("1 flag(s)", 1, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
@@ -245,6 +246,42 @@ public class HandlerXmlRepositemTest {
 		assertEquals("elements to translate (includes the one with a keyref but now it is under translate=no)", 0L, doc.get(0).getFieldValue("count_elements_translate"));
 		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));
 		assertEquals("words to translate", 3L, doc.get(0).getFieldValue("count_words_translate_no"));
+		
+		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
+		assertNull("no unsafe mixed content elements", mixedUnsafe);
+	}
+	
+	@Test
+	public void testTinyPretranslateTranslateNoTsuppress() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+	
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-tsuppress.xml AND flag:hasxml")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
+		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
+		assertFalse("No flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
+		assertTrue("Flag 'hastsuppress'", doc.get(0).getFieldValues("flag").contains("hastsuppress"));
+		assertEquals("2 flag(s)", 2, flags.size());
+		
+		// Total word count, from a translation perspective.
+		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
+		
+		// Debatable how to count within tsuppress areas.
+		// Exclude is the reasonable way in order to present the values without overlap.
+		assertEquals("elements to translate, none", 0L, doc.get(0).getFieldValue("count_elements_translate_all"));
+		assertEquals("elements to translate (with text), none", 0L, doc.get(0).getFieldValue("count_elements_translate"));
+		assertEquals("elements to translate, none", "", doc.get(0).getFieldValue("embd_xml_ridtranslate_all"));
+		
+		assertEquals("words suppressed", 3L, doc.get(0).getFieldValue("count_words_tsuppress"));
+		
+		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));
+		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate_no"));
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
 		assertNull("no unsafe mixed content elements", mixedUnsafe);
