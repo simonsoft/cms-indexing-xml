@@ -111,9 +111,12 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REF_ITEMID_FIELD_PREFIX + refName);
-		if (itemIds != null && itemIds.trim().isEmpty()) {
-			fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
-		}
+		
+		// Always remove the ref_itemid_* fields:
+		// - Reduce index size
+		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
+		fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
+		
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.trace("Refs '{}' extracted by XSL: {}", refName, itemIds);
 		}
