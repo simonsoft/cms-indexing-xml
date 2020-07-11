@@ -70,9 +70,6 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
 		
-		// Copy rlogicalid field to different fields depending on whether this item is a Release or Translation.
-		handleRelationsRlogicalid(fields);
-		
 		String[] relationCategories = {"rlogicalid"};
 		
 		for (String relName : relationCategories) {
@@ -84,6 +81,15 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 				logger.warn("Failed to parse {}: {}", relName, e.getMessage(), e);
 				throw new IndexingHandlerException("Failed to parse " + relName + ": " + e.getMessage(), e);
 			}
+		}
+		// Copy rlogicalid field to different fields depending on whether this item is a Release or Translation.
+		handleRelationsRlogicalid(fields);
+		
+		// Always remove the rel_itemid_* fields:
+		// - Reduce index size
+		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
+		for (String relName : relationCategories) {
+			fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
 		}
 	}
 	
@@ -100,11 +106,6 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REL_ITEMID_FIELD_PREFIX + relName);
-		// Always remove the rel_itemid_* fields:
-		// - Reduce index size
-		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
-		fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
-
 		
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.trace("Rels '{}' extracted by XSL: {}", relName, itemIds);
