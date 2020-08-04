@@ -84,7 +84,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
@@ -128,7 +128,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
@@ -162,7 +162,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1-tsuppress.xml AND flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1-tsuppress.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
@@ -191,7 +191,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
@@ -212,7 +212,7 @@ public class HandlerXmlIntegrationTest {
 				0, x1.getNumFound());
 		
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror AND head:true")).getResults();
 		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());		
 	}
 	
@@ -421,7 +421,7 @@ public class HandlerXmlIntegrationTest {
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml")).getResults();
+		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
 		assertNull("Should NOT limit depth of Release", flagged.get(0).getFieldValue("count_reposxml_depth"));
 		assertEquals("Should limit depth of Translation", 1L, flagged.get(1).getFieldValue("count_reposxml_depth"));

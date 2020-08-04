@@ -69,7 +69,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -95,7 +95,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -122,7 +122,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -148,7 +148,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -175,7 +175,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 		
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-term.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-term.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -205,7 +205,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-partial.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-partial.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -232,7 +232,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -260,7 +260,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-section.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -288,7 +288,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-tsuppress.xml AND flag:hasxml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-tsuppress.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -325,7 +325,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-mixed-unsafe.xml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-mixed-unsafe.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -346,7 +346,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-parent.xml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-parent.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -366,7 +366,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-sibling.xml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-sibling.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
@@ -386,7 +386,7 @@ public class HandlerXmlRepositemTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 	
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-empty.xml")).getResults();
+		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-empty.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
