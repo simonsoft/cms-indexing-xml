@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.IndexAdminNotification;
 import se.repos.indexing.solrj.SolrCommit;
-import se.repos.indexing.solrj.SolrDelete;
+import se.repos.indexing.solrj.SolrDeleteByQuery;
 import se.repos.indexing.solrj.SolrOptimize;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
@@ -51,7 +51,7 @@ public class IndexAdminXml extends IndexAdminNotification implements IndexAdmin 
 	@Override
 	public void clear() {
 		logger.info("Clearing xml using query {} in {}", query, reposxml);
-		new SolrDelete(reposxml, query).run();
+		new SolrDeleteByQuery(reposxml, query).run();
 		new SolrCommit(reposxml).run();
 		new SolrOptimize(reposxml).run();
 	}
