@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,9 +111,12 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REF_ITEMID_FIELD_PREFIX + refName);
-		if (itemIds != null && itemIds.trim().isEmpty()) {
-			fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
-		}
+		
+		// Always remove the ref_itemid_* fields:
+		// - Reduce index size
+		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
+		fields.removeField(REF_ITEMID_FIELD_PREFIX + refName);
+		
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.trace("Refs '{}' extracted by XSL: {}", refName, itemIds);
 		}

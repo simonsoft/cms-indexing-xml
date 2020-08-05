@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,11 +80,13 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 	 * How to get document status from already extracted fields.
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
+	public static final String PATHAREA_FIELD_NAME = "patharea";
 	public static final String DEPTH_FIELD_NAME = "depth";
 	
 	private static final String I_NS_FIELD_PREFIX = "ins_";
 	
 	private static final QName STATUS_PARAM = new QName("document-status");
+	private static final QName PATHAREA_PARAM = new QName("patharea");
 	private static final QName DEPTH_PARAM = new QName("document-depth");
 	
 	private static final QName A_ATTR_PARAM = new QName("ancestor-attributes");
@@ -243,10 +245,17 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		transformer.setErrorListener(new LoggingErrorListener());
 		transformer.setDestination(xmltrackingFieldsHandler);
 		
+		
 		// Status as parameter to XSL.
 		Object status = fields.getFieldValue(STATUS_FIELD_NAME);
 		if (status != null) {
 			transformer.setParameter(STATUS_PARAM, new XdmAtomicValue((String) status));
+		}
+		
+		// Patharea as parameter to XSL.
+		Object patharea = fields.getFieldValue(PATHAREA_FIELD_NAME);
+		if (patharea != null) {
+			transformer.setParameter(PATHAREA_PARAM, new XdmAtomicValue((String) patharea));
 		}
 		
 		// Depth as parameter to XSL

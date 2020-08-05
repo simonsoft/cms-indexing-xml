@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,10 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 		fields.removeField("prop_abx.Dependencies");
 		
 		
+		// Suppressing text in reposxml core does not impact normal search, only assist and similar services.
 		String text = (String) fields.getFieldValue("text");
 		if (text.length() > MAX_CHARACTERS_TEXT) {
-			logger.debug("Suppressing large text field for element {}", fields.getFieldValue("name"));
+			logger.debug("Suppressing large text field in reposxml for element '{}'", fields.getFieldValue("name"));
 			fields.removeField("text");
 		}
 	}

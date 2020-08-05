@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+import org.xml.sax.ContentHandler;
+
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.QName;
@@ -29,16 +34,9 @@ import net.sf.saxon.s9api.SAXDestination;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
-import org.xml.sax.ContentHandler;
-
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
@@ -64,9 +62,11 @@ public class HandlerXmlRepositem {
 	 * How to get document status from already extracted fields.
 	 */
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
+	public static final String PATHAREA_FIELD_NAME = "patharea";
 	public static final String RID_PROP_FIELD_NAME = "prop_abx.ReleaseId";
 	public static final String TPROJECT_PROP_FIELD_NAME = "prop_abx.TranslationProject";
 	private static final QName STATUS_PARAM = new QName("document-status");
+	private static final QName PATHAREA_PARAM = new QName("patharea");
 	private static final QName PATHEXT_PARAM = new QName("pathext");
 
 	@Inject
@@ -109,11 +109,19 @@ public class HandlerXmlRepositem {
 		Destination xmltrackingFieldsHandler = new SAXDestination(transformOutputHandler);
 		//Destination xmltrackingFieldsHandler = new net.sf.saxon.s9api.Serializer(System.out);
 
+				
 		// Status as parameter to XSL.
 		Object status = fields.getFieldValue(STATUS_FIELD_NAME);
 		if (status != null) {
 			transformer.setParameter(STATUS_PARAM, new XdmAtomicValue((String) status));
 		}
+		
+		// Patharea as parameter to XSL.
+		Object patharea = fields.getFieldValue(PATHAREA_FIELD_NAME);
+		if (patharea != null) {
+			transformer.setParameter(PATHAREA_PARAM, new XdmAtomicValue((String) patharea));
+		}
+		
 		// The file extension field must always be extracted.
 		transformer.setParameter(PATHEXT_PARAM, new XdmAtomicValue((String) fields.getFieldValue("pathext")));
 

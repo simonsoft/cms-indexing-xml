@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 import se.repos.indexing.solrj.MarkerOptimizeSolrj;
 
@@ -30,7 +30,7 @@ import se.repos.indexing.solrj.MarkerOptimizeSolrj;
 public class MarkerXmlOptimize extends MarkerOptimizeSolrj {
 
 	@Inject
-	public MarkerXmlOptimize(@Named("reposxml") SolrServer core) {
+	public MarkerXmlOptimize(@Named("reposxml") SolrClient core) {
 		// Optimize can take significant time (have seen above 30min).
 		// Ideally perform optimize during night time.
 		// Currently uses the same interval as repositem core.

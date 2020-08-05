@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
@@ -85,7 +85,7 @@ public class HandlerXmlNamespaceTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("pos", ORDER.asc)).getResults();
 		assertEquals(13, all.getNumFound()); 
 		
@@ -113,7 +113,7 @@ public class HandlerXmlNamespaceTest {
 		
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 
-		SolrServer reposxml = indexing.getCore("reposxml");
+		SolrClient reposxml = indexing.getCore("reposxml");
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("pos", ORDER.asc)).getResults();
 		assertEquals(5, all.getNumFound()); 
 		

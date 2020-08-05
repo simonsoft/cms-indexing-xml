@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,9 +82,15 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 				throw new IndexingHandlerException("Failed to parse " + relName + ": " + e.getMessage(), e);
 			}
 		}
-		
 		// Copy rlogicalid field to different fields depending on whether this item is a Release or Translation.
 		handleRelationsRlogicalid(fields);
+		
+		// Always remove the rel_itemid_* fields:
+		// - Reduce index size
+		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
+		for (String relName : relationCategories) {
+			fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
+		}
 	}
 	
 
@@ -100,9 +106,7 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REL_ITEMID_FIELD_PREFIX + relName);
-		if (itemIds != null && itemIds.trim().isEmpty()) {
-			fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
-		}
+		
 		if (itemIds != null && !itemIds.trim().isEmpty()) {
 			logger.trace("Rels '{}' extracted by XSL: {}", relName, itemIds);
 		}

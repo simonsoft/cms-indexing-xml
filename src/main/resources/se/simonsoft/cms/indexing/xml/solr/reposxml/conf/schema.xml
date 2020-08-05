@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!--
 
-    Copyright (C) 2009-2016 Simonsoft Nordic AB
+    Copyright (C) 2009-2017 Simonsoft Nordic AB
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -65,7 +65,19 @@
 		List of RIDs that appear more than once in the element and children. 
 		Can not identify if the element itself is a duplicate.
 		-->
-		<field name="reuseridduplicate" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="reuseridduplicate" type="content_checksums" indexed="true" stored="true" multiValued="false" />		
+		<!-- 
+		List of RIDs with reusevalue > 0.
+		-->
+		<field name="reuseridreusevalue" type="content_checksums" indexed="true" stored="true" multiValued="false" />		
+		<!-- 
+		List of Release Checksums corresponding to RIDs with reusevalue > 0.
+		-->
+		<field name="reuse_c_sha1_release_descendants" type="string" indexed="true" stored="true" multiValued="true" />
+		<!-- 
+		Map Release Checksums to RIDs (with reusevalue > 0).
+		-->
+		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="false" />
 		<!-- 
 		Indicate if element requires translation. Typically dependent on the schema/DTD.
 		Experimental use when determining if pretranslate was "complete".

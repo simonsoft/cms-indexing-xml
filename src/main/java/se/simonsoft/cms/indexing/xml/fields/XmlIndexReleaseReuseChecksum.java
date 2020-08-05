@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package se.simonsoft.cms.indexing.xml.fields;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -53,6 +55,12 @@ import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
+	private static String RELEASE_DESCENDANTS_CHECKSUM = "reuse_c_sha1_release_descendants";
+	private static String RELEASE_RID_PREFIX = "reuse_rid_";
+
+	private static String RELEASE_RID_REUSEVALUE = "reuseridreusevalue";
+
+	private static String PROP_RELEASEID = "prop_abx.ReleaseId";
 
 	private XmlSourceReaderS9api sourceReader;
 	private ItemContentBufferStrategy contentStrategy;
@@ -93,6 +101,16 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		fields.removeField("size");
 		
 		String rid = (String) fields.getFieldValue("a_cms.rid");
+		Integer depth = (Integer) fields.getFieldValue("depth");
+		String ridProp = (String) fields.getFieldValue(PROP_RELEASEID);
+		
+		// Translations prepared in earlier versions of CMS do not have the property abx:ReleaseId (now propagates from Release).
+		// This property is required by Pretranslate 2.0.x.
+		// The property should contain the RID of the root element. Simple fix when depth=1.
+		if (this.releaseId != null && ridProp == null && depth.equals(1)) {
+			logger.warn("Translation prepared without ReleaseId property, adding: " + rid);
+			fields.setField(PROP_RELEASEID, rid);
+		}
 		
 		// TODO: Likely need to take tsuppress, tvalidate into account.
 		if (hasAncestorAttributeCmsActive(fields, "tsuppress")) {
@@ -104,7 +122,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			return;
 		}
 		
-		
+
 		if (this.ridChecksums != null && rid != null) {
 			String releaseChecksum = this.ridChecksums.get(rid);
 			if (releaseChecksum == null || releaseChecksum.isEmpty()) {
@@ -114,10 +132,53 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 				// Verifies that elements have not been removed from Release. Will not notice if elements without RID have been added to Translation.
 				// This could trigger error if the Translation has inline element with RID, but the Release does not.
 			}
+			
 			// TODO: Identify if there are missing elements in Translation. Perhaps introduce a "Validate Translation" early in HandlerXml instead.
 
+			// Checksum field used by Pretranslate 1.x (non-join).
 			fields.addField(RELEASE_CHECKSUM, releaseChecksum);
 			logger.trace("Added Release checksum {} to RID {}", releaseChecksum, rid);
+			
+			// Add checksums for elements with reusevalue > 0 (on root element only). Used by Pretranslate 2.0.x.
+			if (depth.equals(1)) {
+				addDescendantChecksums(fields);
+			}
+			
+		}
+	}
+	
+	
+	private void addDescendantChecksums(IndexingDoc fields) {
+		
+		String ridStr = (String) fields.getFieldValue(RELEASE_RID_REUSEVALUE);
+		//logger.trace("RIDs with reusevalue > 0: {}", ridStr); // Very large logging.
+		if (ridStr == null || ridStr.trim().isEmpty()) {
+			logger.warn("No RIDs with reusevalue > 0");
+			return;
+		}
+		
+		List<String> rids = Arrays.asList(ridStr.split(" "));
+		logger.debug("RID count with reusevalue > 0: {}", rids.size());
+		
+		// Add checksums for elements with reusevalue > 0.
+		for (String key: rids) {
+			String checksum = this.ridChecksums.get(key);
+			if (checksum == null) {
+				logger.warn("RID has reusevalue > 0 but no checksum available in Release: {}", key);
+				continue;
+			}
+			logger.trace("RID with reusevalue > 0: {} {}", key, checksum);
+			
+			// Field (multivalue) with all valid checksums.
+			fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
+			// Field (dynamic) mapping checksum to RID.
+			String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+			
+			// Index the first instance when there are elements with identical checksum.
+			if (!fields.containsKey(fieldname)) {
+				fields.addField(fieldname, key);
+				//logger.info("Added checksum map field {}", fieldname);
+			}
 		}
 	}
 

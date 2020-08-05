@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2009-2016 Simonsoft Nordic AB
+    Copyright (C) 2009-2017 Simonsoft Nordic AB
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,8 +23,12 @@
 	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
 
+	
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
+	
+	<!-- document's patharea (release, translation) -->
+	<xsl:param name="patharea"/>
 	
 	<!-- filename extension -->
 	<xsl:param name="pathext" required="yes"/>
@@ -35,7 +39,6 @@
 	<xsl:variable name="ref-attrs-conref-seq" as="xs:string+" select="$ref-attrs-seq, 'conref'">
 		
 	</xsl:variable>
-	
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
@@ -58,7 +61,7 @@
 	
 		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
-		<xsl:variable name="text" select="for $elemtext in descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])] return tokenize(normalize-space($elemtext), $whitespace)"/>
 	
 		<!-- Detect text in non-RID places. -->
 		<!-- Elements containing both text and RID-children. -->
@@ -100,7 +103,23 @@
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
 			
+			<!-- Limit reposxml indexing depth for Translations. -->
+			<xsl:if test="$patharea = 'translation'">
+				<field name="count_reposxml_depth">
+					<xsl:choose>
+						<!-- TODO: Dynamically adjust depth to get reasonably sized elements in reposxml. -->
+						<xsl:when test="false()">
+							<!-- ditabase is perfect for depth=2. -->
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="1"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</field>
+			</xsl:if>
+			
 			<xsl:if test="@cms:twords">
+				<!-- Only Pretranslated Translations -->
 				<field name="count_twords"><xsl:value-of select="@cms:twords"/></field>
 				
 				<xsl:for-each select="distinct-values(//@cms:tstatus)">
@@ -108,18 +127,29 @@
 					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
+			</xsl:if>
+			
+			<xsl:if test="@cms:rid">
+				<!-- All Finalized Release / Translations -->
 				
 				<!-- #1283 Attempt to detect complete pretranslate -->
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
 				<!-- Not sure if this can be compatible with hastsuppress. Typical tsuppress meaning before Pretranslate: "require re-translation by TSP". Must be manual. -->
-				<!-- Since Pretranslate will not traverse into tsuppres, they will be counted here. -->
+				
+				<!-- Elements that require translation. -->
+				<!-- Excludes elements that are Translate=no if set at or above RID, does not analyze inlines. -->
+				<!-- Pretranslate will not traverse into tsuppress but we don't know why tsuppress is used. -->
+				<!-- Presenting tsuppress count separately, not included here. -->
 				<xsl:variable name="tstatus_open_elements_all" as="element()*"
-					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])]"/>
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])]"/>
 					<!-- Select: elements [with RID], [RID-leaf], [not Pretranslated], [not excluded from translation (2 variants)]  -->
 				
+				<!-- Elements that require translation, filtering those that only contain keyrefs or inlines[translate=no]. -->
 				<xsl:variable name="tstatus_open_elements" as="element()*"
-					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][count(for $elemtext in descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)) > 0]"/>
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][count(for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)) > 0]"/>
 				
+				
+				<!-- TODO: Calculate In-Progress elements and word count. tstatus_progress_elements[_all] -->
 				
 				<field name="count_elements_translate_all"><xsl:value-of select="count($tstatus_open_elements_all)"/></field>
 				<field name="count_elements_translate"><xsl:value-of select="count($tstatus_open_elements)"/></field>
@@ -137,12 +167,21 @@
 				<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
 			</xsl:if>
 			
-			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tstatus='Released'])][not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
+			<!-- Elements marked translate="no" or markfortrans="no". -->
+			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
 			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
 			
 			
+			<!-- Suppressed Translations. -->
+			<!-- Not attempting to get each leaf element since RIDs might not be consistent. -->
+			<!-- Excluding keyref words (excluded from "count_words_text"). -->
+			<!-- Including translate_no words because they should not be counted in translate_no (one way of looking at it). -->
+			<xsl:variable name="tsuppress_text" select="for $elemtext in $root/descendant-or-self::*[ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]]][not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
+			<field name="count_words_tsuppress"><xsl:value-of select="count($tsuppress_text)"/></field>
+			
+
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<!-- Using field 'text' seems unable to override Tika extraction. -->
 			<!-- TODO: Consider the impact of storing the text field. -->

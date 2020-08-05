@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2016 Simonsoft Nordic AB
+ * Copyright (C) 2009-2017 Simonsoft Nordic AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	private long count = 0;
 	
 	@Inject
-	public XmlIndexWriterSolrjBackground(@Named("reposxml") SolrServer core) {
+	public XmlIndexWriterSolrjBackground(@Named("reposxml") SolrClient core) {
 		super(core);
 	}
 
