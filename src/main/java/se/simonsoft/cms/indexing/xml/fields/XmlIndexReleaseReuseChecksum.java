@@ -244,8 +244,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private XmlSourceDocumentS9api getDocumentChecksum(XmlIndexProgress xmlProgress, CmsItemId itemId) {
 
 		// Possible to use the XmlSourceReader in combination with the Indexing Content Buffer concept.
-		// The ItemContentBuffer API are multi-repo and should remain that way.
-		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer((CmsRepositoryInspection) xmlProgress.getRepository(), new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
+		// The ItemContentBuffer implementation is injected in a per-repo context, same with Handlers.
+		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer(new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
 		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
 		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
