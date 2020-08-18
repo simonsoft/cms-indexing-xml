@@ -148,8 +148,13 @@ public class HandlerXmlLargeFileTest {
 
 	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
 	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
-		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported",
-				source.getFile(new CmsItemPath(cmsItemPath)));
+		InputStream file = null;
+		try{
+			file = source.getFile(new CmsItemPath(cmsItemPath));
+		} catch (Exception e) {
+			// file will be null
+		}
+		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported", file);
 	}
 
 	@Test
