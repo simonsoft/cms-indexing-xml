@@ -19,6 +19,15 @@
 <lists>
    <list>
       <entry kind="dir">
+         <name>.</name>
+         <commit revision="1">
+			<author>m</author>
+			<date>2013-01-04T14:33:14.600772Z</date>
+			</commit>
+         <properties>
+         </properties>
+      </entry>
+      <entry kind="dir">
          <name>arbortext</name>
          <commit revision="3">
             <author>test</author>
