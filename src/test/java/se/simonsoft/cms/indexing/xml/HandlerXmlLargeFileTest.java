@@ -77,7 +77,8 @@ import com.google.inject.Injector;
  * 
  * The tests will be skipped unless T501007.xml is exported into the dataset single-860k, see scenario-testing.
  * 
- * TODO: The tests should also be executed in scenario-testing. Ensures that the shipped combinations of jars passes and provides consistent checksums.
+ * NOTE: Duplicated in cms-scenariotesting.
+ * Ensures that the shipped combinations of jars passes and provides consistent checksums.
  */
 public class HandlerXmlLargeFileTest {
 
