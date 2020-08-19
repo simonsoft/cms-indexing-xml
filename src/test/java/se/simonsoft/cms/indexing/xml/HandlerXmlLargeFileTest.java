@@ -18,12 +18,9 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -48,7 +45,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
@@ -169,11 +165,24 @@ public class HandlerXmlLargeFileTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml), injector);
 
 		SolrClient reposxml = indexing.getCore("reposxml");
+		
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
 		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
+		
+		SolrDocumentList pathmain = reposxml.query(new SolrQuery("pathmain:true").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(0, pathmain.getNumFound());
+		
+		SolrDocumentList area = reposxml.query(new SolrQuery("patharea:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(11488, area.getNumFound());
 
-		SolrDocument e1 = all.get(0);
+		SolrDocumentList releases = reposxml.query(new SolrQuery("patharea:release").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(11488, releases.getNumFound());
+		
+		SolrDocumentList translations = reposxml.query(new SolrQuery("patharea:translation").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(0, translations.getNumFound());
 
+
+		//SolrDocument e1 = all.get(0);
 		//assertEquals(80, e1.getFieldNames().size());
 		//assertEquals("...", e1.getFieldValue("pathname"));
 		/* Can not assert on props since repositem is not involved.
@@ -183,6 +192,9 @@ public class HandlerXmlLargeFileTest {
 		
 		
 		// NOTE: The external file can no longer have attribute cms:translation-project. Will cause a shallow indexing (not possible to verify checksums).
+		// Shallow indexing is controlled by 'patharea'
+		// Repositem XSL sets field 'count_reposxml_depth' used by XmlSourceHandlerFieldExtractors.java to limit the depth.
+		
 		// The checksums on Release is no longer used for Pretranslate. Might be used for processing Release (previously released sections). 
 		assertChecksums(reposxml);
 	}
@@ -307,6 +319,7 @@ public class HandlerXmlLargeFileTest {
 		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
+		assertNotNull(rDoc);
 	}
 	
 	@Test // Some 300 ms slower in 9.7

@@ -331,6 +331,8 @@ x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530305.tif</property>
 			   name="abx:SystemId">flir.dtd</property>
 			<property
 			   name="abx:TagType"></property>
+			   
+			<!-- Make the file appear as a release, avoid shallow index.
 			<property
 			   name="abx:TranslationLocale">nl-NL</property>
 			<property
@@ -339,6 +341,10 @@ x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530305.tif</property>
 			   name="abx:TranslationProject">2SBAQG-T610120</property>
 			<property
 			   name="abx:TranslationSource">Agency</property>
+			-->
+			<property
+			   name="abx:ReleaseMaster">x-svn:///svn/flir^/thg-swe/xml/T501000-T502000/T501007.xml?p=6189</property>
+			
 			<property
 			   name="abx:lang">nl-NL</property>
 			<property
