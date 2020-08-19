@@ -233,12 +233,13 @@ public class HandlerXmlLargeFileTest {
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
+		assertElementCount(11488L, rDoc);
 		assertChecksums(rDoc);
 	}
 
 	private void assertChecksums(XmlSourceDocumentS9api doc) {
 
-		XdmNode root = doc.getDocumentNodeXdm(); // Not sure...
+		XdmNode root = doc.getDocumentNodeXdm();
 		XPathCompiler xpath = p.newXPathCompiler();
 		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
 
@@ -258,6 +259,26 @@ public class HandlerXmlLargeFileTest {
 				XdmItem xr = xs.evaluateSingle();
 				assertEquals("checksum for first " + t.getKey(), t.getValue(), xr.getStringValue());
 			}
+
+		} catch (SaxonApiException e) {
+
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	private void assertElementCount(Long count, XmlSourceDocumentS9api doc) {
+
+		XdmNode root = doc.getDocumentNodeXdm();
+		XPathCompiler xpath = p.newXPathCompiler();
+		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
+
+		try {
+			XPathExecutable xe1 = xpath.compile("count(//*)");
+			XPathSelector xs1 = xe1.load();
+			xs1.setContextItem(root);
+			XdmValue r1 = xs1.evaluate();
+			assertEquals("Test element count: " + count, count.toString(), r1.toString());
 
 		} catch (SaxonApiException e) {
 
