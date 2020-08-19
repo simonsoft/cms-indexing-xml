@@ -36,8 +36,6 @@
 			<date>2013-01-04T14:33:14.600772Z</date>
 			</commit>
 			<properties>
-			<target
-			   path="http://localdev:8530/svn/flir/thg-swe/lang/nl-NL/release/002/xml/T501000-T502000/T501007.xml">
 			<property
 			   name="abx:AuthorMaster">x-svn:///svn/flir^/thg-swe/xml/T501000-T502000/T501007.xml?p=6189</property>
 			<property
@@ -347,7 +345,6 @@
 			   name="cms:status">Released</property>
 			<property
 			   name="xml:title"></property>
-			</target>
 			</properties>			
 		</entry>
    </list>
