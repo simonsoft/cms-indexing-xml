@@ -268,8 +268,7 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "19"); // #1283 Now excluding ph / @keyref content also in text field.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
 		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
-				//"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + 
-				"<p>Press button <ph keyref=\"btn_success\" a=\"first\"></ph> and ...</p>" + // Currently demonstrates that attributes are NOT sorted!
+				"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + // #1300: Attributes are now sorted.
 				"<p>Press button <ph keyref=\"btn_success\"></ph> and ...</p>" + 
 				"<p>Press button <ph>This is not a keyref</ph> and ...</p>" +
 				"</section></document>");
@@ -362,7 +361,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
 		// Bursted attributes should definitely be excluded from root. Potentially all attributes excluded on root.
-		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p modifiedby=\"bill\" modifieddate=\"2013-01-01\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" status=\"Released\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		// Potentially excluding bursted attributes on all elements, but requires configuration.
 		//assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
