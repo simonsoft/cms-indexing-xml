@@ -123,7 +123,7 @@ public class IndexFieldExtractionCustomXslTest {
 		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
-		when(fields.getFieldValue("source")).thenReturn(
+		String xml =
 				"<document xml:lang=\"en\">\n" +
 				"<!-- A comment. -->" +
 				"<section><title>section &amp; stuff</title>\n" +
@@ -131,7 +131,10 @@ public class IndexFieldExtractionCustomXslTest {
 				"right within them.</p>\n" +
 				"</section>\n" +
 				"<figure><title>Title</title>Figure</figure>\n" +						
-				"</document>");
+				"</document>";
+		
+		when(fields.getFieldValue("source")).thenReturn(xml);
+		// xml:id=\"a\"
 		
 		x.end(null, null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
@@ -142,6 +145,8 @@ public class IndexFieldExtractionCustomXslTest {
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		// Can actually make space btw 2 inline elements disappear... still just for checksum.
 		verify(fields).addField("source_reuse", "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
+		
+		assertEquals("verify alignment with reuse-normalize.xsl",  "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>", getReuseNormalizeSourceReuse(xml));
 	}
 
 	/**
@@ -779,6 +784,17 @@ public class IndexFieldExtractionCustomXslTest {
 		} catch (XmlNotWellFormedException e) { // any other exception would abort indexing
 			// expected
 		}
+	}
+	
+	private String getReuseNormalizeSourceReuse(String xml) {
+		
+		// Validate equivalent handling of translate attribute in reuse-normalize.xsl
+		// The reuse-normalize transform is now used as preprocess for Pretranslate.
+		TransformOptions options = new TransformOptions();
+		options.setParameter("source-reuse-tags-param", "document p title"); // Just add the superset of what the tests need.
+		XmlSourceDocumentS9api xmlReuse = tReuse.transform(new StringReader(xml), options);
+		Map<String, String> attrs = xmlReuse.getDocumentElement().getAttributeMap();
+		return attrs.get("cms:source_reuse");
 	}
 
 }
