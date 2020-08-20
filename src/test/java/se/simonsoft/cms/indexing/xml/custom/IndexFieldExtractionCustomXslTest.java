@@ -143,10 +143,10 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... still just for checksum.
-		verify(fields).addField("source_reuse", "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
+		String expected = "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>";
+		verify(fields).addField("source_reuse", expected);
 		
-		assertEquals("verify alignment with reuse-normalize.xsl",  "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>", getReuseNormalizeSourceReuse(xml));
+		assertEquals("verify alignment with reuse-normalize.xsl", expected, getReuseNormalizeSourceReuse(xml));
 	}
 
 	/**
@@ -176,7 +176,6 @@ public class IndexFieldExtractionCustomXslTest {
 
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... important for reuse.
 		verify(fields).addField("source_reuse", "<p>Ett <code>två</code><code>tre</code> <code>fyra</code> <code>fem</code> <code> sex </code> sju.</p>");
 	}
 	/**
@@ -208,7 +207,6 @@ public class IndexFieldExtractionCustomXslTest {
 
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... important for reuse.
 		verify(fields).addField("source_reuse", "<p>Väderstad <termref linkend=\"platform\"></termref> <termref linkend=\"type\"></termref> are combination machines designed for direct seed drilling.</p>");
 	}
 
