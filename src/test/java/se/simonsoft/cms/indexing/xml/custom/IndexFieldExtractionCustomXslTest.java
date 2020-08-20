@@ -130,11 +130,10 @@ public class IndexFieldExtractionCustomXslTest {
 				"<p>Even paragraphs will have new-lines\n" +
 				"right within them.</p>\n" +
 				"</section>\n" +
-				"<figure><title>Title</title>Figure</figure>\n" +						
+				"<figure xml:id=\"a\" type=\"landscape\"><title>Title</title>Figure</figure>\n" +						
 				"</document>";
 		
 		when(fields.getFieldValue("source")).thenReturn(xml);
-		// xml:id=\"a\"
 		
 		x.end(null, null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
@@ -143,7 +142,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		String expected = "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>";
+		String expected = "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"landscape\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
 		verify(fields).addField("source_reuse", expected);
 		
 		assertEquals("verify alignment with reuse-normalize.xsl", expected, getReuseNormalizeSourceReuse(xml));

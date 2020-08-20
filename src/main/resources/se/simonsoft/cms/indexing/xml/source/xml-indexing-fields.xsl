@@ -128,7 +128,9 @@
 	
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
-		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
+		<xsl:call-template name="source-reuse-attrs-serialize">
+			<xsl:with-param name="attrs" select="$attrs"/>
+		</xsl:call-template>
 		<xsl:text>&gt;</xsl:text>
 		<xsl:apply-templates mode="source-reuse-child" />
 		<xsl:text>&lt;/</xsl:text>
@@ -173,7 +175,9 @@
             
 		<xsl:text>&lt;</xsl:text>
 		<xsl:value-of select="name()" />
-		<xsl:apply-templates mode="source-reuse-serialize" select="$attrs"/>
+		<xsl:call-template name="source-reuse-attrs-serialize">
+			<xsl:with-param name="attrs" select="$attrs"/>
+		</xsl:call-template>
 		<xsl:text>&gt;</xsl:text>
 		<xsl:apply-templates mode="source-reuse-child" />
 		<xsl:text>&lt;/</xsl:text>
@@ -191,6 +195,19 @@
 		<xsl:copy/>
 	</xsl:template>
 	
+	
+	<xsl:template name="source-reuse-attrs-serialize">
+		<!-- #1300: Normalize attribute order -->
+		<xsl:param name="attrs" as="attribute()*" required="yes"/>
+		<!-- Aligning with Canonical XML spec: https://www.w3.org/TR/xml-c14n/ -->
+		<!-- NS declarations are not serialized in this form (separate field in indexing). Canonical XML places NS decl first in prefix order (not URI order). -->
+		<xsl:apply-templates select="$attrs" mode="source-reuse-serialize">
+			<!-- Canonical XML sorts by NS URI as primary key, keeping all attributes in a namepace together even with different prefixes. -->
+			<!-- Implicitly means that no-NS attributes are placed first. -->
+			<xsl:sort select="namespace-uri()"/>
+			<xsl:sort select="local-name()"/>
+		</xsl:apply-templates>
+	</xsl:template>
 	
 	<xsl:template match="@*" mode="source-reuse-serialize">
 		<!-- Serialize the attribute information. -->
