@@ -18,6 +18,15 @@
 -->
 <lists>
    <list>
+      <entry kind="dir">
+         <name>.</name>
+         <commit revision="1">
+			<author>m</author>
+			<date>2013-01-04T14:33:14.600772Z</date>
+			</commit>
+         <properties>
+         </properties>
+      </entry>
 		<entry kind="file">
 			<name>T501007.xml</name>
 			<size>880544</size>
@@ -27,8 +36,6 @@
 			<date>2013-01-04T14:33:14.600772Z</date>
 			</commit>
 			<properties>
-			<target
-			   path="http://localdev:8530/svn/flir/thg-swe/lang/nl-NL/release/002/xml/T501000-T502000/T501007.xml">
 			<property
 			   name="abx:AuthorMaster">x-svn:///svn/flir^/thg-swe/xml/T501000-T502000/T501007.xml?p=6189</property>
 			<property
@@ -37,281 +44,281 @@
 			   name="abx:ContentType">xml</property>
 			<property
 			   name="abx:Dependencies">x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533217.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533207.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532732.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532544.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532545.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532563.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532547.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533203.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533365.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533380.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533379.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533378.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533382.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533381.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533383.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533375.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532906.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532907.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533218.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533364.eps
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533387.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533376.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533377.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532728.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531459.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531850.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532729.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532729.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533372.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533373.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532909.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533366.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533368.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533371.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533367.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533369.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533370.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532730.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532731.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533363.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533362.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533384.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533032.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533360.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533049.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533050.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533051.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533052.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533053.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533066.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533034.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533008.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533056.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533039.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533057.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533038.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533058.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533034.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533059.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533081.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533082.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533083.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533084.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533085.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533087.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533088.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533089.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533091.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533093.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533020.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533011.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533012.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533013.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533015.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533014.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533016.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533041.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533042.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533043.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533010.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533360.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533049.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533050.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533051.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533052.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533053.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533054.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533058.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533059.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533056.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533057.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533060.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533061.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533062.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533065.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533063.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533037.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533361.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533040.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533041.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533042.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533043.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533095.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533024.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533081.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533082.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533083.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533084.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533085.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533087.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533088.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533089.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533091.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533093.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533044.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533028.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533045.gif
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533025.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533046.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533026.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533098.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533099.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533100.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533047.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533027.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533101.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533102.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533103.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533033.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533029.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533007.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533018.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533019.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533021.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533105.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533106.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533017.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533107.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533108.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533109.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533022.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533079.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533110.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533023.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533020.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533114.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533115.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533079.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533116.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533111.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533112.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533113.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533117.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533118.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533119.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533120.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533121.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533122.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533123.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533124.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533016.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533011.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533009.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533002.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000514.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000516.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000527.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000526.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000518.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000528.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000529.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000520.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000524.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000525.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000530.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000521.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000522.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000523.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000524.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000525.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000519.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532598.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532809.jpg
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530311.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530312.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530313.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531530.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531532.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531531.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531710.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530285.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530287.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530289.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530288.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530047.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530293.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530286.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530290.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530133.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530075.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530134.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530292.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530076.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530294.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530291.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530295.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530297.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530135.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530296.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530297.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530298.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530299.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530310.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530077.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530136.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530300.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530303.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530619.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530620.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530307.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530308.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530309.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530304.tif
-			x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530305.tif</property>
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533207.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532732.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532544.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532545.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532563.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532547.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533203.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533365.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533380.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533379.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533378.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533382.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533381.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533383.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533375.eps
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532906.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532907.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533218.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533364.eps
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533387.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533376.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533377.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533385.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533386.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532728.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532727.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531459.tif
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531850.tif
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532729.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532729.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533374.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533372.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533373.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532909.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533366.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533368.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533371.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533367.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533369.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533370.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532730.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532731.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533363.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533362.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533384.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533032.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533360.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533049.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533050.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533051.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533052.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533053.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533066.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533034.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533008.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533056.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533039.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533057.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533038.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533058.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533034.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533059.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533081.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533082.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533083.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533084.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533085.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533087.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533088.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533089.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533091.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533093.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533020.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533011.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533012.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533013.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533015.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533014.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533016.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533041.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533042.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533043.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533010.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533360.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533049.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533050.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533051.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533052.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533053.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533054.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533058.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533059.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533055.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533056.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533057.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533060.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533061.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533062.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533065.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533063.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533037.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533361.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533040.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533041.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533042.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533043.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533095.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533024.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533080.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533081.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533082.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533083.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533084.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533085.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533086.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533087.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533088.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533089.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533091.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533093.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533044.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533028.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533045.gif
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533025.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533046.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533026.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533098.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533099.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533100.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533047.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533027.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533097.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533096.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533101.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533102.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533103.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533104.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533033.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533029.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533007.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533094.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533018.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533019.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533090.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533021.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533105.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533106.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533017.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533107.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533108.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533109.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533022.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533079.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533110.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533023.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533020.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533114.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533115.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533079.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533116.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533111.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533112.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533113.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533117.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533118.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533119.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533120.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533121.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533122.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533123.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533124.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533092.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533016.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533011.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533064.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533009.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T533001-T534000/T533002.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000514.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000516.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000527.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000526.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000518.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000528.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000529.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000520.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000524.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000525.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000530.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000521.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000522.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000523.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000524.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000525.jpg
+x-svn:///svn/flir^/thg-swe/graphics/XDx/XD000519.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532598.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T532001-T533000/T532809.jpg
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530311.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530312.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530313.tif
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531530.tif
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531532.tif
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531531.tif
+x-svn:///svn/flir^/thg-swe/graphics/T531001-T532000/T531710.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530285.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530287.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530289.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530288.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530047.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530293.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530286.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530290.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530133.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530075.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530134.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530292.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530076.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530294.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530291.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530295.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530297.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530135.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530296.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530297.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530298.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530299.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530310.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530077.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530136.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530300.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530303.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530619.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530620.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530307.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530308.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530309.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530304.tif
+x-svn:///svn/flir^/thg-swe/graphics/T530000-T531000/T530305.tif</property>
 			<property
 			   name="abx:DoctypeName">document</property>
 			<property
@@ -324,6 +331,8 @@
 			   name="abx:SystemId">flir.dtd</property>
 			<property
 			   name="abx:TagType"></property>
+			   
+			<!-- Make the file appear as a release, avoid shallow index.
 			<property
 			   name="abx:TranslationLocale">nl-NL</property>
 			<property
@@ -332,13 +341,16 @@
 			   name="abx:TranslationProject">2SBAQG-T610120</property>
 			<property
 			   name="abx:TranslationSource">Agency</property>
+			-->
+			<property
+			   name="abx:ReleaseMaster">x-svn:///svn/flir^/thg-swe/xml/T501000-T502000/T501007.xml?p=6189</property>
+			
 			<property
 			   name="abx:lang">nl-NL</property>
 			<property
 			   name="cms:status">Released</property>
 			<property
 			   name="xml:title"></property>
-			</target>
 			</properties>			
 		</entry>
    </list>

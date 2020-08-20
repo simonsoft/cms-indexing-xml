@@ -18,12 +18,9 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -48,7 +45,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +77,8 @@ import com.google.inject.Injector;
  * 
  * The tests will be skipped unless T501007.xml is exported into the dataset single-860k, see scenario-testing.
  * 
- * TODO: The tests should also be executed in scenario-testing. Ensures that the shipped combinations of jars passes and provides consistent checksums.
+ * NOTE: Duplicated in cms-scenariotesting.
+ * Ensures that the shipped combinations of jars passes and provides consistent checksums.
  */
 public class HandlerXmlLargeFileTest {
 
@@ -148,8 +145,13 @@ public class HandlerXmlLargeFileTest {
 
 	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
 	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
-		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported",
-				source.getFile(new CmsItemPath(cmsItemPath)));
+		InputStream file = null;
+		try{
+			file = source.getFile(new CmsItemPath(cmsItemPath));
+		} catch (Exception e) {
+			// file will be null
+		}
+		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported", file);
 	}
 
 	@Test
@@ -164,11 +166,24 @@ public class HandlerXmlLargeFileTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml), injector);
 
 		SolrClient reposxml = indexing.getCore("reposxml");
+		
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
 		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
+		
+		SolrDocumentList pathmain = reposxml.query(new SolrQuery("pathmain:true").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(0, pathmain.getNumFound());
+		
+		SolrDocumentList area = reposxml.query(new SolrQuery("patharea:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(11488, area.getNumFound());
 
-		SolrDocument e1 = all.get(0);
+		SolrDocumentList releases = reposxml.query(new SolrQuery("patharea:release").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(11488, releases.getNumFound());
+		
+		SolrDocumentList translations = reposxml.query(new SolrQuery("patharea:translation").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(0, translations.getNumFound());
 
+
+		//SolrDocument e1 = all.get(0);
 		//assertEquals(80, e1.getFieldNames().size());
 		//assertEquals("...", e1.getFieldValue("pathname"));
 		/* Can not assert on props since repositem is not involved.
@@ -178,6 +193,9 @@ public class HandlerXmlLargeFileTest {
 		
 		
 		// NOTE: The external file can no longer have attribute cms:translation-project. Will cause a shallow indexing (not possible to verify checksums).
+		// Shallow indexing is controlled by 'patharea'
+		// Repositem XSL sets field 'count_reposxml_depth' used by XmlSourceHandlerFieldExtractors.java to limit the depth.
+		
 		// The checksums on Release is no longer used for Pretranslate. Might be used for processing Release (previously released sections). 
 		assertChecksums(reposxml);
 	}
@@ -228,12 +246,13 @@ public class HandlerXmlLargeFileTest {
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
 
+		assertElementCount(11488L, rDoc);
 		assertChecksums(rDoc);
 	}
 
 	private void assertChecksums(XmlSourceDocumentS9api doc) {
 
-		XdmNode root = doc.getDocumentNodeXdm(); // Not sure...
+		XdmNode root = doc.getDocumentNodeXdm();
 		XPathCompiler xpath = p.newXPathCompiler();
 		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
 
@@ -253,6 +272,26 @@ public class HandlerXmlLargeFileTest {
 				XdmItem xr = xs.evaluateSingle();
 				assertEquals("checksum for first " + t.getKey(), t.getValue(), xr.getStringValue());
 			}
+
+		} catch (SaxonApiException e) {
+
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	private void assertElementCount(Long count, XmlSourceDocumentS9api doc) {
+
+		XdmNode root = doc.getDocumentNodeXdm();
+		XPathCompiler xpath = p.newXPathCompiler();
+		xpath.declareNamespace("cms", "http://www.simonsoft.se/namespace/cms");
+
+		try {
+			XPathExecutable xe1 = xpath.compile("count(//*)");
+			XPathSelector xs1 = xe1.load();
+			xs1.setContextItem(root);
+			XdmValue r1 = xs1.evaluate();
+			assertEquals("Test element count: " + count, count.toString(), r1.toString());
 
 		} catch (SaxonApiException e) {
 
@@ -281,6 +320,7 @@ public class HandlerXmlLargeFileTest {
 		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
 
 		XmlSourceDocumentS9api rDoc = t.transform(sDoc.getDocumentElement(), null);
+		assertNotNull(rDoc);
 	}
 	
 	@Test // Some 300 ms slower in 9.7
