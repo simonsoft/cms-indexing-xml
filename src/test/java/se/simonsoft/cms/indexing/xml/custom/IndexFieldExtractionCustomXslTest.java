@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
@@ -25,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Map;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -40,7 +43,14 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
+import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformOptions;
+import se.simonsoft.cms.xmlsource.transform.TransformerService;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -48,13 +58,23 @@ import com.google.inject.Injector;
 public class IndexFieldExtractionCustomXslTest {
 	
 	private Injector injector;
-	Processor p;
+	private Processor p;
+	private XmlSourceReaderS9api sourceReader;
+	private TransformerServiceFactory transformerServiceFactory;
+	private TransformerService tReuse;
+	
 	
 	@Before
 	public void setUp() {
 		
 		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
 		p = injector.getInstance(Processor.class);
+		sourceReader = (XmlSourceReaderS9api) injector.getInstance(XmlSourceReader.class);
+		transformerServiceFactory = injector.getInstance(TransformerServiceFactory.class);
+		
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		tReuse = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
 	}
 
 	@Test
@@ -655,11 +675,12 @@ public class IndexFieldExtractionCustomXslTest {
 		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
-		root.setField("source",
+		String xml =
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
 				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"no\"><p cms:rid=\"r02b\">section</p></section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
-				"</document>");
+				"</document>";
+		root.setField("source", xml);
 		root.setField("prop_cms.status", "Released");
 		
 		x.end(null, null, root);
@@ -697,7 +718,17 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, tna);
 		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
+	
+		// Validate equivalent handling of translate attribute in reuse-normalize.xsl
+		// The reuse-normalize transform is now used as preprocess for Pretranslate.
+		TransformOptions options = new TransformOptions();
+		//options.setParameter("source-reuse-tags-param", "");
+		XmlSourceDocumentS9api xmlReuse = tReuse.transform(new StringReader(xml), options);
+		XmlSourceAttributeMapRid xmlReuseMap = new XmlSourceAttributeMapRid("source_reuse", false);
+		sourceReader.handle(xmlReuse, xmlReuseMap);
+		Map<String, String> ridMap = xmlReuseMap.getAttributeMap();
 		
+		assertEquals("<p markfortrans=\"no\">section</p>", ridMap.get("r02b"));
 	}
 	
 	@Test
