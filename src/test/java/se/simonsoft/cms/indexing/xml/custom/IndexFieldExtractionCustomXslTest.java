@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
@@ -25,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Map;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -40,7 +43,14 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
+import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformOptions;
+import se.simonsoft.cms.xmlsource.transform.TransformerService;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -48,13 +58,23 @@ import com.google.inject.Injector;
 public class IndexFieldExtractionCustomXslTest {
 	
 	private Injector injector;
-	Processor p;
+	private Processor p;
+	private XmlSourceReaderS9api sourceReader;
+	private TransformerServiceFactory transformerServiceFactory;
+	private TransformerService tReuse;
+	
 	
 	@Before
 	public void setUp() {
 		
 		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
 		p = injector.getInstance(Processor.class);
+		sourceReader = (XmlSourceReaderS9api) injector.getInstance(XmlSourceReader.class);
+		transformerServiceFactory = injector.getInstance(TransformerServiceFactory.class);
+		
+		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
+				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		tReuse = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
 	}
 
 	@Test
@@ -103,15 +123,17 @@ public class IndexFieldExtractionCustomXslTest {
 		}, p);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
-		when(fields.getFieldValue("source")).thenReturn(
+		String xml =
 				"<document xml:lang=\"en\">\n" +
 				"<!-- A comment. -->" +
 				"<section><title>section &amp; stuff</title>\n" +
 				"<p>Even paragraphs will have new-lines\n" +
 				"right within them.</p>\n" +
 				"</section>\n" +
-				"<figure><title>Title</title>Figure</figure>\n" +						
-				"</document>");
+				"<figure xml:id=\"a\" type=\"landscape\"><title>Title</title>Figure</figure>\n" +						
+				"</document>";
+		
+		when(fields.getFieldValue("source")).thenReturn(xml);
 		
 		x.end(null, null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
@@ -120,8 +142,10 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... still just for checksum.
-		verify(fields).addField("source_reuse", "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure><title>Title</title>Figure</figure></document>");
+		String expected = "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"landscape\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
+		verify(fields).addField("source_reuse", expected);
+		
+		assertEquals("verify alignment with reuse-normalize.xsl", expected, getReuseNormalizeSourceReuse(xml));
 	}
 
 	/**
@@ -151,7 +175,6 @@ public class IndexFieldExtractionCustomXslTest {
 
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... important for reuse.
 		verify(fields).addField("source_reuse", "<p>Ett <code>två</code><code>tre</code> <code>fyra</code> <code>fem</code> <code> sex </code> sju.</p>");
 	}
 	/**
@@ -183,7 +206,6 @@ public class IndexFieldExtractionCustomXslTest {
 
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		// Can actually make space btw 2 inline elements disappear... important for reuse.
 		verify(fields).addField("source_reuse", "<p>Väderstad <termref linkend=\"platform\"></termref> <termref linkend=\"type\"></termref> are combination machines designed for direct seed drilling.</p>");
 	}
 
@@ -246,8 +268,7 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("words_text", "19"); // #1283 Now excluding ph / @keyref content also in text field.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
 		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
-				//"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + 
-				"<p>Press button <ph keyref=\"btn_success\" a=\"first\"></ph> and ...</p>" + // Currently demonstrates that attributes are NOT sorted!
+				"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + // #1300: Attributes are now sorted.
 				"<p>Press button <ph keyref=\"btn_success\"></ph> and ...</p>" + 
 				"<p>Press button <ph>This is not a keyref</ph> and ...</p>" +
 				"</section></document>");
@@ -340,7 +361,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
 		// Bursted attributes should definitely be excluded from root. Potentially all attributes excluded on root.
-		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p status=\"Released\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" modifieddate=\"2013-01-01\" modifiedby=\"bill\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p modifiedby=\"bill\" modifieddate=\"2013-01-01\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" status=\"Released\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		// Potentially excluding bursted attributes on all elements, but requires configuration.
 		//assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
@@ -655,11 +676,12 @@ public class IndexFieldExtractionCustomXslTest {
 		}, p);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
-		root.setField("source",
+		String xml =
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
 				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" markfortrans=\"no\"><p cms:rid=\"r02b\">section</p></section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
-				"</document>");
+				"</document>";
+		root.setField("source", xml);
 		root.setField("prop_cms.status", "Released");
 		
 		x.end(null, null, root);
@@ -697,7 +719,17 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, tna);
 		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
+	
+		// Validate equivalent handling of translate attribute in reuse-normalize.xsl
+		// The reuse-normalize transform is now used as preprocess for Pretranslate.
+		TransformOptions options = new TransformOptions();
+		//options.setParameter("source-reuse-tags-param", "");
+		XmlSourceDocumentS9api xmlReuse = tReuse.transform(new StringReader(xml), options);
+		XmlSourceAttributeMapRid xmlReuseMap = new XmlSourceAttributeMapRid("source_reuse", false);
+		sourceReader.handle(xmlReuse, xmlReuseMap);
+		Map<String, String> ridMap = xmlReuseMap.getAttributeMap();
 		
+		assertEquals("<p markfortrans=\"no\">section</p>", ridMap.get("r02b"));
 	}
 	
 	@Test
@@ -748,6 +780,17 @@ public class IndexFieldExtractionCustomXslTest {
 		} catch (XmlNotWellFormedException e) { // any other exception would abort indexing
 			// expected
 		}
+	}
+	
+	private String getReuseNormalizeSourceReuse(String xml) {
+		
+		// Validate equivalent handling of translate attribute in reuse-normalize.xsl
+		// The reuse-normalize transform is now used as preprocess for Pretranslate.
+		TransformOptions options = new TransformOptions();
+		options.setParameter("source-reuse-tags-param", "document p title"); // Just add the superset of what the tests need.
+		XmlSourceDocumentS9api xmlReuse = tReuse.transform(new StringReader(xml), options);
+		Map<String, String> attrs = xmlReuse.getDocumentElement().getAttributeMap();
+		return attrs.get("cms:source_reuse");
 	}
 
 }
