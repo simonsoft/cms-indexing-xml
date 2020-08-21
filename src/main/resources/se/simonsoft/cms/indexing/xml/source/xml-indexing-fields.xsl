@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
@@ -34,6 +34,9 @@
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
+	<!-- Definitions for serialization character-map. -->
+	<xsl:variable name="quot" select="'&quot;'"/>
+	<xsl:variable name="gt" select="'&gt;'"/>
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
@@ -214,7 +217,12 @@
 		<xsl:value-of select="' '"/>
 		<xsl:value-of select="name()"/>
 		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
+		<xsl:value-of select="serialize(string(.), map{'use-character-maps': map{$gt: '&gt;', $quot: '&amp;quot;'}})"/>
+		<!-- Safer to use serialize(string(.)) (control chars etc) but: -->
+		<!-- - Serialize does not escape " which is required in an attr using quotes. -->
+		<!-- - Serialize will escape > which canonical XML does not escape. -->
+		<!-- Resolved with character-map: escape 'amp', 'quot', 'lt' but not 'apos' and 'gt' (consistent with Canonical XML). -->
+		<!-- Seems very difficult to achieve with nested replace functions. -->
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 	
@@ -224,7 +232,7 @@
 		<xsl:value-of select="' '"/>
 		<xsl:value-of select="concat('cms:', local-name())"/>
 		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
+		<xsl:value-of select="serialize(string(.), map{'use-character-maps': map{$gt: '&gt;', $quot: '&amp;quot;'}})"/>
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 	
@@ -244,29 +252,29 @@
         <!-- Not normalizing space when xml:space is set. -->
         <!-- Can not determine normalize from schema, will have to be acceptable -->
         <!-- Important to use source instead of source-reuse for replacement. -->
-        <xsl:value-of select="." />
+        <xsl:value-of select="serialize(.)" />
     </xsl:template>
     
     <xsl:template match="text()" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. -->
-        <xsl:value-of select="normalize-space(.)" />
+        <xsl:value-of select="serialize(normalize-space(.))" />
     </xsl:template>
     
     <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a starting space.-->
         <!-- This template also matches white-space only and presents a single space. -->
-        <xsl:value-of select="concat(' ', normalize-space(.))" />
+        <xsl:value-of select="serialize(concat(' ', normalize-space(.)))" />
     </xsl:template>
     
     <xsl:template match="text()[ends-with(., ' ')  and normalize-space(.) != '']" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a trailing space. -->
-        <xsl:value-of select="concat(normalize-space(.), ' ')" />
+        <xsl:value-of select="serialize(concat(normalize-space(.), ' '))" />
     </xsl:template>
 
     <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="4">
         <!-- Text: Normalize each text node. Preserve both starting and trailing space. -->
         <!-- This template should NOT match '  ' (two+ spaces). -->
-        <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
+        <xsl:value-of select="serialize(concat(' ', normalize-space(.), ' '))" />
     </xsl:template>
     
 	<xsl:template match="processing-instruction()" mode="source-reuse-child">

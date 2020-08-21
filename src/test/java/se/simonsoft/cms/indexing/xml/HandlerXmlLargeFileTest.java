@@ -108,8 +108,8 @@ public class HandlerXmlLargeFileTest {
 		tests.put("table", "598b6e604ec60130e91534701fb4694413daca38");
 
 		tests.put("section", "80248e3cf0f8353d952b00fad0e5e79bb0e4050f");
-		tests.put("body", "0021309376b776ab8a8ae96c1dce03fe954ae3e8");
-		tests.put("document", "f0ef0ba39cc5a7baedefc5fbaef3e29adb759279");
+		tests.put("body", "9d5d32e675ab9ec57d128d8afe9e42af28d8ec09");
+		tests.put("document", "81719e0d73a8fbeb9807f5f4efad7e969f1a48e0");
 	}
 
 	@Before
