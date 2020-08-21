@@ -34,6 +34,9 @@
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
+	<!-- Definitions for serialization character-map. -->
+	<xsl:variable name="quot" select="'&quot;'"/>
+	<xsl:variable name="gt" select="'&gt;'"/>
 
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
@@ -214,7 +217,12 @@
 		<xsl:value-of select="' '"/>
 		<xsl:value-of select="name()"/>
 		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
+		<xsl:value-of select="serialize(string(.), map{'use-character-maps': map{$gt: '&gt;', $quot: '&amp;quot;'}})"/>
+		<!-- Safer to use serialize(string(.)) (control chars etc) but: -->
+		<!-- - Serialize does not escape " which is required in an attr using quotes. -->
+		<!-- - Serialize will escape > which canonical XML does not escape. -->
+		<!-- Resolved with character-map: escape 'amp', 'quot', 'lt' but not 'apos' and 'gt' (consistent with Canonical XML). -->
+		<!-- Seems very difficult to achieve with nested replace functions. -->
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 	
@@ -224,7 +232,7 @@
 		<xsl:value-of select="' '"/>
 		<xsl:value-of select="concat('cms:', local-name())"/>
 		<xsl:text>="</xsl:text>
-		<xsl:value-of select="."/>
+		<xsl:value-of select="serialize(string(.), map{'use-character-maps': map{$gt: '&gt;', $quot: '&amp;quot;'}})"/>
 		<xsl:text>"</xsl:text>
 	</xsl:template>
 	

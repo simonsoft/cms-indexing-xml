@@ -130,7 +130,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"<p>Even paragraphs will have new-lines\n" +
 				"right within them.</p>\n" +
 				"</section>\n" +
-				"<figure xml:id=\"a\" type=\"landscape\"><title>Title</title>Figure</figure>\n" +						
+				"<figure xml:id=\"a\" type=\"&amp; &quot; &lt; but not ' > &apos; &gt;\"><title>Title</title>Figure</figure>\n" +						
 				"</document>";
 		
 		when(fields.getFieldValue("source")).thenReturn(xml);
@@ -140,9 +140,8 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. Title Figure");
 		verify(fields).addField("words_text", "13");
 		
-		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		String expected = "<document><section><title>section &amp; stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"landscape\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
+		String expected = "<document><section><title>section &amp; stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"&amp; &quot; &lt; but not ' > ' >\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
 		verify(fields).addField("source_reuse", expected);
 		
 		assertEquals("verify alignment with reuse-normalize.xsl", expected, getReuseNormalizeSourceReuse(xml));
@@ -173,7 +172,6 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("text", "Ett två tre fyra fem sex sju.");
 		verify(fields).addField("words_text", "7");
 
-		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		verify(fields).addField("source_reuse", "<p>Ett <code>två</code><code>tre</code> <code>fyra</code> <code>fem</code> <code> sex </code> sju.</p>");
 	}
@@ -204,7 +202,6 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("text", "Väderstad are combination machines designed for direct seed drilling.");
 		verify(fields).addField("words_text", "9");
 
-		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		verify(fields).addField("source_reuse", "<p>Väderstad <termref linkend=\"platform\"></termref> <termref linkend=\"type\"></termref> are combination machines designed for direct seed drilling.</p>");
 	}
