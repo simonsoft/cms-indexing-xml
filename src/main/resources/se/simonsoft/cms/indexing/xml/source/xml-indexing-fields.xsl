@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
@@ -244,29 +244,29 @@
         <!-- Not normalizing space when xml:space is set. -->
         <!-- Can not determine normalize from schema, will have to be acceptable -->
         <!-- Important to use source instead of source-reuse for replacement. -->
-        <xsl:value-of select="." />
+        <xsl:value-of select="serialize(.)" />
     </xsl:template>
     
     <xsl:template match="text()" mode="source-reuse-child" priority="1">
         <!-- Text: Normalize each text node. -->
-        <xsl:value-of select="normalize-space(.)" />
+        <xsl:value-of select="serialize(normalize-space(.))" />
     </xsl:template>
     
     <xsl:template match="text()[starts-with(., ' ')]" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a starting space.-->
         <!-- This template also matches white-space only and presents a single space. -->
-        <xsl:value-of select="concat(' ', normalize-space(.))" />
+        <xsl:value-of select="serialize(concat(' ', normalize-space(.)))" />
     </xsl:template>
     
     <xsl:template match="text()[ends-with(., ' ')  and normalize-space(.) != '']" mode="source-reuse-child" priority="3">
         <!-- Text: Normalize each text node. Preserve a trailing space. -->
-        <xsl:value-of select="concat(normalize-space(.), ' ')" />
+        <xsl:value-of select="serialize(concat(normalize-space(.), ' '))" />
     </xsl:template>
 
     <xsl:template match="text()[starts-with(., ' ') and ends-with(., ' ') and normalize-space(.) != '']" mode="source-reuse-child" priority="4">
         <!-- Text: Normalize each text node. Preserve both starting and trailing space. -->
         <!-- This template should NOT match '  ' (two+ spaces). -->
-        <xsl:value-of select="concat(' ', normalize-space(.), ' ')" />
+        <xsl:value-of select="serialize(concat(' ', normalize-space(.), ' '))" />
     </xsl:template>
     
 	<xsl:template match="processing-instruction()" mode="source-reuse-child">

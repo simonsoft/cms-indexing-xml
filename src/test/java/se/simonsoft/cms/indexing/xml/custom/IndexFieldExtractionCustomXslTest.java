@@ -142,7 +142,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		// source_reuse gets plain &, not &amp;. This must be caused by code, not the XSL.
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
-		String expected = "<document><section><title>section & stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"landscape\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
+		String expected = "<document><section><title>section &amp; stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"landscape\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
 		verify(fields).addField("source_reuse", expected);
 		
 		assertEquals("verify alignment with reuse-normalize.xsl", expected, getReuseNormalizeSourceReuse(xml));
@@ -361,7 +361,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing bursted attributes, twoway or toxml. Title Figure", fields.getFieldValue("text"));
 		// Bursted attributes should definitely be excluded from root. Potentially all attributes excluded on root.
-		assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p modifiedby=\"bill\" modifieddate=\"2013-01-01\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" status=\"Released\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section xml:id=\"must-be\"><title>section &amp; stuff</title><p modifiedby=\"bill\" modifieddate=\"2013-01-01\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" status=\"Released\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		// Potentially excluding bursted attributes on all elements, but requires configuration.
 		//assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("11", fields.getFieldValue("words_text"));
@@ -393,7 +393,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
-		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section><title>section &amp; stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("words_text"));
 	}
 	
@@ -430,7 +430,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
-		assertEquals("<document><section><title>section & stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
+		assertEquals("<document><section><title>section &amp; stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("words_text"));
 		// Are we currently (Java extraction of a_*) normalizing the cms namespace?
 		/*
