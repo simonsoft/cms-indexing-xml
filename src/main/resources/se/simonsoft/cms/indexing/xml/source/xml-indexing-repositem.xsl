@@ -149,10 +149,23 @@
 					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][count(for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)) > 0]"/>
 				
 				
-				<!-- TODO: Calculate In-Progress elements and word count. tstatus_progress_elements[_all] -->
+				<!-- Calculate In-Progress elements and word count. tstatus_progress_elements[_all] -->
+				<!-- Word count will be calculated here instead of sum(@cms:twords) -->
+				<xsl:variable name="tstatus_progress_elements_all" as="element()*"
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][ancestor-or-self::*[@cms:tstatus]][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])]"/>
+				<!-- Select: elements [with RID], [RID-leaf], [not Pretranslated], [In Progress], [not excluded from translation (2 variants)]  -->
 				
+				<!-- In-Progress elements, filtering those that only contain keyrefs or inlines[translate=no]. -->
+				<xsl:variable name="tstatus_progress_elements" as="element()*"
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])][not(ancestor-or-self::*[@cms:tstatus='Released'])][ancestor-or-self::*[@cms:tstatus]][not(ancestor-or-self::*[@translate='no'])][not(ancestor-or-self::*[@markfortrans='no'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][count(for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)) > 0]"/>
+				
+				
+				<!-- Count number of elements: open / in_progress -->
 				<field name="count_elements_translate_all"><xsl:value-of select="count($tstatus_open_elements_all)"/></field>
 				<field name="count_elements_translate"><xsl:value-of select="count($tstatus_open_elements)"/></field>
+				<field name="count_elements_progress_all"><xsl:value-of select="count($tstatus_progress_elements_all)"/></field>
+				<field name="count_elements_progress"><xsl:value-of select="count($tstatus_progress_elements)"/></field>
+				
 				
 				<field name="embd_xml_ridtranslate_all">
 					<xsl:value-of select="distinct-values($tstatus_open_elements_all/@cms:rid)"/>
@@ -162,12 +175,15 @@
 					<xsl:value-of select="distinct-values($tstatus_open_elements/@cms:rid)"/>
 				</field>
 				
-				<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::*[not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
+				<!-- Extract text (excluding keyref): open / in_progress -->
+				<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+				<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
 				
 				<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
+				<field name="count_words_progress"><xsl:value-of select="count($tstatus_progress_text)"/></field>
 			</xsl:if>
 			
-			<!-- Elements marked translate="no" or markfortrans="no". -->
+			<!-- Elements marked translate="no" or markfortrans="no" (excluding Pretranslated elements). -->
 			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
 			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
