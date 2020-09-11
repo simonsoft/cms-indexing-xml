@@ -15,7 +15,7 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -101,7 +101,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
-		return new HashSet<Class<? extends IndexingItemHandler>>() {private static final long serialVersionUID = 1L;{
+		return new LinkedHashSet<Class<? extends IndexingItemHandler>>() {private static final long serialVersionUID = 1L;{
 			add(HandlerPathinfo.class);
 			add(HandlerProperties.class);
 		}};
@@ -109,7 +109,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	
 	protected Set<CmsItemId> handleReferences(IndexingDoc fields, String host, String refName) {
 
-		Set<CmsItemId> result = new HashSet<CmsItemId>();
+		Set<CmsItemId> result = new LinkedHashSet<CmsItemId>();
 		String itemIds = (String) fields.getFieldValue(REF_ITEMID_FIELD_PREFIX + refName);
 		
 		// Always remove the ref_itemid_* fields:
