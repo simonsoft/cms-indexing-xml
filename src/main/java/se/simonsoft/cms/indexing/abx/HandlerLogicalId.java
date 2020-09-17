@@ -25,6 +25,7 @@ import se.simonsoft.cms.item.CmsItemId;
 public abstract class HandlerLogicalId implements IndexingItemHandler {
 
 	public static final String FIELD_NAME = "urlid";
+	public static final String FIELD_NAME_HEAD = "urlidhead";
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
@@ -32,6 +33,7 @@ public abstract class HandlerLogicalId implements IndexingItemHandler {
 		if (itemId != null) {
 			// use addField istead of setField so we detect conflicts with other id resolution strategies
 			progress.getFields().addField(FIELD_NAME, itemId.getLogicalIdFull());
+			progress.getFields().addField(FIELD_NAME_HEAD, itemId.withPegRev(null).getLogicalIdFull());
 		}
 	}
 	
