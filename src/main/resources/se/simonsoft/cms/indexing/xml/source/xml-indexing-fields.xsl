@@ -52,7 +52,9 @@
 		<!-- Tokenize the text nodes before concat:ing them to avoid issue with missing space (btw e.g. a title and a p) -->
 		<!-- Inspired by: http://stackoverflow.com/questions/12784190/xslt-tokenize-nodeset -->
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])] return tokenize(normalize-space($elemtext), $whitespace)"/>
-	
+		<!-- Text that should be / has been translated.  -->
+		<xsl:variable name="text_translate" select="for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+		
 	
 		<!-- See comments below. -->
 		<xsl:variable name="ridduplicates" select="descendant-or-self::*[count(key('rid', @cms:rid)) > 1]/@cms:rid"/>
@@ -70,6 +72,7 @@
 			
 			<!-- Word count is simple when each word is a text node. -->
 			<field name="count_words_text"><xsl:value-of select="count($text)"/></field>
+			<field name="count_words_translate"><xsl:value-of select="count($text_translate)"/></field>
 			
 			<field name="source_reuse">
 				<xsl:apply-templates select="." mode="source-reuse-root"/>
