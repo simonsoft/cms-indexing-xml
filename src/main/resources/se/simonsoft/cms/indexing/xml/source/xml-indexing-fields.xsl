@@ -69,7 +69,7 @@
 			<field name="text"><xsl:value-of select="$text"/></field>
 			
 			<!-- Word count is simple when each word is a text node. -->
-			<field name="words_text"><xsl:value-of select="count($text)"/></field>
+			<field name="count_words_text"><xsl:value-of select="count($text)"/></field>
 			
 			<field name="source_reuse">
 				<xsl:apply-templates select="." mode="source-reuse-root"/>
