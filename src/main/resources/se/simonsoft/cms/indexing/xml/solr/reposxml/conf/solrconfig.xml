@@ -238,10 +238,6 @@
        <!-- is variable range implemented or not? <str name="f.revt.facet.range.spec">NOW-1HOUR..NOW, NOW-1DAY..NOW-1HOUR, NOW-1WEEK..NOW-1DAY, NOW-1YEAR..NOW-1WEEK</str> -->
        <str name="f.revt.facet.range.gap">+1HOURS</str>
        <!-- <str name="f.revt.facet.range.other">before</str> -->
-       <str name="facet.range">words_text</str>
-       <int name="f.words_text.facet.range.start">0</int>
-       <int name="f.words_text.facet.range.end">100</int>
-       <int name="f.words_text.facet.range.gap">10</int>
 
        <!-- Highlighting defaults -->
        <str name="hl">on</str>

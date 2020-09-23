@@ -192,7 +192,7 @@
 			<!-- Suppressed Translations. -->
 			<!-- Not attempting to get each leaf element since RIDs might not be consistent. -->
 			<!-- Excluding keyref words (excluded from "count_words_text"). -->
-			<!-- Including translate_no words because they should not be counted in translate_no (one way of looking at it). -->
+			<!-- Including translate_no words because they should not be included in count_words_translate_no (tsuppress takes precedence, completely ignore those sections). -->
 			<xsl:variable name="tsuppress_text" select="for $elemtext in $root/descendant-or-self::*[ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]]][not(@keyref)]/text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
 			<field name="count_words_tsuppress"><xsl:value-of select="count($tsuppress_text)"/></field>

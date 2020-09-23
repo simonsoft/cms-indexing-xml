@@ -95,6 +95,7 @@ public class HandlerXmlIntegrationTest {
 		//Statistics in repositem schema
 		assertEquals("Should count elements", 4L, flagged.get(0).getFieldValue("count_elements"));
 		assertEquals("Should count words", 3L, flagged.get(0).getFieldValue("count_words_text"));
+		assertNull("not calculated, no RID", flagged.get(0).getFieldValue("count_words_translate"));
 		
 		// Depth for reposxml
 		assertEquals("null since item is not a translation", null, flagged.get(0).getFieldValue("count_reposxml_depth"));
@@ -103,7 +104,8 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should index all elements", 4, reposxml.query(new SolrQuery("*:*")).getResults().size());
 		
 		assertEquals("document/root element name", "doc", x1.get(3).getFieldValue("name"));
-		assertEquals("word count identical to repositem (document element)", 3, x1.get(3).getFieldValue("words_text"));
+		assertEquals("word count identical to repositem (document element)", 3L, x1.get(3).getFieldValue("count_words_text"));
+		assertEquals("word count translate", 3L, x1.get(3).getFieldValue("count_words_translate"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));

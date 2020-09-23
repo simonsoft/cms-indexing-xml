@@ -101,7 +101,7 @@ public class IndexFieldExtractionCustomXslTest {
 		verify(fields).addField("text", "section & stuff Title Figure");
 		verify(fields).addField(eq("source_reuse"), anyString());
 
-		verify(fields).addField("words_text", "5");
+		verify(fields).addField("count_words_text", "5");
 	}
 	
 	
@@ -138,7 +138,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		//verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. TitleFigure");
 		verify(fields).addField("text", "section & stuff Even paragraphs will have new-lines right within them. Title Figure");
-		verify(fields).addField("words_text", "13");
+		verify(fields).addField("count_words_text", "13");
 		
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		String expected = "<document><section><title>section &amp; stuff</title><p>Even paragraphs will have new-lines right within them.</p></section><figure type=\"&amp; &quot; &lt; but not ' > ' >\" xml:id=\"a\"><title>Title</title>Figure</figure></document>";
@@ -170,7 +170,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 		x.end(null, null, fields);
 		verify(fields).addField("text", "Ett två tre fyra fem sex sju.");
-		verify(fields).addField("words_text", "7");
+		verify(fields).addField("count_words_text", "7");
 
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		verify(fields).addField("source_reuse", "<p>Ett <code>två</code><code>tre</code> <code>fyra</code> <code>fem</code> <code> sex </code> sju.</p>");
@@ -200,7 +200,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 		x.end(null, null, fields);
 		verify(fields).addField("text", "Väderstad are combination machines designed for direct seed drilling.");
-		verify(fields).addField("words_text", "9");
+		verify(fields).addField("count_words_text", "9");
 
 		// New-lines are removed by normalize space, i.e. text nodes with only whitespace are completely removed. 
 		verify(fields).addField("source_reuse", "<p>Väderstad <termref linkend=\"platform\"></termref> <termref linkend=\"type\"></termref> are combination machines designed for direct seed drilling.</p>");
@@ -232,7 +232,7 @@ public class IndexFieldExtractionCustomXslTest {
 		//verify(fields).addField("text", "Indented code Double space");
 		verify(fields).addField("source_reuse", "<document><code xml:space=\"preserve\">\n    Indented code\n        Double  space\n</code></document>");
 
-		verify(fields).addField("words_text", "4");
+		verify(fields).addField("count_words_text", "4");
 	}
 	
 	/**
@@ -262,7 +262,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.end(null, null, fields);
 		verify(fields).addField("text", "GUI Strings Press button and ... Press button and ... Press button This is not a keyref and ...");
-		verify(fields).addField("words_text", "19"); // #1283 Now excluding ph / @keyref content also in text field.
+		verify(fields).addField("count_words_text", "19"); // #1283 Now excluding ph / @keyref content also in text field.
 		// A PI in ph will be completely disregarded but text as direct child of ph will currently be counted/searchable.
 		verify(fields).addField("source_reuse", "<document><section><title>GUI Strings</title>" +
 				"<p>Press button <ph a=\"first\" keyref=\"btn_success\"></ph> and ...</p>" + // #1300: Attributes are now sorted.
@@ -294,7 +294,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		
 		x.end(null, null, fields);
-		verify(fields).addField("words_text", "5");
+		verify(fields).addField("count_words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
 		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
 	}
@@ -325,7 +325,7 @@ public class IndexFieldExtractionCustomXslTest {
 				"</document>");
 		
 		x.end(null, null, fields);
-		verify(fields).addField("words_text", "5");
+		verify(fields).addField("count_words_text", "5");
 		verify(fields).addField("text", "No Break Specific text touchup.");
 		verify(fields).addField("source_reuse", "<document><section><title>No<?Pub _hardspace?>Break</title><p><?Pub _font FontColor=\"red\" SmallCap=\"yes\"?>Specific text touchup.<?Pub /_font?></p></section></document>");
 
@@ -361,7 +361,7 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("<document><section xml:id=\"must-be\"><title>section &amp; stuff</title><p modifiedby=\"bill\" modifieddate=\"2013-01-01\" revision=\"123\" revision-baseline=\"123\" revision-commit=\"123\" status=\"Released\">Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		// Potentially excluding bursted attributes on all elements, but requires configuration.
 		//assertEquals("<document><section xml:id=\"must-be\"><title>section & stuff</title><p>Testing bursted attributes, twoway or toxml.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
-		assertEquals("11", fields.getFieldValue("words_text"));
+		assertEquals("11", fields.getFieldValue("count_words_text"));
 	}
 	
 	@Test
@@ -391,7 +391,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section &amp; stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
-		assertEquals("10", fields.getFieldValue("words_text"));
+		assertEquals("10", fields.getFieldValue("count_words_text"));
 	}
 	
 	/**
@@ -428,7 +428,7 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section &amp; stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
-		assertEquals("10", fields.getFieldValue("words_text"));
+		assertEquals("10", fields.getFieldValue("count_words_text"));
 		// Are we currently (Java extraction of a_*) normalizing the cms namespace?
 		/*
 		assertEquals("xy1", fields.getFieldValue("a_cms.rlogicalid"));
@@ -497,7 +497,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		assertEquals("section title Testing cms attributes including tvalidate. Duplicate RID. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section title</title><p>Testing cms attributes including tvalidate.</p><p>Duplicate RID.</p></section><figure><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
-		assertEquals("11", fields.getFieldValue("words_text"));
+		assertEquals("11", fields.getFieldValue("count_words_text"));
 		assertEquals("abc004 abc004", fields.getFieldValue("reuseridduplicate"));
 		assertEquals(-5, fields.getFieldValue("reusevalue")); // Requires the flag to be set by repositem extract.
 	}
