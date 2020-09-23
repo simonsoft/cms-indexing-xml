@@ -184,7 +184,11 @@
 			</xsl:if>
 			
 			<!-- Elements marked translate="no" or markfortrans="no" (excluding Pretranslated elements). -->
+			<!-- 
 			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
+			-->
+			<!-- Elements marked translate="no" or markfortrans="no" (including Pretranslated elements). -->
+			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
 			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
 			
