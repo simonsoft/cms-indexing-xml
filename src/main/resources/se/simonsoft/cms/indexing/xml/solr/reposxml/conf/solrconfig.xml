@@ -28,11 +28,11 @@
   <schemaFactory class="ClassicIndexSchemaFactory"/>
   -->
 
-  <dataDir>${solr.core0.data.dir:}</dataDir>
+  <dataDir>${solr.reposxml.data.dir:}</dataDir>
 
   <updateHandler class="solr.DirectUpdateHandler2">
     <updateLog>
-      <str name="dir">${solr.core0.data.dir:}</str>
+      <str name="dir">${solr.reposxml.data.dir:}</str>
     </updateLog>
   </updateHandler>
 
