@@ -322,7 +322,10 @@
 			
 			<!-- Extract rlogicalid slaves. -->
 			<field name="rel_itemid_rlogicalid"><xsl:apply-templates select="//@cms:rlogicalid" mode="relrlogicalid"/></field>
-			
+
+			<!-- Extract tlogicalid slaves. -->
+			<field name="rel_itemid_tlogicalid"><xsl:apply-templates select="//@cms:tlogicalid" mode="reltlogicalid"/></field>
+
 		</doc>
 	</xsl:template>
 
@@ -381,6 +384,11 @@
 	</xsl:template>
 	
 	<xsl:template match="@cms:rlogicalid" mode="relrlogicalid">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="@cms:tlogicalid" mode="reltlogicalid">
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
 	</xsl:template>
