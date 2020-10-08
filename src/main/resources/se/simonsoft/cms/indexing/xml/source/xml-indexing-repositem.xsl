@@ -127,10 +127,33 @@
 					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
+				
+
+				<xsl:for-each-group select="//*[@cms:tlogicalid]" group-by="@cms:tlogicalid">
+					<!-- Each source of pretranslate, key on trid-prefix for each tlogicalid. -->
+					<xsl:variable name="trid-prefix" select="cmsfn:get-rid-prefix(current-group()[1]/@cms:trid)"/>
+					
+					<!-- A tlogicalid can only have a single tstatus value. -->
+					<field name="embd_xml_trid_tstatus_{$trid-prefix}"><xsl:value-of select="current-group()[1]/@cms:tstatus"/></field>
+					
+					<!-- All rids for this tlogicalid. -->
+					<field name="embd_xml_trid_rids_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:rid"/></field>
+						
+					<!-- Make trids searchable, "where re-used". -->
+					<field name="embd_xml_trid_trids_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:trid"/></field>
+					
+					<!-- Sum of twords for each tlogicalid source. -->
+					<field name="embd_xml_trid_twords_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:twords"/></field>
+				</xsl:for-each-group>
+				
 			</xsl:if>
 			
 			<xsl:if test="@cms:rid">
 				<!-- All Finalized Release / Translations -->
+				
+				<!-- The fixed part of the rids. -->
+				<field name="embd_xml_rid_prefix"><xsl:value-of select="cmsfn:get-rid-prefix(@cms:rid)"/></field>
+				
 				
 				<!-- #1283 Attempt to detect complete pretranslate -->
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
@@ -420,6 +443,19 @@
 			</xsl:when>
 		</xsl:choose>
 		<!-- Empty result if no match. -->
+	</xsl:function>
+	
+	<xsl:function name="cmsfn:get-rid-prefix">
+		<xsl:param name="rid" as="xs:string"/>
+		<xsl:choose>
+			<xsl:when test="string-length($rid) = 15">
+				<xsl:value-of select="substring($rid, 1, 11)"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<!-- Fallback to whole string if the RID format is unknown. -->
+				<xsl:value-of select="$rid"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:function>
 	
 	
