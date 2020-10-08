@@ -34,7 +34,7 @@
 	<xsl:param name="pathext" required="yes"/>
 	
 	<!-- Names of attributes that can be references. -->
-	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref'"/>
+	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref source'"/>
 	<xsl:variable name="ref-attrs-seq" as="xs:string+" select="tokenize($ref-attrs, ' ')"/>
 	<xsl:variable name="ref-attrs-conref-seq" as="xs:string+" select="$ref-attrs-seq, 'conref'">
 		
