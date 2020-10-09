@@ -149,7 +149,11 @@
 					<field name="embd_xml_trid_twords_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:twords"/></field>
 					
 					<!-- Sum word count twords for each tlogicalid source. -->
+					<!-- 
 					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(current-group()/@cms:twords)"/></field>
+					-->
+					<!-- Sum word count twords for each tlogicalid source and subtract underlying Pretranstions, applies to tstatus!=Released (In_Progress). -->
+					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(//*[@cms:tlogicalid=current-grouping-key()]/@cms:twords) - sum(//*[@cms:tlogicalid=current-grouping-key()]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each-group>
 				
 			</xsl:if>
