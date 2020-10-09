@@ -133,6 +133,9 @@
 					<!-- Each source of pretranslate, key on trid-prefix for each tlogicalid. -->
 					<xsl:variable name="trid-prefix" select="cmsfn:get-rid-prefix(current-group()[1]/@cms:trid)"/>
 					
+					<!-- The tlogicalid, non-processed by indexing. -->
+					<field name="embd_xml_trid_tlogicalid_{$trid-prefix}"><xsl:value-of select="current-grouping-key()"/></field>
+					
 					<!-- A tlogicalid can only have a single tstatus value. -->
 					<field name="embd_xml_trid_tstatus_{$trid-prefix}"><xsl:value-of select="current-group()[1]/@cms:tstatus"/></field>
 					
