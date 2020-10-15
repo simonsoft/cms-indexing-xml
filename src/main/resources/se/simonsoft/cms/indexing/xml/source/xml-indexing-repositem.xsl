@@ -34,7 +34,7 @@
 	<xsl:param name="pathext" required="yes"/>
 	
 	<!-- Names of attributes that can be references. -->
-	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref'"/>
+	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref source'"/>
 	<xsl:variable name="ref-attrs-seq" as="xs:string+" select="tokenize($ref-attrs, ' ')"/>
 	<xsl:variable name="ref-attrs-conref-seq" as="xs:string+" select="$ref-attrs-seq, 'conref'">
 		
@@ -127,10 +127,43 @@
 					<xsl:variable name="fieldname" select="concat('count_twords_', $status)"></xsl:variable>
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
+				
+
+				<xsl:for-each-group select="//*[@cms:tlogicalid]" group-by="@cms:tlogicalid">
+					<!-- Each source of pretranslate, key on trid-prefix for each tlogicalid. -->
+					<xsl:variable name="trid-prefix" select="cmsfn:get-rid-prefix(current-group()[1]/@cms:trid)"/>
+					
+					<!-- The tlogicalid, non-processed by indexing. -->
+					<field name="embd_xml_trid_tlogicalid_{$trid-prefix}"><xsl:value-of select="current-grouping-key()"/></field>
+					
+					<!-- A tlogicalid can only have a single tstatus value. -->
+					<field name="embd_xml_trid_tstatus_{$trid-prefix}"><xsl:value-of select="current-group()[1]/@cms:tstatus"/></field>
+					
+					<!-- All rids for this tlogicalid. -->
+					<field name="embd_xml_trid_rids_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:rid"/></field>
+						
+					<!-- Make trids searchable, "where re-used". -->
+					<field name="embd_xml_trid_trids_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:trid"/></field>
+					
+					<!-- Word count twords for each tlogicalid source. -->
+					<field name="embd_xml_trid_twords_{$trid-prefix}"><xsl:value-of select="current-group()/@cms:twords"/></field>
+					
+					<!-- Sum word count twords for each tlogicalid source. -->
+					<!-- 
+					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(current-group()/@cms:twords)"/></field>
+					-->
+					<!-- Sum word count twords for each tlogicalid source and subtract underlying Pretranstions, applies to tstatus!=Released (In_Progress). -->
+					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(//*[@cms:tlogicalid=current-grouping-key()]/@cms:twords) - sum(//*[@cms:tlogicalid=current-grouping-key()]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
+				</xsl:for-each-group>
+				
 			</xsl:if>
 			
 			<xsl:if test="@cms:rid">
 				<!-- All Finalized Release / Translations -->
+				
+				<!-- The fixed part of the rids. -->
+				<field name="embd_xml_rid_prefix"><xsl:value-of select="cmsfn:get-rid-prefix(@cms:rid)"/></field>
+				
 				
 				<!-- #1283 Attempt to detect complete pretranslate -->
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
@@ -322,7 +355,10 @@
 			
 			<!-- Extract rlogicalid slaves. -->
 			<field name="rel_itemid_rlogicalid"><xsl:apply-templates select="//@cms:rlogicalid" mode="relrlogicalid"/></field>
-			
+
+			<!-- Extract tlogicalid slaves. -->
+			<field name="rel_itemid_tlogicalid"><xsl:apply-templates select="//@cms:tlogicalid" mode="reltlogicalid"/></field>
+
 		</doc>
 	</xsl:template>
 
@@ -385,6 +421,11 @@
 		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
+	<xsl:template match="@cms:tlogicalid" mode="reltlogicalid">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
 	
 	<xsl:function name="cmsfn:get-docno" as="xs:string?">
 		<xsl:param name="root" as="element()"/>
@@ -412,6 +453,19 @@
 			</xsl:when>
 		</xsl:choose>
 		<!-- Empty result if no match. -->
+	</xsl:function>
+	
+	<xsl:function name="cmsfn:get-rid-prefix">
+		<xsl:param name="rid" as="xs:string"/>
+		<xsl:choose>
+			<xsl:when test="string-length($rid) = 15">
+				<xsl:value-of select="substring($rid, 1, 11)"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<!-- Fallback to whole string if the RID format is unknown. -->
+				<xsl:value-of select="$rid"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:function>
 	
 	

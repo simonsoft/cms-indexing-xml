@@ -54,6 +54,8 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 	private static final String REL_FIELD_PREFIX = "rel_xml_";
 	private static final String REL_ITEMID_FIELD_PREFIX = "rel_itemid_";
 	
+	private static final String[] REL_ITEMID_CATEGORIES = {"rlogicalid", "tlogicalid"};
+	
 	/**
 	 * @param idStrategy to fill the refid field
 	 */
@@ -70,9 +72,7 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
 		
-		String[] relationCategories = {"rlogicalid"};
-		
-		for (String relName : relationCategories) {
+		for (String relName : REL_ITEMID_CATEGORIES) {
 			try {
 				Set<CmsItemId> ids = handleRelations(fields, host, relName);
 				logger.trace("Rels '{}' extracted: {}", relName, ids.size());
@@ -88,7 +88,7 @@ public class HandlerXmlMasters extends HandlerAbxFolders {
 		// Always remove the rel_itemid_* fields:
 		// - Reduce index size
 		// - Solr6 does not allow large string fields. Must otherwise split into multiValue.
-		for (String relName : relationCategories) {
+		for (String relName : REL_ITEMID_CATEGORIES) {
 			fields.removeField(REL_ITEMID_FIELD_PREFIX + relName);
 		}
 	}
