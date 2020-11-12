@@ -90,7 +90,9 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
 			boolean terminated = executor.awaitTermination(60, TimeUnit.SECONDS);
 			if (!terminated) {
-				logger.warn("Completion of Solr Background executor timed out, XML index will likely be incomplete until next commit.");
+				logger.error("Completion of Solr Background executor timed out, XML index will likely be incomplete until next commit.");
+				// #1346 Probably need to treat background executor timeout as a failure to ensure another attempt is made.
+				throw new RuntimeException(msg);
 			}
 		} catch (InterruptedException e) {
 			String msg = MessageFormatter.format("Failed to await shutdown of Solr Background executor: {}", e.getMessage()).getMessage();

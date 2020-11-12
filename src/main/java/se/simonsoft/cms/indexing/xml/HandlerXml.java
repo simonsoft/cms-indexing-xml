@@ -163,6 +163,7 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.info("Commit first attempt successful");
 		} catch (Exception e) {
 			long pause = 10000;
+			// TODO: #1346 This retry can result in incomplete index if SolR restarts btw attempts.
 			logger.warn("Commit first attempt failed, retry in {} ms", pause, e);
 			try {
 				Thread.sleep(pause);
