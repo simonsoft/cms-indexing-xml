@@ -117,7 +117,7 @@ public class HandlerXml implements IndexingItemHandler {
 					indexWriter.deletePath(progress.getRepository(), c);
 					boolean expunge = true;
 					logger.info("Performing commit (expunge: {}) of deleted changeset item: {}", expunge, c);
-					this.commit(expunge);
+					this.commitWithRetry(expunge); // Best effort with retry.
 				} else if (c.getFilesize() == 0) {
 					logger.info("Deferring XML extraction when file is empty: {}", c);
 				} else {
@@ -135,12 +135,12 @@ public class HandlerXml implements IndexingItemHandler {
 						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
 						boolean expunge = true;
 						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
-						this.commit(expunge);
+						this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).
 					} catch (IndexingHandlerException ex) {
 						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
 						indexWriter.deletePath(progress.getRepository(), c);
-						this.commit(true);
+						this.commitWithRetry(true); // Best effort with retry.
 						// The message/stacktrace in exception will be logged in repositem.
 						throw ex;
 					}
@@ -155,25 +155,38 @@ public class HandlerXml implements IndexingItemHandler {
 		}
 	}
 	
-	private void commit(boolean expunge) {
+	private void commitWithRetry(boolean expunge) {
 		
 		try {
-			logger.debug("Commit first attempt (expunge: {})", expunge);
+			logger.debug("Commit reposxml first attempt (expunge: {})", expunge);
 			indexWriter.commit(expunge);
-			logger.info("Commit first attempt successful");
+			logger.info("Commit reposxml first attempt successful");
 		} catch (Exception e) {
 			long pause = 10000;
 			// TODO: #1346 This retry can result in incomplete index if SolR restarts btw attempts.
-			logger.warn("Commit first attempt failed, retry in {} ms", pause, e);
+			logger.warn("Commit reposxml first attempt failed, retry in {} ms", pause, e);
 			try {
 				Thread.sleep(pause);
 			} catch (InterruptedException e1) {
 				throw new RuntimeException("Recovery sleep after failed indexing commit attempt interrupted: " +  e.getMessage());
 			}
 			
-			logger.info("Commit second attempt (expunge: {})", expunge);
+			logger.info("Commit reposxml second attempt (expunge: {})", expunge);
 			indexWriter.commit(expunge);
-			logger.info("Commit second attempt successful");
+			logger.info("Commit reposxml second attempt successful");
+		}
+	}
+	
+	private void commit(boolean expunge) {
+		// #1346: Reverted to a strict single commit approach for now.
+		try {
+			logger.debug("Commit reposxml (expunge: {})", expunge);
+			indexWriter.commit(expunge);
+			logger.info("Commit reposxml successful");
+		} catch (Exception e) {
+			String msg = MessageFormatter.format("Commit reposxml failed: {}", e.getMessage()).getMessage();
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
 		}
 	}
 
