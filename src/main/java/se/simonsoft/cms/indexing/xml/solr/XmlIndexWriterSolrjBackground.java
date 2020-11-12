@@ -92,7 +92,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			if (!terminated) {
 				logger.error("Completion of Solr Background executor timed out, XML index will likely be incomplete until next commit.");
 				// #1346 Probably need to treat background executor timeout as a failure to ensure another attempt is made.
-				throw new RuntimeException(msg);
+				throw new RuntimeException("Completion of Solr Background executor timed out.");
 			}
 		} catch (InterruptedException e) {
 			String msg = MessageFormatter.format("Failed to await shutdown of Solr Background executor: {}", e.getMessage()).getMessage();
