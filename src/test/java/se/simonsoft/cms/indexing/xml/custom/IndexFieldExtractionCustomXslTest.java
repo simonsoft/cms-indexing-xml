@@ -392,7 +392,7 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("section & stuff Testing cms attributes including tvalidate. Title Figure", fields.getFieldValue("text"));
 		assertEquals("<document><section><title>section &amp; stuff</title><p>Testing cms attributes including tvalidate.</p></section><figure cms:tvalidate=\"no\"><title>Title</title>Figure</figure></document>", fields.getFieldValue("source_reuse"));
 		assertEquals("10", fields.getFieldValue("count_words_text"));
-		assertEquals("Should count elements in reposxml as well.", 6L, fields.getFieldValue("count_elements"));
+		assertEquals("Should count elements in reposxml as well.", "6", fields.getFieldValue("count_elements"));
 	}
 	
 	/**
