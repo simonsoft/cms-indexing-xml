@@ -65,7 +65,7 @@
 			<!-- skip plain source, already extracted -->
 			
 			<!-- What about number of elements? -->	
-			
+			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
 			
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<field name="text"><xsl:value-of select="$text"/></field>
