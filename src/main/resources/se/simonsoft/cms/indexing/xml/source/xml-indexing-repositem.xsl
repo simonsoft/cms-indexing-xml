@@ -33,6 +33,8 @@
 	<!-- filename extension -->
 	<xsl:param name="pathext" required="yes"/>
 	
+	<xsl:param name="newline" select="'&#xA;'"/>
+	
 	<!-- Names of attributes that can be references. -->
 	<xsl:param name="ref-attrs" as="xs:string" select="'href fileref source'"/>
 	<xsl:variable name="ref-attrs-seq" as="xs:string+" select="tokenize($ref-attrs, ' ')"/>
@@ -43,6 +45,9 @@
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
+	<!-- Key to enable idref resolution without DTD. -->
+	<xsl:key name="idref" match="//element()[@xml:id]" use="@xml:id"/>
+
 	<xsl:variable name="is-dita-map" select="$pathext = 'ditamap'"/>
 	<xsl:variable name="is-dita-topic" select="$pathext = 'dita'"/>
 
@@ -50,7 +55,8 @@
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
 		<xsl:variable name="titles" select="//title"/>
-	
+		<xsl:variable name="paras" select="//p"/>
+		
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
         <xsl:if test="$cms-namespace-source!='http://www.simonsoft.se/namespace/cms'">
             <xsl:message terminate="yes">The namespace with prefix 'cms' must be 'http://www.simonsoft.se/namespace/cms'.</xsl:message>
@@ -82,10 +88,31 @@
 			
 			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
 			<!-- Do we need to normalize the content? -->
+			<!-- Attempt to resolve termref and display keyref key. -->
 			<xsl:if test="$titles">
-				<field name="embd_xml_title"><xsl:value-of select="$titles[1]"/></field>
+				<field name="embd_xml_title"><xsl:apply-templates select="$titles[1]" mode="title"/></field>
+			</xsl:if>
+	
+			<!-- Introduction to to text - first couple of paragraphs. -->
+			<xsl:if test="count($text) > 0">
+				<xsl:variable name="para1">
+					<xsl:apply-templates select="($paras)[1]" mode="intro"/>
+				</xsl:variable>
+				<xsl:variable name="para2">
+					<xsl:apply-templates select="($paras)[2]" mode="intro"/>
+				</xsl:variable>
+				<xsl:choose>
+					<xsl:when test="string-length($para1) > 200">
+						<field name="embd_xml_intro"><xsl:value-of select="$para1"/></field>
+					</xsl:when>
+					<xsl:otherwise>
+						<field name="embd_xml_intro"><xsl:value-of select="concat($para1, $newline, $para2)"/></field>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:if>
 			
+			
+	
 			<xsl:if test="cmsfn:get-docno(.)">
 				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
 			</xsl:if>
@@ -424,6 +451,29 @@
 	<xsl:template match="@cms:tlogicalid" mode="reltlogicalid">
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	
+	<xsl:template match="text()" mode="title intro">
+		<xsl:copy/>
+	</xsl:template>
+	
+	<xsl:template match="*[@linkend]" mode="title intro">
+		<xsl:variable name="linkend" select="key('idref', @linkend)[1]"/>
+		
+		<xsl:choose>
+			<xsl:when test="$linkend/text()">
+				<!-- Direct text content, e.g. term/termref -->
+				<xsl:apply-templates select="$linkend/text()" mode="#current"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="concat('[', @linkend ,']')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	
+	<xsl:template match="*[@keyref][not(text())]" mode="title intro">
+		<xsl:value-of select="concat('[', @keyref ,']')"/>
 	</xsl:template>
 	
 	

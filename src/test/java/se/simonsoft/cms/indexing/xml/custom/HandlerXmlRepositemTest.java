@@ -59,6 +59,33 @@ public class HandlerXmlRepositemTest {
 	public void tearDown() throws IOException {
 		indexing.tearDown();
 	}
+	
+	
+	@Test
+	public void testReleaseTranslationTitleText() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/releasetranslation", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+	
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+		assertEquals("NOTE: This filexml repo was manually created, file name does not match.", "My First Novel.xml", doc.get(0).getFieldValue("pathname"));
+		
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
+		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
+		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
+		assertEquals("1 flag(s)", 1, flags.size());
+		
+		assertEquals("word count excl keyref",  24L, doc.get(0).getFieldValue("count_words_text"));
+
+		assertEquals("", "My First Novel", doc.get(0).getFieldValue("embd_xml_title"));
+		assertEquals("", "Once upon a time...\nSubchapters are quite rare in novels.", doc.get(0).getFieldValue("embd_xml_intro"));
+	}
+	
 
 	@Test
 	public void testTinyPretranslate() throws Exception {
