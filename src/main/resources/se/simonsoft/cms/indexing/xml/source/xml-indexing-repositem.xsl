@@ -103,10 +103,23 @@
 				</xsl:variable>
 				<xsl:choose>
 					<xsl:when test="string-length($para1) > 200">
-						<field name="embd_xml_intro"><xsl:value-of select="$para1"/></field>
+						<field name="embd_xml_intro"><xsl:value-of select="normalize-space($para1)"/></field>
+					</xsl:when>
+					<xsl:when test="string-length($para1) + string-length($para2) > 200">
+						<field name="embd_xml_intro"><xsl:value-of select="concat(normalize-space($para1), $newline, normalize-space($para2))"/></field>
+					</xsl:when>
+					<!-- Opportunity to support more paragraphs. -->
+					
+					<!-- Check if they actually contain any text. -->
+					<xsl:when test="string-length($para1) > 0 and string-length($para2) > 0">
+						<field name="embd_xml_intro"><xsl:value-of select="concat(normalize-space($para1), $newline, normalize-space($para2))"/></field>
+					</xsl:when>
+					<xsl:when test="string-length($para1) > 0 or string-length($para2) > 0">
+						<!-- Concat without newline since at least one is empty. -->
+						<field name="embd_xml_intro"><xsl:value-of select="concat(normalize-space($para1), normalize-space($para2))"/></field>
 					</xsl:when>
 					<xsl:otherwise>
-						<field name="embd_xml_intro"><xsl:value-of select="concat($para1, $newline, $para2)"/></field>
+						<!-- No text -> no field. -->
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:if>
