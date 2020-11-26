@@ -537,7 +537,6 @@
 		<xsl:param name="refelem" as="element()"/>
 		<xsl:variable name="ditaext" as="xs:string+" select="tokenize('dita ditamap', ' ')"/>
 		
-		
 		<xsl:choose>
 			<xsl:when test="$refelem/@format">
 				<!-- The format attribute is used if set. -->
@@ -545,7 +544,8 @@
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- The CMS requires DITA files to have extensions dita or ditamap, lowercase. -->
-				<xsl:sequence select="matches($refelem/@href, '^[^#]*\.dita(map)?(#.*)?$')"/>
+				<!-- Must also allow extension xml according to DITA spec (only when no @format) and for migrated topics. -->
+				<xsl:sequence select="matches($refelem/@href, '^[^#]*\.(xml|dita|ditamap)(#.*)?$')"/>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:function>
