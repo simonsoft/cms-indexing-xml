@@ -380,14 +380,11 @@
 			<!-- Extract DITA conref dependencies. -->
 			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
 			
-			<!-- 
 			<xsl:if test="$is-dita-map">
-			 -->
 				<!-- Extract DITA topicref dependencies. -->
 				<field name="ref_itemid_topicref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
-			<!--
 			</xsl:if>
-			 -->
+			
 			<xsl:if test="$is-dita-topic">
 				<!-- Extract DITA xref dependencies. -->
 				<field name="ref_itemid_xref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="refxref"/></field>
