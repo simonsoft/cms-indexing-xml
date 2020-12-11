@@ -54,10 +54,7 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
-		<xsl:variable name="titles">
-			<xsl:apply-templates select="/*/booktitle/mainbooktitle" mode="title"/>
-			<xsl:apply-templates select="//title" mode="title"/>
-		</xsl:variable>
+		<xsl:variable name="titles" select="/*/booktitle/mainbooktitle | //title" as="element()*"/>
 		<xsl:variable name="paras" select="//p"/>
 		
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
@@ -93,7 +90,7 @@
 			<!-- Do we need to normalize the content? -->
 			<!-- Attempt to resolve termref and display keyref key. -->
 			<xsl:if test="$titles">
-				<field name="embd_xml_title"><xsl:apply-templates select="$titles[1]" mode="title"/></field>
+				<field name="embd_xml_title"><xsl:apply-templates select="($titles)[1]" mode="title"/></field>
 			</xsl:if>
 	
 			<!-- Introduction to to text - first couple of paragraphs. -->
@@ -465,7 +462,6 @@
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
 	</xsl:template>
-	
 	
 	<xsl:template match="text()" mode="title intro">
 		<xsl:copy/>
