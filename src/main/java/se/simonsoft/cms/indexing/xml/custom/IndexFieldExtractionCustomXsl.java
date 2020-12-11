@@ -104,9 +104,11 @@ public class IndexFieldExtractionCustomXsl implements XmlIndexFieldExtraction {
 		
 		XsltCompiler compiler = processor.newXsltCompiler();
 		try {
+			logger.info("Compiling reposxml indexing XSL.");
 			xsltCompiled = compiler.compile(xslt);
+			logger.info("Compiled reposxml indexing XSL.");
 		} catch (SaxonApiException e) {
-			throw new RuntimeException("Error not handled: " + e.getMessage(), e);
+			throw new RuntimeException("Failed to compile reposxml indexing XSL: " + e.getMessage(), e);
 		}
 		
 		transformer = xsltCompiled.load();

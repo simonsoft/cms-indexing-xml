@@ -94,7 +94,6 @@ public class HandlerXmlRepositem {
 			xsltCompiled = compiler.compile(xslt);
 			logger.info("Compiled repositem indexing XSL.");
 		} catch (SaxonApiException e) {
-			// TODO Auto-generated catch block
 			throw new RuntimeException("Failed to compile repositem indexing XSL: " + e.getMessage(), e);
 		}
 
