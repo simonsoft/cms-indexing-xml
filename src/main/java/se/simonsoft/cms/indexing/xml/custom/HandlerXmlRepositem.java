@@ -15,7 +15,9 @@
  */
 package se.simonsoft.cms.indexing.xml.custom;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 import javax.xml.transform.Source;
@@ -42,6 +44,7 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.SaxonMessageListener;
 
 /**
@@ -55,6 +58,7 @@ public class HandlerXmlRepositem {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerXmlRepositem.class);
 
 	private transient Processor processor;
+	private transient XmlSourceReaderS9api sourceReader;
 	private transient XsltExecutable xsltCompiled;
 	private transient XsltTransformer transformer; // if creation is fast we could be thread safe and load this for every read
 
@@ -65,14 +69,17 @@ public class HandlerXmlRepositem {
 	public static final String PATHAREA_FIELD_NAME = "patharea";
 	public static final String RID_PROP_FIELD_NAME = "prop_abx.ReleaseId";
 	public static final String TPROJECT_PROP_FIELD_NAME = "prop_abx.TranslationProject";
+	public static final String PROPNAME_DITAMAP_FIELD_NAME = "prop_abx.Ditamap";
 	private static final QName STATUS_PARAM = new QName("document-status");
 	private static final QName PATHAREA_PARAM = new QName("patharea");
 	private static final QName PATHEXT_PARAM = new QName("pathext");
+	private static final QName DITAMAP_PARAM = new QName("ditamap");
 
 	@Inject
 	public HandlerXmlRepositem(Processor processor) {
 		
 		this.processor = processor;
+		this.sourceReader = new XmlSourceReaderS9api(processor);
 		// Hard-coding the XSL for now. Need to discuss whether to inject or configure with svn properties.
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
@@ -125,6 +132,16 @@ public class HandlerXmlRepositem {
 		// The file extension field must always be extracted.
 		transformer.setParameter(PATHEXT_PARAM, new XdmAtomicValue((String) fields.getFieldValue("pathext")));
 
+		// #1345 Make Release / Translation ditamap available for extraction.
+		// The ditamap property is suppressed in reposxml but included in repositem.
+		final String ditamapStr = (String) fields.getFieldValue(PROPNAME_DITAMAP_FIELD_NAME);
+		if (ditamapStr != null) {
+			// The ditamap is provided as a Transform parameter.
+			XmlSourceDocumentS9api ditamap = sourceReader.read(new ByteArrayInputStream(ditamapStr.getBytes(StandardCharsets.UTF_8)));
+			transformer.setParameter(DITAMAP_PARAM, ditamap.getDocumentNodeXdm());
+		} 
+		
+		
 		transformer.setErrorListener(new LoggingErrorListener());
 		transformer.setMessageListener(new SaxonMessageListener());
 		transformer.setDestination(xmltrackingFieldsHandler);
