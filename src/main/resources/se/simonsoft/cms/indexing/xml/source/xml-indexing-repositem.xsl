@@ -54,7 +54,10 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
-		<xsl:variable name="titles" select="//title"/>
+		<xsl:variable name="titles">
+			<xsl:apply-templates select="/*/booktitle/mainbooktitle" mode="title"/>
+			<xsl:apply-templates select="//title" mode="title"/>
+		</xsl:variable>
 		<xsl:variable name="paras" select="//p"/>
 		
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
@@ -482,8 +485,20 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	
+	<xsl:template match="*[@keyref][//keydef[@keys = current()/@keyref]//keywords/keyword]" mode="title intro" priority="10">
+		<!-- Matching locally defined keydefs.  -->
+		<!-- Keydefs in referenced maps are much more complex and could change after indexing. -->
+		<!-- TODO: Support multi-value keys attribute. -->
+		<xsl:apply-templates select="//keydef[@keys = current()/@keyref]//keywords/keyword[1]" mode="#current"/>
+	</xsl:template>
+	
 	<xsl:template match="*[@keyref][not(text())]" mode="title intro">
 		<xsl:value-of select="concat('[', @keyref ,']')"/>
+	</xsl:template>
+	
+	<xsl:template match="*[@keyref][text()]" mode="title intro">
+		<xsl:apply-templates select="*"/>
 	</xsl:template>
 	
 	
