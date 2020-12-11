@@ -33,6 +33,11 @@
 	<!-- filename extension -->
 	<xsl:param name="pathext" required="yes"/>
 	
+	<!-- Parameter containing the Ditamap (typically the property on a Release / Translation) as a document tree. -->
+	<xsl:param name="ditamap" as="document-node()?" required="no"/>
+			
+	
+	<!-- Definition of newline for convenience. -->
 	<xsl:param name="newline" select="'&#xA;'"/>
 	
 	<!-- Names of attributes that can be references. -->
@@ -54,7 +59,22 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
-		<xsl:variable name="titles" select="/*/booktitle/mainbooktitle | //title" as="element()*"/>
+		<xsl:variable name="titles" as="element()*">
+			<xsl:choose>
+				<xsl:when test="$ditamap//title">
+					<xsl:sequence select="$ditamap//title"/>
+				</xsl:when>
+				<xsl:when test="$ditamap//title">
+					<xsl:sequence select="$ditamap//title"/>
+				</xsl:when>
+				<xsl:when test="/*/booktitle/mainbooktitle">
+					<xsl:sequence select="/*/booktitle/mainbooktitle"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="//title"/>
+				</xsl:otherwise>
+			</xsl:choose> 
+		</xsl:variable>
 		<xsl:variable name="paras" select="//p"/>
 		
 		<xsl:variable name="cms-namespace-source" select="namespace-uri-for-prefix('cms', .)"/>
