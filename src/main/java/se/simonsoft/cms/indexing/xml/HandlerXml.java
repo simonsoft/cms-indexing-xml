@@ -133,6 +133,7 @@ public class HandlerXml implements IndexingItemHandler {
 						index(progress);
 						// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
 						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
+						// TODO: Consider removing this per-item commit if reposxml size is significantly smaller after refactoring Translations into one SolR doc.
 						boolean expunge = true;
 						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
 						this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).

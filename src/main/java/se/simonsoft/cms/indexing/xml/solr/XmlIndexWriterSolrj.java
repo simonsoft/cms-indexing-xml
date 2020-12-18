@@ -15,7 +15,6 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,15 +29,13 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
-import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
+import se.repos.indexing.solrj.SolrAdd;
+import se.repos.indexing.solrj.SolrDeleteByQuery;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
@@ -87,15 +84,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	}
 	
 	protected void doBatchSend(Collection<SolrInputDocument> pending) {
-		
-		try {
-			solrServer.add(pending);
-		} catch (SolrServerException e) {
-			throw new RuntimeException("Error not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Error not handled", e);
-		}
-
+		new SolrAdd(solrServer, pending).run();
 	}
 	
 	protected void sessionEnd(Session session) {
@@ -108,28 +97,15 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		String pathfull = repository.getPath() + c.getPath().toString();
 		String query = "pathfull:"+ quote(pathfull);
 		logger.debug("Deleting previous revision of {} using query {}", c, query);
-		try {
-			UpdateResponse response = solrServer.deleteByQuery(query);
-			logger.debug("Deleted elements: {}", response.getResponseHeader());
-		} catch (SolrServerException e) {
-			throw new RuntimeException("not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("not handled", e);
-		}		
+		new SolrDeleteByQuery(solrServer, query).run();	
 	}
 	
 	@Override
 	public void commit(boolean expungeDeletes) {
 		
-		// Workaround for Solrj not exposing 'expungeDeletes' in commit().
-		AbstractUpdateRequest req = new UpdateRequest().setAction(UpdateRequest.ACTION.COMMIT, true, true, 0, false, expungeDeletes);
-		try {
-			req.process(solrServer);
-		} catch (SolrServerException e) {
-			throw new RuntimeException("not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("not handled", e);
-		}		
+		// Unable to use retry in SolrOp unless this interface is changed.
+		// Alternatively if the consumer of this interface would only use expungeDeletes after pure-delete changes.
+		new SolrCommitExpunge(solrServer, expungeDeletes, false);
 	}
 	
 	// Copied from QueryEscapeDefault in cms-reporting.
