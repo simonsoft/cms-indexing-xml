@@ -29,9 +29,6 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
-import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,15 +103,9 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	@Override
 	public void commit(boolean expungeDeletes) {
 		
-		// Workaround for Solrj not exposing 'expungeDeletes' in commit().
-		AbstractUpdateRequest req = new UpdateRequest().setAction(UpdateRequest.ACTION.COMMIT, true, true, 0, false, expungeDeletes);
-		try {
-			req.process(solrServer);
-		} catch (SolrServerException e) {
-			throw new RuntimeException("not handled", e);
-		} catch (IOException e) {
-			throw new RuntimeException("not handled", e);
-		}		
+		// Unable to use retry in SolrOp unless this interface is changed.
+		// Alternatively if the consumer of this interface would only use expungeDeletes after pure-delete changes.
+		new SolrCommitExpunge(solrServer, expungeDeletes, false);
 	}
 	
 	// Copied from QueryEscapeDefault in cms-reporting.
