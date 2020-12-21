@@ -34,7 +34,7 @@ public class HandlerLogicalIdFromUrlTest {
 
 	@Test
 	public void testHandle() {
-		String logicalId = "x-svn://host:123/svn/documentation^/xml/reference/cms/User%20interface.xml?p=145";
+		String logicalId = "x-svn://host:123/svn/documentation/xml/reference/cms/User%20interface.xml?p=145";
 		String repourl = "http://host:123/svn/documentation";
 		String itemurl = repourl.concat("/xml/reference/cms/User%20interface.xml");
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
