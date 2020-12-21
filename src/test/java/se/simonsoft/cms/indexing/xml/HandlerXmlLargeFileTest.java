@@ -233,12 +233,8 @@ public class HandlerXmlLargeFileTest {
 		// NOTE: The test will be skipped if T501007.xml is not provided.
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
 		assumeResourceExists(repoSource, "/T501007.xml");
-				
-		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
-		Source xslt = new StreamSource(xsl);
 
-		TransformerService t = tf.buildTransformerService(xslt);
+		TransformerService t = tf.buildTransformerService("reuse-normalize.xsl");
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
 				classPath.concat("single-860k/T501007.xml"));

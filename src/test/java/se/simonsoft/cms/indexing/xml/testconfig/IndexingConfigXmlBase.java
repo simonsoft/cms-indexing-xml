@@ -16,6 +16,8 @@
 package se.simonsoft.cms.indexing.xml.testconfig;
 
 import javax.inject.Singleton;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
 
@@ -41,6 +43,7 @@ import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
 import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
@@ -54,6 +57,10 @@ public class IndexingConfigXmlBase extends AbstractModule {
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
+
+		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
+		sourceBinder.addBinding("identity.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/identity.xsl")));
+		sourceBinder.addBinding("source-reuse.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/source-reuse.xsl")));
 
 		
 		// Set up test config defaults.
