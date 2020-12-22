@@ -107,10 +107,12 @@
 			</xsl:for-each>
 			
 			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
-			<!-- Do we need to normalize the content? -->
 			<!-- Attempt to resolve termref and display keyref key. -->
 			<xsl:if test="$titles">
-				<field name="embd_xml_title"><xsl:apply-templates select="($titles)[1]" mode="title"/></field>
+				<xsl:variable name="title">
+					<xsl:apply-templates select="($titles)[1]" mode="title"/>
+				</xsl:variable>
+				<field name="embd_xml_title"><xsl:value-of select="normalize-space($title)"/></field>
 			</xsl:if>
 	
 			<!-- Introduction to to text - first couple of paragraphs. -->
