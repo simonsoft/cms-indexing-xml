@@ -64,7 +64,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		Set<CmsItemId> masterIds = new HashSet<CmsItemId>();
 		String[] abxProperties = {"abx.ReleaseMaster", "abx.AuthorMaster", "abx.TranslationMaster"};
 		for (String propertyName : abxProperties) {
-			masterIds.addAll(handleAbxProperty(fields, host, propertyName, (String) fields.getFieldValue("prop_" + propertyName)));
+			masterIds.addAll(handleAbxProperty(fields, host, propertyName));
 		}
 		
 		for (CmsItemId masterId : masterIds) {
@@ -97,8 +97,10 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	 * @param abxprop value of the property field.
 	 * @return 
 	 */
-	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName, String abxprop) {
+	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName) {
 
+		String fieldName = "prop_" + propertyName;
+		String abxprop = (String) fields.getFieldValue(fieldName);
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 
 		String strategyId;
@@ -106,9 +108,14 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 			
 			if (abxprop.length() != 0) {
 				
+				String propvalueNormalized = "";
 				for (String d : abxprop.split("\n")) {
 					CmsItemIdArg id = new CmsItemIdArg(d);
 					id.setHostname(host);
+					
+					// #886 Normalize the itemids in the indexed property.
+					// Simply by parsing the id with latest cms-item (3.x).
+					propvalueNormalized = propvalueNormalized.concat(id.getLogicalId()).concat("\n");
 					
 					strategyId = id.getPegRev() != null ?
 							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
@@ -118,6 +125,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 					
 					result.add(id);
 				}
+				// #886 Overwrite the property field with normalized itemId(s).
+				fields.setField(fieldName, propvalueNormalized.trim());
 				
 			} else {
 				logger.debug("{} property exists but is empty", propertyName);
