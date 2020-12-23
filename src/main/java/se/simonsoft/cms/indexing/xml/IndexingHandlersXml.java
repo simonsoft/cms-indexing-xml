@@ -17,9 +17,8 @@ package se.simonsoft.cms.indexing.xml;
 
 import java.util.LinkedList;
 
-import javax.xml.ws.handler.HandlerResolver;
-
 import se.repos.indexing.IndexingHandlers;
+import se.simonsoft.cms.indexing.abx.HandlerAbxBaseLogicalId;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
 import se.simonsoft.cms.indexing.abx.HandlerAbxMasters;
 import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromUrl;
@@ -29,7 +28,6 @@ import se.simonsoft.cms.indexing.abx.HandlerXmlMasters;
 import se.simonsoft.cms.indexing.abx.HandlerXmlReferences;
 import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexContentReferences;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionSource;
@@ -80,6 +78,7 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Fast));
 		IndexingHandlers.to(guiceMultibinder,
 				HandlerLogicalIdFromUrl.class,
+				HandlerAbxBaseLogicalId.class,
 				HandlerAbxDependencies.class,
 				HandlerAbxMasters.class,
 				HandlerPathareaFromProperties.class);
