@@ -70,6 +70,13 @@ public class HandlerAbxDependencies extends HandlerAbxFolders {
 			}
 		}
 		
+		// #886 Normalize property content or suppress them.
+		// The Dependencies and CrossRefs properties are deprecated and better served by ref_xml_* fields.
+		for (String propertyName : abxProperties) {
+			fields.removeField("prop_" + propertyName);
+		}
+		
+		
 		// This handler does no longer set "refid", moved to XML extraction.
 		/*
 		String refId;
