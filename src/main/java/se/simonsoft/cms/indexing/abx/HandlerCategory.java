@@ -88,6 +88,7 @@ public class HandlerCategory implements IndexingItemHandler {
 		
 		// TODO: Consider separating in "graphics-raster" and "graphics-vector" (potentially "graphics-model" for 3D etc). 
 		// Any supported graphics format that Tika does does not detect as "image/*" ?
+		// We have traditionally used the term "graphics" instead of "image". It is more generic and more suitable for vector.
 		if ("image".equals(mime)) {
 			return "graphics";
 		}
@@ -99,7 +100,7 @@ public class HandlerCategory implements IndexingItemHandler {
 		
 		Collection<Object> flags = doc.getFieldValues("flag");
 		if (flags != null && flags.contains("hasxmlerror")) {
-			return "xml-error";
+			return "error-xml";
 		}
 		if (flags != null && flags.contains("hasxml")) {
 			if (doc.containsKey(XML_ELEMENT_FIELD)) {
