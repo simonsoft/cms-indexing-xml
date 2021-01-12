@@ -38,8 +38,12 @@ public class HandlerAbxBaseLogicalId implements IndexingItemHandler {
 		
 		for (String propertyName : abxProperties) {
 			String fieldName = "prop_" + propertyName;
+			String idString = (String) progress.getFields().getFieldValue(fieldName);
+			if (idString == null || idString.trim().isEmpty()) {
+				continue;
+			}
 			try {
-				CmsItemId id = new CmsItemIdArg((String) progress.getFields().getFieldValue(fieldName));
+				CmsItemId id = new CmsItemIdArg(idString);
 				progress.getFields().setField(fieldName, id.getLogicalId());
 			} catch (Exception e) {
 				logger.warn("Failed to parse {}: {}", propertyName, e.getMessage(), e);
