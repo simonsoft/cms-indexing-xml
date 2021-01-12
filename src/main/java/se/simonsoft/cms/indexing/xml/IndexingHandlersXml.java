@@ -21,6 +21,7 @@ import se.repos.indexing.IndexingHandlers;
 import se.simonsoft.cms.indexing.abx.HandlerAbxBaseLogicalId;
 import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
 import se.simonsoft.cms.indexing.abx.HandlerAbxMasters;
+import se.simonsoft.cms.indexing.abx.HandlerCategory;
 import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromUrl;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
 import se.simonsoft.cms.indexing.abx.HandlerTitleSelection;
@@ -87,6 +88,7 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.to(guiceMultibinder, HandlerTitleSelection.class);
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlReferences.class);
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlMasters.class);
+		IndexingHandlers.to(guiceMultibinder, HandlerCategory.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));
 	}
 
