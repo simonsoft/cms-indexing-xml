@@ -122,7 +122,7 @@ public class HandlerCategory implements IndexingItemHandler {
 		}
 		
 		String mime = (String) doc.getFieldValue(CONTENT_TYPE_FIELD);
-		String[] mimeParts = mime.split("/;");
+		String[] mimeParts = mime.split("[/;]");
 		if (mimeParts.length < 2) {
 			logger.warn("Content-Type / mime-type malformed '{}' for item: {}", mime, doc.getFieldValue("pathfull"));
 			return null;
