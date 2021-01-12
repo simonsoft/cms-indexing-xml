@@ -88,7 +88,6 @@ public abstract class IndexingHandlersXml {
 		IndexingHandlers.to(guiceMultibinder, HandlerTitleSelection.class);
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlReferences.class);
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlMasters.class);
-		IndexingHandlers.to(guiceMultibinder, HandlerCategory.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));
 	}
 
