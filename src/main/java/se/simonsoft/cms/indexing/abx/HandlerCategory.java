@@ -59,6 +59,11 @@ public class HandlerCategory implements IndexingItemHandler {
 	
 	private String getCategory(IndexingDoc doc) {
 		
+		String type = (String) doc.getFieldValue("type");
+		if (!"file".equals(type)) {
+			return type;
+		}
+		
 		String xmlCategory = getXmlCategory(doc);
 		if (xmlCategory != null) {
 			return xmlCategory;
