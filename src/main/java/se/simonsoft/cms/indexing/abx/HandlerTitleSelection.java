@@ -61,11 +61,13 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 			 	String value = doc.getFieldValues(key).iterator().next().toString();
 				if(value != null && !value.trim().equals("")) {
 					doc.setField(TITLE_FIELD, value);
-					logger.info("Indexing value from {}: \"{}\"", key, value);
+					logger.info("Indexing title from {}: \"{}\"", key, value);
 					break;
 				}
 			}
 		}
+		// TODO: Reduce loglevel for both.
+		logger.info("Indexing title failed for: {}", doc.getFieldValue("path"));
 	}
 
 	@SuppressWarnings("serial")

@@ -57,7 +57,7 @@ public class HandlerTextSelection implements IndexingItemHandler{
 			 	String value = doc.getFieldValues(key).iterator().next().toString();
 				if(value != null && !value.trim().equals("")) {
 					doc.setField(TEXT_FIELD, value);
-					logger.info("Indexing value from {}", key);
+					logger.info("Indexing text from {}", key);
 					break;
 				}
 			}
