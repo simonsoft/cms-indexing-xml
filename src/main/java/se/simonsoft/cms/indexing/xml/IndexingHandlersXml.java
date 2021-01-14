@@ -85,7 +85,7 @@ public abstract class IndexingHandlersXml {
 				HandlerPathareaFromProperties.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
-		IndexingHandlers.to(guiceMultibinder, HandlerTitleSelection.class);
+		//IndexingHandlers.to(guiceMultibinder, HandlerTitleSelection.class); // Must be configured after Tika in repos-indexing-standalone.
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlReferences.class);
 		IndexingHandlers.to(guiceMultibinder, HandlerXmlMasters.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));

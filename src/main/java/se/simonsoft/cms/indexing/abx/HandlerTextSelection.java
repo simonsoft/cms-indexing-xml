@@ -28,6 +28,8 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 
+// NOTE: This handler is NOT active. 
+// Inability to modify Tika 'text' field depends on order, must be configured in repos-indexing-standalone.
 public class HandlerTextSelection implements IndexingItemHandler{
 
 	private static final String TEXT_FIELD = "text";
