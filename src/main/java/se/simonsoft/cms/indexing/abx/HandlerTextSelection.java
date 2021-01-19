@@ -27,6 +27,7 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 // NOTE: This handler is NOT active. 
 // Inability to modify Tika 'text' field depends on order, must be configured in repos-indexing-standalone.
@@ -50,6 +51,12 @@ public class HandlerTextSelection implements IndexingItemHandler{
 	 */
 	@Override
 	public void handle(IndexingItemProgress progress) {
+		CmsChangesetItem item = progress.getItem();
+		if (item.isDelete()) {
+			// No reason to process delete.
+			return;
+		}
+		
 		IndexingDoc doc = progress.getFields();
 		
 		// TODO: Remove all fulltext search if head:false, see repos-indexing-fulltext.

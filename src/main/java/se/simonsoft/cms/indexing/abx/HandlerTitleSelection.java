@@ -27,6 +27,7 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerTitleSelection implements IndexingItemHandler{
 
@@ -54,8 +55,14 @@ public class HandlerTitleSelection implements IndexingItemHandler{
 	 */
 	@Override
 	public void handle(IndexingItemProgress progress) {
-		IndexingDoc doc = progress.getFields();
+		CmsChangesetItem item = progress.getItem();
+		if (item.isDelete()) {
+			// No reason to process delete.
+			return;
+		}
 		
+		IndexingDoc doc = progress.getFields();
+
 		for(String key: this.fieldTitleKeys) {
 			if(doc.containsKey(key)){
 			 	String value = doc.getFieldValues(key).iterator().next().toString();

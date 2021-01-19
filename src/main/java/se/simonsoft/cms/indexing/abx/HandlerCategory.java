@@ -27,6 +27,7 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerCategory implements IndexingItemHandler {
 
@@ -45,6 +46,20 @@ public class HandlerCategory implements IndexingItemHandler {
 	 */
 	@Override
 	public void handle(IndexingItemProgress progress) {
+		
+		CmsChangesetItem item = progress.getItem();
+		
+		if (item.isDelete()) {
+			// No reason to process delete.
+			return;
+		}
+
+		if (item.getFilesize() == 0) {
+			// Tika has not executed on empty file.
+			// Often XML files when reserving the name/number. Can not extract document element name.
+			return;
+		}
+		
 		IndexingDoc doc = progress.getFields();
 		String value = "unknown";
 		
