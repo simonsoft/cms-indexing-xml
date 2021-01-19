@@ -54,7 +54,7 @@ public class HandlerCategory implements IndexingItemHandler {
 			return;
 		}
 
-		if (item.getFilesize() == 0) {
+		if (item.isFile() && item.getFilesize() == 0) {
 			// Tika has not executed on empty file.
 			// Often XML files when reserving the name/number. Can not extract document element name.
 			return;
