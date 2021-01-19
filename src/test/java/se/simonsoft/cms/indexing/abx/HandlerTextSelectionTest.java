@@ -24,6 +24,7 @@ import org.junit.Test;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerTextSelectionTest {
 	
@@ -36,6 +37,9 @@ public class HandlerTextSelectionTest {
 		doc.setField("embd_xml_text", "xml");
 		
 		when(progress.getFields()).thenReturn(doc);
+		
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		when(progress.getItem()).thenReturn(item);
 		
 		HandlerTextSelection handler = new HandlerTextSelection();
 		handler.handle(progress);

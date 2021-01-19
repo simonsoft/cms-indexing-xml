@@ -24,6 +24,7 @@ import org.junit.Test;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerTitleSelectionTest {
 	
@@ -37,6 +38,9 @@ public class HandlerTitleSelectionTest {
 		doc.setField("xmp_dc.subject", "xmp dc subject");
 		
 		when(progress.getFields()).thenReturn(doc);
+		
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		when(progress.getItem()).thenReturn(item);
 		
 		HandlerTitleSelection handler = new HandlerTitleSelection();
 		handler.handle(progress);
