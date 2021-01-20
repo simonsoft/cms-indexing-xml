@@ -94,7 +94,11 @@ public class HandlerClassification implements IndexingItemHandler {
 			progress.getFields().addField(FLAG_FIELD, "isxmlabx");
 		}
 		
-		// TODO: Implement flag "isgraphic". Needs some consideration.
+		// TODO: The flag "isgraphic" will likely be a customization point in the future.
+		// Systems with web-editor will == "isgraphicweb" while systems with arbortext == "isgraphicabx".
+		if (itemClassificationAbx.isGraphic(itemId)) {
+			progress.getFields().addField(FLAG_FIELD, "isgraphic");
+		}
 		
 		// TODO: Improve selection of graphics supported by Thumbnailing. Currently same as Arbortext.
 		if (itemClassificationAbx.isGraphic(itemId)) {
