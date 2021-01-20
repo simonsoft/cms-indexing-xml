@@ -45,6 +45,7 @@ public class HandlerAbxBaseLogicalId implements IndexingItemHandler {
 			if (idString.endsWith("?p=-1")) {
 				logger.info("Suppress '{}' with revision -1: {}", propertyName, idString);
 				progress.getFields().removeField(fieldName);
+				return;
 			}
 			try {
 				CmsItemId id = new CmsItemIdArg(idString);
