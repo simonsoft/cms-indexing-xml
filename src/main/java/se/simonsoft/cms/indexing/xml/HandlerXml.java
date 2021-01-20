@@ -44,6 +44,8 @@ import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 public class HandlerXml implements IndexingItemHandler {
 
 	public static final String FLAG_XML = "hasxml";
+	public static final String FLAG_XML_REPOSITEM = "hasxmlrepositem";
+	public static final String FLAG_XML_ERROR = "hasxmlerror";
 	
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -231,6 +233,8 @@ public class HandlerXml implements IndexingItemHandler {
 			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
+			// Flag that it was indexed in repositem.
+			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 			
 			if (indexReposxml) {
 				// Clone the repositem document selectively. Used as base for creating one clone per element.
@@ -244,7 +248,7 @@ public class HandlerXml implements IndexingItemHandler {
 			}
 		} catch (XmlNotWellFormedException e) { 
 			// failure, flag with error
-			progress.getFields().addField("flag", FLAG_XML + "error");
+			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
