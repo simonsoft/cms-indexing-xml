@@ -29,6 +29,13 @@ import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
+/**
+ * Determines a category useful for display / filtering in UI.
+ * The exact labels / buckets can change frequently without warning or use a 
+ * different implementation adjusted for specific use-cases.
+ * Should not be used in code to determine item type, see {@link HandlerClassification}.
+ *
+ */
 public class HandlerCategory implements IndexingItemHandler {
 
 	private static final String CATEGORY_FIELD = "category";
