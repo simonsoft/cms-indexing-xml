@@ -78,7 +78,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  24L, doc.get(0).getFieldValue("count_words_text"));
 
@@ -102,7 +102,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -128,7 +128,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -155,7 +155,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -181,7 +181,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -210,7 +210,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -240,7 +240,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -267,7 +267,7 @@ public class HandlerXmlRepositemTest {
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -296,7 +296,7 @@ public class HandlerXmlRepositemTest {
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertFalse("No flag 'hastsuppress'", doc.get(0).getFieldValues("flag").contains("hastsuppress"));
-		assertEquals("1 flag(s)", 1, flags.size());
+		assertEquals("2 flag(s)", 2, flags.size());
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
@@ -324,7 +324,7 @@ public class HandlerXmlRepositemTest {
 		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
 		assertFalse("No flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertTrue("Flag 'hastsuppress'", doc.get(0).getFieldValues("flag").contains("hastsuppress"));
-		assertEquals("2 flag(s)", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		// Total word count, from a translation perspective.
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
@@ -359,7 +359,7 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasridmixedunsafe'", doc.get(0).getFieldValues("flag").contains("hasridmixedunsafe"));
-		assertEquals("2 flag(s)", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
 		assertEquals("List the unsafe mixed RIDs in repositem core", "2gyvymn15kv0001", mixedUnsafe.iterator().next());
@@ -380,7 +380,7 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasridmissing'", doc.get(0).getFieldValues("flag").contains("hasridmissing"));
-		assertEquals("2 flag(s)", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		Collection<Object> ridMissing = doc.get(0).getFieldValues("embd_xml_ridmissing");
 		assertEquals("List the missing RIDs in repositem core", "2gyvymn15kv0002 2gyvymn15kv0003", ridMissing.iterator().next());
@@ -400,7 +400,7 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasridmissing'", doc.get(0).getFieldValues("flag").contains("hasridmissing"));
-		assertEquals("2 flag(s)", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		Collection<Object> ridMissing = doc.get(0).getFieldValues("embd_xml_ridmissing");
 		assertEquals("List the missing RIDs in repositem core", "2gyvymn15kv0001", ridMissing.iterator().next());
@@ -420,7 +420,7 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasridmissing'", doc.get(0).getFieldValues("flag").contains("hasridmissing"));
-		assertEquals("2 flag(s)", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		Collection<Object> ridMissing = doc.get(0).getFieldValues("embd_xml_ridmissing");
 		assertEquals("List the missing RIDs in repositem core", "2gyvymn15kv0000", ridMissing.iterator().next());
