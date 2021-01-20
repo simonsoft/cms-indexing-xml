@@ -89,8 +89,9 @@ public class HandlerXmlIntegrationTest {
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
+		assertTrue("Flag 'hasxmlrepositem'", flagged.get(0).getFieldValues("flag").contains("hasxmlrepositem"));
 		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("Issue with duplicate flag?", 1, flags.size());
+		assertEquals("", 2, flags.size());
 		
 		//Statistics in repositem schema
 		assertEquals("Should count elements", 4L, flagged.get(0).getFieldValue("count_elements"));
@@ -136,7 +137,7 @@ public class HandlerXmlIntegrationTest {
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertTrue("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("2 flags", 2, flags.size());
+		assertEquals("3 flag(s)", 3, flags.size());
 		
 		Collection<Object> duplicates = flagged.get(0).getFieldValues("embd_xml_ridduplicate");
 		assertEquals("one duplicate, mentioned once", 1, duplicates.size());
@@ -171,7 +172,7 @@ public class HandlerXmlIntegrationTest {
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
 		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
 		assertTrue("Flag 'hastsuppress'", flagged.get(0).getFieldValues("flag").contains("hastsuppress"));
-		assertEquals("only hasxml flag", 2, flags.size());
+		assertEquals("only hasxml, hasxmlrepositem, hastsuppress flag", 3, flags.size());
 
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
