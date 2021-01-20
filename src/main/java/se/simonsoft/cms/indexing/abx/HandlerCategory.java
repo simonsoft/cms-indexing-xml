@@ -136,6 +136,9 @@ public class HandlerCategory implements IndexingItemHandler {
 		if ("eps".equals(itemId.getRelPath().getExtension())) {
 			return CATEGORY_GRAPHICS; // Consider returning "graphics-legacy"
 		}
+		if ("ai".equals(itemId.getRelPath().getExtension())) {
+			return CATEGORY_GRAPHICS;
+		}
 		
 		// TODO: Consider separating in "graphics-raster" and "graphics-vector" (potentially "graphics-model" for 3D etc). 
 		// Any supported graphics format that Tika does does not detect as "image/*" ?
