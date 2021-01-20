@@ -48,6 +48,10 @@ public class HandlerCategory implements IndexingItemHandler {
 	private static final String CONTENT_TYPE_FIELD = "embd_Content-Type";
 	private static final String XML_ELEMENT_FIELD = "embd_xml_name";
 	
+	private static final String CATEGORY_GRAPHICS = "graphics"; // Consider adding graphics-raster, graphics-vector, graphics-legacy
+
+	private static final String CATEGORY_XML = "xml";
+	
 	private static final CmsItemClassification itemClassificationXml = new CmsItemClassificationXml();
 	
 	private static final Logger logger = LoggerFactory.getLogger(HandlerCategory.class);
@@ -128,11 +132,16 @@ public class HandlerCategory implements IndexingItemHandler {
 	private String getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
 		String mime = getMimeTypeCategory(doc);
 		
+		// Tika struggles to recognize eps files.
+		if ("eps".equals(itemId.getRelPath().getExtension())) {
+			return CATEGORY_GRAPHICS; // Consider returning "graphics-legacy"
+		}
+		
 		// TODO: Consider separating in "graphics-raster" and "graphics-vector" (potentially "graphics-model" for 3D etc). 
 		// Any supported graphics format that Tika does does not detect as "image/*" ?
 		// We have traditionally used the term "graphics" instead of "image". It is more generic and more suitable for vector.
 		if ("image".equals(mime)) {
-			return "graphics";
+			return CATEGORY_GRAPHICS;
 		}
 		return null;
 	}
@@ -154,9 +163,9 @@ public class HandlerCategory implements IndexingItemHandler {
 			// Must avoid classifying SVG as xml instead of graphic.
 			if (doc.containsKey(XML_ELEMENT_FIELD)) {
 				String element = (String) doc.getFieldValue(XML_ELEMENT_FIELD);
-				return "xml-" + element;
+				return CATEGORY_XML + "-" + element;
 			} else {
-				return "xml"; // Fallback, should be very rare if the file is considered well-formed.
+				return CATEGORY_XML; // Fallback, should be very rare if the file is considered well-formed.
 			}
 		}
 		return null;
