@@ -39,7 +39,7 @@ import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
-import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
+import se.simonsoft.cms.item.stream.CmsItemIdFormatUpdateInputStream;
 import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -51,7 +51,6 @@ import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
-@SuppressWarnings("deprecation")
 public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
@@ -218,6 +217,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// The version of Release requested must be same as indexed (Release is same commit or most recent).
 		// Ensures identical result after re-indexing even if Release has been updated (must iterate Translation if updated Release checksums are desirable).
 		CmsItemId revId = tmId.withPegRev(rev);
+		// TODO: Get the commit revision of the Release in order to determine a cache key.
 		
 		Date start = new Date();
 		XmlSourceDocumentS9api docReuse;
@@ -246,7 +246,9 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// Possible to use the XmlSourceReader in combination with the Indexing Content Buffer concept.
 		// The ItemContentBuffer implementation is injected in a per-repo context, same with Handlers.
 		ItemContentBuffer releaseBuffer = contentStrategy.getBuffer(new RepoRevision(itemId.getPegRev(), null), itemId.getRelPath(), xmlProgress.getBaseDoc());
-		XmlSourceDocumentS9api releaseDoc = sourceReader.read(releaseBuffer.getContents());
+		// #886 Normalize itemid (remove ^) when calculating checksum.
+		InputStream normalized = new CmsItemIdFormatUpdateInputStream(releaseBuffer.getContents(), itemId.getRepository());
+		XmlSourceDocumentS9api releaseDoc = sourceReader.read(normalized);
 		XmlSourceElementS9api releaseElement = releaseDoc.getDocumentElement();
 		// Execute Transform that calculates checksums on Release.
 		
