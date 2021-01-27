@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,6 @@ import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
-import se.simonsoft.cms.item.inspection.CmsRepositoryInspection;
 import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -51,7 +51,6 @@ import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
-@SuppressWarnings("deprecation")
 public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 
 	private static String RELEASE_CHECKSUM = "c_sha1_release_source_reuse";
@@ -73,6 +72,8 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private Map<String, String> ridChecksums = null;
 	private CmsItemId releaseId = null;
 
+	private Map<CmsItemId, Map<String, String>> cache = new HashMap<>(); // Consider using Caffeine, for now only keeping one entry.
+	
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexReleaseReuseChecksum.class);
 
 	@Inject
@@ -218,6 +219,22 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		// The version of Release requested must be same as indexed (Release is same commit or most recent).
 		// Ensures identical result after re-indexing even if Release has been updated (must iterate Translation if updated Release checksums are desirable).
 		CmsItemId revId = tmId.withPegRev(rev);
+		// TODO: Get the commit revision of the Release in order to determine a cache key.
+		// For now, using the indexed revision (Translation commit) due to lack of APIs.
+		// Works for Translations committed in same transaction.
+		// Using Release commit revision would work across indexed revision (e.g. Pretranslate completing each item).
+		
+		this.ridChecksums = getChecksumMap(xmlProgress, revId);
+		this.releaseId = tmId;
+		
+	}
+	
+	private Map<String, String> getChecksumMap(XmlIndexProgress xmlProgress, CmsItemId revId) {
+		Map<String, String> result = doCacheGet(revId);
+		if (result != null) {
+			logger.info("RID-map cache hit ({}) for Release: {}", result.size(), revId);
+			return result;
+		}
 		
 		Date start = new Date();
 		XmlSourceDocumentS9api docReuse;
@@ -229,16 +246,17 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			String msg = MessageFormatter.format("Failed to process related Release document: {}", revId, e).getMessage();
 			logger.warn(msg);
 			throw new IndexingHandlerException(msg);
-					
 		}
 
 		XmlSourceAttributeMapRid map = new XmlSourceAttributeMapRid("c_sha1_source_reuse");
 		sourceReader.handle(docReuse, map);
-		this.ridChecksums = map.getAttributeMap();
-		this.releaseId = tmId;
+		result = map.getAttributeMap();
 		Date end = new Date();
-		logger.info("Processed RID-map ({}) in {} ms for Release: {}", this.ridChecksums.size(), end.getTime() - start.getTime(), tmId);
-		// TODO: Send to a cache.
+		logger.info("RID-map processed ({}) in {} ms for Release: {}", result.size(), end.getTime() - start.getTime(), revId);
+		// Send to a cache.
+		doCachePut(revId, result);
+		
+		return result;
 	}
 
 	private XmlSourceDocumentS9api getDocumentChecksum(XmlIndexProgress xmlProgress, CmsItemId itemId) {
@@ -259,6 +277,16 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		
 		return docReuse;
 	}
+	
+	private void doCachePut(CmsItemId release, Map<String, String> map) {
+		this.cache.clear(); // Keeping only a single item for now.
+		this.cache.put(release, map);
+	}
+	
+	private Map<String, String> doCacheGet(CmsItemId release) {
+		return this.cache.get(release);
+	}
+	
 
 	@Override
 	public void endDocument() {
