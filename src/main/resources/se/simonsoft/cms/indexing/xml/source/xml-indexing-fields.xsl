@@ -214,7 +214,9 @@
 	
 	<xsl:template match="@*[local-name() = $source-reuse-attr-itemid][starts-with(., 'x-svn')]" mode="source-reuse-child">
 		<!-- #886 Normalize the CmsItemId.. -->
-		<xsl:attribute name="{name()}" select="cmsfn:itemid-getlogicalid(.)"/>
+		<!-- Using lax parsing of itemid in order to easily handle indexing of broken data. -->
+		<!-- Might need stricter approach if the source-reuse is used for strict purposes. -->
+		<xsl:attribute name="{name()}" select="cmsfn:itemid-getlogicalid(., true())"/>
 	</xsl:template>
 	
 	
