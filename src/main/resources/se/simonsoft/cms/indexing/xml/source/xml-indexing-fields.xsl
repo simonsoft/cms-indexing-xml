@@ -197,10 +197,15 @@
 		<xsl:text>&gt;</xsl:text>
 	</xsl:template>
 	
-	<xsl:template match="@cms:rid | @cms:rlogicalid | @cms:rwords| @cms:twords | @cms:tstatus | @cms:trid | @cms:tpos | @cms:tlogicalid | @cms:tmatch" mode="source-reuse-child">
-        <!-- Simply doing nothing to suppress the CMS attributes. -->
-        <!-- Does not include cms:tvalidate because it should be considered in checksums. -->
-    </xsl:template>
+	<xsl:template match="@*[namespace-uri()='http://www.simonsoft.se/namespace/cms']" mode="source-reuse-child">
+		<!-- Suppress the CMS attributes, except those specifically matched. -->
+	</xsl:template>
+	
+	<xsl:template match="@cms:tvalidate | @cms:tsuppress" mode="source-reuse-child" priority="10">
+		<!-- Include cms:tvalidate because it should be considered in checksums. -->
+		<!-- Include cms:tsuppress as well, for completness even though these should not be included.-->
+		<xsl:copy/>
+	</xsl:template>
 	
 	<xsl:template match="@*" mode="source-reuse-child">
 		<!-- Include attributes that are not explicitly matched. -->

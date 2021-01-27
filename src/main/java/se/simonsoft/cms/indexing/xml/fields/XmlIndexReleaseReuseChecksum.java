@@ -144,7 +144,6 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			if (depth.equals(1)) {
 				addDescendantChecksums(fields);
 			}
-			
 		}
 	}
 	
