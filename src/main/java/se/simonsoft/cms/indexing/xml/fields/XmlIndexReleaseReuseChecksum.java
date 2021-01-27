@@ -232,7 +232,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private Map<String, String> getChecksumMap(XmlIndexProgress xmlProgress, CmsItemId revId) {
 		Map<String, String> result = doCacheGet(revId);
 		if (result != null) {
-			logger.info("RID-map cache hit ({}) for Release: {}", this.ridChecksums.size(), revId);
+			logger.info("RID-map cache hit ({}) for Release: {}", result.size(), revId);
 			return result;
 		}
 		
