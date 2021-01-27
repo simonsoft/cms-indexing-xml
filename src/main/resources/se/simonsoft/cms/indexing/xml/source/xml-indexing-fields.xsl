@@ -20,6 +20,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
+	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
 
 	<!-- document's status -->
@@ -30,6 +31,11 @@
 	<xsl:param name="document-depth"/>
 	<!-- ancestor attributes on an element named 'attributes' -->
 	<xsl:param name="ancestor-attributes"/>
+	
+	<!-- #886 Reference attributes where CmsItemIds are normalized. -->
+	<xsl:param name="source-reuse-attr-itemid-param" select="'href fileref src source'"/>
+	<xsl:variable name="source-reuse-attr-itemid" as="xs:string*" select="tokenize($source-reuse-attr-itemid-param, ' ')"/>
+	
 	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
@@ -199,6 +205,11 @@
 	<xsl:template match="@*" mode="source-reuse-child">
 		<!-- Include attributes that are not explicitly matched. -->
 		<xsl:copy/>
+	</xsl:template>
+	
+	<xsl:template match="@*[local-name() = $source-reuse-attr-itemid][starts-with(., 'x-svn')]" mode="source-reuse-child">
+		<!-- #886 Normalize the CmsItemId.. -->
+		<xsl:attribute name="{name()}" select="cmsfn:itemid-getlogicalid(.)"/>
 	</xsl:template>
 	
 	

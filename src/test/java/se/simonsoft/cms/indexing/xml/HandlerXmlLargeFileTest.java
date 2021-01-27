@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.SAXParserFactory;
@@ -92,14 +93,13 @@ public class HandlerXmlLargeFileTest {
 	
 	private long startTime = 0;
 
-	private static HashMap<String, String> tests = new HashMap<String, String>();
+	private static HashMap<String, String> tests = new LinkedHashMap<String, String>();
 
 	@BeforeClass
 	public static void setUpClass() {
 
 		System.out.println("Version Saxon: " + net.sf.saxon.Version.getProductVersion());
 		
-		// Asserts are executed in hashmap order (out of our control)
 		tests.put("p", "c30f06122daa3fde28755ea85f59c14d0d5ac073");
 		tests.put("title", "b5aa8764d806e08f75b3face83d742115fad7a05");
 		//tests.put("itemlist", "..");
@@ -108,8 +108,8 @@ public class HandlerXmlLargeFileTest {
 		tests.put("table", "598b6e604ec60130e91534701fb4694413daca38");
 
 		tests.put("section", "80248e3cf0f8353d952b00fad0e5e79bb0e4050f");
-		tests.put("body", "9d5d32e675ab9ec57d128d8afe9e42af28d8ec09");
-		tests.put("document", "81719e0d73a8fbeb9807f5f4efad7e969f1a48e0");
+		tests.put("body", "6a63852186cf1fb4ecaaa8d139d0278c89f519ab");
+		tests.put("document", "f6a2c5d40f6cad4b4223101a9b12d28127d4f8e2");
 	}
 
 	@Before
@@ -193,7 +193,6 @@ public class HandlerXmlLargeFileTest {
 		*/
 		
 		
-		// NOTE: The external file can no longer have attribute cms:translation-project. Will cause a shallow indexing (not possible to verify checksums).
 		// Shallow indexing is controlled by 'patharea'
 		// Repositem XSL sets field 'count_reposxml_depth' used by XmlSourceHandlerFieldExtractors.java to limit the depth.
 		
@@ -214,6 +213,14 @@ public class HandlerXmlLargeFileTest {
 				String q = "name:" + t.getKey(); // Query for first element with current tagname.
 				e = reposxml.query(new SolrQuery(q).setRows(1).addSort("pos", ORDER.asc)).getResults();
 
+				
+				// Only for testing, must disable the removal of source_reuse in XmlIndexFieldExtractionSource.java
+				/*
+				String sourceReuse = (String) e.get(0).getFieldValue("source_reuse");
+				if (sourceReuse != null && t.getKey().equals("body")) {
+					assertEquals("", sourceReuse);
+				}
+				*/
 				assertEquals("checksum for first " + t.getKey(), t.getValue(), e.get(0).getFieldValue(FIELDNAME));
 			}
 		} catch (SolrServerException e1) {
