@@ -253,6 +253,7 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
 		}
+		// TODO: Should we catch other forms of errors, from XSL?
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
