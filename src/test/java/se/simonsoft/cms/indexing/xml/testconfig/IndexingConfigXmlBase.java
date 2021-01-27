@@ -15,37 +15,23 @@
  */
 package se.simonsoft.cms.indexing.xml.testconfig;
 
-import javax.inject.Singleton;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-
-import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
-
-import net.sf.saxon.lib.ExtensionFunctionDefinition;
-import net.sf.saxon.s9api.Processor;
-import se.repos.indexing.item.ItemContentBufferStrategy;
-import se.repos.indexing.twophases.ItemContentsMemory;
-import se.simonsoft.cms.backend.svnkit.svnlook.CmsContentsReaderSvnkitLook;
-import se.simonsoft.cms.backend.svnkit.svnlook.SvnlookClientProviderStateless;
-import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
-import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
-import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
-import se.simonsoft.cms.item.inspection.CmsContentsReader;
-import se.simonsoft.cms.xmlsource.SaxonConfiguration;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
-import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
-import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
-import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+
+import net.sf.saxon.lib.ExtensionFunctionDefinition;
+import net.sf.saxon.s9api.Processor;
+import se.simonsoft.cms.xmlsource.SaxonConfiguration;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
+import se.simonsoft.cms.xmlsource.transform.function.GetLogicalId;
+import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
+import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
 public class IndexingConfigXmlBase extends AbstractModule {
 
@@ -56,6 +42,7 @@ public class IndexingConfigXmlBase extends AbstractModule {
 		transformerFunctions.addBinding().to(GetChecksum.class);
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
+		transformerFunctions.addBinding().to(GetLogicalId.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
 
 		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
