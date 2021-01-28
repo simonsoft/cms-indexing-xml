@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -98,9 +99,9 @@ public class HandlerCategory implements IndexingItemHandler {
 		CmsItemId itemId = progress.getRepository().getItemId(itemPath, null);
 		
 		IndexingDoc doc = progress.getFields();
-		String[] value =  new String[] { "unknown" };
-		
-		String[] category = getCategory(itemId, doc);
+		Set<String> value = new HashSet<>(Arrays.asList("unknown"));
+
+		Set<String> category = getCategory(itemId, doc);
 		if (category != null) {
 			value = category;
 		}
@@ -109,29 +110,29 @@ public class HandlerCategory implements IndexingItemHandler {
 	}
 	
 	
-	private String[] getCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getCategory(CmsItemId itemId, IndexingDoc doc) {
 		
 		String type = (String) doc.getFieldValue("type");
 		if (!"file".equals(type)) {
-			return new String[] { type };
+			return new HashSet<>(Arrays.asList(type));
 		}
-		
-		String[] xmlCategory = getXmlCategory(itemId, doc);
+
+		Set<String> xmlCategory = getXmlCategory(itemId, doc);
 		if (xmlCategory != null) {
 			return xmlCategory;
 		}
-		
-		String[] graphicCategory = getGraphicCategory(itemId, doc);
+
+		Set<String> graphicCategory = getGraphicCategory(itemId, doc);
 		if (graphicCategory != null) {
 			return graphicCategory;
 		}
 
-		String[] pdfCategory = getPdfCategory(itemId, doc);
+		Set<String> pdfCategory = getPdfCategory(itemId, doc);
 		if (pdfCategory != null) {
 			return pdfCategory;
 		}
-		
-		String[] officeCategory = getOfficeCategory(itemId, doc);
+
+		Set<String> officeCategory = getOfficeCategory(itemId, doc);
 		if (officeCategory != null) {
 			return officeCategory;
 		}
@@ -140,15 +141,15 @@ public class HandlerCategory implements IndexingItemHandler {
 		String[] mimeCategory = getMimeCategory(doc);
 		if (mimeCategory != null) {
 			if ("application".equals(mimeCategory[0])) {
-				return new String[] { "other" };
+				return new HashSet<>(Arrays.asList("other"));
 			}
-			return new String[] { mimeCategory[0] };
+			return new HashSet<>(Arrays.asList(mimeCategory[0]));
 		}
 		return null;
 	}
 
 
-	private String[] getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
 
 		if (mime == null) {
@@ -160,10 +161,10 @@ public class HandlerCategory implements IndexingItemHandler {
 
 		// Tika struggles to recognize eps files.
 		if ("eps".equals(itemId.getRelPath().getExtension())) {
-			return new String[] { CATEGORY_GRAPHICS_VECTOR }; // Consider returning "graphics-legacy"
+			return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR)); // Consider returning "graphics-legacy"
 		}
 		if ("ai".equals(itemId.getRelPath().getExtension())) {
-			return new String[] { CATEGORY_GRAPHICS_VECTOR };
+			return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR));
 		}
 
 		// TODO: Consider potentially separating "graphics-model" for 3D etc.
@@ -181,18 +182,18 @@ public class HandlerCategory implements IndexingItemHandler {
 				case "tiff":
 				case "jpeg":
 				case "vnd.adobe.photoshop":
-					return new String[] { CATEGORY_GRAPHICS_RASTER };
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_RASTER));
 				case "svg+xml":
-					return new String[] { CATEGORY_GRAPHICS_VECTOR };
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR));
 				default:
-					return new String[] { CATEGORY_GRAPHICS };
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS));
 			}
 		}
 		return null;
 	}
 	
 	
-	private String[] getXmlCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getXmlCategory(CmsItemId itemId, IndexingDoc doc) {
 		
 		if (!itemClassificationXml.isXml(itemId)) {
 			// Adding this condition before checking XML error in order to avoid error from html, svg etc.
@@ -201,23 +202,23 @@ public class HandlerCategory implements IndexingItemHandler {
 		
 		Collection<Object> flags = doc.getFieldValues("flag");
 		if (flags != null && flags.contains(HandlerXml.FLAG_XML_ERROR)) {
-			return new String[] { "error-xml" };
+			return new HashSet<>(Arrays.asList("error-xml"));
 		}
 		if (itemClassificationXml.isXml(itemId)) {
 			// Use a stricter criteria to catch only XML useful for authoring.
 			// Must avoid classifying SVG as xml instead of graphic.
 			if (doc.containsKey(XML_ELEMENT_FIELD)) {
 				String element = (String) doc.getFieldValue(XML_ELEMENT_FIELD);
-				return new String[] { CATEGORY_XML + "-" + element };
+				return new HashSet<>(Arrays.asList(CATEGORY_XML + "-" + element));
 			} else {
-				return new String[] { CATEGORY_XML }; // Fallback, should be very rare if the file is considered well-formed.
+				return new HashSet<>(Arrays.asList(CATEGORY_XML)); // Fallback, should be very rare if the file is considered well-formed.
 			}
 		}
 		return null;
 	}
 
 
-	private String[] getOfficeCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getOfficeCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
 
 		if (mime == null) {
@@ -235,28 +236,28 @@ public class HandlerCategory implements IndexingItemHandler {
 				case "vnd.openxmlformats-officedocument.presentationml.template":
 				case "vnd.openxmlformats-officedocument.presentationml.slideshow":
 				case "vnd.openxmlformats-officedocument.presentationml.presentation":
-					return new String[] { CATEGORY_OFFICE_PRESENTATION };
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_PRESENTATION));
 				case "msword":
 				case "vnd.ms-word.document.macroenabled.12":
 				case "vnd.ms-word.template.macroenabled.12":
 				case "vnd.openxmlformats-officedocument.wordprocessingml.template":
 				case "vnd.openxmlformats-officedocument.wordprocessingml.document":
-					return new String[] { CATEGORY_OFFICE_WORDPROCESSING };
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_WORDPROCESSING));
 				case "vnd.ms-excel":
 				case "vnd.ms-excel.sheet.macroenabled.12":
 				case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
 				case "vnd.openxmlformats-officedocument.spreadsheetml.template":
-					return new String[] { CATEGORY_OFFICE_SPREADSHEEET };
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_SPREADSHEEET));
 				case "x-tika-ooxml":
 				case "x-tika-ooxml-protected":
 				case "x-tika-msoffice-embedded; format=ole10_native":
-					return new String[] { CATEGORY_OFFICE };
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE));
 			}
 		}
 		return null;
 	}
 
-	private String[] getPdfCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getPdfCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
 
 		if (mime == null) {
@@ -270,9 +271,9 @@ public class HandlerCategory implements IndexingItemHandler {
 		if ("application".equals(mimeType) && "pdf".equals(mimeSubtype)) {
 			switch (pages) {
 				case 1:
-					return new String[] { CATEGORY_PDF, CATEGORY_GRAPHICS_VECTOR };
+					return new HashSet<>(Arrays.asList(CATEGORY_PDF, CATEGORY_GRAPHICS_VECTOR));
 				default:
-					return new String[] { CATEGORY_PDF };
+					return new HashSet<>(Arrays.asList(CATEGORY_PDF));
 			}
 		}
 		return null;
