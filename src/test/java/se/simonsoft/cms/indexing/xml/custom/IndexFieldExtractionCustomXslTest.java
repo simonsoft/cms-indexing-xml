@@ -16,7 +16,6 @@
 package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
@@ -32,11 +31,13 @@ import java.util.Map;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.saxon.s9api.Processor;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -51,9 +52,6 @@ import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 public class IndexFieldExtractionCustomXslTest {
 	
@@ -72,9 +70,7 @@ public class IndexFieldExtractionCustomXslTest {
 		sourceReader = (XmlSourceReaderS9api) injector.getInstance(XmlSourceReader.class);
 		transformerServiceFactory = injector.getInstance(TransformerServiceFactory.class);
 		
-		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-				"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
-		tReuse = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
+		tReuse = this.transformerServiceFactory.buildTransformerService("reuse-normalize.xsl");
 	}
 
 	@Test

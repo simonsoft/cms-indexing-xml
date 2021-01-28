@@ -15,7 +15,6 @@
  */
 package se.simonsoft.cms.indexing.xml.fields;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +63,6 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	private ItemContentBufferStrategy contentStrategy;
 	private TransformerServiceFactory transformerServiceFactory;
 
-	InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-			"se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
 	private TransformerService t;
 
 	private Map<String, String> ridChecksums = null;
@@ -81,7 +77,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		
 		this.sourceReader = (XmlSourceReaderS9api) sourceReader;
 		this.transformerServiceFactory = transformerServiceFactory;
-		t = this.transformerServiceFactory.buildTransformerService(new StreamSource(xsl));
+		t = this.transformerServiceFactory.buildTransformerService("reuse-normalize.xsl");
 
 	}
 

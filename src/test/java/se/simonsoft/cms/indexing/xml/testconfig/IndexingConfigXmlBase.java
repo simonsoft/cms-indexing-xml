@@ -47,7 +47,8 @@ public class IndexingConfigXmlBase extends AbstractModule {
 
 		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
 		sourceBinder.addBinding("identity.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/identity.xsl")));
-		sourceBinder.addBinding("source-reuse.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/source-reuse.xsl")));
+		sourceBinder.addBinding("reuse-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl")));
+		sourceBinder.addBinding("itemid-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl")));
 
 		
 		// Set up test config defaults.
