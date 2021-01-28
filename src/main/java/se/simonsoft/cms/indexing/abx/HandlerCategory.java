@@ -51,6 +51,11 @@ public class HandlerCategory implements IndexingItemHandler {
 	private static final String CATEGORY_GRAPHICS = "graphics"; // Consider adding graphics-raster, graphics-vector, graphics-legacy
 
 	private static final String CATEGORY_XML = "xml";
+
+	private static final String CATEGORY_OFFICE = "office";
+	private static final String CATEGORY_OFFICE_WORDPROCESSING = "office-wordprocessing";
+	private static final String CATEGORY_OFFICE_SPREADSHEEET = "office-spreadsheet";
+	private static final String CATEGORY_OFFICE_PRESENTATION = "office-presentation";
 	
 	private static final CmsItemClassification itemClassificationXml = new CmsItemClassificationXml();
 	
@@ -115,23 +120,30 @@ public class HandlerCategory implements IndexingItemHandler {
 			return graphicCategory;
 		}
 		
-		// TODO: Detect Office documents. Likely need a list of mime-types.
+		String officeCategory = getOfficeCategory(itemId, doc);
+		if (officeCategory != null) {
+			return officeCategory;
+		}
 		
 		// Fallback to first component of mime-type. However "application" is not suitable for users.
-		String mimeCategory = getMimeTypeCategory(doc);
+		String[] mimeCategory = getMimeCategory(doc);
 		if (mimeCategory != null) {
-			if ("application".equals(mimeCategory)) {
+			if ("application".equals(mimeCategory[0])) {
 				return "other";
 			}
-			return mimeCategory;
+			return mimeCategory[0];
 		}
 		return null;
 	}
-	
-	
+
+
 	private String getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
-		String mime = getMimeTypeCategory(doc);
-		
+		String[] mime = getMimeCategory(doc);
+
+		if (mime == null) {
+			return null;
+		}
+
 		// Tika struggles to recognize eps files.
 		if ("eps".equals(itemId.getRelPath().getExtension())) {
 			return CATEGORY_GRAPHICS; // Consider returning "graphics-legacy"
@@ -143,7 +155,7 @@ public class HandlerCategory implements IndexingItemHandler {
 		// TODO: Consider separating in "graphics-raster" and "graphics-vector" (potentially "graphics-model" for 3D etc). 
 		// Any supported graphics format that Tika does does not detect as "image/*" ?
 		// We have traditionally used the term "graphics" instead of "image". It is more generic and more suitable for vector.
-		if ("image".equals(mime)) {
+		if ("image".equals(mime[0])) {
 			return CATEGORY_GRAPHICS;
 		}
 		return null;
@@ -173,9 +185,49 @@ public class HandlerCategory implements IndexingItemHandler {
 		}
 		return null;
 	}
-	
-	
-	private String getMimeTypeCategory(IndexingDoc doc) {
+
+
+	private String getOfficeCategory(CmsItemId itemId, IndexingDoc doc) {
+		String[] mime = getMimeCategory(doc);
+
+		if (mime == null) {
+			return null;
+		}
+
+		String mimeType = mime[0];
+		String mimeSubtype = mime[1];
+
+		if ("application".equals(mimeType)) {
+			switch (mimeSubtype) {
+				case "vnd.ms-powerpoint":
+				case "vnd.ms-powerpoint.slideshow.macroenabled.12":
+				case "vnd.ms-powerpoint.presentation.macroenabled.12":
+				case "vnd.openxmlformats-officedocument.presentationml.template":
+				case "vnd.openxmlformats-officedocument.presentationml.slideshow":
+				case "vnd.openxmlformats-officedocument.presentationml.presentation":
+					return CATEGORY_OFFICE_PRESENTATION;
+				case "msword":
+				case "vnd.ms-word.document.macroenabled.12":
+				case "vnd.ms-word.template.macroenabled.12":
+				case "vnd.openxmlformats-officedocument.wordprocessingml.template":
+				case "vnd.openxmlformats-officedocument.wordprocessingml.document":
+					return CATEGORY_OFFICE_WORDPROCESSING;
+				case "vnd.ms-excel":
+				case "vnd.ms-excel.sheet.macroenabled.12":
+				case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+				case "vnd.openxmlformats-officedocument.spreadsheetml.template":
+					return CATEGORY_OFFICE_SPREADSHEEET;
+				case "x-tika-ooxml":
+				case "x-tika-ooxml-protected":
+				case "x-tika-msoffice-embedded; format=ole10_native":
+					return CATEGORY_OFFICE;
+			}
+		}
+		return null;
+	}
+
+
+	private String[] getMimeCategory(IndexingDoc doc) {
 		
 		if (!doc.containsKey(CONTENT_TYPE_FIELD)) {
 			logger.warn("No Content-Type / mime-type extracted for item: {}", doc.getFieldValue("pathfull"));
@@ -188,7 +240,7 @@ public class HandlerCategory implements IndexingItemHandler {
 			logger.warn("Content-Type / mime-type malformed '{}' for item: {}", mime, doc.getFieldValue("pathfull"));
 			return null;
 		}
-		return mimeParts[0];
+		return mimeParts;
 	}
 	
 
