@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,8 +48,14 @@ public class HandlerCategory implements IndexingItemHandler {
 	
 	private static final String CONTENT_TYPE_FIELD = "embd_Content-Type";
 	private static final String XML_ELEMENT_FIELD = "embd_xml_name";
+	private static final String XMPTPG_NPAGES_FIELD = "embd_xmpTPg.NPages";
 	
-	private static final String CATEGORY_GRAPHICS = "graphics"; // Consider adding graphics-raster, graphics-vector, graphics-legacy
+	private static final String CATEGORY_GRAPHICS = "graphics"; // Consider adding graphics-legacy
+	private static final String CATEGORY_GRAPHICS_RASTER = "graphics-raster";
+	private static final String CATEGORY_GRAPHICS_VECTOR = "graphics-vector";
+
+
+	private static final String CATEGORY_PDF = "pdf";
 
 	private static final String CATEGORY_XML = "xml";
 
@@ -92,9 +99,9 @@ public class HandlerCategory implements IndexingItemHandler {
 		CmsItemId itemId = progress.getRepository().getItemId(itemPath, null);
 		
 		IndexingDoc doc = progress.getFields();
-		String value = "unknown";
-		
-		String category = getCategory(itemId, doc);
+		Set<String> value = new HashSet<>(Arrays.asList("unknown"));
+
+		Set<String> category = getCategory(itemId, doc);
 		if (category != null) {
 			value = category;
 		}
@@ -103,24 +110,29 @@ public class HandlerCategory implements IndexingItemHandler {
 	}
 	
 	
-	private String getCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getCategory(CmsItemId itemId, IndexingDoc doc) {
 		
 		String type = (String) doc.getFieldValue("type");
 		if (!"file".equals(type)) {
-			return type;
+			return new HashSet<>(Arrays.asList(type));
 		}
-		
-		String xmlCategory = getXmlCategory(itemId, doc);
+
+		Set<String> xmlCategory = getXmlCategory(itemId, doc);
 		if (xmlCategory != null) {
 			return xmlCategory;
 		}
-		
-		String graphicCategory = getGraphicCategory(itemId, doc);
+
+		Set<String> graphicCategory = getGraphicCategory(itemId, doc);
 		if (graphicCategory != null) {
 			return graphicCategory;
 		}
-		
-		String officeCategory = getOfficeCategory(itemId, doc);
+
+		Set<String> pdfCategory = getPdfCategory(itemId, doc);
+		if (pdfCategory != null) {
+			return pdfCategory;
+		}
+
+		Set<String> officeCategory = getOfficeCategory(itemId, doc);
 		if (officeCategory != null) {
 			return officeCategory;
 		}
@@ -129,40 +141,59 @@ public class HandlerCategory implements IndexingItemHandler {
 		String[] mimeCategory = getMimeCategory(doc);
 		if (mimeCategory != null) {
 			if ("application".equals(mimeCategory[0])) {
-				return "other";
+				return new HashSet<>(Arrays.asList("other"));
 			}
-			return mimeCategory[0];
+			return new HashSet<>(Arrays.asList(mimeCategory[0]));
 		}
 		return null;
 	}
 
 
-	private String getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
 
 		if (mime == null) {
 			return null;
 		}
 
+		String mimeType = mime[0];
+		String mimeSubtype = mime[1];
+
 		// Tika struggles to recognize eps files.
 		if ("eps".equals(itemId.getRelPath().getExtension())) {
-			return CATEGORY_GRAPHICS; // Consider returning "graphics-legacy"
+			return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR)); // Consider returning "graphics-legacy"
 		}
 		if ("ai".equals(itemId.getRelPath().getExtension())) {
-			return CATEGORY_GRAPHICS;
+			return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR));
 		}
-		
-		// TODO: Consider separating in "graphics-raster" and "graphics-vector" (potentially "graphics-model" for 3D etc). 
+
+		// TODO: Consider potentially separating "graphics-model" for 3D etc.
 		// Any supported graphics format that Tika does does not detect as "image/*" ?
 		// We have traditionally used the term "graphics" instead of "image". It is more generic and more suitable for vector.
-		if ("image".equals(mime[0])) {
-			return CATEGORY_GRAPHICS;
+		if ("image".equals(mimeType)) {
+			switch (mimeSubtype) {
+				case "x-ms-bmp":
+				case "png":
+				case "x-icon":
+				case "vnd.wap.wbmp":
+				case "gif":
+				case "bmp":
+				case "x-xcf":
+				case "tiff":
+				case "jpeg":
+				case "vnd.adobe.photoshop":
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_RASTER));
+				case "svg+xml":
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS_VECTOR));
+				default:
+					return new HashSet<>(Arrays.asList(CATEGORY_GRAPHICS));
+			}
 		}
 		return null;
 	}
 	
 	
-	private String getXmlCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getXmlCategory(CmsItemId itemId, IndexingDoc doc) {
 		
 		if (!itemClassificationXml.isXml(itemId)) {
 			// Adding this condition before checking XML error in order to avoid error from html, svg etc.
@@ -171,23 +202,23 @@ public class HandlerCategory implements IndexingItemHandler {
 		
 		Collection<Object> flags = doc.getFieldValues("flag");
 		if (flags != null && flags.contains(HandlerXml.FLAG_XML_ERROR)) {
-			return "error-xml";
+			return new HashSet<>(Arrays.asList("error-xml"));
 		}
 		if (itemClassificationXml.isXml(itemId)) {
 			// Use a stricter criteria to catch only XML useful for authoring.
 			// Must avoid classifying SVG as xml instead of graphic.
 			if (doc.containsKey(XML_ELEMENT_FIELD)) {
 				String element = (String) doc.getFieldValue(XML_ELEMENT_FIELD);
-				return CATEGORY_XML + "-" + element;
+				return new HashSet<>(Arrays.asList(CATEGORY_XML + "-" + element));
 			} else {
-				return CATEGORY_XML; // Fallback, should be very rare if the file is considered well-formed.
+				return new HashSet<>(Arrays.asList(CATEGORY_XML)); // Fallback, should be very rare if the file is considered well-formed.
 			}
 		}
 		return null;
 	}
 
 
-	private String getOfficeCategory(CmsItemId itemId, IndexingDoc doc) {
+	private Set<String> getOfficeCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
 
 		if (mime == null) {
@@ -205,27 +236,48 @@ public class HandlerCategory implements IndexingItemHandler {
 				case "vnd.openxmlformats-officedocument.presentationml.template":
 				case "vnd.openxmlformats-officedocument.presentationml.slideshow":
 				case "vnd.openxmlformats-officedocument.presentationml.presentation":
-					return CATEGORY_OFFICE_PRESENTATION;
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_PRESENTATION));
 				case "msword":
 				case "vnd.ms-word.document.macroenabled.12":
 				case "vnd.ms-word.template.macroenabled.12":
 				case "vnd.openxmlformats-officedocument.wordprocessingml.template":
 				case "vnd.openxmlformats-officedocument.wordprocessingml.document":
-					return CATEGORY_OFFICE_WORDPROCESSING;
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_WORDPROCESSING));
 				case "vnd.ms-excel":
 				case "vnd.ms-excel.sheet.macroenabled.12":
 				case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
 				case "vnd.openxmlformats-officedocument.spreadsheetml.template":
-					return CATEGORY_OFFICE_SPREADSHEEET;
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE_SPREADSHEEET));
 				case "x-tika-ooxml":
 				case "x-tika-ooxml-protected":
 				case "x-tika-msoffice-embedded; format=ole10_native":
-					return CATEGORY_OFFICE;
+					return new HashSet<>(Arrays.asList(CATEGORY_OFFICE));
 			}
 		}
 		return null;
 	}
 
+	private Set<String> getPdfCategory(CmsItemId itemId, IndexingDoc doc) {
+		String[] mime = getMimeCategory(doc);
+
+		if (mime == null) {
+			return null;
+		}
+
+		int pages = getPages(doc);
+		String mimeType = mime[0];
+		String mimeSubtype = mime[1];
+
+		if ("application".equals(mimeType) && "pdf".equals(mimeSubtype)) {
+			switch (pages) {
+				case 1:
+					return new HashSet<>(Arrays.asList(CATEGORY_PDF, CATEGORY_GRAPHICS_VECTOR));
+				default:
+					return new HashSet<>(Arrays.asList(CATEGORY_PDF));
+			}
+		}
+		return null;
+	}
 
 	private String[] getMimeCategory(IndexingDoc doc) {
 		
@@ -241,6 +293,15 @@ public class HandlerCategory implements IndexingItemHandler {
 			return null;
 		}
 		return mimeParts;
+	}
+
+	private int getPages(IndexingDoc doc) {
+
+		if (!doc.containsKey(XMPTPG_NPAGES_FIELD)) {
+			return 0;
+		}
+
+		return Integer.parseInt((String) doc.getFieldValue(XMPTPG_NPAGES_FIELD));
 	}
 	
 
