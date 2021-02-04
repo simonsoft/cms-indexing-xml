@@ -123,6 +123,7 @@ public class HandlerXml implements IndexingItemHandler {
 				} else if (c.getFilesize() == 0) {
 					logger.info("Deferring XML extraction when file is empty: {}", c);
 				} else {
+					boolean expunge = true;
 					indexWriter.deletePath(progress.getRepository(), c);
 					
 					// Determine if the XML file is too large.
@@ -130,13 +131,16 @@ public class HandlerXml implements IndexingItemHandler {
 						String msg = MessageFormatter.format("Deferring XML extraction when file size {} gt {}: " + c, c.getFilesize(), maxFilesize).getMessage();
 						throw new IndexingHandlerException(msg);
 					}
+					if (maxFilesize != null && (2*c.getFilesize()) < maxFilesize) {
+						// Expunge only if the file is larger than half of maxFilesize (reposxml).
+						expunge = false;
+					}
 					
 					try {
 						index(progress);
 						// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
 						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
 						// TODO: Consider removing this per-item commit if reposxml size is significantly smaller after refactoring Translations into one SolR doc.
-						boolean expunge = true;
 						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
 						this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).
 					} catch (IndexingHandlerException ex) {
