@@ -131,7 +131,7 @@ public class HandlerXml implements IndexingItemHandler {
 						String msg = MessageFormatter.format("Deferring XML extraction when file size {} gt {}: " + c, c.getFilesize(), maxFilesize).getMessage();
 						throw new IndexingHandlerException(msg);
 					}
-					if (maxFilesize != null && (2*c.getFilesize()) < maxFilesize) {
+					if (c.isAdd() || (maxFilesize != null && (2*c.getFilesize()) < maxFilesize)) {
 						// Expunge only if the file is larger than half of maxFilesize (reposxml).
 						expunge = false;
 					}
