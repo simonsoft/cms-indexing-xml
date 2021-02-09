@@ -79,7 +79,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("pos", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
@@ -102,18 +102,25 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("null since item is not a translation", null, flagged.get(0).getFieldValue("count_reposxml_depth"));
 
 		// Reposxml
-		assertEquals("Should index all elements", 4, reposxml.query(new SolrQuery("*:*")).getResults().size());
+		assertEquals("Should index all elements", 4, x1.size());
 		
-		assertEquals("document/root element name", "doc", x1.get(3).getFieldValue("name"));
-		assertEquals("word count identical to repositem (document element)", 3L, x1.get(3).getFieldValue("count_words_text"));
-		assertEquals("word count translate", 3L, x1.get(3).getFieldValue("count_words_translate"));
+		assertEquals("document/root element name", "doc", x1.get(0).getFieldValue("name"));
+		assertEquals("element pos", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("word count identical to repositem (document element)", 3L, x1.get(0).getFieldValue("count_words_text"));
+		assertEquals("word count translate", 3L, x1.get(0).getFieldValue("count_words_translate"));
+		assertEquals("word count child (immediate text)", 0L, x1.get(0).getFieldValue("count_words_child"));
+		
+		assertEquals("document/root element name", "elem", x1.get(2).getFieldValue("name"));
+		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("pos"));
+		assertEquals("word count", 2L, x1.get(2).getFieldValue("count_words_text"));
+		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
 		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
 		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
 		
-		assertEquals("should extract source", "<elem>text</elem>", x1.get(0).getFieldValue("source"));
+		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source"));
 	}
 
 	@Test

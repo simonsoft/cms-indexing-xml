@@ -60,6 +60,8 @@
 		<xsl:variable name="text" select="for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])] return tokenize(normalize-space($elemtext), $whitespace)"/>
 		<!-- Text that should be / has been translated.  -->
 		<xsl:variable name="text_translate" select="for $elemtext in descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])][not(ancestor::*[@cms:tsuppress[not(. = 'no')]])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+		<!-- Text immediate child nodes. -->
+		<xsl:variable name="text_child" select="for $elemtext in child::text() return tokenize(normalize-space($elemtext), $whitespace)"/>
 		
 	
 		<!-- See comments below. -->
@@ -79,6 +81,7 @@
 			<!-- Word count is simple when each word is a text node. -->
 			<field name="count_words_text"><xsl:value-of select="count($text)"/></field>
 			<field name="count_words_translate"><xsl:value-of select="count($text_translate)"/></field>
+			<field name="count_words_child"><xsl:value-of select="count($text_child)"/></field>
 			
 			<field name="source_reuse">
 				<xsl:apply-templates select="." mode="source-reuse-root"/>
