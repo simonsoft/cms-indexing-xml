@@ -117,6 +117,9 @@
 	
 			<!-- Introduction to to text - first couple of paragraphs. -->
 			<xsl:if test="count($text) > 0">
+				<xsl:variable name="shortdesc">
+					<xsl:apply-templates select="/*/shortdesc" mode="intro"/>
+				</xsl:variable>
 				<xsl:variable name="para1">
 					<xsl:apply-templates select="($paras)[1]" mode="intro"/>
 				</xsl:variable>
@@ -124,6 +127,10 @@
 					<xsl:apply-templates select="($paras)[2]" mode="intro"/>
 				</xsl:variable>
 				<xsl:choose>
+					<xsl:when test="string-length($shortdesc) > 10">
+						<!-- Use the DITA shortdesc if any reasonable text in there. -->
+						<field name="embd_xml_intro"><xsl:value-of select="normalize-space($shortdesc)"/></field>
+					</xsl:when>
 					<xsl:when test="string-length($para1) > 200">
 						<field name="embd_xml_intro"><xsl:value-of select="normalize-space($para1)"/></field>
 					</xsl:when>
