@@ -168,6 +168,12 @@
 			<!-- Reference attributes with fragment should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
 			
+			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
+			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
+			<!-- Let the DITA hierachy within prolog define most of the depth below embd_xml_meta_* -->
+			<field name="embd_xml_meta_product">
+				<xsl:apply-templates select="/*/techdocinfo/product | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
+			</field>
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
@@ -508,6 +514,22 @@
 				<xsl:value-of select="concat('[', @linkend ,']')"/>
 			</xsl:otherwise>
 		</xsl:choose>
+	</xsl:template>
+	
+	<!-- Tentative approach for managing metadata. Likely need a multiValued field instead. -->
+	<xsl:template match="element()" mode="meta">
+		<xsl:apply-templates select="element()|text()" mode="meta-child"/>
+		<!-- Space as separator for now, likely need way of delivering multiple values to a field. -->
+		<xsl:value-of select="' '"/>
+	</xsl:template>
+	
+	<xsl:template match="element()" mode="meta-child">
+		<!-- Likely inline elements which should not produce a space. -->
+		<xsl:apply-templates select="element()|text()" mode="#current"/>
+	</xsl:template>
+	
+	<xsl:template match="text()" mode="meta-child">
+		<xsl:copy/>
 	</xsl:template>
 	
 	
