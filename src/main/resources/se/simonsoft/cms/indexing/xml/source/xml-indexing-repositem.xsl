@@ -521,8 +521,7 @@
 		<!-- keyword elements are not inlines in this context, individual terms -->
 		<xsl:apply-templates select="keyword" mode="meta"/>
 		<!-- other elements considered inline at this time, needs more analysis -->
-		<xsl:apply-templates select="element() except keyword" mode="meta-child"/>
-		<xsl:apply-templates select="text()" mode="meta-child"/>
+		<xsl:apply-templates select="(element() | text()) except keyword" mode="meta-child"/>
 		<!-- Space as separator for now, likely need way of delivering multiple values to a field. -->
 		<xsl:value-of select="' '"/>
 	</xsl:template>
