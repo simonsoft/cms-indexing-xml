@@ -15,7 +15,9 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -52,6 +54,8 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 	
 	private static final String CATEGORY_DEPENDENCY = "dependency";
 	
+	private static final List<String> CATEGORIES_INCLUDE = Arrays.asList("include", "topicref", "conref");
+	
 	/**
 	 * @param idStrategy to fill the refid field
 	 */
@@ -87,6 +91,16 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				if (referenceName.equals(CATEGORY_DEPENDENCY)) {
 					dependencyIds = ids;
 				}
+				// #1355: Detect rev-locked include, add flag "hasreferencerevisionxml".
+				if (CATEGORIES_INCLUDE.contains(referenceName)) {
+					for (CmsItemId id: ids) {
+						if (id.getPegRev() != null) {
+							logger.info("Rev-locked include: {}", id);
+							fields.addField("flag", "hasreferencerevisionxml");
+							break;
+						}
+					}
+				}
 			} catch (Exception e) {
 				logger.warn("Failed to parse {}: {}", referenceName, e.getMessage(), e);
 				throw new IndexingHandlerException("Failed to parse " + referenceName + ": " + e.getMessage(), e);
@@ -96,6 +110,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		// Add the output of the full dependency list (deduplicated) to refid, the generic field.
 		handleCmsItemIds(fields, "refid", dependencyIds);
 		handleFolders(fields, "ref_pathparents", dependencyIds);
+		
 	}
 	
 
