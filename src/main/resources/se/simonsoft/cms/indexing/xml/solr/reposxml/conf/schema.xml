@@ -78,17 +78,6 @@
 		Map Release Checksums to RIDs (with reusevalue > 0).
 		-->
 		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="false" />
-		<!-- 
-		Indicate if element requires translation. Typically dependent on the schema/DTD.
-		Experimental use when determining if pretranslate was "complete".
-		-->
-		<field name="reuserequired" type="boolean" indexed="true" stored="true" multiValued="false" />
-		<!--
-		Simplify joins, can be stored=false in production
-		TODO: Remove, not used in released algorithm. 
-		-->
-		<field name="reusevaluelocale" type="string" indexed="true" stored="false" multiValued="false" />
-		<field name="reuserelease" type="string" indexed="true" stored="false" multiValued="false" />
 
 		<!--
 		Checksums of any field or of contents that are not indexed
