@@ -248,11 +248,10 @@
 	<types>	
 		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
 		
-		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"
+		<fieldType name="int" class="solr.IntPointField" docValues="true" omitNorms="true" positionIncrementGap="0"
 			sortMissingLast="false"/><!-- sort missing first to get root and first siblings first -->
-		<!-- Trie fields are deprecated in Solr 7. Use LongPointField. -->
-		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0" />
-		<fieldType name="date" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
+		<fieldType name="long" class="solr.LongPointField" docValues="true" positionIncrementGap="0"/>
+		<fieldType name="date" class="solr.DatePointField" docValues="true" positionIncrementGap="0"/>
 		<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
 
 		<!-- (solr example field) -->
