@@ -17,16 +17,14 @@
 
 -->
 <config>
-  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
+  <luceneMatchVersion>6.6.6</luceneMatchVersion>
   <!--  The DirectoryFactory to use for indexes.
         solr.StandardDirectoryFactory, the default, is filesystem based.
         solr.RAMDirectoryFactory is memory based, not persistent, and doesn't work with replication. -->
   <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
 
-  <!-- Likely need to add ClassicIndexSchemaFactory when upgrading luceneMatchVersion to 6.0. -->
-  <!-- 
+  <!-- ClassicIndexSchemaFactory requires the use of a schema.xml configuration file, and disallows any programatic changes to the Schema at run time. -->
   <schemaFactory class="ClassicIndexSchemaFactory"/>
-  -->
 
   <dataDir>${solr.reposxml.data.dir:}</dataDir>
 
@@ -57,15 +55,7 @@
   <!-- AdminHandlers not present in SolR 6 
   <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
   -->
-     
-  <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
-    <lst name="invariants">
-      <str name="q">solrpingquery</str>
-    </lst>
-    <lst name="defaults">
-      <str name="echoParams">all</str>
-    </lst>
-  </requestHandler>
+
    
   <!-- config for the admin interface --> 
   <admin>
