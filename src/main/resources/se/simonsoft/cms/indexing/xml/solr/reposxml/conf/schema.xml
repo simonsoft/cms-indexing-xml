@@ -49,6 +49,7 @@
 		<dynamicField name="prop_*" type="string" indexed="true" stored="true" multiValued="false"/>
 		
 		<!-- classifies item as belonging to 1+ areas of the file hierarchy, such as "trunk"/"branch"/"tag"/"release"/"translation"/"template" -->
+		<!-- consider adding docValues="true" on patharea and pathmain (added in repositem). -->
 		<field name="patharea" type="string" indexed="true" stored="true" multiValued="true" />
 		<!-- identifies the "main" area, i.e. main branch, i.e trunk with the purpose of filtering out endless amount of copies, but does not recognize if copies have changed or not -->
 		<field name="pathmain" type="boolean" indexed="true" stored="true" multiValued="false" />		
