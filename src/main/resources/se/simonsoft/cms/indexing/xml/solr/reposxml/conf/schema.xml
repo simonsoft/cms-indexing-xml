@@ -80,6 +80,14 @@
 		-->
 		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="false" />
 
+		<!-- 
+		Fields used for sorting in Pretranslate, copyfield in order to control the storage/performance. 
+		-->
+		<field name="reuseriddocument" docValues="true" type="string" indexed="true" stored="false" multiValued="false"/>	
+		<field name="reuseridelement" docValues="true" type="string" indexed="true" stored="false" multiValued="false"/>	
+		<copyField source="prop_abx.ReleaseId" dest="reuseriddocument"/>
+		<copyField source="a_cms.rid" dest="reuseridelement"/>
+
 		<!--
 		Checksums of any field or of contents that are not indexed
 		-->
