@@ -49,6 +49,7 @@
 		<dynamicField name="prop_*" type="string" indexed="true" stored="true" multiValued="false"/>
 		
 		<!-- classifies item as belonging to 1+ areas of the file hierarchy, such as "trunk"/"branch"/"tag"/"release"/"translation"/"template" -->
+		<!-- consider adding docValues="true" on patharea and pathmain (added in repositem). -->
 		<field name="patharea" type="string" indexed="true" stored="true" multiValued="true" />
 		<!-- identifies the "main" area, i.e. main branch, i.e trunk with the purpose of filtering out endless amount of copies, but does not recognize if copies have changed or not -->
 		<field name="pathmain" type="boolean" indexed="true" stored="true" multiValued="false" />		
@@ -78,17 +79,14 @@
 		Map Release Checksums to RIDs (with reusevalue > 0).
 		-->
 		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="false" />
+
 		<!-- 
-		Indicate if element requires translation. Typically dependent on the schema/DTD.
-		Experimental use when determining if pretranslate was "complete".
+		Fields used for sorting in Pretranslate, copyfield in order to control the storage/performance. 
 		-->
-		<field name="reuserequired" type="boolean" indexed="true" stored="true" multiValued="false" />
-		<!--
-		Simplify joins, can be stored=false in production
-		TODO: Remove, not used in released algorithm. 
-		-->
-		<field name="reusevaluelocale" type="string" indexed="true" stored="false" multiValued="false" />
-		<field name="reuserelease" type="string" indexed="true" stored="false" multiValued="false" />
+		<field name="reuseriddocument" docValues="true" type="string" indexed="true" stored="false" multiValued="false"/>	
+		<field name="reuseridelement" docValues="true" type="string" indexed="true" stored="false" multiValued="false"/>	
+		<copyField source="prop_abx.ReleaseId" dest="reuseriddocument"/>
+		<copyField source="a_cms.rid" dest="reuseridelement"/>
 
 		<!--
 		Checksums of any field or of contents that are not indexed
@@ -248,11 +246,10 @@
 	<types>	
 		<fieldtype name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true" />
 		
-		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"
+		<fieldType name="int" class="solr.IntPointField" docValues="true" omitNorms="true" positionIncrementGap="0"
 			sortMissingLast="false"/><!-- sort missing first to get root and first siblings first -->
-		<!-- Trie fields are deprecated in Solr 7. Use LongPointField. -->
-		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0" />
-		<fieldType name="date" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
+		<fieldType name="long" class="solr.LongPointField" docValues="true" positionIncrementGap="0"/>
+		<fieldType name="date" class="solr.DatePointField" docValues="true" positionIncrementGap="0"/>
 		<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
 
 		<!-- (solr example field) -->
@@ -270,7 +267,7 @@
 				<tokenizer class="solr.StandardTokenizerFactory" />
 				<filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
 				<!-- CMS idea: maybe we can store synonyms, or even better that a phrase replaces other phrases, in indexed XML somewhere -->
-				<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
+				<!-- <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />  -->
 				<filter class="solr.LowerCaseFilterFactory" />
 			</analyzer>
 		</fieldType>
