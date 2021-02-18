@@ -82,7 +82,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		}
 		
 		Set<CmsItemId> dependencyIds = null;
-		String[] referenceCategories = {CATEGORY_DEPENDENCY, "keydefmap", "graphic", "include", "topicref", "xref", "conref"};
+		String[] referenceCategories = {CATEGORY_DEPENDENCY, "keydefmap", "graphic", "graphictranslated", "include", "topicref", "xref", "conref"};
 		
 		for (String referenceName : referenceCategories) {
 			try {
@@ -91,6 +91,14 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				if (referenceName.equals(CATEGORY_DEPENDENCY)) {
 					dependencyIds = ids;
 				}
+				
+				// #1329: Extract translated graphics and set a flag if there are any.
+				if (referenceName.equals("graphictranslated")) {
+					if (!ids.isEmpty()) {
+						fields.addField("flag", "hasgraphictranslated");
+					}
+				}
+				
 				// #1355: Detect rev-locked include, add flag "hasreferencerevisionxml".
 				if (CATEGORIES_INCLUDE.contains(referenceName)) {
 					for (CmsItemId id: ids) {

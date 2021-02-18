@@ -411,6 +411,7 @@
 			<field name="ref_itemid_include"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
 			<!-- Extract graphics dependencies. -->
 			<field name="ref_itemid_graphic"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
+			<field name="ref_itemid_graphictranslated"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][@xml:lang][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
 			
 			<!-- Extract DITA conref dependencies. -->
 			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
