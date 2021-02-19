@@ -49,6 +49,8 @@ import se.simonsoft.cms.indexing.xml.solr.SolrCoreSetup.Core;
  *  - http://stackoverflow.com/questions/5509082/eclipse-enable-assertions
  *  - http://maven.apache.org/plugins/maven-surefire-plugin/test-mojo.html#enableAssertions
  *  - Eclipse > Preferences > Java > Junit > Append -ea to JVM arguments ...
+ * Likely also needed since SolR 8:
+ *    -Dtest.solr.allowed.securerandom=NativePRNG
  */
 public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 
