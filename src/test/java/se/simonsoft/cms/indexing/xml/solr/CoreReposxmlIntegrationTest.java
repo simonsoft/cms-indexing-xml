@@ -56,6 +56,8 @@ public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 
 	@BeforeClass
 	public static void beforeTests() throws Exception {
+		System.out.println("SolrTestCaseJ4: Java version: " + System.getProperty("java.version"));
+		System.out.println("SolrTestCaseJ4: SolR allowed: " + System.getProperty("test.solr.allowed.securerandom"));
 		testhome = File.createTempFile("test", CoreReposxmlIntegrationTest.getClassName());
 		Core core = new SolrCoreSetup(testhome).getCore("reposxml");
 		try {
