@@ -203,13 +203,16 @@
 					<field name="{$fieldname}"><xsl:value-of select="sum($root/descendant-or-self::*[@cms:tstatus=$status]/@cms:twords) - sum($root/descendant-or-self::*[@cms:tstatus=$status]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each>
 				
-
-				<xsl:for-each-group select="//*[@cms:tlogicalid]" group-by="@cms:tlogicalid">
+				<!-- Each source of pretranslate, key on trid-prefix for each tlogicalid. -->
+				<xsl:for-each-group select="//*[@cms:trid]" group-by="cmsfn:get-rid-prefix(@cms:trid)">
 					<!-- Each source of pretranslate, key on trid-prefix for each tlogicalid. -->
-					<xsl:variable name="trid-prefix" select="cmsfn:get-rid-prefix(current-group()[1]/@cms:trid)"/>
+					<xsl:variable name="trid-prefix" select="current-grouping-key()"/>
+					<!-- The tlogicalid, should be a single value. Getting first one to avoid failure due to broken data. -->
+					<xsl:variable name="tlogicalid" select="current-group()[1]/@cms:tlogicalid"/>
+					
 					
 					<!-- The tlogicalid, non-processed by indexing. -->
-					<field name="embd_xml_trid_tlogicalid_{$trid-prefix}"><xsl:value-of select="current-grouping-key()"/></field>
+					<field name="embd_xml_trid_tlogicalid_{$trid-prefix}"><xsl:value-of select="$tlogicalid"/></field>
 					
 					<!-- A tlogicalid can only have a single tstatus value. -->
 					<field name="embd_xml_trid_tstatus_{$trid-prefix}"><xsl:value-of select="current-group()[1]/@cms:tstatus"/></field>
@@ -228,7 +231,7 @@
 					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(current-group()/@cms:twords)"/></field>
 					-->
 					<!-- Sum word count twords for each tlogicalid source and subtract underlying Pretranstions, applies to tstatus!=Released (In_Progress). -->
-					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(//*[@cms:tlogicalid=current-grouping-key()]/@cms:twords) - sum(//*[@cms:tlogicalid=current-grouping-key()]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
+					<field name="count_trid_twords_{$trid-prefix}"><xsl:value-of select="sum(//*[@cms:tlogicalid=$tlogicalid]/@cms:twords) - sum(//*[@cms:tlogicalid=$tlogicalid]/descendant::*[@cms:tstatus]/@cms:twords)"/></field>
 				</xsl:for-each-group>
 				
 			</xsl:if>
