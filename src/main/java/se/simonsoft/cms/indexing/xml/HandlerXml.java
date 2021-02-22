@@ -206,7 +206,7 @@ public class HandlerXml implements IndexingItemHandler {
 		boolean indexReposxml = true;
 		CmsChangesetItem c = progress.getItem();
 		if (c.isOverwritten()) {
-			logger.debug("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
+			logger.info("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
 			indexReposxml = false;
 		}
 		// Don't index in reposxml if Finalized before configured timestamp (RID).
