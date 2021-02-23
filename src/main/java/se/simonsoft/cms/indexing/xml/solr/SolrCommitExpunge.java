@@ -33,7 +33,7 @@ public class SolrCommitExpunge extends SolrOp<UpdateResponse> {
 	private boolean expungeDeletes;
 	private boolean retryAllowed;
 	
-	private static final Logger logger = LoggerFactory.getLogger(SolrCommit.class);
+	private static final Logger logger = LoggerFactory.getLogger(SolrCommitExpunge.class);
 	
 	public SolrCommitExpunge(SolrClient core, boolean expungeDeletes, boolean retryAllowed) {
 		super(core);
