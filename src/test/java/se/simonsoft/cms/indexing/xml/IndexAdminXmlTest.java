@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.junit.Test;
 
 import se.repos.indexing.IndexAdmin;
@@ -36,6 +37,11 @@ public class IndexAdminXmlTest {
 		CmsRepository repository = mock(CmsRepository.class);
 		IdStrategy idStrategy = mock(IdStrategy.class);
 		when(idStrategy.getIdRepository(repository)).thenReturn("the/re\"po/id");
+		
+		UpdateResponse response = new UpdateResponse();
+		response.setElapsedTime(10);
+		when(reposxml.deleteByQuery(any())).thenReturn(response);
+		when(reposxml.commit()).thenReturn(response);
 		
 		IndexAdminXml admin = new IndexAdminXml(repository, idStrategy, reposxml);
 		admin.setIndexAdminCentral(central);
