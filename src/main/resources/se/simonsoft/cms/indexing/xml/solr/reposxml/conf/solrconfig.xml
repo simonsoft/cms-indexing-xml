@@ -38,7 +38,7 @@
   	  <maxDocs>10000</maxDocs>
        -->
   	  <maxTime>60000</maxTime>
-  	  <!-- Transaction log size likely better measurement than maxDocs. -->
+  	  <!-- Transaction log size likely better measurement than maxDocs (reposxml). -->
   	  <maxSize>200m</maxSize>
   	  <!-- This autoCommit is only for persistence. -->
       <openSearcher>false</openSearcher>
