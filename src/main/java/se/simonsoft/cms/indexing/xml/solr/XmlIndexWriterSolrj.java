@@ -94,6 +94,10 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	@Override
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
+		// reposxml generates an unknown number of docs per cmsitem (at least for Release / Assist). Can not be deleted by a single ID.
+		
+		// DeleteByQuery turns out to be a significant performance issue, potentially more so in SolR 8 than SolR 4.
+		// https://www.od-bits.com/2018/03/dbq-or-delete-by-query.html
 		String pathfull = repository.getPath() + c.getPath().toString();
 		String query = "pathfull:"+ quote(pathfull);
 		logger.debug("Deleting previous revision of {} using query {}", c, query);
