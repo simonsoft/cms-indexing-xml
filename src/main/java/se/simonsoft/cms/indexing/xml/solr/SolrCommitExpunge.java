@@ -47,7 +47,9 @@ public class SolrCommitExpunge extends SolrOp<UpdateResponse> {
 		
 		// Workaround for Solrj not exposing 'expungeDeletes' in commit().
 		AbstractUpdateRequest req = new UpdateRequest().setAction(UpdateRequest.ACTION.COMMIT, true, true, 0, false, expungeDeletes);
-		return req.process(core);
+		UpdateResponse response = req.process(core);
+		doLogSlowQuery(core, "commit (expungeDeletes=" + expungeDeletes + ")", "-", response);
+		return response;
 	}
 	
 	@Override
