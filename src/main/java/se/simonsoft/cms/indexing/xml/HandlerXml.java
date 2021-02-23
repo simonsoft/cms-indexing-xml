@@ -15,7 +15,9 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -46,6 +48,7 @@ public class HandlerXml implements IndexingItemHandler {
 	public static final String FLAG_XML = "hasxml";
 	public static final String FLAG_XML_REPOSITEM = "hasxmlrepositem";
 	public static final String FLAG_XML_ERROR = "hasxmlerror";
+	public static final String FLAG_XML_COMMIT = "hasxmlcommit"; // Indicate the need to commit reposxml schema.
 	
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -122,9 +125,16 @@ public class HandlerXml implements IndexingItemHandler {
 					this.commitWithRetry(expunge); // Best effort with retry.
 				} else if (c.getFilesize() == 0) {
 					logger.info("Deferring XML extraction when file is empty: {}", c);
+					if (!c.isAdd()) {
+						// Rare situation: iterating an empty file or making it empty.
+						indexWriter.deletePath(progress.getRepository(), c);
+						this.commitWithRetry(true); // Best effort with retry.
+					}
 				} else {
 					boolean expunge = true;
-					indexWriter.deletePath(progress.getRepository(), c);
+					if (!c.isAdd()) {
+						indexWriter.deletePath(progress.getRepository(), c);
+					}
 					
 					// Determine if the XML file is too large.
 					if (maxFilesize != null && c.getFilesize() > maxFilesize) {
@@ -141,8 +151,15 @@ public class HandlerXml implements IndexingItemHandler {
 						// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
 						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
 						// TODO: Consider removing this per-item commit if reposxml size is significantly smaller after refactoring Translations into one SolR doc.
-						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
-						this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).
+
+						Collection<Object> flags = progress.getFields().getFieldValues("flag");
+						if (flags.contains(FLAG_XML_COMMIT)) {
+							// Commit reposxml only if extraction has flagged the need to commit.
+							// Can be moved to a Marker implementation if changing to per-revision reposxml commit.							
+							logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
+							this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).
+						}
+						
 					} catch (IndexingHandlerException ex) {
 						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
@@ -207,6 +224,7 @@ public class HandlerXml implements IndexingItemHandler {
 		CmsChangesetItem c = progress.getItem();
 		if (c.isOverwritten()) {
 			logger.info("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
+			// Not requesting commit, during reindex there will be nothing to delete.
 			indexReposxml = false;
 		}
 		// Don't index in reposxml if Finalized before configured timestamp (RID).
@@ -224,12 +242,16 @@ public class HandlerXml implements IndexingItemHandler {
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Obsolete".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Obsolete' item: {}", progress.getItem());
 			indexReposxml = false;
+			// Important to flag commit in order to delete the content that was made Obsolete.
+			progress.getFields().addField("flag", FLAG_XML_COMMIT);
 		}
 		// Don't index "Pending_Pretranslate" in reposxml.
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Pending_Pretranslate".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Pending_Pretranslate' item: {}", progress.getItem());
+			// Not requesting commit, this was likely an add (nothing to delete) alternatively some experiment (soon next commit anyway).
 			indexReposxml = false;
 		}
+		// TODO: Don't index "Pending_Pretranslate_Analysis" in reposxml, only need the repositem content.
 		
 
 		XmlIndexAddSession docHandler = indexWriter.get();
@@ -249,6 +271,7 @@ public class HandlerXml implements IndexingItemHandler {
 				sourceReader.handle(xmlDoc, sourceHandler);
 				// success, flag this
 				progress.getFields().addField("flag", FLAG_XML);
+				progress.getFields().addField("flag", FLAG_XML_COMMIT);
 			}
 		} catch (XmlNotWellFormedException e) { 
 			// failure, flag with error
