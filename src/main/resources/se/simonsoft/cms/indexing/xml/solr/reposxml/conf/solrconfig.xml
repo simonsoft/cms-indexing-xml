@@ -32,6 +32,23 @@
     <updateLog>
       <str name="dir">${solr.reposxml.data.dir:}</str>
     </updateLog>
+    <!-- Add automatic hard commit in order to allow transition towards soft commit from indexing (or only commitWithin).  -->
+    <autoCommit>
+      <!-- 
+  	  <maxDocs>10000</maxDocs>
+       -->
+  	  <maxTime>60000</maxTime>
+  	  <!-- Transaction log size likely better measurement than maxDocs. -->
+  	  <maxSize>200m</maxSize>
+  	  <!-- This autoCommit is only for persistence. -->
+      <openSearcher>false</openSearcher>
+    </autoCommit>
+    <!-- TODO: Consider adding autoSoftCommit as well. However, it might make more sense to use commitWithin from indexing. -->
+    <!-- 
+    <autoSoftCommit>
+      <maxTime>20000</maxTime>
+    </autoSoftCommit>
+     -->
   </updateHandler>
 
   <!-- realtime get handler, guaranteed to return the latest stored fields 
