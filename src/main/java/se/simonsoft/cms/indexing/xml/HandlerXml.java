@@ -17,7 +17,6 @@ package se.simonsoft.cms.indexing.xml;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -251,7 +250,14 @@ public class HandlerXml implements IndexingItemHandler {
 			// Not requesting commit, this was likely an add (nothing to delete) alternatively some experiment (soon next commit anyway).
 			indexReposxml = false;
 		}
-		// TODO: Don't index "Pending_Pretranslate_Analysis" in reposxml, only need the repositem content.
+		// Don't index "Pending_Pretranslate_Analysis" in reposxml, only need the repositem content for Analysis.
+		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Pending_Pretranslate_Analysis".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
+			logger.info("Suppressing reposxml indexing of 'Pending_Pretranslate' item: {}", progress.getItem());
+			// Not requesting commit, this will always be followed by another commit.
+			// Might be important to commit the delete when re-Pretranslating but committing each of 20 Translations can be 1min.
+			// Must ensure the stability of the Analysis event handler so some status transition is always committed.
+			indexReposxml = false;
+		}
 		
 
 		XmlIndexAddSession docHandler = indexWriter.get();
