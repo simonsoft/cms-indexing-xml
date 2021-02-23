@@ -52,7 +52,7 @@ public class IndexAdminXml extends IndexAdminNotification implements IndexAdmin 
 	public void clear() {
 		logger.info("Clearing xml using query {} in {}", query, reposxml);
 		new SolrDeleteByQuery(reposxml, query).run();
-		new SolrCommit(reposxml).run();
+		new SolrCommit(reposxml, false).run();
 		new SolrOptimize(reposxml).run();
 	}
 

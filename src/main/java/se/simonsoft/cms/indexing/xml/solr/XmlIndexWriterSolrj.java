@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.solrj.SolrAdd;
+import se.repos.indexing.solrj.SolrCommit;
 import se.repos.indexing.solrj.SolrDeleteByQuery;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
@@ -109,7 +110,11 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 		// Unable to use retry in SolrOp unless this interface is changed.
 		// Alternatively if the consumer of this interface would only use expungeDeletes after pure-delete changes.
-		new SolrCommitExpunge(solrServer, expungeDeletes, false);
+		if (expungeDeletes) {
+			logger.info("expungeDeletes is no longer used");
+		}
+		new SolrCommit(solrServer);
+		//new SolrCommitExpunge(solrServer, expungeDeletes, false);
 	}
 	
 	// Copied from QueryEscapeDefault in cms-reporting.
