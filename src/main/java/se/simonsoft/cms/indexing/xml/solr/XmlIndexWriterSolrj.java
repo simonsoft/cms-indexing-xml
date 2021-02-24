@@ -29,6 +29,8 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +39,11 @@ import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.solrj.SolrAdd;
 import se.repos.indexing.solrj.SolrDelete;
 import se.repos.indexing.solrj.SolrDeleteByQuery;
+import se.repos.indexing.solrj.SolrQueryOp;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendDepthFirstPosition;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
@@ -94,14 +98,29 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	@Override
 	public void deleteId(String id, boolean deep) {
-		if (deep) {
-			logger.info("Performing deep delete in reposxml, might be slow: {}", id);
-			
-			String query = "id:"+ id + "*"; // The id should be safe without escaping.
-			new SolrDeleteByQuery(solrServer, query).run();	
-		} else {
-			new SolrDelete(solrServer, id).run();
+		
+		String q = "id:"+ id + "*"; // The id should be safe without escaping.
+		SolrQuery query = new SolrQuery(q).setRows(0);
+		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
+		
+		long count = existing.getResults().getNumFound();
+		if (count == 0) {
+			logger.warn("No previous docs to delete (normal during batch indexing): {}", id);
+			return;
 		}
+		logger.info("Deleting previous revision ({} docs): {}", count, q);
+		deleteIds(id, count);
+		logger.info("Deleted previous revision ({} docs): {}", count, q);
+	}
+	
+	private void deleteIds(String id, long count) {
+		
+		// TODO: Paged delete for large documents.
+		LinkedList<String> ids = new LinkedList<>();
+		for (long i = 1; i <= count; i++) {
+			ids.add(id + "|" + XmlIndexIdAppendDepthFirstPosition.getElementId(i));
+		}
+		new SolrDelete(solrServer, ids).run();
 	}
 	
 	

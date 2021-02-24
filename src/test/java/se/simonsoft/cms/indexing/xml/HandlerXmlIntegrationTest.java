@@ -274,11 +274,11 @@ public class HandlerXmlIntegrationTest {
 		SolrDocumentList j3 = reposxml.query(new SolrQuery("{!join from=id_p to=id}name:inline")).getResults();
 		assertEquals("all elements that have a child which is an <inline/>, got " + j3, 1, j3.getNumFound());
 		assertEquals("elem", j3.get(0).getFieldValue("name"));
-		assertEquals("localtesthost/svn/tiny-inline/test1.xml|1.2", j3.get(0).getFieldValue("id"));
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml|00000003", j3.get(0).getFieldValue("id"));
 		
 		SolrDocumentList j4 = reposxml.query(new SolrQuery("name:elem AND {!join from=id_p to=id}*:*")).getResults();
 		assertEquals("all elements that are an elem and have a child, got " + j4, 1, j4.getNumFound());
-		assertEquals("localtesthost/svn/tiny-inline/test1.xml|1.2", j4.get(0).getFieldValue("id"));
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml|00000003", j4.get(0).getFieldValue("id"));
 		
 		SolrDocumentList j5 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
 		assertEquals("all elements that have a child which is either <elem/> or <inline/>" + j5, 2, j5.getNumFound());
