@@ -111,17 +111,12 @@ public class HandlerXml implements IndexingItemHandler {
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		CmsChangesetItem c = progress.getItem();
-		String baseId = (String) progress.getFields().getFieldValue("id");
-		// Assuming that depth is the same on a given path (can not depend on cms:status unfortunately).
-		// TODO: Consider access to previous revision cms:status in order to allow optimization.
-		Integer depth = XmlSourceHandlerFieldExtractors.getDepthReposxml(progress.getFields());
-		boolean deep = (depth == null || depth > 1); // Currently only using "1" or null=infinite.
 		
 		if (c.isFile()) {
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.trace("Changeset content update item {} found", c);
 				if (c.isDelete()) {
-					indexWriter.deleteId(baseId, deep);
+					indexWriter.deletePath(progress.getRepository(), c);
 					boolean expunge = true;
 					logger.info("Performing commit (expunge: {}) of deleted changeset item: {}", expunge, c);
 					this.commitWithRetry(expunge); // Best effort with retry.
@@ -130,7 +125,7 @@ public class HandlerXml implements IndexingItemHandler {
 				} else {
 					boolean expunge = true;
 					if (!c.isAdd()) {
-						indexWriter.deleteId(baseId, deep);
+						indexWriter.deletePath(progress.getRepository(), c);
 					}
 					
 					// Determine if the XML file is too large.
@@ -153,7 +148,7 @@ public class HandlerXml implements IndexingItemHandler {
 					} catch (IndexingHandlerException ex) {
 						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
-						indexWriter.deleteId(baseId, deep);
+						indexWriter.deletePath(progress.getRepository(), c);
 						this.commitWithRetry(true); // Best effort with retry.
 						// The message/stacktrace in exception will be logged in repositem.
 						throw ex;

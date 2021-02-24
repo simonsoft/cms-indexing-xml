@@ -52,7 +52,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	public XmlSourceHandlerFieldExtractors(XmlIndexProgress xmlProgress, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
 		this.xmlProgress = xmlProgress;
 		this.baseDoc = xmlProgress.getBaseDoc();
-		this.baseId = (String) this.baseDoc.getFieldValue("idhead"); // Now using id without revision since reposxml contains no history.
+		this.baseId = (String) this.baseDoc.getFieldValue("id");
 		if (baseId == null) {
 			throw new IllegalArgumentException("Missing id field in indexing doc");
 		}
@@ -127,8 +127,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		String id = idAppender.getXmlElementId(element);
 		
 		IndexingDoc doc = this.baseDoc.deepCopy();
-		doc.addField("id", id);
-		doc.removeField("idhead");
+		doc.setField("id", id);
 		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
 			ex.end(element, idAppender, doc);

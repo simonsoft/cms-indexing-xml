@@ -42,8 +42,7 @@ public class XmlIndexRestrictFields {
 	 * Key is field name, value is rename or null for using same name (we should end up with only nulls here).
 	 */
 	public static final Map<String, String> FIELDS_KEEP = new HashMap<String, String>() {private static final long serialVersionUID = 1L;{
-		//put("id", null);
-		put("idhead", null);
+		put("id", null);
 		put("path", null);
 		put("pathname", null);
 		put("pathdir", null);

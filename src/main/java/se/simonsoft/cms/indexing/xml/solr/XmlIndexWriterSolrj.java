@@ -30,10 +30,12 @@ import javax.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.solrj.SolrAdd;
@@ -66,6 +68,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SolrClient solrServer;
+	private static final int ELEMENT_ID_LENGTH = XmlIndexIdAppendDepthFirstPosition.getElementId(1).length();
 
 	@Inject
 	public XmlIndexWriterSolrj(@Named("reposxml") SolrClient core) {
@@ -98,43 +101,77 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	@Override
 	public void deleteId(String id, boolean deep) {
+		throw new IllegalArgumentException("not used");
+	}
 		
-		String idQuery = id + "*"; // The id should be safe without escaping.
-		SolrQuery query = new SolrQuery("id", idQuery).setRows(0);
+	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
+		// Query for the id as well as number of elements.
+		String pathfull = getPathFull(repository, c);
+		SolrQuery query = new SolrQuery("pathfull", quote(pathfull)).addSort("depth", ORDER.asc).setFields("id").setRows(2);
 		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
 		
 		long count = existing.getResults().getNumFound();
 		if (count == 0) {
-			logger.warn("No previous docs to delete (normal during batch indexing): {}", id);
+			// TODO: Consider adding placeholder item for overwritten items and deletePathByQuery().
+			logger.warn("No previous docs to delete (normal during batch indexing): {}", c);
 			return;
 		}
-		logger.info("Deleting previous revision ({} docs): {}", count, idQuery);
-		deleteIds(id, count);
-		logger.info("Deleted previous revision ({} docs): {}", count, idQuery);
+		
+		String id = (String) existing.getResults().get(0).getFieldValue("id");
+		if (id == null || id.charAt(id.length() - ELEMENT_ID_LENGTH - 1) == '|') {
+			String msg = MessageFormatter.format("Delete query provided an illegal response: {} - {}", id, c).getMessage();
+			logger.error(msg);
+			throw new IllegalStateException(msg);
+		}
+		String idBase = id.substring(0, id.length() - ELEMENT_ID_LENGTH); // Keep the '|'.
+		
+		if (count > 1) {
+			// Should have 2 rows in the response.
+			// Would be a strange situation if they are from different revisions (using sort on depth).
+			String idResult2 = (String) existing.getResults().get(1).getFieldValue("id");
+			if (idResult2 == null || !idResult2.startsWith(idBase)) {
+				logger.warn("Delete query provided multiple revisions in reposxml: {} - {}", id, idResult2);
+				deletePathByQuery(repository, c);
+				return;
+			}
+		}
+		
+		logger.info("Deleting previous revision ({} docs): {}", count, idBase);
+		deleteIds(idBase, count);
+		logger.info("Deleted previous revision ({} docs): {}", count, idBase);
 	}
 	
-	private void deleteIds(String id, long count) {
-		
+	/**
+	 * @param idBase with separator '|'
+	 * @param count number of elements, starting at 1.
+	 */
+	private void deleteIds(String idBase, long count) {
 		// TODO: Paged delete for large documents.
 		LinkedList<String> ids = new LinkedList<>();
 		for (long i = 1; i <= count; i++) {
-			ids.add(id + "|" + XmlIndexIdAppendDepthFirstPosition.getElementId(i));
+			ids.add(idBase + XmlIndexIdAppendDepthFirstPosition.getElementId(i));
 		}
 		new SolrDelete(solrServer, ids).run();
 	}
 	
 	
-	@Override
-	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
+	private void deletePathByQuery(CmsRepository repository, CmsChangesetItem c) {
+		// Keeping this method as fallback.
+		logger.warn("Deleting previous revision using fallback to 'deleteByQuery' (slow): {}", c);
+		
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
 		// reposxml generates an unknown number of docs per cmsitem (at least for Release / Assist). Can not be deleted by a single ID.
 		
 		// DeleteByQuery turns out to be a significant performance issue, potentially more so in SolR 8 than SolR 4.
 		// https://www.od-bits.com/2018/03/dbq-or-delete-by-query.html
-		String pathfull = repository.getPath() + c.getPath().toString();
+		String pathfull = getPathFull(repository, c);
 		String query = "pathfull:"+ quote(pathfull);
 		logger.debug("Deleting previous revision of {} using query {}", c, query);
 		new SolrDeleteByQuery(solrServer, query).run();	
+	}
+	
+	private String getPathFull(CmsRepository repository, CmsChangesetItem c) {
+		return repository.getPath() + c.getPath().toString();
 	}
 	
 	@Override
