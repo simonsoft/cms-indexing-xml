@@ -99,8 +99,8 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	@Override
 	public void deleteId(String id, boolean deep) {
 		
-		String q = "id:"+ id + "*"; // The id should be safe without escaping.
-		SolrQuery query = new SolrQuery(q).setRows(0);
+		String idQuery = id + "*"; // The id should be safe without escaping.
+		SolrQuery query = new SolrQuery("id", idQuery).setRows(0);
 		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
 		
 		long count = existing.getResults().getNumFound();
@@ -108,9 +108,9 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			logger.warn("No previous docs to delete (normal during batch indexing): {}", id);
 			return;
 		}
-		logger.info("Deleting previous revision ({} docs): {}", count, q);
+		logger.info("Deleting previous revision ({} docs): {}", count, idQuery);
 		deleteIds(id, count);
-		logger.info("Deleted previous revision ({} docs): {}", count, q);
+		logger.info("Deleted previous revision ({} docs): {}", count, idQuery);
 	}
 	
 	private void deleteIds(String id, long count) {
