@@ -107,7 +107,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// Query for the id as well as number of elements.
 		String pathfull = getPathFull(repository, c);
-		SolrQuery query = new SolrQuery("pathfull", quote(pathfull)).addSort("depth", ORDER.asc).setFields("id").setRows(2);
+		SolrQuery query = new SolrQuery("pathfull", pathfull).addSort("depth", ORDER.asc).setFields("id").setRows(2);
 		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
 		
 		long count = existing.getResults().getNumFound();
