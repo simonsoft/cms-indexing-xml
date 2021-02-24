@@ -109,7 +109,9 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 		// Unable to use retry in SolrOp unless this interface is changed.
 		// Alternatively if the consumer of this interface would only use expungeDeletes after pure-delete changes.
-		new SolrCommitExpunge(solrServer, expungeDeletes, false);
+		
+		logger.info("The per-document commit is now disabled.");
+		//new SolrCommitExpunge(solrServer, expungeDeletes, false);
 	}
 	
 	// Copied from QueryEscapeDefault in cms-reporting.

@@ -42,6 +42,7 @@ public class IndexAdminXmlTest {
 		response.setElapsedTime(10);
 		when(reposxml.deleteByQuery(any())).thenReturn(response);
 		when(reposxml.commit()).thenReturn(response);
+		when(reposxml.commit(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(response);
 		
 		IndexAdminXml admin = new IndexAdminXml(repository, idStrategy, reposxml);
 		admin.setIndexAdminCentral(central);
@@ -49,7 +50,7 @@ public class IndexAdminXmlTest {
 		
 		admin.clear();
 		verify(reposxml).deleteByQuery("repoid:\"the/re\\\"po/id\"");
-		verify(reposxml).commit();
+		verify(reposxml).commit(false, true, false);
 		verify(reposxml).optimize();
 		verifyNoMoreInteractions(reposxml, central);
 	}
