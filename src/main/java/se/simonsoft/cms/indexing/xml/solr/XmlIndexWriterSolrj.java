@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.solrj.SolrAdd;
+import se.repos.indexing.solrj.SolrDelete;
 import se.repos.indexing.solrj.SolrDeleteByQuery;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
@@ -90,6 +91,19 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	protected void sessionEnd(Session session) {
 		batchSend(session);
 	}
+	
+	@Override
+	public void deleteId(String id, boolean deep) {
+		if (deep) {
+			logger.info("Performing deep delete in reposxml, might be slow: {}", id);
+			
+			String query = "id:"+ id + "*"; // The id should be safe without escaping.
+			new SolrDeleteByQuery(solrServer, query).run();	
+		} else {
+			new SolrDelete(solrServer, id).run();
+		}
+	}
+	
 	
 	@Override
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {

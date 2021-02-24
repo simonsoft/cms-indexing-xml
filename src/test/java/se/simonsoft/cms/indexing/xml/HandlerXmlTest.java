@@ -89,7 +89,7 @@ public class HandlerXmlTest {
 		when(p1i.getFilesize()).thenReturn(1L);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
-		p1f.addField("id", "base-id");
+		p1f.addField("idhead", "base-id");
 		p1f.addField("embd_Content-Type", "application/xml");
 		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
 		when(p1.getItem()).thenReturn(p1i);
@@ -142,7 +142,7 @@ public class HandlerXmlTest {
 		when(p1i.getFilesize()).thenReturn(1L);
 		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
 		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
-		p1f.addField("id", "base-id");
+		p1f.addField("idhead", "base-id");
 		p1f.addField("embd_Content-Type", "application/xml");
 		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
 		when(p1.getItem()).thenReturn(p1i);

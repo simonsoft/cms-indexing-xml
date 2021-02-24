@@ -44,4 +44,10 @@ public class XmlIndexWriterStub implements XmlIndexWriter {
 
 	}
 
+	@Override
+	public void deleteId(String id, boolean deep) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -41,6 +41,8 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	
 	private XmlIndexElementId idAppender;
 	
+	private long elementCount;
+	
 	private Integer maxDepth = null;
 	
 	/**
@@ -51,7 +53,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	public XmlSourceHandlerFieldExtractors(XmlIndexProgress xmlProgress, Set<XmlIndexFieldExtraction> fieldExtraction, XmlIndexAddSession docHandler) {
 		this.xmlProgress = xmlProgress;
 		this.baseDoc = xmlProgress.getBaseDoc();
-		this.baseId = (String) this.baseDoc.getFieldValue("id");
+		this.baseId = (String) this.baseDoc.getFieldValue("idhead"); // Now using id without revision since reposxml contains no history.
 		if (baseId == null) {
 			throw new IllegalArgumentException("Missing id field in indexing doc");
 		}
@@ -59,11 +61,17 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		this.fieldExtraction = fieldExtraction;
 		this.docHandler = docHandler;
 		
+		this.maxDepth = getDepthReposxml(this.baseDoc);
+	}
+	
+	public static Integer getDepthReposxml(IndexingDoc itemDoc) {
 		// The reposxml indexing depth controlled by repositem XSL.
 		// Some Unit tests don't execute the repositem extraction.
-		String reposxmlDepth = (String) this.baseDoc.getFieldValue("count_reposxml_depth");
+		String reposxmlDepth = (String) itemDoc.getFieldValue("count_reposxml_depth");
 		if (reposxmlDepth != null) {
-			this.maxDepth = Integer.parseInt(reposxmlDepth);
+			return Integer.parseInt(reposxmlDepth);
+		} else {
+			return null;
 		}
 	}
 	
@@ -117,7 +125,8 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		String id = idAppender.getXmlElementId(element);
 		
 		IndexingDoc doc = this.baseDoc.deepCopy();
-		doc.setField("id", id);
+		doc.addField("id", id);
+		doc.removeField("idhead");
 		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
 			ex.end(element, idAppender, doc);
