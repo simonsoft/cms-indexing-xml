@@ -99,10 +99,6 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		batchSend(session);
 	}
 	
-	@Override
-	public void deleteId(String id, boolean deep) {
-		throw new IllegalArgumentException("not used");
-	}
 		
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// Query for the id as well as number of elements.

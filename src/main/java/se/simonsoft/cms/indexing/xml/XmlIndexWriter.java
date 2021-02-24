@@ -22,9 +22,6 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public interface XmlIndexWriter extends Provider<XmlIndexAddSession> {
 
-	public void deleteId(String id, boolean deep);
-	
-	@Deprecated
 	void deletePath(CmsRepository repository, CmsChangesetItem c);
 	
 	public void commit(boolean expungeDeletes);
