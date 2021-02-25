@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,11 +66,13 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	// Limit triggering logging of large element. Should likely be in range 4000-10000.
 	private static final long SIZE_INFO_ABOVE = 8000;
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory.getLogger(XmlIndexWriterSolrj.class);
 	
 	private SolrClient solrServer;
-	private static final int ELEMENT_ID_LENGTH = XmlIndexIdAppendDepthFirstPosition.getElementId(1).length();
 
+	private static final int ELEMENT_ID_LENGTH = XmlIndexIdAppendDepthFirstPosition.getElementId(1).length();
+	public static boolean deleteByQueryAllowed = true; // Used by testing to ensure the efficient delete is used.
+	
 	@Inject
 	public XmlIndexWriterSolrj(@Named("reposxml") SolrClient core) {
 		this.solrServer = core;
@@ -113,28 +116,22 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			return;
 		}
 		
-		String id = (String) existing.getResults().get(0).getFieldValue("id");
-		if (id == null || id.charAt(id.length() - ELEMENT_ID_LENGTH - 1) == '|') {
-			String msg = MessageFormatter.format("Delete query provided an illegal response: {} - {}", id, c).getMessage();
-			logger.error(msg);
-			throw new IllegalStateException(msg);
-		}
-		String idBase = id.substring(0, id.length() - ELEMENT_ID_LENGTH); // Keep the '|'.
+		String id1Base = getIdBase(existing.getResults().get(0), c); 
 		
 		if (count > 1) {
 			// Should have 2 rows in the response.
 			// Would be a strange situation if they are from different revisions (using sort on depth).
-			String idResult2 = (String) existing.getResults().get(1).getFieldValue("id");
-			if (idResult2 == null || !idResult2.startsWith(idBase)) {
-				logger.warn("Delete query provided multiple revisions in reposxml: {} - {}", id, idResult2);
+			// Indicates that earlier delete operation has failed.
+			String id2Base = getIdBase(existing.getResults().get(0), c); 
+			if (!id2Base.equals(id1Base)) {
+				logger.warn("Delete query provided multiple revisions in reposxml: {}.. - {}..", id1Base, id2Base);
 				deletePathByQuery(repository, c);
 				return;
 			}
 		}
-		
-		logger.info("Deleting previous revision ({} docs): {}", count, idBase);
-		deleteIds(idBase, count);
-		logger.info("Deleted previous revision ({} docs): {}", count, idBase);
+		logger.info("Deleting previous revision ({} docs): {}", count, id1Base);
+		deleteIds(id1Base, count);
+		logger.info("Deleted previous revision ({} docs): {}", count, id1Base);
 	}
 	
 	/**
@@ -150,10 +147,23 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		new SolrDelete(solrServer, ids).run();
 	}
 	
+	public static String getIdBase(SolrDocument fields, CmsChangesetItem c) {
+		String id = (String) fields.getFieldValue("id");
+		if (id == null || id.charAt(id.length() - ELEMENT_ID_LENGTH) == '|') {
+			String msg = MessageFormatter.format("Delete query provided an illegal response: {} - {}", id, c).getMessage();
+			logger.error(msg);
+			throw new IllegalStateException(msg);
+		}
+		return id.substring(0, id.length() - ELEMENT_ID_LENGTH); // Keep the '|'.
+	}
+	
 	
 	private void deletePathByQuery(CmsRepository repository, CmsChangesetItem c) {
 		// Keeping this method as fallback.
 		logger.warn("Deleting previous revision using fallback to 'deleteByQuery' (slow): {}", c);
+		if (!deleteByQueryAllowed) {
+			throw new IllegalStateException("deleteByQuery is disabled by configuration");
+		}
 		
 		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
 		// reposxml generates an unknown number of docs per cmsitem (at least for Release / Assist). Can not be deleted by a single ID.

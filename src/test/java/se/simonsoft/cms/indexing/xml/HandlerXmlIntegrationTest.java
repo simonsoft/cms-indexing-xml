@@ -21,6 +21,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +39,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import se.repos.indexing.IndexAdmin;
 import se.repos.testing.indexing.ReposTestIndexing;
@@ -45,8 +48,11 @@ import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
+import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerXmlIntegrationTest {
 
@@ -204,8 +210,21 @@ public class HandlerXmlIntegrationTest {
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
 		
+		// Basic tests related to the deletePath implementation (avoiding the use of deleteByQuery due to performance).
+		String idReposxml = (String) x1.get(0).getFieldValue("id");
+		assertEquals("reposxml id format is vital for delete", "localtesthost/svn/tiny-inline/test1.xml@0000000002|00000002", idReposxml);
+		assertEquals("remove the element part of id" ,"localtesthost/svn/tiny-inline/test1.xml@0000000002|", XmlIndexWriterSolrj.getIdBase(x1.get(0), null));
+		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
 		
+		// At least managed to test a faked delete.
+		XmlIndexWriter xiw = indexing.getContext().getInstance(XmlIndexWriter.class);
+		CmsChangesetItem c = mock(CmsChangesetItem.class);
+		when(c.getPath()).thenReturn(new CmsItemPath("/tiny-inline/test1.xml"));
+		xiw.deletePath(repo, c);
+		
+		SolrDocumentList xDeleted = reposxml.query(new SolrQuery("*:*")).getResults();
+		assertEquals(4, xDeleted.getNumFound());
 	}	
 	
 	@Test
