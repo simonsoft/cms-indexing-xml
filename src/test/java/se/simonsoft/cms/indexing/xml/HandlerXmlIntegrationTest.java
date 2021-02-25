@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import se.repos.indexing.IndexAdmin;
+import se.repos.indexing.solrj.SolrCommit;
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
 import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
@@ -205,6 +206,7 @@ public class HandlerXmlIntegrationTest {
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
+		assertEquals("should get 'pathfull' from repositem", "/svn/tiny-inline/test1.xml", x1.get(0).getFieldValue("pathfull"));
 	
 		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
@@ -215,16 +217,25 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("reposxml id format is vital for delete", "localtesthost/svn/tiny-inline/test1.xml@0000000002|00000002", idReposxml);
 		assertEquals("remove the element part of id" ,"localtesthost/svn/tiny-inline/test1.xml@0000000002|", XmlIndexWriterSolrj.getIdBase(x1.get(0), null));
 		
+		
 		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
 		
 		// At least managed to test a faked delete.
 		XmlIndexWriter xiw = indexing.getContext().getInstance(XmlIndexWriter.class);
 		CmsChangesetItem c = mock(CmsChangesetItem.class);
-		when(c.getPath()).thenReturn(new CmsItemPath("/tiny-inline/test1.xml"));
+		when(c.getPath()).thenReturn(new CmsItemPath("/test1.xml"));
+
+		// Test the query
+		SolrQuery qD = XmlIndexWriterSolrj.getDeleteQuery(repo, c);
+		SolrDocumentList xD = reposxml.query(qD).getResults();
+		assertEquals(4, xD.getNumFound());
+		
+		// Test actual delete
 		xiw.deletePath(repo, c);
+		new SolrCommit(reposxml, true).run();
 		
 		SolrDocumentList xDeleted = reposxml.query(new SolrQuery("*:*")).getResults();
-		assertEquals(4, xDeleted.getNumFound());
+		assertEquals(0, xDeleted.getNumFound());
 	}	
 	
 	@Test

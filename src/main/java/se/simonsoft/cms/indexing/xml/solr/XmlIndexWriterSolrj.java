@@ -15,6 +15,8 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,6 +73,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	private SolrClient solrServer;
 
 	private static final int ELEMENT_ID_LENGTH = XmlIndexIdAppendDepthFirstPosition.getElementId(1).length();
+	private static final int DELETE_PAGE_SIZE = 1000;
 	public static boolean deleteByQueryAllowed = true; // Used by testing to ensure the efficient delete is used.
 	
 	@Inject
@@ -105,8 +108,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// Query for the id as well as number of elements.
-		String pathfull = getPathFull(repository, c);
-		SolrQuery query = new SolrQuery("pathfull:"+ quote(pathfull)).addSort("depth", ORDER.asc).setFields("id").setRows(2);
+		SolrQuery query = getDeleteQuery(repository, c);
 		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
 		
 		long count = existing.getResults().getNumFound();
@@ -139,12 +141,34 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	 * @param count number of elements, starting at 1.
 	 */
 	private void deleteIds(String idBase, long count) {
-		// TODO: Paged delete for large documents.
+		// Paged delete for large documents, reverse order.
+		// Not bothering with partial last page.
+		Instant start = Instant.now(); 
+		long pages = (count / DELETE_PAGE_SIZE) + 1; // Adding one page for the division remainder.
+		for (long i = (pages-1); i >= 0 ; i--) { // Reverse to ensure that depth=1 is deleted last.
+			deleteIdPage(idBase, i);
+		}
+		// TODO: Change to debug level
+		Instant end = Instant.now(); 
+		logger.info("Deleted previous revision ({} pages) in {} ms: {}", pages, Duration.between(start, end).toMillis(), idBase);
+	}
+	
+	private void deleteIdPage(String idBase, long page) {
 		LinkedList<String> ids = new LinkedList<>();
-		for (long i = 1; i <= count; i++) {
+		for (long i = DELETE_PAGE_SIZE * page; i <= DELETE_PAGE_SIZE * (page+1) ; i++) { // overlap one
 			ids.add(idBase + XmlIndexIdAppendDepthFirstPosition.getElementId(i));
 		}
 		new SolrDelete(solrServer, ids).run();
+	}
+	
+	public static SolrQuery getDeleteQuery(CmsRepository repository, CmsChangesetItem c) {
+		String pathfull = getPathFull(repository, c);
+		SolrQuery query = new SolrQuery("pathfull:"+ quote(pathfull));
+		// Ensure that the first element of multiple revisions are returned (if there are previous delete failures).
+		query = query.addSort("depth", ORDER.asc); // Do NOT add a revision sort with higher priority.
+		query = query.setFields("id");
+		query = query.setRows(2); // Validating that 2 IDs relate to the same document revision.
+		return query;
 	}
 	
 	public static String getIdBase(SolrDocument fields, CmsChangesetItem c) {
@@ -176,7 +200,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		new SolrDeleteByQuery(solrServer, query).run();	
 	}
 	
-	private String getPathFull(CmsRepository repository, CmsChangesetItem c) {
+	private static String getPathFull(CmsRepository repository, CmsChangesetItem c) {
 		return repository.getPath() + c.getPath().toString();
 	}
 	
@@ -191,7 +215,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	}
 	
 	// Copied from QueryEscapeDefault in cms-reporting.
-	public String quote(String fieldValue) {
+	public static String quote(String fieldValue) {
 		return '"' + fieldValue.replace("\"", "\\\"") + '"';
 	}
 
