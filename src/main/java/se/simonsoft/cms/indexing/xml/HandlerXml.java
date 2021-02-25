@@ -154,7 +154,6 @@ public class HandlerXml implements IndexingItemHandler {
 						throw ex;
 					}
 					
-					
 				}
 			} else {
 				logger.trace("Ignoring content update item {}, not an XML candidate file type", c);
@@ -163,6 +162,7 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.trace("Ignoring changeset item {}, not a file", c);
 		}
 	}
+	
 	
 	private void commitWithRetry(boolean expunge) {
 		

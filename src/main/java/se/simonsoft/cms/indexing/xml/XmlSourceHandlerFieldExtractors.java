@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.IndexingDoc;
-import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendTreeLocation;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendDepthFirstPosition;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceDoctype;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
@@ -39,8 +39,9 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private Set<XmlIndexFieldExtraction> fieldExtraction;
 	private XmlIndexAddSession docHandler;
 	
-	private XmlIndexElementId idAppender;
+	private XmlIndexIdAppendDepthFirstPosition idAppender;
 	
+	private long elementCount;
 	private Integer maxDepth = null;
 	
 	/**
@@ -55,15 +56,22 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		if (baseId == null) {
 			throw new IllegalArgumentException("Missing id field in indexing doc");
 		}
-		this.idAppender = new XmlIndexIdAppendTreeLocation(baseId);
+		this.idAppender = new XmlIndexIdAppendDepthFirstPosition(baseId);
 		this.fieldExtraction = fieldExtraction;
 		this.docHandler = docHandler;
-		
+
+		this.elementCount = 0; // The first element is 1.
+		this.maxDepth = getDepthReposxml(this.baseDoc);
+	}
+	
+	public static Integer getDepthReposxml(IndexingDoc itemDoc) {
 		// The reposxml indexing depth controlled by repositem XSL.
 		// Some Unit tests don't execute the repositem extraction.
-		String reposxmlDepth = (String) this.baseDoc.getFieldValue("count_reposxml_depth");
+		String reposxmlDepth = (String) itemDoc.getFieldValue("count_reposxml_depth");
 		if (reposxmlDepth != null) {
-			this.maxDepth = Integer.parseInt(reposxmlDepth);
+			return Integer.parseInt(reposxmlDepth);
+		} else {
+			return null;
 		}
 	}
 	
@@ -97,6 +105,8 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 			return;
 		}
 		
+		this.elementCount++;
+		this.idAppender.setXmlElementDepthFirstPosition(element, elementCount);
 
 		//IndexingDoc doc = this.baseDoc.deepCopy();
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
@@ -123,7 +133,6 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 			ex.end(element, idAppender, doc);
 		}
 		docHandler.add(doc);
-		
 	}
 	
 }

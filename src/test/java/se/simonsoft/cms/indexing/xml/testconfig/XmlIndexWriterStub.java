@@ -44,4 +44,5 @@ public class XmlIndexWriterStub implements XmlIndexWriter {
 
 	}
 
+
 }
