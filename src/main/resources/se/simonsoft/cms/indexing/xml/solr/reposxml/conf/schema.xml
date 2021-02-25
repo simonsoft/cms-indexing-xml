@@ -77,8 +77,9 @@
 		<field name="reuse_c_sha1_release_descendants" type="string" indexed="true" stored="true" multiValued="true" />
 		<!-- 
 		Map Release Checksums to RIDs (with reusevalue > 0).
+		Dynamic part is 2 characters of checksum, each field containing one or many strings "checksum RID".
 		-->
-		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="false" />
+		<dynamicField name="reuse_rid_*" type="string" indexed="true" stored="true" multiValued="true" />
 
 		<!-- 
 		Fields used for sorting in Pretranslate, copyfield in order to control the storage/performance. 

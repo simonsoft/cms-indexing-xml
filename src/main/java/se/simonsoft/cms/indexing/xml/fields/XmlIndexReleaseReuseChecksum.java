@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.inject.Inject;
 
@@ -157,6 +158,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 		logger.debug("RID count with reusevalue > 0: {}", rids.size());
 		
 		// Add checksums for elements with reusevalue > 0.
+		HashMap<String, TreeMap<String, String>> shards = new HashMap<>();
 		for (String key: rids) {
 			String checksum = this.ridChecksums.get(key);
 			if (checksum == null) {
@@ -167,13 +169,30 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 			
 			// Field (multivalue) with all valid checksums.
 			fields.addField(RELEASE_DESCENDANTS_CHECKSUM, checksum);
-			// Field (dynamic) mapping checksum to RID.
-			String fieldname = RELEASE_RID_PREFIX.concat(checksum);
+			
+			// Sharding based on 2 characters. Generates total 256 fields across the whole search core. 
+			String shardKey = checksum.substring(0, 2);
+			TreeMap<String, String> shard = shards.get(shardKey);
+			if (shard == null) {
+				shard = new TreeMap<>();
+				shards.put(shardKey, shard);
+			}
+			// Mapping checksum to RID by concating them.
+			String hashRid = checksum + " " + key;
 			
 			// Index the first instance when there are elements with identical checksum.
-			if (!fields.containsKey(fieldname)) {
-				fields.addField(fieldname, key);
+			if (!shard.containsKey(checksum)) {
+				shard.put(checksum, hashRid);
 				//logger.info("Added checksum map field {}", fieldname);
+			}
+		}
+		// Add the shards as SortedSets to indexing.
+		for (String shardKey: shards.keySet()) {
+			String fieldName = RELEASE_RID_PREFIX.concat(shardKey);
+			TreeMap<String, String> shardContent = shards.get(shardKey);
+			// The TreeMap will return the values in sorted order (key is prefix of the value).
+			for (String v: shardContent.values()) { 
+				fields.addField(fieldName, v);
 			}
 		}
 	}
