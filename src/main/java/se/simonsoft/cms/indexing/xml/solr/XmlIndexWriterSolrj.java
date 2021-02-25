@@ -122,7 +122,7 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			// Should have 2 rows in the response.
 			// Would be a strange situation if they are from different revisions (using sort on depth).
 			// Indicates that earlier delete operation has failed.
-			String id2Base = getIdBase(existing.getResults().get(0), c); 
+			String id2Base = getIdBase(existing.getResults().get(1), c); 
 			if (!id2Base.equals(id1Base)) {
 				logger.warn("Delete query provided multiple revisions in reposxml: {}.. - {}..", id1Base, id2Base);
 				deletePathByQuery(repository, c);
