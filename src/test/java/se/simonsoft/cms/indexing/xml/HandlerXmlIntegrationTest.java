@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,7 +40,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.solrj.SolrCommit;
@@ -467,7 +467,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should limit depth of Translation", 1L, flagged.get(1).getFieldValue("count_reposxml_depth"));
 		
 		SolrDocumentList findAll = reposxml.query(new SolrQuery("prop_abx.TranslationLocale:*")).getResults();
-		//assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
+		assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
 		assertEquals("Should ...", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
 		
 		SolrDocumentList findUsingRid0 = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0000 AND prop_abx.TranslationLocale:*")).getResults();
@@ -481,7 +481,10 @@ public class HandlerXmlIntegrationTest {
 		List<String> cList = (List<String>) elem0.getFieldValue("reuse_c_sha1_release_descendants");
 		//assertEquals("debug contents", "...", cList);
 		assertTrue("should contain Release checksum", cList.contains("c5fed03ed1304cecce75d63aee2ada2b0f2326af"));
-		assertEquals("get RID by checksum", "2gyvymn15kv0006", elem0.getFieldValue("reuse_rid_c5fed03ed1304cecce75d63aee2ada2b0f2326af"));
+		Collection<Object> shard = elem0.getFieldValues("reuse_rid_c5");
+		assertNotNull(shard);
+		assertEquals("number of RIDs in shard 'c5'", 1, shard.size());
+		assertEquals("get RID by checksum", "c5fed03ed1304cecce75d63aee2ada2b0f2326af 2gyvymn15kv0006", shard.iterator().next());
 	}
 
 	
