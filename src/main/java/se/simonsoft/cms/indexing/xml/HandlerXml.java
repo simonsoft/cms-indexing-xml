@@ -268,7 +268,7 @@ public class HandlerXml implements IndexingItemHandler {
 			
 			if (indexReposxml) {
 				// Calculate source_reuse.
-				xmlDoc = transformerNormalize.transform(new InputStreamReader(progress.getContents()), options);
+				xmlDoc = transformerNormalize.transform(xmlDoc, options);
 				// Next XSL in pipeline, specific to reposxml.
 				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
 				
