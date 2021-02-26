@@ -268,7 +268,11 @@ public class HandlerXml implements IndexingItemHandler {
 			
 			if (indexReposxml) {
 				// Calculate source_reuse.
-				xmlDoc = transformerNormalize.transform(xmlDoc, options);
+				// Suppress source_reuse for Translations (depth = 1).
+				Integer depth = XmlSourceHandlerFieldExtractors.getDepthReposxml(progress.getFields());
+				if (depth == null) { // Depth is non-null for Translations (gets source_reuse from the Release instead)
+					xmlDoc = transformerNormalize.transform(xmlDoc, options);
+				}
 				// Next XSL in pipeline, specific to reposxml.
 				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
 				
