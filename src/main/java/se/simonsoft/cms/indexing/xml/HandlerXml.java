@@ -259,15 +259,17 @@ public class HandlerXml implements IndexingItemHandler {
 
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
-			//XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
-			XmlSourceDocumentS9api xmlDoc = transformerNormalize.transform(new InputStreamReader(progress.getContents()), options);
+			// Performing repositem extraction based on non-transformed XML (preserves DOCTYPE).
+			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
 			// Flag that it was indexed in repositem.
 			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 			
 			if (indexReposxml) {
-				// Next XSL in pipeline.
+				// Calculate source_reuse.
+				xmlDoc = transformerNormalize.transform(new InputStreamReader(progress.getContents()), options);
+				// Next XSL in pipeline, specific to reposxml.
 				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
 				
 				// Clone the repositem document selectively. Used as base for creating one clone per element.

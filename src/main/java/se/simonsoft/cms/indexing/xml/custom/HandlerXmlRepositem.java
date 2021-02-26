@@ -43,6 +43,7 @@ import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceDoctype;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.SaxonMessageListener;
@@ -105,6 +106,13 @@ public class HandlerXmlRepositem {
 		IndexingDoc fields = progress.getFields();
 		CmsChangesetItem processedFile = progress.getItem();
 
+		XmlSourceDoctype doctype = xmlDoc.getDocType();
+		if (doctype != null) {
+			fields.setField("embd_xml_typename", doctype.getElementName());
+			fields.setField("embd_xml_typepublic", doctype.getPublicID());
+			fields.setField("embd_xml_typesystem", doctype.getSystemID());
+		}
+		
 		try {
 			XdmNode node = xmlDoc.getDocumentNodeXdm(); //Starting from the actual DOCUMENT node.
 			transformer.setInitialContextNode(node);

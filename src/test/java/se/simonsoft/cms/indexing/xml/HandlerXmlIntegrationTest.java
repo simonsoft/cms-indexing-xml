@@ -105,6 +105,12 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should count words", 3L, flagged.get(0).getFieldValue("count_words_text"));
 		assertNull("not calculated, no RID", flagged.get(0).getFieldValue("count_words_translate"));
 		
+		// DOCTYPE in repositem schema
+		assertEquals("repositem root element name", "document", flagged.get(0).getFieldValue("embd_xml_typename"));
+		assertEquals("repositem systemid", "techdoc.dtd", flagged.get(0).getFieldValue("embd_xml_typesystem"));
+		assertEquals("repositem publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", flagged.get(0).getFieldValue("embd_xml_typepublic"));
+
+		
 		// Depth for reposxml
 		assertEquals("null since item is not a translation", null, flagged.get(0).getFieldValue("count_reposxml_depth"));
 
@@ -123,12 +129,13 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
-		// TODO: Consider keeping only in repositem.
+		// Now keeping DOCTYPE in repositem.
+		/*
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
 		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
 		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
-		
-		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source"));
+		*/
+		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source_reuse"));
 	}
 
 	@Test
