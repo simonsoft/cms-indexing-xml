@@ -146,7 +146,7 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 	 * @param fields
 	 * @param transformer
 	 */
-	private XmlSourceDocumentS9api getSourceFromField(IndexingDoc fields) {
+	public XmlSourceDocumentS9api getSourceFromField(IndexingDoc fields) {
 		
 		Object source = fields.getFieldValue("source");
 		if (source == null) {

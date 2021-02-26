@@ -16,7 +16,6 @@
 package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -24,12 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Map;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +33,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -500,11 +494,12 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
-		root.setField("source",
+		String source = 
 				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
-				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tvalidate=\"yes\"><p cms:rid=\"r02b\">section</p></section>\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tvalidate=\"no\"><p cms:rid=\"r02b\">section</p></section>\n" +
 				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
-				"</document>");
+				"</document>";
+		root.setField("source", source);
 		root.setField("prop_cms.status", "Released");
 		
 		x.end(null, null, root);
@@ -520,17 +515,13 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("tvalidate=no of element itself, no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tvalidate=no element is disqualified.
-		// TODO: Can not be validated this way any more.
-		IndexingDoc sya = new IndexingDocIncrementalSolrj();
-		sya.setField("source",
-				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
-		sya.setField("prop_cms.status", "Released");
-		sya.setField("ins_cms", "http://www.simonsoft.se/namespace/cms");
-		sya.setField("aa_cms.tvalidate", "no");
+		XmlSourceDocumentS9api xmlDoc = x.getSourceFromField(root);
+		xmlDoc = x.doTransformPipeline(xmlDoc, root);
+		XmlSourceAttributeMapRid map = new XmlSourceAttributeMapRid("reusevalue");
+		map.setValueAttrPrefix("cmsreposxml");
+		sourceReader.handle(xmlDoc, map);
 		
-		x.end(null, null, sya);
-		assertEquals("the children of tvalidate=no element is disqualified" ,"-7", sya.getFieldValue("reusevalue"));
-		
+		assertEquals("the children of tvalidate=no element is disqualified" ,"-7", map.getAttributeMap().get("r02b"));
 	}
 	
 	/**
@@ -583,7 +574,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.end(null, null, tna);
 		// TODO: Can not be validated this way any more.
-		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
+		//assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
 	
 		// Validate equivalent handling of translate attribute in reuse-normalize.xsl
