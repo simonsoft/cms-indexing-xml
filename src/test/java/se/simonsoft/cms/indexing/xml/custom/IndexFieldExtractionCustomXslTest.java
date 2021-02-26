@@ -573,7 +573,7 @@ public class IndexFieldExtractionCustomXslTest {
 		tna.setField("aa_markfortrans", "no");
 		
 		x.end(null, null, tna);
-		// TODO: Can not be validated this way any more.
+		// TODO: Can not be validated this way any more. On the other hand, now using the reuse-normalize.xsl tested below in same unit test.
 		//assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
 	
