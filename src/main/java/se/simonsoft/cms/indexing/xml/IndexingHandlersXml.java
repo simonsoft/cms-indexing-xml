@@ -32,6 +32,7 @@ import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionSource;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexReleaseReuseChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 
@@ -49,9 +50,10 @@ public abstract class IndexingHandlersXml {
 			// ID generation is no longer done in a normal handler.
 			add(XmlIndexFieldElement.class);
 			// Saxon based text and word count extraction
-			add(IndexFieldExtractionCustomXsl.class);
+			add(XmlIndexFieldXslPipeline.class);
 			// Checksums of text and source fields (default settings)
-			add(XmlIndexFieldExtractionChecksum.class);
+			// Disabling: Calculating sha1 from XSL function.
+			//add(XmlIndexFieldExtractionChecksum.class);
 			// The special Join-fields were not used in the Pretranslate algorithm.
 			// add(IndexReuseJoinFields.class);
 			// Detect duplication of RIDs for document root element.
@@ -62,7 +64,8 @@ public abstract class IndexingHandlersXml {
 			// TODO: Re-enable content references.
 			//add(XmlIndexContentReferences.class);
 			// Source is now a separate handler, must be after IndexFieldExtractionCustomXsl.
-			add(XmlIndexFieldExtractionSource.class);
+			// Disabling: Field 'source' has been disabled for some years. Limiting size of source_reuse done in reuse-normalize.
+			//add(XmlIndexFieldExtractionSource.class);
 			// Get checksum from the Release
 			add(XmlIndexReleaseReuseChecksum.class);
 		}

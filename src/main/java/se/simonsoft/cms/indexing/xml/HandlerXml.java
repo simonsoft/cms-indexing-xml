@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +36,16 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.indexing.xml.custom.HandlerXmlRepositem;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceHandler;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformOptions;
+import se.simonsoft.cms.xmlsource.transform.TransformerService;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 public class HandlerXml implements IndexingItemHandler {
 
@@ -56,22 +62,26 @@ public class HandlerXml implements IndexingItemHandler {
 	private Processor processor;
 	
 	private XmlSourceReaderS9api sourceReader;
+	private TransformerService transformerNormalize;
 	
 	private Set<XmlIndexFieldExtraction> fieldExtraction = null;
 
 	private XmlIndexWriter indexWriter;
 	
 	private HandlerXmlRepositem handlerXmlRepositem;
+	@Inject
+	private XmlIndexFieldXslPipeline xslPipeline; // Requesting preprocess XSL by handler.
 	
 	private Integer maxFilesize = null;
 	private String suppressRidBefore = null;
 	
 	
 	@Inject
-	public HandlerXml(Processor processor, XmlSourceReaderS9api sourceReader) {
+	public HandlerXml(Processor processor, XmlSourceReaderS9api sourceReader, TransformerServiceFactory transformerServiceFactory) {
 		
 		this.processor = processor;
 		this.sourceReader = sourceReader;
+		this.transformerNormalize = transformerServiceFactory.buildTransformerService("reuse-normalize.xsl");
 		
 		this.handlerXmlRepositem = new HandlerXmlRepositem(this.processor);
 	}
@@ -201,6 +211,11 @@ public class HandlerXml implements IndexingItemHandler {
 
 	protected void index(IndexingItemProgress progress) {
 		
+		TransformOptions options = new TransformOptions();
+		options.setParameter("source-reuse-tags-param", "*");
+		// Limiting for large elements, previously done in Java handler.
+		options.setParameter("source-reuse-max-chars", 2000L);
+		
 		if (sourceReader == null) {
 			throw new IllegalStateException("No XmlSourceHandler has been provided.");
 		}
@@ -244,13 +259,17 @@ public class HandlerXml implements IndexingItemHandler {
 
 		XmlIndexAddSession docHandler = indexWriter.get();
 		try {
-			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
+			//XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
+			XmlSourceDocumentS9api xmlDoc = transformerNormalize.transform(new InputStreamReader(progress.getContents()), options);
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
 			// Flag that it was indexed in repositem.
 			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 			
 			if (indexReposxml) {
+				// Next XSL in pipeline.
+				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
+				
 				// Clone the repositem document selectively. Used as base for creating one clone per element.
 				IndexingDoc itemDoc = cloneItemFields(progress.getFields());
 				XmlIndexProgress xmlProgress = new XmlIndexProgress(progress.getRepository(), itemDoc);
@@ -260,7 +279,7 @@ public class HandlerXml implements IndexingItemHandler {
 				// success, flag this
 				progress.getFields().addField("flag", FLAG_XML);
 			}
-		} catch (XmlNotWellFormedException e) { 
+		} catch (RuntimeException e) { 
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();

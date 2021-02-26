@@ -38,9 +38,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
@@ -75,15 +77,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 	@Test
 	public void test() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -95,7 +89,9 @@ public class IndexFieldExtractionCustomXslTest {
 		x.end(null, null, fields);
 		//verify(fields).addField("text", "section & stuff TitleFigure");
 		verify(fields).addField("text", "section & stuff Title Figure");
+		verify(fields).addField("count_elements", "4");
 		verify(fields).addField(eq("source_reuse"), anyString());
+		verify(fields).addField(eq("c_sha1_source_reuse"), anyString());
 
 		verify(fields).addField("count_words_text", "5");
 	}
@@ -108,15 +104,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalization() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		String xml =
@@ -150,15 +138,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalizationAssistSpace() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -178,15 +158,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalizationAssistVVAB() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -204,15 +176,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 	@Test
 	public void testNormalizationPreserve() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -236,15 +200,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPhElement() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -269,15 +225,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testProcessInstruction() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -300,15 +248,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testProcessInstructionRid() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -329,16 +269,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testAttributesBursting() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
-		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
 		fields.setField("source",
@@ -362,15 +293,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testAttributesCms() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -400,15 +323,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testAttributesCmsPrefixNormalize() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -434,15 +349,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test (expected=Exception.class) 
 	public void testAttributesCmsPrefixOccupied() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -463,15 +370,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testPretranslateDisqualifyOnDuplicateRid() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -506,15 +405,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnRemovedRid() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);	
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -553,15 +444,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnTsuppress() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -592,6 +475,8 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("tsuppress attr can be set to 'no', no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tsuppress:ed element is disqualified.
+		// Can no longer be tested this way. Used by Assist.
+		/*
 		IndexingDoc sya = new IndexingDocIncrementalSolrj();
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
@@ -601,7 +486,7 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		x.end(null, null, sya);
 		assertEquals("the children of suppressed element is disqualified" ,"-5", sya.getFieldValue("reusevalue"));
-		
+		*/
 	}
 	
 	/**
@@ -611,15 +496,8 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnTvalidate() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -642,6 +520,7 @@ public class IndexFieldExtractionCustomXslTest {
 		assertEquals("tvalidate=no of element itself, no disqualification" ,"1", sno.getFieldValue("reusevalue"));
 		
 		//Verify that all children of tvalidate=no element is disqualified.
+		// TODO: Can not be validated this way any more.
 		IndexingDoc sya = new IndexingDocIncrementalSolrj();
 		sya.setField("source",
 				"<p xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"r02b\">anything</p>");
@@ -659,15 +538,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnMarkfortranslateNo() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		String xml =
@@ -711,6 +582,7 @@ public class IndexFieldExtractionCustomXslTest {
 		tna.setField("aa_markfortrans", "no");
 		
 		x.end(null, null, tna);
+		// TODO: Can not be validated this way any more.
 		assertEquals("the child of markfortrans:ed element has inherited markfortrans in checksum/source_reuse" ,"<p markfortrans=\"no\">anything</p>", tna.getFieldValue("source_reuse"));
 		assertEquals("the child of markfortrans:ed element is not disqualified, inherited attr instead" ,"1", tna.getFieldValue("reusevalue"));
 	
@@ -728,15 +600,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testPretranslateDisqualifyOnStatus() {
-		XmlIndexFieldExtraction x = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSource() {
-			@Override
-			public Source getXslt() {
-				InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
-						"se/simonsoft/cms/indexing/xml/source/xml-indexing-fields.xsl");
-				assertNotNull("Should find an xsl file to test with", xsl);
-				return new StreamSource(xsl);
-			}
-		}, p);	
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);	
 		
 		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
@@ -763,19 +627,22 @@ public class IndexFieldExtractionCustomXslTest {
 		// but does the current element "source" concept handle entities that are actually declared?
 		String element = "<p>Conference R&D;</p>";
 		
-		XmlIndexFieldExtraction xsl = new IndexFieldExtractionCustomXsl(new XmlMatchingFieldExtractionSourceDefault(), p);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(element);
 		
 		try {
-			xsl.end(null, null, fields);
+			x.end(null, null, fields);
 			fail("Should throw declared exception for xml error");
 		} catch (XmlNotWellFormedException e) { // any other exception would abort indexing
+			// expected
+		} catch (RuntimeException e) { // more difficult to detect difference btw wellformed and XSL errors.
 			// expected
 		}
 	}
 	
+	@Deprecated // No longer needed since we use the same transform now.
 	private String getReuseNormalizeSourceReuse(String xml) {
 		
 		// Validate equivalent handling of translate attribute in reuse-normalize.xsl

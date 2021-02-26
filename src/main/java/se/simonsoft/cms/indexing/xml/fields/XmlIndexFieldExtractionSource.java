@@ -73,6 +73,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 		if (MAX_CHARACTERS_SOURCE != null && sourceReuse.length() > MAX_CHARACTERS_SOURCE) {
 			logger.debug("Suppressing 'source' and 'source_reuse' field ({}) from index for element: {}", sourceReuse.length(), element);
 			// Remove source_reuse which is added by another field extractor.
+			// XSL pipeline already checks string length.
 			doc.removeField("source_reuse");
 			// Suppress source by returning early.
 			return;

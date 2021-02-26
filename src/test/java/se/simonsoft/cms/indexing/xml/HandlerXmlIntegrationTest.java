@@ -123,6 +123,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
+		// TODO: Consider keeping only in repositem.
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
 		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
 		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
@@ -161,7 +162,9 @@ public class HandlerXmlIntegrationTest {
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
 		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		// No longer providing source, has been blocked by other extractor since a few years.
+		//assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 	
 	@Test
@@ -191,7 +194,7 @@ public class HandlerXmlIntegrationTest {
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
 		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 	
 	@Test
