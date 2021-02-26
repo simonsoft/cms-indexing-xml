@@ -228,21 +228,31 @@
 	<!-- Experimental support for determining which declared namespaces are not actually used. -->
 	<!-- Investigates all namespaces declared on parent, which means they are inherited by this element. -->
 	<xsl:template match="*" mode="i-ns-unused">
+		<xsl:variable name="localname" select="name()"/>
 		<xsl:variable name="namespace-parent" select="parent::node()/namespace::*[string() != 'http://www.w3.org/XML/1998/namespace']"/>
 		
 		<xsl:variable name="namespace-elem" select="descendant-or-self::*[namespace-uri() != '']"/>
-		<xsl:variable name="namespace-attr" select="descendant-or-self::*/@*[namespace-uri() != '']"/>
-		
+		<xsl:variable name="namespace-attr" select="descendant-or-self::*/@*[namespace-uri() != ''][name() != 'cms:c_sha1_source_reuse'][name() != 'cms:source_reuse']"/>
+				
 		<xsl:variable name="ns-uris" as="xs:anyURI*" select="for $e in ($namespace-elem union $namespace-attr) return namespace-uri($e)" />
+		<!-- 
+		<xsl:message select="concat('Namespaces on ', $localname, ' defined: ', count($namespace-parent), ' Namespaces used: ', count($namespace-elem), '+', count($namespace-attr), '=', count($ns-uris))"/>
+		-->
 		
 		<xsl:for-each select="$namespace-parent">
             <xsl:variable name="ns-uri" select="."></xsl:variable>
             
-            <xsl:if test="$ns-uri != $ns-uris">
-                <!-- TODO: Support multi-value fields using Solr arr/str notation. -->
-                    <xsl:value-of select="$ns-uri"></xsl:value-of>
-					<xsl:value-of select="'&#xA;'"></xsl:value-of>
-            </xsl:if>
+            <xsl:choose>
+			<xsl:when test="$ns-uri = $ns-uris">
+				<!-- 
+				<xsl:message select="concat('Namespace on ', $localname, ' used: ', $ns-uri)"/>
+				-->
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$ns-uri"></xsl:value-of>
+				<xsl:value-of select="'&#xA;'"></xsl:value-of>
+            </xsl:otherwise>
+            </xsl:choose>
         </xsl:for-each>
 	</xsl:template>
 	

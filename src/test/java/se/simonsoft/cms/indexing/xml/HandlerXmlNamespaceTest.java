@@ -130,6 +130,7 @@ public class HandlerXmlNamespaceTest {
 		
 		SolrDocument e2 = all.get(1);
 		assertEquals("elem", e2.getFieldValue("name"));
+		assertEquals("ch1", e2.getFieldValue("a_name"));
 		assertNull("not declared here", e2.getFieldValue("ns_cms"));
 		assertNull("not declared here", e2.getFieldValue("ns_cms1"));
 		assertNull("not declared here", e2.getFieldValue("ns_cms2"));
@@ -163,6 +164,7 @@ public class HandlerXmlNamespaceTest {
 		
 		SolrDocument e4 = all.get(3);
 		assertEquals("elem", e4.getFieldValue("name"));
+		assertEquals("e2", e4.getFieldValue("a_id"));
 		assertNull("not declared here", e4.getFieldValue("ns_cms"));
 		assertNull("not declared here", e4.getFieldValue("ns_cms1"));
 		assertNull("not declared here", e4.getFieldValue("ns_cms2"));
