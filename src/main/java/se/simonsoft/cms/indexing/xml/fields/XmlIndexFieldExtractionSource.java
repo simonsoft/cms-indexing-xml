@@ -29,6 +29,7 @@ import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
+@Deprecated
 public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlIndexFieldExtractionSource.class);
@@ -40,7 +41,7 @@ public class XmlIndexFieldExtractionSource implements XmlIndexFieldExtraction {
 	private static final boolean REMOVE_ABXCT_NAMESPACE = true;
 	
 	// Having source_reuse is helpful when investigating issues. Conflicts with keeping small index size.
-	private Integer MAX_CHARACTERS_SOURCE = 2000; // null means 'always extract source'
+	public static Long MAX_CHARACTERS_SOURCE = 2000L; // null means 'always extract source'
 	
 	@Override
 	public void startDocument(XmlIndexProgress xmlProgress) {

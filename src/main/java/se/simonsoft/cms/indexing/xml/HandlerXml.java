@@ -15,7 +15,6 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +34,7 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.indexing.xml.custom.HandlerXmlRepositem;
+import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
@@ -208,13 +207,19 @@ public class HandlerXml implements IndexingItemHandler {
 			throw new RuntimeException(msg, e);
 		}
 	}
-
-	protected void index(IndexingItemProgress progress) {
-		
+	
+	@SuppressWarnings("deprecation")
+	private TransformOptions getTransformOptionsNormalize() {
 		TransformOptions options = new TransformOptions();
 		options.setParameter("source-reuse-tags-param", "*");
 		// Limiting for large elements, previously done in Java handler.
-		options.setParameter("source-reuse-max-chars", 2000L);
+		options.setParameter("source-reuse-max-chars", XmlIndexFieldExtractionSource.MAX_CHARACTERS_SOURCE);
+		return options;
+	}
+
+	protected void index(IndexingItemProgress progress) {
+		
+		TransformOptions options = getTransformOptionsNormalize();
 		
 		if (sourceReader == null) {
 			throw new IllegalStateException("No XmlSourceHandler has been provided.");
@@ -285,6 +290,13 @@ public class HandlerXml implements IndexingItemHandler {
 				// success, flag this
 				progress.getFields().addField("flag", FLAG_XML);
 			}
+		// TODO: Ensure that Transformer framework figures this out and throws XmlNotWellFormedException.
+		} catch (XmlNotWellFormedException e) { 
+			// failure, flag with error
+			progress.getFields().addField("flag", FLAG_XML_ERROR);
+			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
+			logger.error(msg, e);
+			throw new IndexingHandlerException(msg, e);
 		} catch (RuntimeException e) { 
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
