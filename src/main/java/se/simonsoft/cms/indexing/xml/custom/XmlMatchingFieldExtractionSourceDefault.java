@@ -20,6 +20,7 @@ import java.io.InputStream;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+@Deprecated // Now using injected map of included XSL transforms.
 public class XmlMatchingFieldExtractionSourceDefault implements
 		XmlMatchingFieldExtractionSource {
 

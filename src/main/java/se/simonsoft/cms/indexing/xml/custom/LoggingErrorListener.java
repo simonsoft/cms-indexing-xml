@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// See #1241 when upgrading to Saxon 10.
 public class LoggingErrorListener implements ErrorListener {
 
 	public static final Logger logger = LoggerFactory.getLogger(LoggingErrorListener.class);
