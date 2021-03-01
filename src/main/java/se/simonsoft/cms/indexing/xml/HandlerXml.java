@@ -277,6 +277,8 @@ public class HandlerXml implements IndexingItemHandler {
 				Integer depth = XmlSourceHandlerFieldExtractors.getDepthReposxml(progress.getFields());
 				if (depth == null) { // Depth is non-null for Translations (gets source_reuse from the Release instead)
 					xmlDoc = transformerNormalize.transform(xmlDoc, options);
+				} else {
+					logger.info("Suppress normalize transform (depth: {}): {}", progress.getItem());
 				}
 				// Next XSL in pipeline, specific to reposxml.
 				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
