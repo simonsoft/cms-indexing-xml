@@ -50,6 +50,7 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 	public static final String PROPNAME_DITAMAP_FIELD_NAME = "prop_abx.Ditamap";
 	private static final String STATUS_PARAM = "document-status";
 	private static final String PATHAREA_PARAM = "patharea";
+	private static final String DEPTH_PARAM = "reposxml-depth";
 	private static final String PATHEXT_PARAM = "pathext";
 	@SuppressWarnings("unused")
 	private static final String DITAMAP_PARAM = "ditamap";
@@ -121,8 +122,15 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 			options.setParameter(PATHAREA_PARAM, (String) patharea);
 		}
 
+		Integer depth = XmlIndexFieldExtraction.getDepthReposxml(fields);
+		if (depth != null) {
+			options.setParameter(DEPTH_PARAM, new Long(depth));
+		}
+		
 		// The file extension field must always be extracted.
+		/* Only repositem
 		options.setParameter(PATHEXT_PARAM, (String) fields.getFieldValue("pathext"));
+		*/
 
 		// NOT supported in reposxml transform, until a requirement comes up.
 		// #1345 Make Release / Translation ditamap available for extraction.

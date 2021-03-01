@@ -28,8 +28,9 @@
 	<xsl:param name="document-status"/>
 	<!-- document's patharea (release, translation) -->
 	<xsl:param name="patharea"/>
-	<!-- depth of element relative to document -->
-	<xsl:param name="document-depth"/>
+	<!-- depth of reposxml extraction as determined by repositem XSL. -->
+	<!-- TODO: Depth limit implemented in XmlSourceHandlerFieldExtractors can likely be removed, done here since Pipeline introduced. -->
+	<xsl:param name="reposxml-depth" as="xs:integer?"/>
 	<!-- ancestor attributes on an element named 'attributes' -->
 	<!-- 
 	<xsl:param name="ancestor-attributes"/>
@@ -112,7 +113,10 @@
 			
 			<xsl:apply-templates select="@* except @cms:source_reuse|@cms:source_reuse" mode="#current"/>
 			
-			<xsl:apply-templates select="node()" mode="#current"/>
+			<!-- Limit depth of reposxml extraction if parameter set from repositem XSL. -->
+			<xsl:if test="empty($reposxml-depth) or ($reposxml-depth > count(ancestor-or-self::element()))">
+				<xsl:apply-templates select="node()" mode="#current"/>
+			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
 	

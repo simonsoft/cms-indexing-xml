@@ -61,19 +61,9 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		this.docHandler = docHandler;
 
 		this.elementCount = 0; // The first element is 1.
-		this.maxDepth = getDepthReposxml(this.baseDoc);
+		this.maxDepth = XmlIndexFieldExtraction.getDepthReposxml(this.baseDoc);
 	}
 	
-	public static Integer getDepthReposxml(IndexingDoc itemDoc) {
-		// The reposxml indexing depth controlled by repositem XSL.
-		// Some Unit tests don't execute the repositem extraction.
-		String reposxmlDepth = (String) itemDoc.getFieldValue("count_reposxml_depth");
-		if (reposxmlDepth != null) {
-			return Integer.parseInt(reposxmlDepth);
-		} else {
-			return null;
-		}
-	}
 	
 	@Override
 	public void startDocument(XmlSourceDoctype doctype) {
