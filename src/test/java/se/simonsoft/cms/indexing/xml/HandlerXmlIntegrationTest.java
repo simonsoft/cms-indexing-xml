@@ -478,7 +478,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrDocumentList findAll = reposxml.query(new SolrQuery("prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
-		assertEquals("Should ...", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
+		assertEquals("Should limit reposxml extraction depth", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
 		
 		SolrDocumentList findUsingRid0 = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0000 AND prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find root element in the Translation", 1, findUsingRid0.getNumFound());

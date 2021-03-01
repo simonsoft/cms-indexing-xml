@@ -42,7 +42,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private XmlIndexIdAppendDepthFirstPosition idAppender;
 	
 	private long elementCount;
-	private Integer maxDepth = null;
+	private Integer maxDepth = null; // Now also limiting depth in xml-indexing-reposxml.xsl
 	
 	/**
 	 * @param commonFieldsDoc fieds that should be set/kept same for all elements
@@ -86,6 +86,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void begin(XmlSourceElement element) {
 		
+		// Now also limiting depth in xml-indexing-reposxml.xsl
 		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
 			return;
 		}
@@ -104,6 +105,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void end(XmlSourceElement element) {
 		
+		// Now also limiting depth in xml-indexing-reposxml.xsl
 		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
 			return;
 		}
