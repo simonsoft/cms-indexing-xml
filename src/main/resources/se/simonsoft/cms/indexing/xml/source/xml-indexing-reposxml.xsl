@@ -98,17 +98,11 @@
 			<xsl:call-template name="reuserid"/>
 			
 			
-			<!-- Experimental support for determining which declared namespaces are not actually used. -->
-			<!-- TODO: Discuss whether the feature is worth the performance hit.  -->
-			<!-- Tests with 860k indicates 5-10% higher execution time, close to 5% when test file has no unused ns. -->
-			<!-- Likely increasing processing time with a larger number of declared namespaces. -->
-			<!-- 
-			<xsl:attribute name="cmsreposxml:ns_unused">
-				<xsl:apply-templates select="." mode="i-ns-unused"/>
-			</xsl:attribute>
-			-->
-			
-			
+			<!-- Namespaces actually used at or below this element. -->
+			<!-- Previously: Experimental support for determining which declared namespaces are not actually used. -->
+			<xsl:call-template name="ns-used"/>
+
+
 			<!-- reuse-normalized.xsl before in pipeline -->
 			<xsl:apply-templates select="@cms:source_reuse" mode="#current"/>
 			<xsl:apply-templates select="@cms:c_sha1_source_reuse" mode="#current"/>
@@ -231,36 +225,27 @@
 	</xsl:template>
 	
 	
-	<!-- Experimental support for determining which declared namespaces are not actually used. -->
-	<!-- Investigates all namespaces declared on parent, which means they are inherited by this element. -->
-	<xsl:template match="*" mode="i-ns-unused">
-		<xsl:variable name="localname" select="name()"/>
-		<xsl:variable name="namespace-parent" select="parent::node()/namespace::*[string() != 'http://www.w3.org/XML/1998/namespace']"/>
+	<!-- Investigates all namespaces used by this element or below. -->
+	<xsl:template name="ns-used">
+		<xsl:variable name="e" as="element()" select="."/>
+		<xsl:variable name="ns-prefixes" as="xs:string*" select="in-scope-prefixes($e)"/>
 		
-		<xsl:variable name="namespace-elem" select="descendant-or-self::*[namespace-uri() != '']"/>
-		<xsl:variable name="namespace-attr" select="descendant-or-self::*/@*[namespace-uri() != ''][name() != 'cms:c_sha1_source_reuse'][name() != 'cms:source_reuse']"/>
-				
-		<xsl:variable name="ns-uris" as="xs:anyURI*" select="for $e in ($namespace-elem union $namespace-attr) return namespace-uri($e)" />
-		<!-- 
-		<xsl:message select="concat('Namespaces on ', $localname, ' defined: ', count($namespace-parent), ' Namespaces used: ', count($namespace-elem), '+', count($namespace-attr), '=', count($ns-uris))"/>
-		-->
+		<xsl:variable name="ns-used" as="attribute()*" select="for $p in $ns-prefixes return cmsreposxml:ns-used($e, $p, namespace-uri-for-prefix($p, $e))"/>
 		
-		<xsl:for-each select="$namespace-parent">
-            <xsl:variable name="ns-uri" select="."></xsl:variable>
-            
-            <xsl:choose>
-			<xsl:when test="$ns-uri = $ns-uris">
-				<!-- 
-				<xsl:message select="concat('Namespace on ', $localname, ' used: ', $ns-uri)"/>
-				-->
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$ns-uri"></xsl:value-of>
-				<xsl:value-of select="'&#xA;'"></xsl:value-of>
-            </xsl:otherwise>
-            </xsl:choose>
-        </xsl:for-each>
+		<xsl:for-each select="$ns-used">
+			<xsl:copy-of select="."/>
+		</xsl:for-each>
 	</xsl:template>
+	
+	<xsl:function name="cmsreposxml:ns-used">
+		<xsl:param name="e" as="element()"/>
+		<xsl:param name="ns-prefix" as="xs:string"/>
+		<xsl:param name="ns-uri" as="xs:string"/>
+		
+		<xsl:if test="$e/descendant-or-self::*[namespace-uri() = $ns-uri] or $e/descendant-or-self::*/@*[namespace-uri() = $ns-uri][name() != 'cms:c_sha1_source_reuse'][name() != 'cms:source_reuse']">
+			<xsl:attribute name="cmsreposxml:uns_{$ns-prefix}" select="$ns-uri"/>
+		</xsl:if>
+	</xsl:function>
 	
 	
 </xsl:stylesheet>

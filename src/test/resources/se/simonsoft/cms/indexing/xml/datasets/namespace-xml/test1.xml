@@ -21,7 +21,7 @@
 xmlns:cms1="http://www.simonsoft.se/namespace/test1" 
 xmlns:cms2="http://www.simonsoft.se/namespace/test2" 
 xmlns:cms3="http://www.simonsoft.se/namespace/test3" 
-cms:attr="attr-cms" name="root">
+cms:attr="attr-cms" name="root" xml:lang="en-US">
 <elem name="ch1"><cms1:elem/>text</elem>
 <elem id="e2">elem <inline cms2:attr="attr-test2">text</inline></elem>
 </doc>
