@@ -95,6 +95,7 @@ public class HandlerXmlNamespaceTest {
 		// TODO: Is ns_ what we want or would we like to define as "ns"? 
 		assertEquals("declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ns_"));
 		assertEquals("inherited and declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ins_"));
+		assertNotNull("used as well", e1.getFieldValue("uns_"));
 		
 		SolrDocument e2 = all.get(1);
 		assertEquals("head", e2.getFieldValue("name"));
@@ -126,6 +127,14 @@ public class HandlerXmlNamespaceTest {
 		assertEquals("declared ns", "http://www.simonsoft.se/namespace/test1", e1.getFieldValue("ns_cms1"));
 		assertEquals("declared ns", "http://www.simonsoft.se/namespace/test2", e1.getFieldValue("ns_cms2"));
 		assertEquals("declared ns", "http://www.simonsoft.se/namespace/test3", e1.getFieldValue("ns_cms3"));
+		
+		assertNull("no default ns", e1.getFieldValue("uns_"));
+		//assertNull("xml namespace excluded from extraction", e1.getFieldValue("uns_xml"));
+		
+		assertNotNull("used", e1.getFieldValue("uns_cms"));
+		assertNotNull("used", e1.getFieldValue("uns_cms1"));
+		assertNotNull("used", e1.getFieldValue("uns_cms2"));
+		assertNull(e1.getFieldValue("uns_cms3"));
 		e1 = null;
 		
 		SolrDocument e2 = all.get(1);
@@ -141,11 +150,14 @@ public class HandlerXmlNamespaceTest {
 		assertNotNull("inherited", e2.getFieldValue("ins_cms2"));
 		assertNotNull("inherited", e2.getFieldValue("ins_cms3"));
 		
-		//System.out.println(e2.getFieldValue("ns_unused"));
-		/*
-		assertEquals("unused namespaces", "[http://www.simonsoft.se/namespace/cms\nhttp://www.simonsoft.se/namespace/test2\nhttp://www.simonsoft.se/namespace/test3\n]", 
-				e2.getFieldValue("ns_unused").toString());
-		*/
+		assertNull("no default ns", e2.getFieldValue("uns_"));
+		assertNull("no xml namespace below", e2.getFieldValue("uns_xml"));
+		
+		assertNull(e2.getFieldValue("uns_cms"));
+		assertNotNull("used", e2.getFieldValue("uns_cms1"));
+		assertNull(e2.getFieldValue("uns_cms2"));
+		assertNull(e2.getFieldValue("uns_cms3"));
+		
 		e2 = null;
 		
 		SolrDocument e3 = all.get(2);
@@ -160,11 +172,11 @@ public class HandlerXmlNamespaceTest {
 		assertNotNull("inherited", e3.getFieldValue("ins_cms2"));
 		assertNotNull("inherited", e3.getFieldValue("ins_cms3"));
 		
-		//System.out.println(e3.getFieldValue("ns_unused"));
-		/*
-		assertEquals("unused namespaces", "[http://www.simonsoft.se/namespace/cms\nhttp://www.simonsoft.se/namespace/test2\nhttp://www.simonsoft.se/namespace/test3\n]", 
-				e3.getFieldValue("ns_unused").toString());
-		*/		
+		assertNull("used", e3.getFieldValue("uns_cms"));
+		assertNotNull("used", e3.getFieldValue("uns_cms1"));
+		assertNull("used", e3.getFieldValue("uns_cms2"));
+		assertNull("used", e3.getFieldValue("uns_cms3"));
+	
 		e3 = null;
 		
 		SolrDocument e4 = all.get(3);
@@ -180,13 +192,9 @@ public class HandlerXmlNamespaceTest {
 		assertNotNull("inherited", e4.getFieldValue("ins_cms2"));
 		assertNotNull("inherited", e4.getFieldValue("ins_cms3"));
 		
-		//System.out.println(e4.getFieldValue("ns_unused"));
-		/*
-		assertEquals("unused namespaces", "[http://www.simonsoft.se/namespace/cms\nhttp://www.simonsoft.se/namespace/test1\nhttp://www.simonsoft.se/namespace/test3\n]", 
-				e4.getFieldValue("ns_unused").toString());
-		*/
-		e4 = null;
+		assertNotNull("used", e4.getFieldValue("uns_cms2"));
 		
+		e4 = null;
 	}
 
 }
