@@ -268,8 +268,6 @@ public class HandlerXml implements IndexingItemHandler {
 			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
-			// Flag that it was indexed in repositem.
-			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 			
 			if (indexReposxml) {
 				// Calculate source_reuse.
@@ -292,6 +290,10 @@ public class HandlerXml implements IndexingItemHandler {
 				// success, flag this
 				progress.getFields().addField("flag", FLAG_XML);
 			}
+
+			// Flag that it was indexed in repositem.
+			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
+			
 		// TODO: Ensure that Transformer framework figures this out and throws XmlNotWellFormedException.
 		} catch (XmlNotWellFormedException e) { 
 			// failure, flag with error
