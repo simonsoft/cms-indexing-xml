@@ -55,10 +55,14 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		doc.addField("name", element.getName());
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			// The 'ns_' fields will only contain 'namespacesIntroduced', which might be unexpected. See 'ins_'.
-			doc.addField("ns_" + n.getName(), n.getUri());
+			if (!isNamespaceExcluded(n)) {
+				doc.addField("ns_" + n.getName(), n.getUri());
+			}
 		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
-			doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
+			if (!isAttributeExcluded(a)) { 
+				doc.addField(fieldNames.getAttribute(a.getName()), a.getValue());
+			}
 		}
 		doc.addField("depth", element.getDepth());
 		int position = element.getLocation().getOrdinal();
@@ -69,7 +73,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField("id_s", idProvider.getXmlElementId(sp));
 			doc.addField("sname", sp.getName());
 			for (XmlSourceAttribute a : sp.getAttributes()) {
-				doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
+				if (!isAttributeExcluded(a)) { 
+					doc.addField(fieldNames.getAttributeSiblingPreceding(a.getName()), a.getValue());
+				}
 			}
 		} else if (position > 1) {
 			logger.warn("failed to navigate to preceding sibling despite position: {}", position);
@@ -95,13 +101,16 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		// Treating them similar to inherited attributes renders a useful result in 'ins_'.
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			String f = "ins_" + n.getName();
-			if (!doc.containsKey(f)) {
+			if (!isNamespaceExcluded(n) && !doc.containsKey(f)) {
 				doc.addField(f, n.getUri());
 			}
 		}
 		
 		// Inherited includes self
 		for (XmlSourceAttribute a : element.getAttributes()) {
+			if (isAttributeExcluded(a)) {
+				continue;
+			}
 			String f = fieldNames.getAttributeInherited(a.getName());
 			if (!doc.containsKey(f)) {
 				doc.addField(f, a.getValue());
@@ -111,6 +120,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		// Ancestor does not include self
 		if (!isSelf) {
 		for (XmlSourceAttribute a : element.getAttributes()) {
+			if (isAttributeExcluded(a)) {
+				continue;
+			}
 			String f = fieldNames.getAttributeAncestor(a.getName());
 			if (!doc.containsKey(f)) {
 				doc.addField(f, a.getValue());
@@ -122,6 +134,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			doc.addField("id_r", idProvider.getXmlElementId(element));
 			doc.addField("rname", element.getName());
 			for (XmlSourceAttribute a : element.getAttributes()) {
+				if (isAttributeExcluded(a)) {
+					continue;
+				}
 				doc.addField(fieldNames.getAttributeRoot(a.getName()), a.getValue());
 			}
 		} else {
@@ -141,4 +156,17 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		}
 	}	
 
+	private boolean isAttributeExcluded(XmlSourceAttribute a) {
+		if (a.getName().startsWith("cmsreposxml:")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isNamespaceExcluded(XmlSourceNamespace n) {
+		if (n.getName() != null && n.getName().equals("cmsreposxml")) {
+			return true;
+		}
+		return false;
+	}
 }

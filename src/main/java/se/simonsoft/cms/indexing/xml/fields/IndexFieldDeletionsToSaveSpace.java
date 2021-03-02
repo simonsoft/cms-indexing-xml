@@ -43,7 +43,7 @@ public class IndexFieldDeletionsToSaveSpace implements XmlIndexFieldExtraction {
 		
 		// Suppressing text in reposxml core does not impact normal search, only assist and similar services.
 		String text = (String) fields.getFieldValue("text");
-		if (text.length() > MAX_CHARACTERS_TEXT) {
+		if (text != null && text.length() > MAX_CHARACTERS_TEXT) {
 			logger.debug("Suppressing large text field in reposxml for element '{}'", fields.getFieldValue("name"));
 			fields.removeField("text");
 		}

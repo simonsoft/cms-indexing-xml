@@ -56,9 +56,6 @@ public class XmlIndexRidDuplicateDetection implements XmlIndexFieldExtraction {
 		Boolean flagRidDup = false;
 		if (flags != null) {
 			flagRidDup = flags.contains(REPOSITEM_FLAG_RIDDUPLICATE); 
-			
-			// TODO: Need to remove the flag field until we introduce it in reposxml.
-			fields.removeField(REPOSITEM_FLAG_FIELD);
 		}
 		
 		

@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml.fields;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
+@Deprecated
 public class XmlIndexIdAppendTreeLocation implements XmlIndexElementId {
 
 	private String baseId;

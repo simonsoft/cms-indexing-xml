@@ -105,6 +105,12 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should count words", 3L, flagged.get(0).getFieldValue("count_words_text"));
 		assertNull("not calculated, no RID", flagged.get(0).getFieldValue("count_words_translate"));
 		
+		// DOCTYPE in repositem schema
+		assertEquals("repositem root element name", "document", flagged.get(0).getFieldValue("embd_xml_typename"));
+		assertEquals("repositem systemid", "techdoc.dtd", flagged.get(0).getFieldValue("embd_xml_typesystem"));
+		assertEquals("repositem publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", flagged.get(0).getFieldValue("embd_xml_typepublic"));
+
+		
 		// Depth for reposxml
 		assertEquals("null since item is not a translation", null, flagged.get(0).getFieldValue("count_reposxml_depth"));
 
@@ -113,21 +119,36 @@ public class HandlerXmlIntegrationTest {
 		
 		assertEquals("document/root element name", "doc", x1.get(0).getFieldValue("name"));
 		assertEquals("element pos", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("all elements", 4L, x1.get(0).getFieldValue("count_elements"));
 		assertEquals("word count identical to repositem (document element)", 3L, x1.get(0).getFieldValue("count_words_text"));
 		assertEquals("word count translate", 3L, x1.get(0).getFieldValue("count_words_translate"));
 		assertEquals("word count child (immediate text)", 0L, x1.get(0).getFieldValue("count_words_child"));
+		//assertEquals("Currently not including 'hasxml': " + flags.toString(), 1, x1.get(0).getFieldValues("flag").size());
+		assertNull("no flags in reposxml at this time", x1.get(0).getFieldValues("flag"));
+		
+		assertEquals("cms namespace", "http://www.simonsoft.se/namespace/cms", x1.get(0).getFieldValue("ns_cms"));
+		assertNull("cmsrepoxml ns suppressed", x1.get(0).getFieldValue("ns_cmsreposxml"));
+		
 		
 		assertEquals("document/root element name", "elem", x1.get(2).getFieldValue("name"));
 		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("pos"));
+		assertEquals("elements below", 2L, x1.get(2).getFieldValue("count_elements"));
 		assertEquals("word count", 2L, x1.get(2).getFieldValue("count_words_text"));
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
+
+		assertNull("no ns on element", x1.get(2).getFieldValue("ns_cms"));
+		assertNull("no ns on element", x1.get(2).getFieldValue("ns_cmsreposxml"));
+		assertEquals("inherited cms namespace", "http://www.simonsoft.se/namespace/cms", x1.get(2).getFieldValue("ins_cms"));
+		assertNull("inherited cmsrepoxml ns suppressed", x1.get(2).getFieldValue("ins_cmsreposxml"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
+		// Now keeping DOCTYPE in repositem.
+		/*
 		assertEquals("should set root element name", "document", x1.get(0).getFieldValue("typename"));
 		assertEquals("should set systemid", "techdoc.dtd", x1.get(0).getFieldValue("typesystem"));
 		assertEquals("should set publicid", "-//Simonsoft//DTD TechDoc Base V1.0 Techdoc//EN", x1.get(0).getFieldValue("typepublic"));
-		
-		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source"));
+		*/
+		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source_reuse"));
 	}
 
 	@Test
@@ -161,7 +182,9 @@ public class HandlerXmlIntegrationTest {
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
 		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		// No longer providing source, has been blocked by other extractor since a few years.
+		//assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 	
 	@Test
@@ -191,7 +214,7 @@ public class HandlerXmlIntegrationTest {
 		// Back to asserting on reposxml.
 		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
 		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
+		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 	
 	@Test
@@ -468,7 +491,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrDocumentList findAll = reposxml.query(new SolrQuery("prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
-		assertEquals("Should ...", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
+		assertEquals("Should limit reposxml extraction depth", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
 		
 		SolrDocumentList findUsingRid0 = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0000 AND prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find root element in the Translation", 1, findUsingRid0.getNumFound());

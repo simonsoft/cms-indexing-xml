@@ -36,6 +36,7 @@ import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
 
 /**
  * Creates checksums of selected fields and adds with checksum type prefixed field names.
+ * @deprecated calculating checksum from XSL function instead, no longer providing checksum of 'text'.
  */
 public class XmlIndexFieldExtractionChecksum implements XmlIndexFieldExtraction {
 

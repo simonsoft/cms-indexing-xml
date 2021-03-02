@@ -17,6 +17,7 @@ package se.simonsoft.cms.indexing.xml.custom;
 
 import javax.xml.transform.Source;
 
+@Deprecated // Now using injected map of included XSL transforms.
 public interface XmlMatchingFieldExtractionSource {
 
 	Source getXslt();

@@ -42,7 +42,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	private XmlIndexIdAppendDepthFirstPosition idAppender;
 	
 	private long elementCount;
-	private Integer maxDepth = null;
+	private Integer maxDepth = null; // Now also limiting depth in xml-indexing-reposxml.xsl
 	
 	/**
 	 * @param commonFieldsDoc fieds that should be set/kept same for all elements
@@ -61,27 +61,12 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 		this.docHandler = docHandler;
 
 		this.elementCount = 0; // The first element is 1.
-		this.maxDepth = getDepthReposxml(this.baseDoc);
+		this.maxDepth = XmlIndexFieldExtraction.getDepthReposxml(this.baseDoc);
 	}
 	
-	public static Integer getDepthReposxml(IndexingDoc itemDoc) {
-		// The reposxml indexing depth controlled by repositem XSL.
-		// Some Unit tests don't execute the repositem extraction.
-		String reposxmlDepth = (String) itemDoc.getFieldValue("count_reposxml_depth");
-		if (reposxmlDepth != null) {
-			return Integer.parseInt(reposxmlDepth);
-		} else {
-			return null;
-		}
-	}
 	
 	@Override
 	public void startDocument(XmlSourceDoctype doctype) {
-		if (doctype != null) {
-			baseDoc.setField("typename", doctype.getElementName());
-			baseDoc.setField("typepublic", doctype.getPublicID());
-			baseDoc.setField("typesystem", doctype.getSystemID());
-		}
 		logger.debug("Source handler starts with {} fields, extractors {}", this.baseDoc.getFieldNames().size(), fieldExtraction);
 		
 		for (XmlIndexFieldExtraction ex : fieldExtraction) {
@@ -101,6 +86,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void begin(XmlSourceElement element) {
 		
+		// Now also limiting depth in xml-indexing-reposxml.xsl
 		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
 			return;
 		}
@@ -119,6 +105,7 @@ class XmlSourceHandlerFieldExtractors implements XmlSourceHandler {
 	@Override
 	public void end(XmlSourceElement element) {
 		
+		// Now also limiting depth in xml-indexing-reposxml.xsl
 		if (this.maxDepth != null && element.getDepth() > this.maxDepth) {
 			return;
 		}

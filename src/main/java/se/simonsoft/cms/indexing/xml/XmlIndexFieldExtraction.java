@@ -28,6 +28,22 @@ public interface XmlIndexFieldExtraction {
 
 	
 	/**
+	 * The reposxml indexing depth controlled by repositem XSL.
+	 * 
+	 * @param itemDoc
+	 * @return null if full depth should be extracted
+	 */
+	static Integer getDepthReposxml(IndexingDoc itemDoc) {
+		// Some Unit tests don't execute the repositem extraction.
+		String reposxmlDepth = (String) itemDoc.getFieldValue("count_reposxml_depth");
+		if (reposxmlDepth != null) {
+			return Integer.parseInt(reposxmlDepth);
+		} else {
+			return null;
+		}
+	}
+	
+	/**
 	 * Notification that the element will be extracted when reaching the end of the element.
 	 * 
 	 * @param processedElement
