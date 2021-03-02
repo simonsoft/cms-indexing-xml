@@ -119,12 +119,14 @@ public class HandlerXmlIntegrationTest {
 		
 		assertEquals("document/root element name", "doc", x1.get(0).getFieldValue("name"));
 		assertEquals("element pos", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("all elements", 4L, x1.get(0).getFieldValue("count_elements"));
 		assertEquals("word count identical to repositem (document element)", 3L, x1.get(0).getFieldValue("count_words_text"));
 		assertEquals("word count translate", 3L, x1.get(0).getFieldValue("count_words_translate"));
 		assertEquals("word count child (immediate text)", 0L, x1.get(0).getFieldValue("count_words_child"));
 		
 		assertEquals("document/root element name", "elem", x1.get(2).getFieldValue("name"));
 		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("pos"));
+		assertEquals("elements below", 2L, x1.get(2).getFieldValue("count_elements"));
 		assertEquals("word count", 2L, x1.get(2).getFieldValue("count_words_text"));
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
 		

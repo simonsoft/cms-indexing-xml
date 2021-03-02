@@ -69,7 +69,7 @@
 		
 		<xsl:copy>
 			<!-- Number of elements -->	
-			<xsl:attribute name="cmsreposxml:count_elements" select="count(//element())"/>
+			<xsl:attribute name="cmsreposxml:count_elements" select="count(descendant-or-self::element())"/>
 			
 			<!-- Just concat of the tokens/words. -->
 			<!-- Max 500 words or 3000 chars. -->
