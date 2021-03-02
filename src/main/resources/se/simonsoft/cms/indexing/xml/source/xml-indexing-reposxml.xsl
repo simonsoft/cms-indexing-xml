@@ -229,7 +229,6 @@
 	<xsl:template name="ns-used">
 		<xsl:variable name="e" as="element()" select="."/>
 		<xsl:variable name="ns-prefixes" as="xs:string*" select="in-scope-prefixes($e)"/>
-		<!-- [. != 'xml'] -->
 		
 		<xsl:variable name="ns-used" as="attribute()*" select="for $p in $ns-prefixes return cmsreposxml:ns-used($e, $p, namespace-uri-for-prefix($p, $e))"/>
 		

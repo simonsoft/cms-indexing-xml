@@ -129,7 +129,7 @@ public class HandlerXmlNamespaceTest {
 		assertEquals("declared ns", "http://www.simonsoft.se/namespace/test3", e1.getFieldValue("ns_cms3"));
 		
 		assertNull("no default ns", e1.getFieldValue("uns_"));
-		//assertNull("xml namespace excluded from extraction", e1.getFieldValue("uns_xml"));
+		assertNotNull("xml namespace actually included", e1.getFieldValue("uns_xml"));
 		
 		assertNotNull("used", e1.getFieldValue("uns_cms"));
 		assertNotNull("used", e1.getFieldValue("uns_cms1"));
