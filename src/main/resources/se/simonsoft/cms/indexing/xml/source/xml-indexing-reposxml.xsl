@@ -102,9 +102,11 @@
 			<!-- TODO: Discuss whether the feature is worth the performance hit.  -->
 			<!-- Tests with 860k indicates 5-10% higher execution time, close to 5% when test file has no unused ns. -->
 			<!-- Likely increasing processing time with a larger number of declared namespaces. -->
+			<!-- 
 			<xsl:attribute name="cmsreposxml:ns_unused">
 				<xsl:apply-templates select="." mode="i-ns-unused"/>
 			</xsl:attribute>
+			-->
 			
 			
 			<!-- reuse-normalized.xsl before in pipeline -->
