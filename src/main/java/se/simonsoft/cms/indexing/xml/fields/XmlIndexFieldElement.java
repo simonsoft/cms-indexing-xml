@@ -55,7 +55,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		doc.addField("name", element.getName());
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			// The 'ns_' fields will only contain 'namespacesIntroduced', which might be unexpected. See 'ins_'.
-			doc.addField("ns_" + n.getName(), n.getUri());
+			if (!isNamespaceExcluded(n)) {
+				doc.addField("ns_" + n.getName(), n.getUri());
+			}
 		}
 		for (XmlSourceAttribute a : element.getAttributes()) {
 			if (!isAttributeExcluded(a)) { 
@@ -99,7 +101,7 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 		// Treating them similar to inherited attributes renders a useful result in 'ins_'.
 		for (XmlSourceNamespace n : element.getNamespaces()) {
 			String f = "ins_" + n.getName();
-			if (!doc.containsKey(f)) {
+			if (!isNamespaceExcluded(n) && !doc.containsKey(f)) {
 				doc.addField(f, n.getUri());
 			}
 		}
@@ -156,6 +158,13 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 
 	private boolean isAttributeExcluded(XmlSourceAttribute a) {
 		if (a.getName().startsWith("cmsreposxml:")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isNamespaceExcluded(XmlSourceNamespace n) {
+		if (n.getName() != null && n.getName().equals("cmsreposxml")) {
 			return true;
 		}
 		return false;

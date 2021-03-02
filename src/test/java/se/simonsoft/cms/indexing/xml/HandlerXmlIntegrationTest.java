@@ -123,12 +123,22 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("word count identical to repositem (document element)", 3L, x1.get(0).getFieldValue("count_words_text"));
 		assertEquals("word count translate", 3L, x1.get(0).getFieldValue("count_words_translate"));
 		assertEquals("word count child (immediate text)", 0L, x1.get(0).getFieldValue("count_words_child"));
+		assertEquals("Currently not including 'hasxml': " + flags.toString(), 1, x1.get(0).getFieldValues("flag").size());
+		
+		assertEquals("cms namespace", "http://www.simonsoft.se/namespace/cms", x1.get(0).getFieldValue("ns_cms"));
+		assertNull("cmsrepoxml ns suppressed", x1.get(0).getFieldValue("ns_cmsreposxml"));
+		
 		
 		assertEquals("document/root element name", "elem", x1.get(2).getFieldValue("name"));
 		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("pos"));
 		assertEquals("elements below", 2L, x1.get(2).getFieldValue("count_elements"));
 		assertEquals("word count", 2L, x1.get(2).getFieldValue("count_words_text"));
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
+
+		assertNull("no ns on element", x1.get(2).getFieldValue("ns_cms"));
+		assertNull("no ns on element", x1.get(2).getFieldValue("ns_cmsreposxml"));
+		assertEquals("inherited cms namespace", "http://www.simonsoft.se/namespace/cms", x1.get(2).getFieldValue("ins_cms"));
+		assertNull("inherited cmsrepoxml ns suppressed", x1.get(2).getFieldValue("ins_cmsreposxml"));
 		
 		// The "typename" is quite debatable because the test document has an incorrect DOCTYPE declaration (root element is "doc" not "document").
 		// Now keeping DOCTYPE in repositem.
