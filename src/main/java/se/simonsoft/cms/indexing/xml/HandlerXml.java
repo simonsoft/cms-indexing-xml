@@ -127,12 +127,10 @@ public class HandlerXml implements IndexingItemHandler {
 				if (c.isDelete()) {
 					indexWriter.deletePath(progress.getRepository(), c);
 					boolean expunge = true;
-					logger.info("Performing commit (expunge: {}) of deleted changeset item: {}", expunge, c);
-					this.commitWithRetry(expunge); // Best effort with retry.
+					logger.info("Deleted XML index content for changeset item: {}", expunge, c);
 				} else if (c.getFilesize() == 0) {
 					logger.info("Deferring XML extraction when file is empty: {}", c);
 				} else {
-					boolean expunge = true;
 					if (!c.isAdd()) {
 						indexWriter.deletePath(progress.getRepository(), c);
 					}
@@ -142,23 +140,15 @@ public class HandlerXml implements IndexingItemHandler {
 						String msg = MessageFormatter.format("Deferring XML extraction when file size {} gt {}: " + c, c.getFilesize(), maxFilesize).getMessage();
 						throw new IndexingHandlerException(msg);
 					}
-					if (c.isAdd() || (maxFilesize != null && (2*c.getFilesize()) < maxFilesize)) {
-						// Expunge only if the file is larger than half of maxFilesize (reposxml).
-						expunge = false;
-					}
 					
 					try {
 						index(progress);
-						// Doing intermediate commit of each XML file to manage solr core growth during huge changesets.
-						// This will cause files in reposxml to be replaced one-by-one instead of whole commit.
-						// TODO: Consider removing this per-item commit if reposxml size is significantly smaller after refactoring Translations into one SolR doc.
-						logger.info("Performing commit (expunge: {}) of changeset item: {}", expunge, c);
-						this.commit(expunge); // No retry to ensure that a failure is noticed (SolR restart btw commit attempts).
+						// No longer doing intermediate commit of each XML file.
+						// Previously in order to manage solr core growth during huge changesets.
 					} catch (IndexingHandlerException ex) {
 						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
 						indexWriter.deletePath(progress.getRepository(), c);
-						this.commitWithRetry(true); // Best effort with retry.
 						// The message/stacktrace in exception will be logged in repositem.
 						throw ex;
 					}
@@ -172,41 +162,6 @@ public class HandlerXml implements IndexingItemHandler {
 		}
 	}
 	
-	
-	private void commitWithRetry(boolean expunge) {
-		
-		try {
-			logger.debug("Commit reposxml first attempt (expunge: {})", expunge);
-			indexWriter.commit(expunge);
-			logger.info("Commit reposxml first attempt successful");
-		} catch (Exception e) {
-			long pause = 10000;
-			// TODO: #1346 This retry can result in incomplete index if SolR restarts btw attempts.
-			logger.warn("Commit reposxml first attempt failed, retry in {} ms", pause, e);
-			try {
-				Thread.sleep(pause);
-			} catch (InterruptedException e1) {
-				throw new RuntimeException("Recovery sleep after failed indexing commit attempt interrupted: " +  e.getMessage());
-			}
-			
-			logger.info("Commit reposxml second attempt (expunge: {})", expunge);
-			indexWriter.commit(expunge);
-			logger.info("Commit reposxml second attempt successful");
-		}
-	}
-	
-	private void commit(boolean expunge) {
-		// #1346: Reverted to a strict single commit approach for now.
-		try {
-			logger.debug("Commit reposxml (expunge: {})", expunge);
-			indexWriter.commit(expunge);
-			logger.info("Commit reposxml successful");
-		} catch (Exception e) {
-			String msg = MessageFormatter.format("Commit reposxml failed: {}", e.getMessage()).getMessage();
-			logger.error(msg, e);
-			throw new RuntimeException(msg, e);
-		}
-	}
 	
 	@SuppressWarnings("deprecation")
 	private TransformOptions getTransformOptionsNormalize() {
@@ -255,9 +210,6 @@ public class HandlerXml implements IndexingItemHandler {
 		// Don't index "Pending_Pretranslate_Analysis" in reposxml, only need the repositem content for Analysis.
 		if (progress.getFields().containsKey(HandlerXmlRepositem.STATUS_FIELD_NAME) && "Pending_Pretranslate_Analysis".equals(progress.getFields().getFieldValue(HandlerXmlRepositem.STATUS_FIELD_NAME))) {
 			logger.info("Suppressing reposxml indexing of 'Pending_Pretranslate' item: {}", progress.getItem());
-			// Not requesting commit, this will always be followed by another commit.
-			// Might be important to commit the delete when re-Pretranslating but committing each of 20 Translations can be 1min.
-			// Must ensure the stability of the Analysis event handler so some status transition is always committed.
 			indexReposxml = false;
 		}
 		

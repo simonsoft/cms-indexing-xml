@@ -83,6 +83,8 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	}
 	
 	// Probably needed for unit tests
+	// TODO: This wait could be moved to MarkerXmlCommit, per-commit instead of per-document.
+	// Things might change when supporting indexing in Lambda.
 	public void waitForCompletion() {
 		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
 		executor.shutdown();
