@@ -105,6 +105,9 @@ public class HandlerXmlRepositem {
 
 		IndexingDoc fields = progress.getFields();
 		CmsChangesetItem processedFile = progress.getItem();
+		
+		// Ensure no previous parameters can hang around.
+		transformer.clearParameters();
 
 		XmlSourceDoctype doctype = xmlDoc.getDocType();
 		if (doctype != null) {
