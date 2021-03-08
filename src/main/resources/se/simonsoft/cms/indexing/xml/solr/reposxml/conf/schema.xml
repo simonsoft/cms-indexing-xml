@@ -134,7 +134,7 @@
 		<!-- 
 		Position in tree for uniqueness within document, .N appended for each level, 1-based
 		-->
-		<field name="pos" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+		<field name="treelocation" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 		
 		<!-- 
 		Ancestor attributes, excluding self, near overrides far

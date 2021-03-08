@@ -22,6 +22,7 @@ import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.xml.XmlIndexElementId;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexProgress;
+import se.simonsoft.cms.xmlsource.TreeLocation;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceAttribute;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
@@ -65,8 +66,10 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 			}
 		}
 		doc.addField("depth", element.getDepth());
-		int position = element.getLocation().getOrdinal();
+		TreeLocation location = element.getLocation();
+		int position = location.getOrdinal();
 		doc.addField("position", position);
+		doc.addField("treelocation", location.toString());
 		addAncestorData(element, idProvider, doc);
 		XmlSourceElement sp = element.getSiblingPreceding();
 		if (sp != null) {
@@ -90,10 +93,6 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 	 * @param doc Field value holder
 	 */
 	protected void addAncestorData(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc) {
-		addAncestorData(element, idProvider, doc, new StringBuffer());
-	}
-	
-	protected void addAncestorData(XmlSourceElement element, XmlIndexElementId idProvider, IndexingDoc doc, StringBuffer pos) {
 		boolean isSelf = !doc.containsKey("pname");
 		// bottom first
 		
@@ -145,12 +144,9 @@ public class XmlIndexFieldElement implements XmlIndexFieldExtraction {
 				doc.addField("id_p", idProvider.getXmlElementId(parent));
 				doc.addField("pname", parent.getName());
 			}
-			addAncestorData(parent, idProvider, doc, pos);
+			addAncestorData(parent, idProvider, doc);
 		}
-		pos.append('.').append(element.getLocation().getOrdinal());
-		if (isSelf) {
-			doc.addField("pos", pos.substring(1));
-		} else {
+		if (!isSelf) {
 			doc.addField("aname", element.getName());
 			doc.addField("id_a", idProvider.getXmlElementId(element));
 		}

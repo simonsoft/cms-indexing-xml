@@ -92,7 +92,7 @@ public class CoreReposxmlIntegrationTest extends SolrTestCaseJ4 {
 		SolrInputDocument doc1 = new SolrInputDocument();
 		doc1.addField("id", "x");
 		doc1.addField("name", "x");
-		doc1.addField("pos", "1");
+		doc1.addField("treelocation", "1");
 		solr.add(doc1);
 		solr.commit();
 		QueryResponse query = solr.query(new SolrQuery("*:*"));

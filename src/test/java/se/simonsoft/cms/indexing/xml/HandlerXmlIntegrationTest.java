@@ -86,7 +86,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
 	
@@ -118,7 +118,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should index all elements", 4, x1.size());
 		
 		assertEquals("document/root element name", "doc", x1.get(0).getFieldValue("name"));
-		assertEquals("element pos", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("element pos", "1", x1.get(0).getFieldValue("treelocation"));
 		assertEquals("all elements", 4L, x1.get(0).getFieldValue("count_elements"));
 		assertEquals("word count identical to repositem (document element)", 3L, x1.get(0).getFieldValue("count_words_text"));
 		assertEquals("word count translate", 3L, x1.get(0).getFieldValue("count_words_translate"));
@@ -131,7 +131,7 @@ public class HandlerXmlIntegrationTest {
 		
 		
 		assertEquals("document/root element name", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("pos"));
+		assertEquals("element pos", "1.2", x1.get(2).getFieldValue("treelocation"));
 		assertEquals("elements below", 2L, x1.get(2).getFieldValue("count_elements"));
 		assertEquals("word count", 2L, x1.get(2).getFieldValue("count_words_text"));
 		assertEquals("word count child (immediate text)", 1L, x1.get(2).getFieldValue("count_words_child"));
@@ -161,7 +161,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
@@ -197,7 +197,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
 		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
 	
@@ -298,7 +298,7 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrInputDocument differentRepo = new SolrInputDocument();
 		differentRepo.setField("id", "something completely different");
-		differentRepo.setField("pos", "2");
+		differentRepo.setField("treelocation", "2");
 		reposxml.add(differentRepo);
 		reposxml.commit();
 		
@@ -367,13 +367,13 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
+		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
 		assertEquals(4, x1.getNumFound());
 		
 		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
 		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
-		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("treelocation"));
 		assertEquals("get name of e1", "ch1", x1.get(1).getFieldValue("a_name"));
 		
 		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
@@ -390,7 +390,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get element name of inline", "inline", x1.get(3).getFieldValue("name"));
 		assertEquals("get inherited name of inline", "root", x1.get(3).getFieldValue("ia_name"));
 		assertEquals("get depth of inline", 3, x1.get(3).getFieldValue("depth"));
-		assertEquals("get pos/treeloc of inline", "1.2.1", x1.get(3).getFieldValue("pos"));
+		assertEquals("get pos/treeloc of inline", "1.2.1", x1.get(3).getFieldValue("treelocation"));
 		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));
 		
 	}
@@ -405,13 +405,13 @@ public class HandlerXmlIntegrationTest {
 		
 		SolrClient reposxml = indexing.getCore("reposxml");
 		
-		SolrQuery q1 = new SolrQuery("*:*").addSort("pos", SolrQuery.ORDER.asc);
+		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
 		assertEquals(4, x1.getNumFound());
 		
 		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
 		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
-		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("pos"));
+		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("treelocation"));
 		assertEquals("get RID of root", "2gyvymn15kv0000", x1.get(0).getFieldValue("a_cms.rid"));
 		assertEquals("get doc.code of root", "period", x1.get(0).getFieldValue("a_doc,code"));
 		
@@ -962,7 +962,7 @@ public class HandlerXmlIntegrationTest {
 //		assertEquals("en", d1.get("a_xml:lang"));
 //		assertEquals("should index namespaces", "http://www.simonsoft.se/namespace/cms", d1.get("ns_cms"));
 //		assertEquals("inherited namespaces should contains self", "http://www.simonsoft.se/namespace/cms", d1.get("ins_cms"));
-//		assertEquals("root", "1", d1.get("pos"));
+//		assertEquals("root", "1", d1.get("treelocation"));
 //		
 //		SolrDocument d2 = all.getResults().get(1);
 //		assertEquals("section", d2.get("name"));
@@ -973,7 +973,7 @@ public class HandlerXmlIntegrationTest {
 //		assertEquals("document", d2.get("pname"));
 //		assertEquals("ns is only those defined on the actual element", null, d2.get("ns_cms"));
 //		assertEquals("inherited namespaces", "http://www.simonsoft.se/namespace/cms", d2.get("ins_cms"));
-//		assertEquals("1.1", d2.get("pos"));
+//		assertEquals("1.1", d2.get("treelocation"));
 //		
 //		assertEquals(1, d2.getFieldValues("aname").size());
 //		assertTrue(d2.getFieldValues("aname").contains("document"));
@@ -985,7 +985,7 @@ public class HandlerXmlIntegrationTest {
 //		
 //		SolrDocument d3 = all.getResults().get(2);
 //		assertEquals(2, d3.get("position"));
-//		assertEquals("1.2", d3.get("pos"));
+//		assertEquals("1.2", d3.get("treelocation"));
 //		assertEquals(d1.get("id"), d3.get("id_p"));
 //		assertEquals(d2.get("id"), d3.get("id_s"));
 //		assertEquals(d1.get("id"), d3.get("id_r"));
@@ -994,7 +994,7 @@ public class HandlerXmlIntegrationTest {
 //		assertEquals("xz0", d3.get("a_cms:component"));
 //		
 //		SolrDocument d4 = all.getResults().get(3);
-//		assertEquals("1.2.1", d4.get("pos"));
+//		assertEquals("1.2.1", d4.get("treelocation"));
 //		assertEquals(d3.get("id"), d4.get("id_p"));
 //		assertEquals(null, d4.get("id_s"));
 //		assertEquals(d1.get("id"), d4.get("id_r"));
@@ -1003,7 +1003,7 @@ public class HandlerXmlIntegrationTest {
 //		assertTrue(d4.getFieldValues("id_a").contains(d3.get("id")));
 //		
 //		SolrDocument d5 = all.getResults().get(4);
-//		assertEquals("1.2.2", d5.get("pos"));
+//		assertEquals("1.2.2", d5.get("treelocation"));
 //		
 //		// now that we have the data in a test index, test some other queries
 //		reuseDataTestJoin();
