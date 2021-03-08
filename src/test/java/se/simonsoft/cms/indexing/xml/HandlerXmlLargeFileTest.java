@@ -211,7 +211,7 @@ public class HandlerXmlLargeFileTest {
 				SolrDocumentList e;
 
 				String q = "name:" + t.getKey(); // Query for first element with current tagname.
-				e = reposxml.query(new SolrQuery(q).setRows(1).addSort("pos", ORDER.asc)).getResults();
+				e = reposxml.query(new SolrQuery(q).setRows(1).addSort("treelocation", ORDER.asc)).getResults();
 
 				
 				// Only for testing, must disable the removal of source_reuse in XmlIndexFieldExtractionSource.java

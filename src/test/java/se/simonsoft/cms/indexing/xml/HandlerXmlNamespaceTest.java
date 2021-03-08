@@ -86,7 +86,7 @@ public class HandlerXmlNamespaceTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 
 		SolrClient reposxml = indexing.getCore("reposxml");
-		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(13, all.getNumFound()); 
 		
 		SolrDocument e1 = all.get(0);
@@ -115,7 +115,7 @@ public class HandlerXmlNamespaceTest {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
 
 		SolrClient reposxml = indexing.getCore("reposxml");
-		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("pos", ORDER.asc)).getResults();
+		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(5, all.getNumFound()); 
 		
 		SolrDocument e1 = all.get(0);
