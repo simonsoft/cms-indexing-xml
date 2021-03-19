@@ -61,13 +61,16 @@
 		<xsl:variable name="root" select="."/>
 		<xsl:variable name="titles" as="element()*">
 			<xsl:choose>
-				<xsl:when test="$ditamap//title">
-					<xsl:sequence select="$ditamap//title"/>
+				<xsl:when test="$ditamap//booktitle/mainbooktitle">
+					<!-- DITA bookmap in Release/Translation Area. -->
+					<xsl:sequence select="$ditamap//booktitle/mainbooktitle"/>
 				</xsl:when>
 				<xsl:when test="$ditamap//title">
+					<!-- Ditamap in Release/Translation Area. -->
 					<xsl:sequence select="$ditamap//title"/>
 				</xsl:when>
 				<xsl:when test="/*/booktitle/mainbooktitle">
+					<!-- DITA bookmap in Author Area. -->
 					<xsl:sequence select="/*/booktitle/mainbooktitle"/>
 				</xsl:when>
 				<xsl:when test="//searchtitle">
