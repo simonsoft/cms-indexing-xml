@@ -70,6 +70,10 @@
 				<xsl:when test="/*/booktitle/mainbooktitle">
 					<xsl:sequence select="/*/booktitle/mainbooktitle"/>
 				</xsl:when>
+				<xsl:when test="//searchtitle">
+					<!-- Used in DITA topics. -->
+					<xsl:sequence select="//searchtitle"/>
+				</xsl:when>
 				<xsl:otherwise>
 					<xsl:sequence select="//title"/>
 				</xsl:otherwise>
