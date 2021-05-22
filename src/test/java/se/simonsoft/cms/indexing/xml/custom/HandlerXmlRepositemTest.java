@@ -132,6 +132,7 @@ public class HandlerXmlRepositemTest {
 		
 		assertEquals("word count excl keyref",  3L, doc.get(0).getFieldValue("count_words_text"));
 		
+		assertEquals("elements considered para", 3L, doc.get(0).getFieldValue("count_elements_para"));
 		assertEquals("elements to translate (includes the one with a keyref)", 1L, doc.get(0).getFieldValue("count_elements_translate_all"));
 		assertEquals("elements to translate (with text)", 0L, doc.get(0).getFieldValue("count_elements_translate"));
 		assertEquals("words to translate", 0L, doc.get(0).getFieldValue("count_words_translate"));

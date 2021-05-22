@@ -249,6 +249,11 @@
 				<!-- The fixed part of the rids. -->
 				<field name="embd_xml_rid_prefix"><xsl:value-of select="cmsfn:get-rid-prefix(@cms:rid)"/></field>
 				
+				<!-- Elements representing paragraph-like elements, i.e. RID-leaves (see PretranslateValidationStopTags). -->
+				<xsl:variable name="elements_para" as="element()*"
+					select="$root/descendant-or-self::*[@cms:rid][not(element()[@cms:rid])]"/>
+				<!-- Select: elements [with RID], [RID-leaf] -->
+				
 				
 				<!-- #1283 Attempt to detect complete pretranslate -->
 				<!-- Requires safe condition, not flags: ridduplicate, hastsuppress, hasridmixedunsafe, hasridmissing -->
@@ -279,6 +284,8 @@
 				
 				
 				<!-- Count number of elements: open / in_progress -->
+				<!-- TODO: Consider adding _translate_no (not impacted by inlines), _tsuppress  -->
+				<field name="count_elements_para"><xsl:value-of select="count($elements_para)"/></field>
 				<field name="count_elements_translate_all"><xsl:value-of select="count($tstatus_open_elements_all)"/></field>
 				<field name="count_elements_translate"><xsl:value-of select="count($tstatus_open_elements)"/></field>
 				<field name="count_elements_progress_all"><xsl:value-of select="count($tstatus_progress_elements_all)"/></field>
