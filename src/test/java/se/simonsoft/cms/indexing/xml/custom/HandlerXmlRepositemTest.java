@@ -139,6 +139,8 @@ public class HandlerXmlRepositemTest {
 		
 		Collection<Object> mixedUnsafe = doc.get(0).getFieldValues("embd_xml_ridmixedunsafe");
 		assertNull("no unsafe mixed content elements", mixedUnsafe);
+		
+		assertEquals("no of topics", 1L, doc.get(0).getFieldValue("count_elements_topic"));
 	}
 	
 	@Test

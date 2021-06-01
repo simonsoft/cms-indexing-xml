@@ -185,6 +185,22 @@
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
 			
+			<!-- Number of topics - could be an important metric -->
+			<!-- TODO: Consider adding count_elements_topic_norm where topic size is normalized (large topics counted >1). -->
+			<field name="count_elements_topic">
+				<xsl:choose>
+					<xsl:when test="/dita">
+						<xsl:value-of select="count(/dita/element())"/>
+					</xsl:when>
+					<xsl:when test="//section">
+						<!-- This could incorrectly trigger in a dita topic in Author Area. Likely does not matter. -->
+						<xsl:value-of select="count(//section)"/>
+					</xsl:when>
+					<!-- Fallback to 1 topic, typically in Author Area. -->
+					<xsl:otherwise>1</xsl:otherwise>
+				</xsl:choose>
+			</field>
+			
 			<!-- Limit reposxml indexing depth for Translations. -->
 			<xsl:if test="$patharea = 'translation'">
 				<field name="count_reposxml_depth">

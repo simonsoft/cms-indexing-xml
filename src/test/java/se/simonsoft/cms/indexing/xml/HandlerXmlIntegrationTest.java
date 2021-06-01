@@ -488,6 +488,7 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
 		assertNull("Should NOT limit depth of Release", flagged.get(0).getFieldValue("count_reposxml_depth"));
 		assertEquals("Should limit depth of Translation", 1L, flagged.get(1).getFieldValue("count_reposxml_depth"));
+		assertEquals("no of topics - 3 techdoc sections", 3L, flagged.get(1).getFieldValue("count_elements_topic"));
 		
 		SolrDocumentList findAll = reposxml.query(new SolrQuery("prop_abx.TranslationLocale:*")).getResults();
 		assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
