@@ -194,7 +194,7 @@
 					</xsl:when>
 					<xsl:when test="//section">
 						<!-- This could incorrectly trigger in a dita topic in Author Area. Likely does not matter. -->
-						<xsl:value-of select="count(//section)"/>
+						<xsl:value-of select="count(//section | infosection)"/>
 					</xsl:when>
 					<!-- Fallback to 1 topic, typically in Author Area. -->
 					<xsl:otherwise>1</xsl:otherwise>
