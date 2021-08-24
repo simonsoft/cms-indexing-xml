@@ -471,7 +471,7 @@
 	<xsl:template match="@*" mode="refnoncms">
 		<xsl:message select="concat('Encountered non-CMS reference: ', .)"/>
 		<xsl:value-of select="."/>
-		<xsl:value-of select="' '"/>
+		<xsl:value-of select="';'"/>
 	</xsl:template>
 
 	<xsl:template match="@*[name() = $ref-attrs-seq]" mode="refdep">

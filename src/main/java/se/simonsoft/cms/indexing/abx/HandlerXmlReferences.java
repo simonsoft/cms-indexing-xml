@@ -73,11 +73,13 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		}
 		
 		String nonCms = (String) fields.getFieldValue(REF_FIELD_NONCMS);
-		if (nonCms != null) {
-			if (nonCms.trim().isEmpty()) {
-				fields.removeField(REF_FIELD_NONCMS);
-			} else {
-				logger.warn("Detected non-CMS references: {}", nonCms);
+		// Solr6 does not allow large string fields
+		fields.removeField(REF_FIELD_NONCMS);
+		if (nonCms != null && !nonCms.trim().isEmpty()) {
+			logger.warn("Detected non-CMS references: {}", nonCms);
+			// Make the field multi-value.
+			for (String d : nonCms.trim().split(";")) {
+				fields.addField(REF_FIELD_NONCMS, d);
 			}
 		}
 		
