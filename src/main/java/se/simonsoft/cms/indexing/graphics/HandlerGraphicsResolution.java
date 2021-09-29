@@ -55,7 +55,7 @@ public class HandlerGraphicsResolution implements IndexingItemHandler {
 		double size = (pixels * pixelSize) / 25.4; // image size in inch.
 		double css = size*96;
 		
-		return Long.toString(Math.round(css)) + "px";
+		return Long.toString(Math.round(css));
 	}
 	
 	private static int getInt(IndexingDoc doc, String field) {
