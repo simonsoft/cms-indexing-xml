@@ -20,6 +20,10 @@ public class HandlerGraphicsResolution implements IndexingItemHandler {
 	private static final String FIELD_PREFIX = "embd_cms-export_";
 	
 	private static final Set<String> PNG_FIELDS = new HashSet<String>(Arrays.asList("embd_height", "embd_width", "embd_Dimension_VerticalPixelSize", "embd_Dimension_HorizontalPixelSize"));
+	// Require resolution in both directions (otherwise typically not successfully mapped to XMP)
+	private static final Set<String> JPG_FIELDS = new HashSet<String>(Arrays.asList("xmp_tiff.ImageLength", "xmp_tiff.ImageWidth", "xmp_tiff.YResolution", "xmp_tiff.XResolution"));
+	// Simplest form without calculation.
+	private static final Set<String> XMP_FIELDS = new HashSet<String>(Arrays.asList("xmp_tiff.ImageLength", "xmp_tiff.ImageWidth"));
 	
 	// JPG interesting fields: "xmp_tiff.ResolutionUnit":"Inch", "xmp_tiff.XResolution":"300.0","xmp_tiff.YResolution":"300.0","xmp_tiff.ImageWidth":"3646","xmp_tiff.ImageLength":"4146"
 	
@@ -42,7 +46,29 @@ public class HandlerGraphicsResolution implements IndexingItemHandler {
 				// Best effort
 				logger.warn("Failed to extract CSS dimensions: {}", e.getMessage(), e);
 			}
-			
+		} else if (hasFields(doc, JPG_FIELDS)) {
+			try {
+				if (hasFields(doc, new HashSet<>(Arrays.asList("xmp_tiff.ResolutionUnit")))) {
+					Object unit = doc.getFieldValue("xmp_tiff.ResolutionUnit");
+					// The only other value should be cm, not sure how Tika represents it.
+					if (!"Inch".equals(unit)) {
+						throw new RuntimeException("Dimension calculation currently not supported for unit: " + unit);
+					}
+				}
+				doc.addField(FIELD_PREFIX + "css_height", calculateDimensionDpi(getInt(doc, "xmp_tiff.ImageLength"), getDouble(doc, "xmp_tiff.YResolution")));
+				doc.addField(FIELD_PREFIX + "css_width", calculateDimensionDpi(getInt(doc, "xmp_tiff.ImageWidth"), getDouble(doc, "xmp_tiff.XResolution")));
+			} catch (Exception e) {
+				// Best effort
+				logger.warn("Failed to extract CSS dimensions: {}", e.getMessage(), e);
+			}
+		} else if (hasFields(doc, XMP_FIELDS)) {
+			try {
+				doc.addField(FIELD_PREFIX + "css_height", getInt(doc, "xmp_tiff.ImageLength"));
+				doc.addField(FIELD_PREFIX + "css_width", getInt(doc, "xmp_tiff.ImageWidth"));
+			} catch (Exception e) {
+				// Best effort
+				logger.warn("Failed to extract CSS dimensions: {}", e.getMessage(), e);
+			}
 		}
 	}
 	
@@ -50,12 +76,24 @@ public class HandlerGraphicsResolution implements IndexingItemHandler {
 		// CSS pixel is normatively defined as 1/96th of 1 inch
 		// https://developer.mozilla.org/en-US/docs/Glossary/CSS_pixel
 		
+		// PNG:
 		// Tika extracts HorizontalPixelSize / VerticalPixelSize in mm.
 		
 		double size = (pixels * pixelSize) / 25.4; // image size in inch.
 		double css = size*96;
 		
 		return Long.toString(Math.round(css));
+	}
+	
+	String calculateDimensionDpi(int pixels, double dpi) {
+		// CSS pixel is normatively defined as 1/96th of 1 inch
+		// https://developer.mozilla.org/en-US/docs/Glossary/CSS_pixel
+		
+		// JPG etc:
+		// Tika extracts HorizontalPixelSize / VerticalPixelSize in mm.
+		
+		double pixelSize = 25.4 / dpi; // pixel size from dpi
+		return calculateDimensionPixelSize(pixels, pixelSize);
 	}
 	
 	private static int getInt(IndexingDoc doc, String field) {

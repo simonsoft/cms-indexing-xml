@@ -35,5 +35,25 @@ public class HandlerGraphicsResolutionTest {
 		assertEquals("406", doc.getFieldValue("embd_cms-export_css_width"));
 		assertEquals("492", doc.getFieldValue("embd_cms-export_css_height"));
 	}
+	
+	@Test
+	public void testHandlerJpg() {
+		IndexingItemProgress p = mock(IndexingItemProgress.class);
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		when(p.getFields()).thenReturn(doc);
+		
+		doc.addField("xmp_tiff.XResolution", "300.0");
+		doc.addField("xmp_tiff.YResolution", "300.0");
+		doc.addField("xmp_tiff.ImageLength","4146");
+		doc.addField("xmp_tiff.ImageWidth","3646");
+		doc.addField("xmp_tiff.ImageWidth","3646");
+		
+		//doc.addField("xmp_tiff.ResolutionUnit","Inch"); // Defaults to Inch.
+		
+		handler.handle(p);
+		
+		assertEquals("1167", doc.getFieldValue("embd_cms-export_css_width"));
+		assertEquals("1327", doc.getFieldValue("embd_cms-export_css_height"));
+	}
 
 }
