@@ -16,7 +16,7 @@ public class HandlerGraphicsResolutionTest {
 	
 	@Test
 	public void testCalculateDimensionPixelSize() {
-		assertEquals("406px", handler.calculateDimensionPixelSize(812, 0.13229263));
+		assertEquals("406", handler.calculateDimensionPixelSize(812, 0.13229263));
 	}
 	
 	@Test
