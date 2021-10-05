@@ -21,6 +21,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
@@ -42,6 +45,8 @@ import se.simonsoft.cms.item.structure.CmsItemClassificationXml;
  */
 public class HandlerClassification implements IndexingItemHandler {
 
+	private static final Logger logger = LoggerFactory.getLogger(HandlerClassification.class);
+	
 	private static final String FLAG_FIELD = "flag";
 	
 	
@@ -107,7 +112,13 @@ public class HandlerClassification implements IndexingItemHandler {
 			return null;
 		}
 		
-		CmsItemProperties props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
+		CmsItemProperties props = null;
+		try {
+			// Typically supported by cms-backend-filexml
+			props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
+		} catch (UnsupportedOperationException e) {
+			logger.warn(e.getMessage(), e);
+		}
 		return props;
 	}
 	
