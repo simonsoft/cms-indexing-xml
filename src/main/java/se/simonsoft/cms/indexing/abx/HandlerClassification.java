@@ -15,16 +15,22 @@
  */
 package se.simonsoft.cms.indexing.abx;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
 import se.repos.indexing.item.IndexingItemProgress;
+import se.repos.indexing.item.ItemPropertiesBufferStrategy;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.properties.CmsItemProperties;
 import se.simonsoft.cms.item.structure.CmsItemClassification;
 import se.simonsoft.cms.item.structure.CmsItemClassificationAdapterFiletypes;
 import se.simonsoft.cms.item.structure.CmsItemClassificationGraphicWeb;
@@ -43,8 +49,11 @@ public class HandlerClassification implements IndexingItemHandler {
 	private static final CmsItemClassification itemClassificationAbx = new CmsItemClassificationAdapterFiletypes();
 	private static final CmsItemClassification itemClassificationGraphicWeb = new CmsItemClassificationGraphicWeb();
 	
+	private final ItemPropertiesBufferStrategy itemPropertiesBuffer;
 	
-	public HandlerClassification() {
+	@Inject
+	public HandlerClassification(ItemPropertiesBufferStrategy itemPropertiesBuffer) {
+		this.itemPropertiesBuffer = itemPropertiesBuffer;
 	}
 
 	/***
@@ -57,6 +66,7 @@ public class HandlerClassification implements IndexingItemHandler {
 		
 		if (item.isFolder()) {
 			// Folders can easily be detected by the "type" field.
+			setFolderFlags(progress);
 			return;
 		}
 		
@@ -71,8 +81,34 @@ public class HandlerClassification implements IndexingItemHandler {
 			// Neither XML nor graphics are useful when empty.
 			return;
 		}
-		
+		// Classification of files.
 		setClassificationFlags(progress);
+	}
+	
+	private void setFolderFlags(IndexingItemProgress progress) {
+		if (isCmsClass(progress.getFields(), "shardparent")) {
+			progress.getFields().addField(FLAG_FIELD, "isshardparent");
+		}
+		
+		// #1511 Mark shardparent children with 'isshard' flag.
+		CmsItemProperties propsParent = getPropertiesParent(progress);
+		if (propsParent != null && isCmsClass(propsParent, "shardparent")) {
+			progress.getFields().addField(FLAG_FIELD, "isshard");
+		}
+	}
+	
+	private CmsItemProperties getPropertiesParent(IndexingItemProgress progress) {
+		CmsItemPath path = progress.getItem().getPath();
+		if (path == null) {
+			return null;
+		}
+		CmsItemPath parent = path.getParent();
+		if (parent == null) {
+			return null;
+		}
+		
+		CmsItemProperties props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
+		return props;
 	}
 	
 	
@@ -115,7 +151,23 @@ public class HandlerClassification implements IndexingItemHandler {
 		}
 	}
 	
-
+	public static boolean isCmsClass(IndexingDoc f, String name) {
+		String itemClass = (String) f.getFieldValue("prop_cms.class");
+		if (itemClass == null) {
+			return false;
+		}
+		String[] a = itemClass.split(" ");
+		return Arrays.asList(a).contains(name);
+	}
+	
+	public static boolean isCmsClass(CmsItemProperties props, String name) {
+		String itemClass = props.getString("cms:class");
+		if (itemClass == null) {
+			return false;
+		}
+		String[] a = itemClass.split(" ");
+		return Arrays.asList(a).contains(name);
+	}
 	
 
 	@SuppressWarnings("serial")
