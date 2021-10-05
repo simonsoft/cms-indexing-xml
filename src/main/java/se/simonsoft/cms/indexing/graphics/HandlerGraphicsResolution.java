@@ -32,7 +32,8 @@ public class HandlerGraphicsResolution implements IndexingItemHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerGraphicsResolution.class);
 	
-	private static final String FIELD_PREFIX = "embd_cms-export_";
+	// #1510 Core 'embd_cms_' prefix included in many reporting queries (use 'embd_cms-themodule_' for specific stuff).
+	private static final String FIELD_PREFIX = "embd_cms_";
 	
 	private static final Set<String> PNG_FIELDS = new HashSet<String>(Arrays.asList("embd_height", "embd_width", "embd_Dimension_VerticalPixelSize", "embd_Dimension_HorizontalPixelSize"));
 	// Require resolution in both directions (otherwise typically not successfully mapped to XMP)

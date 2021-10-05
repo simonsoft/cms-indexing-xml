@@ -47,8 +47,8 @@ public class HandlerGraphicsResolutionTest {
 		
 		handler.handle(p);
 		
-		assertEquals("406", doc.getFieldValue("embd_cms-export_css_width"));
-		assertEquals("492", doc.getFieldValue("embd_cms-export_css_height"));
+		assertEquals("406", doc.getFieldValue("embd_cms_css_width"));
+		assertEquals("492", doc.getFieldValue("embd_cms_css_height"));
 	}
 	
 	@Test
@@ -67,8 +67,8 @@ public class HandlerGraphicsResolutionTest {
 		
 		handler.handle(p);
 		
-		assertEquals("1167", doc.getFieldValue("embd_cms-export_css_width"));
-		assertEquals("1327", doc.getFieldValue("embd_cms-export_css_height"));
+		assertEquals("1167", doc.getFieldValue("embd_cms_css_width"));
+		assertEquals("1327", doc.getFieldValue("embd_cms_css_height"));
 	}
 
 }
