@@ -33,6 +33,7 @@ import se.repos.indexing.item.ItemPropertiesBufferStrategy;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 import se.simonsoft.cms.item.structure.CmsItemClassification;
 import se.simonsoft.cms.item.structure.CmsItemClassificationAdapterFiletypes;
@@ -117,7 +118,11 @@ public class HandlerClassification implements IndexingItemHandler {
 			// Typically supported by cms-backend-filexml
 			props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
 		} catch (UnsupportedOperationException e) {
-			logger.warn(e.getMessage(), e);
+			logger.warn("Parent folder getProperties failed: {}", e.getMessage(), e);
+		} catch (CmsItemNotFoundException e) {
+			logger.info("Parent folder not found at {}: {}", progress.getRevision(), parent, e);
+		} catch (Exception e) {
+			logger.warn("Parent folder getProperties failed: {}", e.getMessage(), e);
 		}
 		return props;
 	}
