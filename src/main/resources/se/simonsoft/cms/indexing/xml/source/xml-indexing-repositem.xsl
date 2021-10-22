@@ -179,8 +179,15 @@
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
 			<!-- Let the DITA hierachy within prolog define most of the depth below embd_xml_meta_* -->
 			<field name="embd_xml_meta_product">
-				<xsl:apply-templates select="/*/techdocinfo/product | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
+				<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 			</field>
+			
+			<!-- TODO: Enable in next major/minor. Series can be multi-value. -->
+			<!-- 
+			<field name="embd_xml_meta_series">
+				<xsl:apply-templates select="/*/bookmeta/prodinfo/series | /*/prolog/metadata/prodinfo/series" mode="meta"/>
+			</field>
+			-->
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
