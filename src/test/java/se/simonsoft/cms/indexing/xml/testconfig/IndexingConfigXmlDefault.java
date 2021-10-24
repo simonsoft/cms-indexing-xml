@@ -20,9 +20,6 @@ import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 
@@ -39,8 +36,6 @@ public class IndexingConfigXmlDefault extends AbstractModule {
 		// XML field extraction
 		Multibinder<XmlIndexFieldExtraction> fieldExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
 		IndexingHandlersXml.configureXmlFieldExtraction(fieldExtraction);
-		// Used in field extraction. We don't have a strategy yet for placement of the custom xsl, read from jar
-		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
 		//bind(IndexFieldExtractionCustomXsl.class).asEagerSingleton();
 		bind(XmlIndexFieldXslPipeline.class).asEagerSingleton();
 		
