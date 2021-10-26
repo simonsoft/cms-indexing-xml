@@ -15,11 +15,9 @@
  */
 package se.simonsoft.cms.indexing.xml.testconfig;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
+import java.util.Map;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
@@ -28,6 +26,9 @@ import net.sf.saxon.s9api.Processor;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSource;
+import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSourceConfig;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
 import se.simonsoft.cms.xmlsource.transform.function.GetLogicalId;
 import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
@@ -45,14 +46,10 @@ public class IndexingConfigXmlBase extends AbstractModule {
 		transformerFunctions.addBinding().to(GetLogicalId.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
 
-		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
-		sourceBinder.addBinding("identity.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/identity.xsl")));
-		sourceBinder.addBinding("reuse-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl")));
-		sourceBinder.addBinding("itemid-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl")));
-	
-		sourceBinder.addBinding("xml-indexing-repositem.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl")));
-		sourceBinder.addBinding("xml-indexing-reposxml.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl")));
-
+		Map<String, String> stylesheets = TransformerServiceFactory.getStylesheetsForTestingMap();
+		stylesheets.put("xml-indexing-repositem.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
+		stylesheets.put("xml-indexing-reposxml.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl");
+		bind(TransformStylesheetSource.class).toInstance(new TransformStylesheetSourceConfig(stylesheets));
 		
 		// Set up test config defaults.
 		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));
