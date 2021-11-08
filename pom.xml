@@ -31,21 +31,26 @@
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
 		<quarkus.platform.version>2.4.1.Final</quarkus.platform.version>
-	</properties>	
+		
+		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${quarkus.platform.group-id}</groupId>
+				<artifactId>${quarkus.platform.artifact-id}</artifactId>
+				<version>${quarkus.platform.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	
 	<dependencies>
-		<dependency>
-			<groupId>${quarkus.platform.group-id}</groupId>
-			<artifactId>${quarkus.platform.artifact-id}</artifactId>
-			<version>${quarkus.platform.version}</version>
-			<type>pom</type>
-			<scope>import</scope>
-		</dependency>
-
         <dependency>
             <groupId>jakarta.enterprise</groupId>
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
-            <version>2.0.2</version>
         </dependency>
 	
 	
@@ -110,12 +115,10 @@
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
                 <configuration>
                     <argLine>-Dtest.solr.allowed.securerandom=NativePRNG</argLine>
                 </configuration>
-                <!-- 
-                <version>3.0.0-M4</version>
-                 -->
             </plugin>
             <plugin>
 		      <groupId>org.jboss.jandex</groupId>
