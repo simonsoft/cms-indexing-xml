@@ -34,7 +34,10 @@ import se.simonsoft.cms.item.indexing.IdStrategy;
 /**
  * Don't forget to bind (<i>bind(IndexAdminXml.class).asEagerSingleton();</i>) this one, or clear won't affect reposxml core.
  */
-@Singleton // only one should be bound as listener to central IndexAdmin
+//@Singleton // only one should be bound as listener to central IndexAdmin
+// Causes issues with Quarkus CDI when declaring Singleton.
+// Using direct curl for clear since introduction of chef installer (potentially earlier).
+// Not sure how this can be a Singleton in a multi-repo executable.
 public class IndexAdminXml extends IndexAdminNotification implements IndexAdmin {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
