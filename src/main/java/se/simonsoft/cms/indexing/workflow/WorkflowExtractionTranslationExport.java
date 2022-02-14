@@ -27,20 +27,20 @@ public class WorkflowExtractionTranslationExport extends WorkflowExtraction {
 		
 		WorkflowExtractionTranslationExportOptions options = (WorkflowExtractionTranslationExportOptions) deserializeOption(input.getOptions(), WorkflowExtractionTranslationExportOptions.class);
 		
-		fields.addField("embd_" + input.getWorkflow() + "_project", options.getProject());
-		fields.addField("embd_" + input.getWorkflow() + "_pdf", options.getPdf());
+		fields.setField("embd_" + input.getWorkflow() + "_project", options.getProject());
+		fields.setField("embd_" + input.getWorkflow() + "_pdf", options.getPdf());
 		
 		if (options.getDelivery() != null && options.getDelivery().getType() != null) {
 			String name = options.getDelivery().getType(); // Fallback
-			fields.addField("embd_" + input.getWorkflow() + "_delivery", options.getDelivery().getType());
+			fields.setField("embd_" + input.getWorkflow() + "_delivery", options.getDelivery().getType());
 			if (options.getDelivery().getParams().containsKey("name")) {
 				name = options.getDelivery().getParams().get("name");
 			}
-			fields.addField("embd_" + input.getWorkflow() + "_delivery_name", name);
+			fields.setField("embd_" + input.getWorkflow() + "_delivery_name", name);
 		}
 		
 		if (options.getProgress() != null && options.getProgress().getParams() != null && options.getProgress().getParams().containsKey("packageurl")) {
-			fields.addField("embd_" + input.getWorkflow() + "_packageurl", options.getProgress().getParams().get("packageurl"));
+			fields.setField("embd_" + input.getWorkflow() + "_packageurl", options.getProgress().getParams().get("packageurl"));
 		}
 	}
 	

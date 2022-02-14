@@ -111,7 +111,7 @@ public class WorkflowIndexing {
 		// Setting 'path' might cause these docs to turn up in cms-reporting (likely resulting in exception due to missing item fields).
 		// The field can be workflow-specific because the WorkflowExecutionStatus instances are per-workflow/statemachine.
 		if (path != null) {
-			d.addField("embd_" + input.getWorkflow() + "_path", path.getPath());
+			d.setField("embd_" + input.getWorkflow() + "_path", path.getPath());
 		}		
 		
 		d.setField("rev", rev);
@@ -122,14 +122,14 @@ public class WorkflowIndexing {
 		// Must be provided by publish reindex code based on manifest.job.configname.
 		// configname is available as input root attribute initially, always in manifest.
 		if (input.getConfigname() != null) {
-			d.addField("embd_" + input.getWorkflow() + "_configname", input.getConfigname());
+			d.setField("embd_" + input.getWorkflow() + "_configname", input.getConfigname());
 		}
 			
-		d.addField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId());
-		d.addField("embd_" + input.getWorkflow() + "_uuid", executionUuid);
-		d.addField("embd_" + input.getWorkflow() + "_status", input.getStatus());
+		d.setField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId());
+		d.setField("embd_" + input.getWorkflow() + "_uuid", executionUuid);
+		d.setField("embd_" + input.getWorkflow() + "_status", input.getStatus());
 		if (input.getError() != null && !input.getError().isBlank()) {
-			d.addField("text_error", input.getError());
+			d.setField("text_error", input.getError());
 		}
 		
 	}
