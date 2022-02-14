@@ -15,6 +15,9 @@
  */
 package se.simonsoft.cms.indexing.workflow;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.enterprise.context.ApplicationScoped;
 
 import se.repos.indexing.IndexingDoc;
@@ -32,8 +35,34 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 		// Focus on fields available in the manifest in order to support reindexing.
 		PublishJobManifest manifest = options.getManifest();
 		
+		fields.setField("embd_" + input.getWorkflow() + "_format", manifest.getJob().get("format"));
+		if (manifest.getJob().containsKey("profiling")) {
+			fields.setField("embd_" + input.getWorkflow() + "_profiling", manifest.getJob().get("profiling"));
+		}
+		fields.setField("embd_" + input.getWorkflow() + "_start", manifest.getJob().get("start"));
+		fields.setField("embd_" + input.getWorkflow() + "_topics", manifest.getJob().get("topics"));
 		
 		
+		if (manifest.getDocument() != null) {
+			// TODO: #1438 Handle multiple abbreviated versions.
+			
+			// TODO: #1592 Normalize versionrelease for string sorting in SolR.
+			
+			handleManifestMap("embd_" + input.getWorkflow() + "_document", manifest.getDocument(), fields);
+		}
+		
+		if (manifest.getCustom() != null) {
+			handleManifestMap("embd_" + input.getWorkflow() + "_custom", manifest.getCustom(), fields);
+		}
+		
+		// Currently ignoring "meta" since it is intended for the target system.
+	}
+	
+	
+	private void handleManifestMap(String prefix, Map<String, String> map, IndexingDoc fields) {
+		for (Entry<String, String> e: map.entrySet()) {
+			fields.setField(prefix + "_" + e.getKey(), e.getValue());			
+		}
 	}
 	
 	
