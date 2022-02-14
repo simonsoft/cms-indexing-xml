@@ -33,6 +33,7 @@ public class WorkflowIndexingInput {
 	private String error;
 	private boolean complete = false;
 	
+	private String configname; // cmsconfig-module:configname
 	private String action; // Not intended for indexing.
 	private CmsItemId itemId;
 	private String userId;
@@ -44,6 +45,7 @@ public class WorkflowIndexingInput {
 	}
 	
 	
+	// Set by each index Task in SFN workflow.
 	public String getWorkflow() {
 		return workflow;
 	}
@@ -89,6 +91,16 @@ public class WorkflowIndexingInput {
 	}
 
 
+	public String getConfigname() {
+		return configname;
+	}
+
+
+	public void setConfigname(String configname) {
+		this.configname = configname;
+	}
+
+
 	public void setAction(String action) {
 		this.action = action;
 	}
@@ -96,7 +108,6 @@ public class WorkflowIndexingInput {
 	public String getError() {
 		return error;
 	}
-	
 	
 	public void setError(String error) {
 		this.error = error;

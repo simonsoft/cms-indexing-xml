@@ -31,6 +31,7 @@ import se.repos.indexing.solrj.SolrAdd;
 import se.repos.indexing.solrj.SolrAddCommitWithin;
 import se.repos.indexing.solrj.SolrPingOp;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
+import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.indexing.IdStrategy;
@@ -44,6 +45,9 @@ public class WorkflowIndexing {
 	
 	@Inject
 	WorkflowExtractionTranslationExport extractionTranslationExport;
+	
+	@Inject
+	WorkflowExtractionPublish extractionPublish;
 	
 	@Inject
 	IdStrategy idStrategy;
@@ -61,14 +65,16 @@ public class WorkflowIndexing {
 		extractCommonFields(input, fields);
 		if ("translationexport".equals(input.getWorkflow())) {
 			extractionTranslationExport.handle(input, fields);
+		} else if ("publish".equals(input.getWorkflow())) {
+			extractionPublish.handle(input, fields);
 		} else {
 			throw new IllegalArgumentException("Unknown workflow: " + input.getWorkflow());
 		}
 		
-		logger.info("Workflow indexing adding: id='{}' embd_translationexport_project='{}'", fields.getFieldValue("id"), fields.getFieldValue("embd_translationexport_project"));
+		logger.info("Workflow indexing adding: id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
 		SolrAdd solrAdd = new SolrAddCommitWithin(solrCore, fields);
 		solrAdd.run();
-		logger.info("Workflow indexing added : id='{}' embd_translationexport_project='{}'", fields.getFieldValue("id"), fields.getFieldValue("embd_translationexport_project"));
+		logger.info("Workflow indexing added : id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
 	}
 
 	private void extractCommonFields(WorkflowIndexingInput input, IndexingDoc d) {
@@ -86,8 +92,16 @@ public class WorkflowIndexing {
 			input.setItemId(new CmsItemIdArg("x-svn://ubuntu-cheftest1.pdsvision.net/svn/demo1"));
 		}
 		CmsRepository repository = input.getItemId().getRepository();
+		CmsItemPath path = input.getItemId().getRelPath();
+		Long rev = input.getItemId().getPegRev();
+		
+		if (rev == null) {
+			throw new IllegalArgumentException("Workflow 'itemid' must specify revision: " + input.getItemId());
+		}
 		
 		d.setField("id", idStrategy.getIdRepository(repository) + "#" + executionUuid);
+
+		d.setField("type", input.getWorkflow());
 		
 		// See HandlerPathinfo
 		d.setField("repo", repository.getName());
@@ -95,12 +109,23 @@ public class WorkflowIndexing {
 		d.setField("repohost", repository.getHost());
 		d.setField("repoid", idStrategy.getIdRepository(repository));
 		
-		d.addField("type", input.getWorkflow());
+		// Setting 'path' might cause these docs to turn up in cms-reporting (likely resulting in exception due to missing item fields).
+		// The field can be workflow-specific because the WorkflowExecutionStatus instances are per-workflow/statemachine.
+		if (path != null) {
+			d.addField("embd_" + input.getWorkflow() + "_path", path.getPath());
+		}		
 		
-		d.addField("revauthor", input.getUserId());
-		d.addField("t", new Date());
-		d.addField("complete", input.isComplete());
-		
+		d.setField("rev", rev);
+		d.setField("revauthor", input.getUserId());
+		d.setField("t", new Date());
+		d.setField("complete", input.isComplete());
+
+		// Must be provided by publish reindex code based on manifest.job.configname.
+		// configname is available as input root attribute initially, always in manifest.
+		if (input.getConfigname() != null) {
+			d.addField("embd_" + input.getWorkflow() + "_configname", input.getConfigname());
+		}
+			
 		d.addField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId());
 		d.addField("embd_" + input.getWorkflow() + "_uuid", executionUuid);
 		d.addField("embd_" + input.getWorkflow() + "_status", input.getStatus());
