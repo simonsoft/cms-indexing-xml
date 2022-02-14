@@ -40,8 +40,21 @@ public class WorkflowIndexingTest {
 		WorkflowIndexingInput input = readerMessage.readValue(translationExportJson);
 		
 		WorkflowExtractionTranslationExport extractionTranslationExport = new WorkflowExtractionTranslationExport();
+		// TODO: Add testing of common fields after moving to Quarkus.
+		/*
+		WorkflowIndexing workflowIndexing = new WorkflowIndexing();
+		workflowIndexing.extractCommonFields(input, fields);
+		*/
 		extractionTranslationExport.handle(input, fields);
-		
+
+		// Generic fields
+		/*
+		assertTrue(fields.containsKey("repo"));
+		assertFalse("no path when itemid is repo-root", fields.containsKey("embd_translationexport_path"));
+		assertTrue(fields.containsKey("rev"));
+		*/
+
+		// TranslationExport
 		assertTrue(fields.containsKey("embd_translationexport_packageurl"));
 		assertEquals("AFN0WB", fields.getFieldValue("embd_translationexport_project"));
 	}

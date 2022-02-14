@@ -77,9 +77,8 @@ public class WorkflowIndexing {
 		logger.info("Workflow indexing added : id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
 	}
 
-	private void extractCommonFields(WorkflowIndexingInput input, IndexingDoc d) {
-		
-		
+	
+	void extractCommonFields(WorkflowIndexingInput input, IndexingDoc d) {
 		String[] executionArn = input.getExecutionId().split(":");
 		String executionUuid = executionArn[executionArn.length - 1];
 		if (!uuid.matcher(executionUuid).matches()) {
