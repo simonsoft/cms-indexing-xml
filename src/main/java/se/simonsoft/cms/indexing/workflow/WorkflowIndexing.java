@@ -16,7 +16,6 @@
 package se.simonsoft.cms.indexing.workflow;
 
 import java.util.Date;
-import java.util.regex.Pattern;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,6 +34,7 @@ import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.indexing.IdStrategy;
+import se.simonsoft.cms.item.workflow.WorkflowExecutionId;
 
 @ApplicationScoped
 public class WorkflowIndexing {
@@ -50,9 +50,12 @@ public class WorkflowIndexing {
 	WorkflowExtractionPublish extractionPublish;
 	
 	@Inject
+	WorkflowExtractionPublishCdn extractionPublishCdn;
+	
+	@Inject
 	IdStrategy idStrategy;
 	
-	private Pattern uuid = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+	
 	private Logger logger = LoggerFactory.getLogger(WorkflowIndexing.class); 
 	
 	public void index(WorkflowIndexingInput input) {
@@ -67,6 +70,8 @@ public class WorkflowIndexing {
 			extractionTranslationExport.handle(input, fields);
 		} else if ("publish".equals(input.getWorkflow())) {
 			extractionPublish.handle(input, fields);
+		} else if ("publish-cdn".equals(input.getWorkflow())) {
+			extractionPublishCdn.handle(input, fields);
 		} else {
 			throw new IllegalArgumentException("Unknown workflow: " + input.getWorkflow());
 		}
@@ -79,9 +84,8 @@ public class WorkflowIndexing {
 
 	
 	void extractCommonFields(WorkflowIndexingInput input, IndexingDoc d) {
-		String[] executionArn = input.getExecutionId().split(":");
-		String executionUuid = executionArn[executionArn.length - 1];
-		if (!uuid.matcher(executionUuid).matches()) {
+		WorkflowExecutionId executionId = new WorkflowExecutionId(input.getExecutionId());
+		if (!executionId.hasUuid()) {
 			throw new IllegalArgumentException("Workflow indexing requires field executionid ending with UUID: " + input.getExecutionId());
 		}
 		
@@ -98,7 +102,7 @@ public class WorkflowIndexing {
 			throw new IllegalArgumentException("Workflow 'itemid' must specify revision: " + input.getItemId());
 		}
 		
-		d.setField("id", idStrategy.getIdRepository(repository) + "#" + executionUuid);
+		d.setField("id", idStrategy.getIdRepository(repository) + "#" + executionId.getUuid());
 
 		d.setField("type", input.getWorkflow());
 		
@@ -124,10 +128,11 @@ public class WorkflowIndexing {
 		if (input.getConfigname() != null) {
 			d.setField("embd_" + input.getWorkflow() + "_configname", input.getConfigname());
 		}
-			
-		d.setField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId());
-		d.setField("embd_" + input.getWorkflow() + "_uuid", executionUuid);
+		
+		d.setField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId()); // Might be same as uuid after reindexing (from publish manifest).
+		d.setField("embd_" + input.getWorkflow() + "_uuid", executionId.getUuid());
 		d.setField("embd_" + input.getWorkflow() + "_status", input.getStatus());
+		// TODO: Consider additional fields for error-code and error-cause.
 		if (input.getError() != null && !input.getError().isBlank()) {
 			d.setField("text_error", input.getError());
 		}

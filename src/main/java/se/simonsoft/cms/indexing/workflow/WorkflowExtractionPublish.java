@@ -32,6 +32,10 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 		
 		PublishJobOptions options = (PublishJobOptions) deserializeOption(input.getOptions(), PublishJobOptions.class);
 		
+		handlePublish(input, options, fields);
+	}
+	
+	void handlePublish(WorkflowIndexingInput input, PublishJobOptions options, IndexingDoc fields) {
 		// Focus on fields available in the manifest in order to support reindexing.
 		PublishJobManifest manifest = options.getManifest();
 		
@@ -59,7 +63,7 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 	}
 	
 	
-	private void handleManifestMap(String prefix, Map<String, String> map, IndexingDoc fields) {
+	void handleManifestMap(String prefix, Map<String, String> map, IndexingDoc fields) {
 		for (Entry<String, String> e: map.entrySet()) {
 			fields.setField(prefix + "_" + e.getKey(), e.getValue());			
 		}
