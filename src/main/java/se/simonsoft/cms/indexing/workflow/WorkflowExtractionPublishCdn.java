@@ -37,8 +37,8 @@ public class WorkflowExtractionPublishCdn extends WorkflowExtractionPublish {
 			throw new IllegalStateException("CDN extraction requires progress information from unzip");
 		}
 		
-		// Extract the CDN-specifics
-		handleManifestMap("embd_" + input.getWorkflow() + "_cdn", progressParams, fields);
+		// Extract the CDN-specifics (all fields in 'progress')
+		handleManifestMap("embd_" + input.getWorkflow() + "_progress", progressParams, fields);
 	}
 
 }
