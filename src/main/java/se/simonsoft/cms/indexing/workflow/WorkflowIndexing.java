@@ -50,9 +50,6 @@ public class WorkflowIndexing {
 	WorkflowExtractionPublish extractionPublish;
 	
 	@Inject
-	WorkflowExtractionPublishCdn extractionPublishCdn;
-	
-	@Inject
 	IdStrategy idStrategy;
 	
 	
@@ -71,7 +68,7 @@ public class WorkflowIndexing {
 		} else if ("publish".equals(input.getWorkflow())) {
 			extractionPublish.handle(input, fields);
 		} else if ("publish-cdn".equals(input.getWorkflow())) {
-			extractionPublishCdn.handle(input, fields);
+			extractionPublish.handle(input, fields);
 		} else {
 			throw new IllegalArgumentException("Unknown workflow: " + input.getWorkflow());
 		}

@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.workflow;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -58,16 +59,32 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 		if (manifest.getCustom() != null) {
 			handleManifestMap("embd_" + input.getWorkflow() + "_custom", manifest.getCustom(), fields);
 		}
-		
 		// Currently ignoring "meta" since it is intended for the target system.
+		
+		
+		// Require progress fields if this is a CDN workflow.
+		LinkedHashMap<String, String> progressParams = options.getProgress().getParams();
+		if (isCdn(input) && (progressParams == null || progressParams.isEmpty())) {
+			throw new IllegalStateException("CDN extraction requires progress information from unzip");
+		}
+		
+		// Extract the CDN-specifics (all fields in 'progress')
+		// This can NOT be restored during reindexing, requires re-delivery to CDN. 
+		handleManifestMap("embd_" + input.getWorkflow() + "_progress", progressParams, fields);
 	}
 	
 	
 	void handleManifestMap(String prefix, Map<String, String> map, IndexingDoc fields) {
+		if (map == null) {
+			return;
+		}
 		for (Entry<String, String> e: map.entrySet()) {
 			fields.setField(prefix + "_" + e.getKey(), e.getValue());			
 		}
 	}
-	
+
+	boolean isCdn(WorkflowIndexingInput input) {
+		return "publish-cdn".equals(input.getWorkflow());	
+	}
 	
 }
