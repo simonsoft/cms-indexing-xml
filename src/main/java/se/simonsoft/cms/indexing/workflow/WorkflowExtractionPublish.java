@@ -40,13 +40,8 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 		// Focus on fields available in the manifest in order to support reindexing.
 		PublishJobManifest manifest = options.getManifest();
 		
-		fields.setField("embd_" + input.getWorkflow() + "_format", manifest.getJob().get("format"));
-		if (manifest.getJob().containsKey("profiling")) {
-			fields.setField("embd_" + input.getWorkflow() + "_profiling", manifest.getJob().get("profiling"));
-		}
-		fields.setField("embd_" + input.getWorkflow() + "_start", manifest.getJob().get("start"));
-		fields.setField("embd_" + input.getWorkflow() + "_topics", manifest.getJob().get("topics"));
-		
+		// Indexing full manifest.job object.  
+		handleManifestMap("embd_" + input.getWorkflow() + "_job", manifest.getJob(), fields);
 		
 		if (manifest.getDocument() != null) {
 			// TODO: #1438 Handle multiple abbreviated versions.
