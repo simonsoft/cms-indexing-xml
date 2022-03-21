@@ -23,6 +23,9 @@
 	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
 
+	<!-- NOTE: This transform is no longer used, kept for reference (annotations) -->
+	
+
 	<!-- document's status -->
 	<xsl:param name="document-status"/>
 	<!-- document's patharea (release, translation) -->
