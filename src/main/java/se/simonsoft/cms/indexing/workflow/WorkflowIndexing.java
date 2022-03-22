@@ -44,6 +44,9 @@ public class WorkflowIndexing {
 	SolrClient solrCore;	
 	
 	@Inject
+	WorkflowExtractionWork extractionWork;
+	
+	@Inject
 	WorkflowExtractionTranslationExport extractionTranslationExport;
 	
 	@Inject
@@ -67,7 +70,9 @@ public class WorkflowIndexing {
 			extractAbortEvent(input, fields);
 		} else {
 			extractCommonFields(input, fields);
-			if ("translationexport".equals(input.getWorkflow())) {
+			if ("work".equals(input.getWorkflow())) {
+				extractionWork.handle(input, fields);
+			} else if ("translationexport".equals(input.getWorkflow())) {
 				extractionTranslationExport.handle(input, fields);
 			} else if ("publish".equals(input.getWorkflow())) {
 				extractionPublish.handle(input, fields);
