@@ -78,10 +78,10 @@ public class WorkflowIndexing {
 			}
 		}
 		
-		logger.info("Workflow indexing adding: id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
+		logger.info("Workflow indexing sending: id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
 		SolrAdd solrAdd = new SolrAddCommitWithin(solrCore, fields);
 		solrAdd.run();
-		logger.info("Workflow indexing added : id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
+		logger.info("Workflow indexing sent   : id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
 	}
 
 	
