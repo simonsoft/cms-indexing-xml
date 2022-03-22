@@ -56,21 +56,26 @@ public class WorkflowIndexing {
 	private Logger logger = LoggerFactory.getLogger(WorkflowIndexing.class); 
 	
 	public void index(WorkflowIndexingInput input) {
-		IndexingDoc fields = new IndexingDocIncrementalSolrj();
+		IndexingDocIncrementalSolrj fields = new IndexingDocIncrementalSolrj();
 		
 		logger.info("Index workflow: {} {}", input.getWorkflow(), input.getExecutionId());
 		SolrPingOp solrPing = new SolrPingOp(solrCore);
 		solrPing.run();
 
-		extractCommonFields(input, fields);
-		if ("translationexport".equals(input.getWorkflow())) {
-			extractionTranslationExport.handle(input, fields);
-		} else if ("publish".equals(input.getWorkflow())) {
-			extractionPublish.handle(input, fields);
-		} else if ("publish-cdn".equals(input.getWorkflow())) {
-			extractionPublish.handle(input, fields);
+		if (input.getItemId() == null) {
+			logger.warn("Workflow indexing processing event: {}", input.getStatus());
+			extractAbortEvent(input, fields);
 		} else {
-			throw new IllegalArgumentException("Unknown workflow: " + input.getWorkflow());
+			extractCommonFields(input, fields);
+			if ("translationexport".equals(input.getWorkflow())) {
+				extractionTranslationExport.handle(input, fields);
+			} else if ("publish".equals(input.getWorkflow())) {
+				extractionPublish.handle(input, fields);
+			} else if ("publish-cdn".equals(input.getWorkflow())) {
+				extractionPublish.handle(input, fields);
+			} else {
+				throw new IllegalArgumentException("Unknown workflow: " + input.getWorkflow());
+			}
 		}
 		
 		logger.info("Workflow indexing adding: id={} workflow={}", fields.getFieldValue("id"), input.getWorkflow());
@@ -99,7 +104,8 @@ public class WorkflowIndexing {
 			throw new IllegalArgumentException("Workflow 'itemid' must specify revision: " + input.getItemId());
 		}
 		
-		d.setField("id", idStrategy.getIdRepository(repository) + "#" + executionId.getUuid());
+		// Using only the UUID, allows update based on abort event where itemid/repository is not known.
+		d.setField("id", executionId.getUuid());
 
 		d.setField("type", input.getWorkflow());
 		
@@ -133,7 +139,27 @@ public class WorkflowIndexing {
 		if (input.getError() != null && !input.getError().isBlank()) {
 			d.setField("text_error", input.getError());
 		}
+	}
+	
+	void extractAbortEvent(WorkflowIndexingInput input, IndexingDocIncrementalSolrj d) {
+		// Assuming the start event has been indexed so we can make a status update without having the itemId.
+		d.setUpdateMode(true);
 		
+		WorkflowExecutionId executionId = new WorkflowExecutionId(input.getExecutionId());
+		if (!executionId.hasUuid()) {
+			throw new IllegalArgumentException("Workflow indexing requires field executionid ending with UUID: " + input.getExecutionId());
+		}
+		
+		if ("ABORTED".equals(input.getStatus()) || "TIMED_OUT".equals(input.getStatus())) {
+		
+			d.setField("id", executionId.getUuid());
+			d.setField("complete", true);
+			d.setField("embd_" + input.getWorkflow() + "_status", input.getStatus().toLowerCase());
+			d.setField("text_error", "Workflow terminated before completion: " + input.getStatus().toLowerCase());
+		
+		} else {
+			throw new IllegalArgumentException("Workflow Abort event unknown status: " + input.getStatus());
+		}
 	}
 	
 }
