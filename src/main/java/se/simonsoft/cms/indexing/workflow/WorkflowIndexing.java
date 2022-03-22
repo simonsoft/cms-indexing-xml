@@ -143,7 +143,6 @@ public class WorkflowIndexing {
 	
 	void extractAbortEvent(WorkflowIndexingInput input, IndexingDocIncrementalSolrj d) {
 		// Assuming the start event has been indexed so we can make a status update without having the itemId.
-		d.setUpdateMode(true);
 		
 		WorkflowExecutionId executionId = new WorkflowExecutionId(input.getExecutionId());
 		if (!executionId.hasUuid()) {
@@ -151,8 +150,10 @@ public class WorkflowIndexing {
 		}
 		
 		if ("ABORTED".equals(input.getStatus()) || "TIMED_OUT".equals(input.getStatus())) {
-		
+			// Set id before enabling updateMode.
 			d.setField("id", executionId.getUuid());
+
+			d.setUpdateMode(true);
 			d.setField("complete", true);
 			d.setField("embd_" + input.getWorkflow() + "_status", input.getStatus().toLowerCase());
 			d.setField("text_error", "Workflow terminated before completion: " + input.getStatus().toLowerCase());
