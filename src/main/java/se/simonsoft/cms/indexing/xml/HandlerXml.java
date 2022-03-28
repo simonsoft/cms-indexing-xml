@@ -246,6 +246,11 @@ public class HandlerXml implements IndexingItemHandler {
 			// Flag that it was indexed in repositem.
 			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 			
+		} catch (IndexingHandlerException e) {
+			// Already handled exception, improve error in index.
+			logger.error("IndexingHandlerException for {}: {}",  progress.getFields().getFieldValue("path"), e.getMessage());
+			throw e;
+		
 		// TODO: Ensure that Transformer framework figures this out and throws XmlNotWellFormedException.
 		} catch (XmlNotWellFormedException e) { 
 			// failure, flag with error
@@ -257,7 +262,7 @@ public class HandlerXml implements IndexingItemHandler {
 		} catch (RuntimeException e) { 
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
-			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
+			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
 		}
