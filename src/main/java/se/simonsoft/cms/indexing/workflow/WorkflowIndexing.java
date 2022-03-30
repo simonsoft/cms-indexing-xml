@@ -97,9 +97,7 @@ public class WorkflowIndexing {
 		}
 		
 		if (input.getItemId() == null) {
-			// TODO: Remove workaround
-			//throw new IllegalArgumentException("Workflow indexing requires field itemid: " + input.getExecutionId());
-			input.setItemId(new CmsItemIdArg("x-svn://ubuntu-cheftest1.pdsvision.net/svn/demo1"));
+			throw new IllegalArgumentException("Workflow indexing requires field itemid: " + input.getExecutionId());
 		}
 		CmsRepository repository = input.getItemId().getRepository();
 		CmsItemPath path = input.getItemId().getRelPath();
