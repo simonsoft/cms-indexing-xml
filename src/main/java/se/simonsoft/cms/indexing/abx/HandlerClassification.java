@@ -118,7 +118,8 @@ public class HandlerClassification implements IndexingItemHandler {
 			// Typically supported by cms-backend-filexml
 			props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
 		} catch (UnsupportedOperationException e) {
-			logger.warn("Parent folder getProperties failed: {}", e.getMessage(), e);
+			logger.warn("Parent folder getProperties failed: {}", e.getMessage());
+			logger.trace("Parent folder getProperties failed: {}", e.getMessage(), e);
 		} catch (CmsItemNotFoundException e) {
 			logger.info("Parent folder not found at {}: {}", progress.getRevision(), parent, e);
 		} catch (Exception e) {
