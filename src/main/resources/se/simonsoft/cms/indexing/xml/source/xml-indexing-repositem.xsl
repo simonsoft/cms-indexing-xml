@@ -47,6 +47,12 @@
 		
 	</xsl:variable>
 	
+	<!-- Names of elements that are cross references (not dependencies). -->
+	<!-- Arbortext also classified 'lq' and 'fragref' as 'dita-partial', perhaps also detect @type=external. -->
+	<xsl:param name="xref-tags" as="xs:string" select="'xref fragref'"/>
+	<xsl:variable name="xref-tags-seq" as="xs:string+" select="tokenize($xref-tags, ' ')"/>	
+	
+	
 	<!-- key definition for cms:rid lookup -->
 	<xsl:key name="rid" use="@cms:rid" match="*[ not(ancestor-or-self::*[@cms:tsuppress])  or ancestor-or-self::*[@cms:tsuppress = 'no'] ]"/>
 
@@ -461,10 +467,10 @@
 				<field name="ref_itemid_topicref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
 			</xsl:if>
 			
-			<xsl:if test="$is-dita-topic">
-				<!-- Extract DITA xref dependencies. -->
-				<field name="ref_itemid_xref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="refxref"/></field>
-			</xsl:if>
+			<!-- #1550: CMS 5.1 extracts xref for all XML, not just dita topics. -->
+			<field name="ref_itemid_xref">
+				<xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][name(..) = $xref-tags-seq]" mode="refxref"/>
+			</field>
 			
 			<!-- Extract rlogicalid slaves. -->
 			<field name="rel_itemid_rlogicalid"><xsl:apply-templates select="//@cms:rlogicalid" mode="relrlogicalid"/></field>
@@ -520,6 +526,10 @@
 		<xsl:value-of select="' '"/>
 	</xsl:template>
 	
+	<xsl:template match="@*[name() = 'href'][name(..) = $xref-tags-seq]" mode="refdep refkeydefmap refinclude refgraphic reftopicref refconref" priority="100">
+		<!-- Suppress xref from all other modes than xref. -->
+	</xsl:template>
+		
 	<xsl:template match="@*[name() = 'href']" mode="refxref" priority="10">
 		<xsl:value-of select="."/>
 		<xsl:value-of select="' '"/>
