@@ -77,10 +77,10 @@ public class HandlerXmlMetadataTest {
 	@Test
 	public void testMetadataBookmap() throws Exception {
 		indexing.enable(new ReposTestBackendFilexml(filexml));
-		assumeResourceExists(repoSource, "/test1.xml");
+		assumeResourceExists(repoSource, "/bookmap1.ditamap");
 
 		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList all = repositem.query(new SolrQuery("pathname:test1.xml").setRows(2)).getResults();
+		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:bookmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
 		
 		SolrDocument e1 = all.get(0);
