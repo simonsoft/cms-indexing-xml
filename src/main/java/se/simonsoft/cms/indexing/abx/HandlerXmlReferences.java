@@ -88,6 +88,9 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 		
 		for (String referenceName : referenceCategories) {
 			try {
+				// NOTE: The individual fields include duplicates (multiple refs to that same object).
+				// The aggregated fields are deduplicated / distinct.
+				// #1550 Adding deduplicated individual fields with suffix _distinct.
 				Set<CmsItemId> ids = handleReferences(fields, host, referenceName);
 				
 				if (referenceName.equals(CATEGORY_DEPENDENCY)) {
@@ -164,8 +167,14 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 					
 					fields.addField(REF_FIELD_PREFIX + refName, strategyId);
 					
-					result.add(id);
+					boolean distinct = result.add(id);
+					// CMS 5.1 Additional field providing deduplicated set.
+					if (distinct) {
+						fields.addField(REF_FIELD_PREFIX + refName + "_distinct", strategyId);
+					}
 				}
+				
+				
 				
 			} 
 			
