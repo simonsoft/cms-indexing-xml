@@ -36,6 +36,7 @@ import se.simonsoft.cms.item.indexing.IdStrategy;
 
 /**
  * Uses the abx:Dependencies and abx:CrossRefs properties splitting on newline.
+ * @deprecated Replaced by HandlerXmlReferences
  */
 public class HandlerAbxDependencies extends HandlerAbxFolders {
 
