@@ -167,7 +167,7 @@
 			</xsl:if>
 			
 			
-	
+			<!-- Supports docno from Techdoc 'docinfo' with selection of language-specific docno based on @market / @xml:lang. -->
 			<xsl:if test="cmsfn:get-docno(.)">
 				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
 			</xsl:if>
@@ -613,6 +613,11 @@
 		<xsl:choose>
 			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="count($root//bookmeta/bookid/bookpartno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[1]"/>
 			</xsl:when>
 			
 			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">

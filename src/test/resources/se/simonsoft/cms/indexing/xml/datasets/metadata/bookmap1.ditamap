@@ -37,7 +37,7 @@ release="2021-10-01" version="A.6"/></vrmlist>
 <othermeta content="likely ignored" name="outside_metadata"/>
 <bookid>
 <bookpartno>BOM000</bookpartno>
-<bookpartno>BOM123</bookpartno>
+<bookpartno xml:lang="fr">BOM123</bookpartno>
 <booknumber>1234 ABCD</booknumber></bookid>
 <bookrights>
 <bookowner>

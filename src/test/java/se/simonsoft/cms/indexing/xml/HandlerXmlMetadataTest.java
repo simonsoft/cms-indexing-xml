@@ -91,6 +91,11 @@ public class HandlerXmlMetadataTest {
 		assertEquals("file", e2.getFieldValue("type"));
 		assertEquals(false, e2.getFieldValue("head"));
 		
+		// Docno from bookmap
+		assertEquals("bookmap", e1.getFieldValue("embd_xml_name"));
+		assertEquals("BOM000", e1.getFieldValue("embd_xml_docno"));
+		
+		
 		
 	}
 	
