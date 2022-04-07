@@ -32,6 +32,7 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.ItemPropertiesBufferStrategy;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
@@ -89,6 +90,9 @@ public class HandlerClassification implements IndexingItemHandler {
 		}
 		// Classification of files.
 		setClassificationFlags(progress);
+		
+		// #1613 Extract pathdirname and pathdirnonshard for faceting. 
+		setPathdirFacet(progress);
 	}
 	
 	private void setFolderFlags(IndexingItemProgress progress) {
@@ -97,14 +101,22 @@ public class HandlerClassification implements IndexingItemHandler {
 		}
 		
 		// #1511 Mark shardparent children with 'isshard' flag.
-		CmsItemProperties propsParent = getPropertiesParent(progress);
-		if (propsParent != null && isCmsClass(propsParent, "shardparent")) {
+		if (isShard(progress.getItem().getPath(), progress.getRevision())) {
 			progress.getFields().addField(FLAG_FIELD, "isshard");
 		}
 	}
 	
-	private CmsItemProperties getPropertiesParent(IndexingItemProgress progress) {
-		CmsItemPath path = progress.getItem().getPath();
+	// path is a shard if the parent is a "shardparent".
+	private boolean isShard(CmsItemPath path, RepoRevision revision) {
+		
+		CmsItemProperties propsParent = getPropertiesParent(path, revision);
+		if (propsParent != null && isCmsClass(propsParent, "shardparent")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private CmsItemProperties getPropertiesParent(CmsItemPath path, RepoRevision revision) {
 		if (path == null) {
 			return null;
 		}
@@ -116,18 +128,41 @@ public class HandlerClassification implements IndexingItemHandler {
 		CmsItemProperties props = null;
 		try {
 			// Typically supported by cms-backend-filexml
-			props = this.itemPropertiesBuffer.getProperties(progress.getRevision(), parent);
+			props = this.itemPropertiesBuffer.getProperties(revision, parent);
 		} catch (UnsupportedOperationException e) {
 			logger.warn("Parent folder getProperties failed: {}", e.getMessage());
 			logger.trace("Parent folder getProperties failed: {}", e.getMessage(), e);
 		} catch (CmsItemNotFoundException e) {
-			logger.info("Parent folder not found at {}: {}", progress.getRevision(), parent, e);
+			logger.info("Parent folder not found at {}: {}", revision, parent, e);
 		} catch (Exception e) {
 			logger.warn("Parent folder getProperties failed: {}", e.getMessage(), e);
 		}
 		return props;
 	}
 	
+	// #1613 Extract pathdirname and pathdirnonshard for faceting.
+	private void setPathdirFacet(IndexingItemProgress progress) {
+		CmsItemPath itemPath = progress.getItem().getPath();
+		
+		if (itemPath == null) {
+			return;
+		}
+		CmsItemPath folder = itemPath.getParent();
+		if (folder == null) {
+			return;
+		}
+		
+		int num = itemPath.getPathSegments().size();
+		String pathdir;
+		// Determine if the folder if this file is a shard.
+		if (isShard(folder, progress.getRevision())) {
+			pathdir = itemPath.getPathSegments().get(num-3);
+		} else {
+			pathdir = itemPath.getPathSegments().get(num-2);
+		}
+		progress.getFields().addField("meta_s_s_pathdirname", itemPath.getPathSegments().get(num-2));
+		progress.getFields().addField("meta_s_s_pathdirnonshard", pathdir);
+	}
 	
 	private void setClassificationFlags(IndexingItemProgress progress) {
 		
