@@ -103,7 +103,8 @@ public class HandlerXmlMetadataTest {
 		
 		
 		// Docno from bookmap
-		assertEquals("BOM000", e1.getFieldValue("embd_xml_docno"));
+		assertEquals("1234 ABCD", e1.getFieldValue("embd_xml_docno"));
+		assertEquals("BOM000", e1.getFieldValue("embd_xml_partno"));
 		
 		
 		// Unified fields introduced in CMS 5.0
@@ -191,6 +192,7 @@ public class HandlerXmlMetadataTest {
 		
 		// Docno from bookmap
 		assertEquals("1234 ABCD", e1.getFieldValue("embd_xml_docno"));
+		assertEquals("BOM000", e1.getFieldValue("embd_xml_partno"));
 		
 		
 		// Unified fields introduced in CMS 5.0

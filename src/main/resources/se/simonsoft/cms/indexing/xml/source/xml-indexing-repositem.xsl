@@ -176,6 +176,11 @@
 				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
 			</xsl:if>
 			
+			<!-- Supports partno from Techdoc 'techdocinfo' with selection of language-specific docno based on @market / @xml:lang. -->
+			<xsl:if test="cmsfn:get-partno(.)">
+				<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
+			</xsl:if>
+			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_ids"><xsl:value-of select="//@*[name() = 'xml:id' or name() = 'id']"/></field>
 			
@@ -833,14 +838,9 @@
 		<xsl:param name="root" as="element()"/>
 		
 		<xsl:choose>
-			<!-- bookmap -->
-			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
-				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
-			</xsl:when>
-			
-			<xsl:when test="count($root//bookmeta/bookid/bookpartno[not(@xml:lang)]) = 1">
-				<!-- Exactly one non-lang-specific.. -->
-				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[1]"/>
+			<!-- bookmap - can only have a singe booknumber (see get-partno for 'bookpartno' support) -->
+			<xsl:when test="$root//bookmeta/bookid/booknumber">
+				<xsl:value-of select="$root//bookmeta/bookid/booknumber"/>
 			</xsl:when>
 
 			<!-- techdocmap -->
@@ -873,6 +873,38 @@
 		</xsl:choose>
 		<!-- Empty result if no match. -->
 	</xsl:function>
+	
+	<xsl:function name="cmsfn:get-partno" as="xs:string?">
+		<xsl:param name="root" as="element()"/>
+		
+		<xsl:choose>
+			<!-- bookmap -->
+			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="count($root//bookmeta/bookid/bookpartno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[1]"/>
+			</xsl:when>
+			
+			<!-- techdocmap -->
+			<xsl:when test="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="count($root/techdocinfo/partno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root/techdocinfo/partno[1]"/>
+			</xsl:when>
+			
+			<!-- Techdoc-Book -->
+			<!-- Not sure if there is a concept in docinfogroup, moving towards techdocinfo in Techdoc-Book as well. -->
+			
+		</xsl:choose>
+		<!-- Empty result if no match. -->
+	</xsl:function>
+	
 	
 	<xsl:function name="cmsfn:get-rid-prefix">
 		<xsl:param name="rid" as="xs:string"/>

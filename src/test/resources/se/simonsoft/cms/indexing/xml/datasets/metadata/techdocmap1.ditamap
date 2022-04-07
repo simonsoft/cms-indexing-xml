@@ -10,7 +10,7 @@ xmlns:ditaarch="http://dita.oasis-open.org/architecture/2005/">
 ><model>Model A</model><model>Model B</model>
 <docno>1234 ABCD</docno>
 <docno xml:lang="fr">4567 QWER</docno>
-<partno>BOM000</partno><partno>BOM123</partno><serialno>A0001</serialno>
+<partno>BOM000</partno><partno xml:lang="fr">BOM123</partno><serialno>A0001</serialno>
 <serialno>B2000</serialno>
 <metadata>
 <prodinfo>
