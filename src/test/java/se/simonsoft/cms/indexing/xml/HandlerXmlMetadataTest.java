@@ -117,12 +117,23 @@ public class HandlerXmlMetadataTest {
 		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_prodname"));
 		assertEquals("The Product name\nAnother prodinfo", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_prodname"));
 
+		assertEquals(null, e1.getFieldValue("meta_s_s_xml_prodinfo_brand"));
+		assertEquals("Amazing", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_brand"));
+		assertEquals(null, e1.getFieldValue("meta_s_s_xml_prodinfo_component"));
+		assertEquals("A", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_component"));
+		assertEquals(null, e1.getFieldValue("meta_s_s_xml_prodinfo_platform"));
+		assertEquals("Left\nRight", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_platform"));
+		
 		assertNull(e1.getFieldValue("meta_s_m_xml_prodinfo_series"));
 		assertNull(e1.getFieldValue("meta_s_s_xml_prodinfo_series"));
 		assertEquals(Arrays.asList("Knatte", "Fnatte", "Tjatte"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_series"));
 		assertEquals("Knatte\nFnatte\nTjatte", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_series"));
 		
-		
+		// bookid
+		assertEquals("BOM000\nBOM123", e1.getFieldValue("meta_s_s_xml_bookid_bookpartno"));
+		assertEquals("A.10", e1.getFieldValue("meta_s_s_xml_bookid_edition"));
+		assertEquals("ISBN", e1.getFieldValue("meta_s_s_xml_bookid_isbn"));
+		assertEquals("1234 ABCD", e1.getFieldValue("meta_s_s_xml_bookid_booknumber"));
 		
 		
 		// othermeta

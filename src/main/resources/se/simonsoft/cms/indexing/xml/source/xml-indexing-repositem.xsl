@@ -587,6 +587,7 @@
 		<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 		-->
 		
+		<!-- prodinfo -->
 		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'prodinfo_prodname'"/>
 			<xsl:with-param name="value" select="$meta/prodinfo/prodname"/>
@@ -598,6 +599,36 @@
 		</xsl:call-template>
 		
 		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_brand'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/brand"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_brand'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/brand"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_component'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/component"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_component'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/component"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_platform'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/platform"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_platform'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/platform"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'prodinfo_series'"/>
 			<xsl:with-param name="value" select="$meta/prodinfo/series"/>
 		</xsl:call-template>
@@ -605,6 +636,27 @@
 		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'metadata_prodinfo_series'"/>
 			<xsl:with-param name="value" select="$meta/metadata/prodinfo/series"/>
+		</xsl:call-template>
+		
+		<!-- bookid -->
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_bookpartno'"/>
+			<xsl:with-param name="value" select="$meta/bookid/bookpartno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_edition'"/>
+			<xsl:with-param name="value" select="$meta/bookid/edition"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_isbn'"/>
+			<xsl:with-param name="value" select="$meta/bookid/isbn"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_booknumber'"/>
+			<xsl:with-param name="value" select="$meta/bookid/booknumber"/>
 		</xsl:call-template>
 		
 		
