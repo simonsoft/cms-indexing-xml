@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Arbortext, Inc., 1988-2022, v.4002-->
+<!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN"
+ "bookmap.dtd">
+<?Pub UDT template _font?>
+<bookmap xml:lang="en">
+<booktitle>
+<mainbooktitle>Main Title</mainbooktitle>
+<booktitlealt>Alt Title</booktitlealt>
+<booktitlealt>Another title</booktitlealt>
+</booktitle>
+<bookmeta>
+<metadata>
+<prodinfo>
+<prodname>The <markupname>Product</markupname> name</prodname>
+<vrmlist><vrm release="2022-03-01" version="A.10"/><vrm
+release="2021-10-01" version="A.6"/></vrmlist>
+<brand>Amazing</brand>
+<component>A</component>
+<platform>Left</platform>
+<platform>Right</platform>
+<series>Knatte</series>
+<series>Fnatte</series>
+<series>Tjatte</series>
+</prodinfo>
+<prodinfo>
+<prodname>Another prodinfo</prodname>
+<featnum>featurenum not present in the first prodinfo</featnum>
+</prodinfo>
+<othermeta content="With  double space" name="test_one"/>
+<othermeta content="nospace" name="test_two"/>
+<othermeta content="multi;value;separator" name="test_three"/>
+<othermeta content="one" name="multi-value"/>
+<othermeta content="two" name="multi-value"/>
+<othermeta content="content status" name="status"/>
+<othermeta content="Göteborg" name="högkvarter"/>
+<othermeta content="long name"
+name="0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"/>
+</metadata>
+<prodinfo>
+<prodname>Lifecycle prodname</prodname>
+</prodinfo>
+<othermeta content="lifecycle status" name="status"/>
+<othermeta content="perhaps-included" name="outside_metadata"/>
+<bookid>
+<bookpartno>BOM000</bookpartno>
+<bookpartno xml:lang="fr">BOM123</bookpartno>
+<edition>A.10</edition>
+<isbn>ISBN</isbn>
+<booknumber>1234 ABCD</booknumber></bookid>
+<bookrights>
+<bookowner>
+<person>Bill</person>
+<organization>United Bogus</organization>
+</bookowner>
+</bookrights>
+</bookmeta>
+<frontmatter></frontmatter>
+<backmatter></backmatter>
+</bookmap>

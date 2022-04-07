@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
@@ -65,6 +65,10 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
+		
+		<!-- Determine meta element (parent of 'metadata'). Techdoc-DITA/Book | TIA | Bookmap | map | topic -->
+		<xsl:variable name="meta" select="/*/techdocinfo | /*/techinfometa | /*/bookmeta| /*/topicmeta | /*/prolog"/>
+		
 		<xsl:variable name="titles" as="element()*">
 			<xsl:choose>
 				<xsl:when test="$ditamap//booktitle/mainbooktitle">
@@ -167,9 +171,14 @@
 			</xsl:if>
 			
 			
-	
+			<!-- Supports docno from Techdoc 'docinfo' with selection of language-specific docno based on @market / @xml:lang. -->
 			<xsl:if test="cmsfn:get-docno(.)">
 				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
+			</xsl:if>
+			
+			<!-- Supports partno from Techdoc 'techdocinfo' with selection of language-specific docno based on @market / @xml:lang. -->
+			<xsl:if test="cmsfn:get-partno(.)">
+				<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
 			</xsl:if>
 			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
@@ -187,13 +196,14 @@
 			<field name="embd_xml_meta_product">
 				<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 			</field>
+
+			<!-- #1531 Extract DITA metadata into meta_* fields, suitable for faceting etc. -->
+			<xsl:if test="$meta">
+				<xsl:call-template name="meta">
+					<xsl:with-param name="meta" select="$meta[1]"/>
+				</xsl:call-template>
+			</xsl:if>
 			
-			<!-- TODO: Enable in next major/minor. Series can be multi-value. -->
-			<!-- 
-			<field name="embd_xml_meta_series">
-				<xsl:apply-templates select="/*/bookmeta/prodinfo/series | /*/prolog/metadata/prodinfo/series" mode="meta"/>
-			</field>
-			-->
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
@@ -567,6 +577,225 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	
+	<!-- 
+	
+	embd_xml_meta_...
+	meta_s_m_xml_prodname
+	
+	-->
+	
+	<xsl:template name="meta">
+		<!-- Process a DITA-style meta element (parent of 'metadata') -->
+		<xsl:param name="meta" as="element()" required="yes"/>
+		
+		<!-- skip unifying embd_xml fields for now -->
+		<!-- 
+		<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
+		-->
+		
+		<!-- techdocinfo -->
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'product'"/>
+			<xsl:with-param name="value" select="$meta/product"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'model'"/>
+			<xsl:with-param name="value" select="$meta/model"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'docno'"/>
+			<xsl:with-param name="value" select="$meta/docno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'partno'"/>
+			<xsl:with-param name="value" select="$meta/partno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'serialno'"/>
+			<xsl:with-param name="value" select="$meta/serialno"/>
+		</xsl:call-template>
+		
+		
+		<!-- prodinfo -->
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_prodname'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/prodname"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_prodname'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/prodname"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_brand'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/brand"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_brand'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/brand"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_component'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/component"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_component'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/component"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_platform'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/platform"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_platform'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/platform"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_series'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/series"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_series'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/series"/>
+		</xsl:call-template>
+		
+		<!-- bookid -->
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_bookpartno'"/>
+			<xsl:with-param name="value" select="$meta/bookid/bookpartno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_edition'"/>
+			<xsl:with-param name="value" select="$meta/bookid/edition"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_isbn'"/>
+			<xsl:with-param name="value" select="$meta/bookid/isbn"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'bookid_booknumber'"/>
+			<xsl:with-param name="value" select="$meta/bookid/booknumber"/>
+		</xsl:call-template>
+		
+		
+		<!-- All othermeta -->
+		<xsl:for-each select="distinct-values($meta//othermeta/@name)">
+			<xsl:call-template name="meta-othermeta">
+				<xsl:with-param name="name" select="."/>
+				<xsl:with-param name="meta" select="$meta"/>
+			</xsl:call-template>
+		</xsl:for-each>
+		
+	</xsl:template>
+	
+	<xsl:template name="meta-unit">
+		<xsl:param name="name" as="xs:string" required="yes"/>
+		<xsl:param name="value" as="element()*" required="yes"/>
+		<!-- make singlevalue field with newline separator -->
+		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
+		
+		<!-- Should already be sanitized. -->
+		<xsl:variable name="fieldsuffix" select="$name"/>
+		
+		<xsl:choose >
+			<xsl:when test="count($value) = 0">
+				<!-- TODO: Remove for prod. -->
+				<xsl:message expand-text="yes">No meta {$name}</xsl:message>
+			</xsl:when>
+			<xsl:when test="count($value) = 1">
+				<xsl:message select="'META 1: ' || 'meta_s_m_xml_' || $fieldsuffix"></xsl:message>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value[1] ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value[1] ! normalize-space(.)"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:message select="'META N: ' || 'meta_s_m_xml_' || $fieldsuffix"></xsl:message>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value ! normalize-space(.) => string-join($meta-single-separator)"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+	</xsl:template>
+	
+	<xsl:template name="meta-othermeta">
+		<!-- meta_s_m_xml_a_othermeta_... -->
+		<!-- union of all othermeta, indicated by '_a_'. -->
+		<xsl:param name="name" as="xs:string" required="yes"/>
+		<xsl:param name="meta" as="element()" required="yes"/>
+		<!-- make singlevalue field with newline separator -->
+		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
+		
+		<!-- Replace extended characters with '_' in field name. -->
+		<xsl:variable name="fieldsuffix" select="replace($name, '[^a-zA-Z0-9_-]', '_')"/>
+		<xsl:variable name="om" as="element(othermeta)+" select="$meta//othermeta[@name = $name]"/>
+		
+		<xsl:choose >
+			<xsl:when test="count($om) = 1">
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om[1]/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om[1]/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om/@content ! normalize-space(.) => string-join($meta-single-separator)"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	
+	
+	<xsl:template name="field">
+		<!-- Support both single and multivalue. -->
+		<xsl:param name="name" as="xs:string"/>
+		<xsl:param name="value"/>
+		
+		<xsl:for-each select="$value">
+			<xsl:element name="field">
+				<xsl:attribute name="name" select="$name"/>
+				<xsl:value-of select="."/>
+			</xsl:element>
+		</xsl:for-each>
+	</xsl:template>
+	
+	
+	
 	<!-- Tentative approach for managing metadata. Likely need a multiValued field instead. -->
 	<xsl:template match="element()" mode="meta">
 		<!-- keyword elements are not inlines in this context, individual terms -->
@@ -611,10 +840,22 @@
 		<xsl:param name="root" as="element()"/>
 		
 		<xsl:choose>
-			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
-				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
+			<!-- bookmap - can only have a singe booknumber (see get-partno for 'bookpartno' support) -->
+			<xsl:when test="$root//bookmeta/bookid/booknumber">
+				<xsl:value-of select="$root//bookmeta/bookid/booknumber"/>
+			</xsl:when>
+
+			<!-- techdocmap -->
+			<xsl:when test="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]"/>
 			</xsl:when>
 			
+			<xsl:when test="count($root/techdocinfo/docno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root/techdocinfo/docno[1]"/>
+			</xsl:when>
+
+			<!-- Techdoc-Book -->
 			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
 				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
 			</xsl:when>
@@ -634,6 +875,38 @@
 		</xsl:choose>
 		<!-- Empty result if no match. -->
 	</xsl:function>
+	
+	<xsl:function name="cmsfn:get-partno" as="xs:string?">
+		<xsl:param name="root" as="element()"/>
+		
+		<xsl:choose>
+			<!-- bookmap -->
+			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="count($root//bookmeta/bookid/bookpartno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[1]"/>
+			</xsl:when>
+			
+			<!-- techdocmap -->
+			<xsl:when test="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<xsl:when test="count($root/techdocinfo/partno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root/techdocinfo/partno[1]"/>
+			</xsl:when>
+			
+			<!-- Techdoc-Book -->
+			<!-- Not sure if there is a concept in docinfogroup, moving towards techdocinfo in Techdoc-Book as well. -->
+			
+		</xsl:choose>
+		<!-- Empty result if no match. -->
+	</xsl:function>
+	
 	
 	<xsl:function name="cmsfn:get-rid-prefix">
 		<xsl:param name="rid" as="xs:string"/>
