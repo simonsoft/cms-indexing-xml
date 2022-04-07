@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Arbortext, Inc., 1988-2022, v.4002-->
+<techdocmap xml:lang="en-US"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="urn:simonsoft:names:techdoc:dita:xsd:simonsoft:documentation-techdocmap.xsd"
+xmlns:ditaarch="http://dita.oasis-open.org/architecture/2005/">
+<title>Main title</title>
+<techdocinfo>
+<product>The Product name</product><product>Another prodinfo</product
+><model>Model A</model><model>Model B</model>
+<docno>1234 ABCD</docno>
+<docno xml:lang="fr">4567 QWER</docno>
+<partno>BOM000</partno><partno>BOM123</partno><serialno>A0001</serialno>
+<serialno>B2000</serialno>
+<metadata>
+<prodinfo>
+<prodname>The <markupname>Product</markupname> name</prodname>
+<brand>Amazing</brand>
+<component>A</component>
+<platform>Left</platform>
+<platform>Right</platform>
+<series>Knatte</series>
+<series>Fnatte</series>
+<series>Tjatte</series>
+</prodinfo>
+<othermeta content="one" name="multi-value"/>
+<othermeta content="two" name="multi-value"/>
+</metadata></techdocinfo>
+<frontmatter>
+<booklists>
+<toc/></booklists>
+</frontmatter>
+</techdocmap>

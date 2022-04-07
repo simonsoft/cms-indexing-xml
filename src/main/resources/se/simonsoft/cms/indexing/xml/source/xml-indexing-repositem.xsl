@@ -587,6 +587,33 @@
 		<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 		-->
 		
+		<!-- techdocinfo -->
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'product'"/>
+			<xsl:with-param name="value" select="$meta/product"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'model'"/>
+			<xsl:with-param name="value" select="$meta/model"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'docno'"/>
+			<xsl:with-param name="value" select="$meta/docno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'partno'"/>
+			<xsl:with-param name="value" select="$meta/partno"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'serialno'"/>
+			<xsl:with-param name="value" select="$meta/serialno"/>
+		</xsl:call-template>
+		
+		
 		<!-- prodinfo -->
 		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'prodinfo_prodname'"/>
@@ -806,6 +833,7 @@
 		<xsl:param name="root" as="element()"/>
 		
 		<xsl:choose>
+			<!-- bookmap -->
 			<xsl:when test="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[@xml:lang = /*/@xml:lang]"/>
 			</xsl:when>
@@ -814,7 +842,18 @@
 				<!-- Exactly one non-lang-specific.. -->
 				<xsl:value-of select="$root//bookmeta/bookid/bookpartno[1]"/>
 			</xsl:when>
+
+			<!-- techdocmap -->
+			<xsl:when test="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]"/>
+			</xsl:when>
 			
+			<xsl:when test="count($root/techdocinfo/docno[not(@xml:lang)]) = 1">
+				<!-- Exactly one non-lang-specific.. -->
+				<xsl:value-of select="$root/techdocinfo/docno[1]"/>
+			</xsl:when>
+
+			<!-- Techdoc-Book -->
 			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
 				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
 			</xsl:when>

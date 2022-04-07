@@ -16,12 +16,10 @@
 package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -65,6 +63,8 @@ public class HandlerXmlMetadataTest {
 		repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/metadata");
 		repo = new CmsRepositoryFilexml("http://localtesthost/svn/namespace", repoSource);
 		filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
 	}
 	
 	@AfterClass
@@ -80,7 +80,6 @@ public class HandlerXmlMetadataTest {
 	
 	@Test
 	public void testMetadataBookmap() throws Exception {
-		indexing.enable(new ReposTestBackendFilexml(filexml));
 		assumeResourceExists(repoSource, "/bookmap1.ditamap");
 
 		SolrClient repositem = indexing.getCore("repositem");
@@ -111,7 +110,8 @@ public class HandlerXmlMetadataTest {
 		// Additional unified fields on hold awaiting specification.
 		assertEquals("Lifecycle_prodname ", e1.getFieldValue("embd_xml_meta_product"));
 		
-		// prodinfo
+		// prodinfo (supports multiple prodinfo, see "Another prodinfo")
+		// TODO: Consider filtering whole "meta" element to remove elements with xml:lang != document lang.
 		assertEquals(Arrays.asList("Lifecycle prodname"), e1.getFieldValue("meta_s_m_xml_prodinfo_prodname"));
 		assertEquals("Lifecycle prodname", e1.getFieldValue("meta_s_s_xml_prodinfo_prodname"));
 		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_prodname"));
@@ -163,9 +163,72 @@ public class HandlerXmlMetadataTest {
 		
 		assertEquals(Arrays.asList("long name"), e1.getFieldValue("meta_s_m_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 		assertEquals("long name", e1.getFieldValue("meta_s_s_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+	}
+	
+	@Test
+	public void testMetadataTechdocmap1() throws Exception {
+		assumeResourceExists(repoSource, "/techdocmap1.ditamap");
+
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
+		assertEquals(2, all.getNumFound()); 
+		
+		SolrDocument e1 = all.get(0);
+		assertEquals("file", e1.getFieldValue("type"));
+		assertEquals(true, e1.getFieldValue("head"));
+		
+		SolrDocument e2 = all.get(1);
+		assertEquals("file", e2.getFieldValue("type"));
+		assertEquals(false, e2.getFieldValue("head"));
+		
+		// No of fields, just during development
+		//assertEquals(81, e1.getFieldNames().size());
 		
 		
+		// Basics
+		assertEquals("techdocmap", e1.getFieldValue("embd_xml_name"));
 		
+		
+		// Docno from bookmap
+		assertEquals("1234 ABCD", e1.getFieldValue("embd_xml_docno"));
+		
+		
+		// Unified fields introduced in CMS 5.0
+		// Additional unified fields on hold awaiting specification.
+		assertEquals("The_Product_name Another_prodinfo ", e1.getFieldValue("embd_xml_meta_product"));
+		
+		
+		// techdocinfo
+		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_product"));
+		assertEquals("The Product name\nAnother prodinfo", e1.getFieldValue("meta_s_s_xml_product"));
+		
+		assertEquals(Arrays.asList("Model A", "Model B"), e1.getFieldValue("meta_s_m_xml_model"));
+		assertEquals("Model A\nModel B", e1.getFieldValue("meta_s_s_xml_model"));
+		
+		assertEquals("1234 ABCD\n4567 QWER", e1.getFieldValue("meta_s_s_xml_docno"));
+		assertEquals("BOM000\nBOM123", e1.getFieldValue("meta_s_s_xml_partno"));		
+		assertEquals("A0001\nB2000", e1.getFieldValue("meta_s_s_xml_serialno"));
+		
+		
+		// prodinfo (supports multiple prodinfo, see "Another prodinfo")
+		// TODO: Consider filtering whole "meta" element to remove elements with xml:lang != document lang.
+		assertEquals(Arrays.asList("The Product name"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_prodname"));
+		assertEquals("The Product name", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_prodname"));
+
+		assertEquals("Amazing", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_brand"));
+		assertEquals("A", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_component"));
+		assertEquals("Left\nRight", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_platform"));
+		
+		assertNull(e1.getFieldValue("meta_s_m_xml_prodinfo_series"));
+		assertNull(e1.getFieldValue("meta_s_s_xml_prodinfo_series"));
+		assertEquals(Arrays.asList("Knatte", "Fnatte", "Tjatte"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_series"));
+		assertEquals("Knatte\nFnatte\nTjatte", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_series"));
+		
+		
+		// othermeta (see bookmap1 for full test suite)
+		// Demonstrate multiple othermeta with same name, becomes multivalue and singlevalue with newline separator.
+		assertEquals(Arrays.asList("one", "two"), e1.getFieldValue("meta_s_m_xml_a_othermeta_multi-value"));
+		assertEquals("one\ntwo", e1.getFieldValue("meta_s_s_xml_a_othermeta_multi-value"));
 	}
 	
 
