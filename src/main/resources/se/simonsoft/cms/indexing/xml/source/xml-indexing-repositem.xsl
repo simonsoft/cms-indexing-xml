@@ -198,9 +198,11 @@
 			</field>
 
 			<!-- #1531 Extract DITA metadata into meta_* fields, suitable for faceting etc. -->
-			<xsl:call-template name="meta">
-				<xsl:with-param name="meta" select="$meta[1]"/>
-			</xsl:call-template>
+			<xsl:if test="$meta">
+				<xsl:call-template name="meta">
+					<xsl:with-param name="meta" select="$meta[1]"/>
+				</xsl:call-template>
+			</xsl:if>
 			
 			
 			<!-- What about number of elements? -->	
