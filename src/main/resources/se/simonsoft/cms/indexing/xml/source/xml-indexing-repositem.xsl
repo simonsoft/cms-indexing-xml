@@ -191,14 +191,8 @@
 			<field name="embd_xml_meta_product">
 				<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 			</field>
-			
-			<!-- TODO: Enable in next major/minor. Series can be multi-value. -->
-			<!-- 
-			<field name="embd_xml_meta_series">
-				<xsl:apply-templates select="/*/bookmeta/prodinfo/series | /*/prolog/metadata/prodinfo/series" mode="meta"/>
-			</field>
-			-->
-			
+
+			<!-- #1531 Extract DITA metadata into meta_* fields, suitable for faceting etc. -->
 			<xsl:call-template name="meta">
 				<xsl:with-param name="meta" select="$meta[1]"/>
 			</xsl:call-template>
@@ -588,11 +582,31 @@
 		<!-- Process a DITA-style meta element (parent of 'metadata') -->
 		<xsl:param name="meta" as="element()" required="yes"/>
 		
-		<!--call: fieldsuffix hardcoded, element+ -->
 		<!-- skip unifying embd_xml fields for now -->
 		<!-- 
 		<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 		-->
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_prodname'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/prodname"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_prodname'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/prodname"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'prodinfo_series'"/>
+			<xsl:with-param name="value" select="$meta/prodinfo/series"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'metadata_prodinfo_series'"/>
+			<xsl:with-param name="value" select="$meta/metadata/prodinfo/series"/>
+		</xsl:call-template>
+		
 		
 		<!-- All othermeta -->
 		<xsl:for-each select="distinct-values($meta//othermeta/@name)">
@@ -605,9 +619,42 @@
 	</xsl:template>
 	
 	<xsl:template name="meta-unit">
-		<xsl:param name="meta" as="element()" required="yes"/>
+		<xsl:param name="name" as="xs:string" required="yes"/>
+		<xsl:param name="value" as="element()*" required="yes"/>
+		<!-- make singlevalue field with newline separator -->
+		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
 		
+		<!-- Should already be sanitized. -->
+		<xsl:variable name="fieldsuffix" select="$name"/>
 		
+		<xsl:choose >
+			<xsl:when test="count($value) = 0">
+				<!-- TODO: Remove for prod. -->
+				<xsl:message expand-text="yes">No meta {$name}</xsl:message>
+			</xsl:when>
+			<xsl:when test="count($value) = 1">
+				<xsl:message select="'META 1: ' || 'meta_s_m_xml_' || $fieldsuffix"></xsl:message>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value[1] ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value[1] ! normalize-space(.)"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:message select="'META N: ' || 'meta_s_m_xml_' || $fieldsuffix"></xsl:message>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$value ! normalize-space(.) => string-join($meta-single-separator)"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
 		
 	</xsl:template>
 	

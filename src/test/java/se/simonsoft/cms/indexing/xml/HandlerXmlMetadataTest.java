@@ -16,6 +16,8 @@
 package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
@@ -93,6 +95,10 @@ public class HandlerXmlMetadataTest {
 		assertEquals("file", e2.getFieldValue("type"));
 		assertEquals(false, e2.getFieldValue("head"));
 		
+		// No of fields, just during development
+		//assertEquals(81, e1.getFieldNames().size());
+		
+		
 		// Basics
 		assertEquals("bookmap", e1.getFieldValue("embd_xml_name"));
 		
@@ -104,6 +110,19 @@ public class HandlerXmlMetadataTest {
 		// Unified fields introduced in CMS 5.0
 		// Additional unified fields on hold awaiting specification.
 		assertEquals("Lifecycle_prodname ", e1.getFieldValue("embd_xml_meta_product"));
+		
+		// prodinfo
+		assertEquals(Arrays.asList("Lifecycle prodname"), e1.getFieldValue("meta_s_m_xml_prodinfo_prodname"));
+		assertEquals("Lifecycle prodname", e1.getFieldValue("meta_s_s_xml_prodinfo_prodname"));
+		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_prodname"));
+		assertEquals("The Product name\nAnother prodinfo", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_prodname"));
+
+		assertNull(e1.getFieldValue("meta_s_m_xml_prodinfo_series"));
+		assertNull(e1.getFieldValue("meta_s_s_xml_prodinfo_series"));
+		assertEquals(Arrays.asList("Knatte", "Fnatte", "Tjatte"), e1.getFieldValue("meta_s_m_xml_metadata_prodinfo_series"));
+		assertEquals("Knatte\nFnatte\nTjatte", e1.getFieldValue("meta_s_s_xml_metadata_prodinfo_series"));
+		
+		
 		
 		
 		// othermeta
