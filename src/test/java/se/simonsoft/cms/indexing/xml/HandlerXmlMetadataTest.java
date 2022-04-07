@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -94,10 +96,43 @@ public class HandlerXmlMetadataTest {
 		// Basics
 		assertEquals("bookmap", e1.getFieldValue("embd_xml_name"));
 		
+		
 		// Docno from bookmap
 		assertEquals("BOM000", e1.getFieldValue("embd_xml_docno"));
 		
+		
+		// Unified fields introduced in CMS 5.0
+		// Additional unified fields on hold awaiting specification.
 		assertEquals("Lifecycle_prodname ", e1.getFieldValue("embd_xml_meta_product"));
+		
+		
+		// othermeta
+		assertEquals(Arrays.asList("With double space"), e1.getFieldValue("meta_s_m_xml_a_othermeta_test_one"));
+		assertEquals("With double space", e1.getFieldValue("meta_s_s_xml_a_othermeta_test_one"));
+		
+		assertEquals(Arrays.asList("nospace"), e1.getFieldValue("meta_s_m_xml_a_othermeta_test_two"));
+		assertEquals("nospace", e1.getFieldValue("meta_s_s_xml_a_othermeta_test_two"));
+		
+		// No processing of separator, use multiple <othermeta>
+		assertEquals(Arrays.asList("multi;value;separator"), e1.getFieldValue("meta_s_m_xml_a_othermeta_test_three"));
+		assertEquals("multi;value;separator", e1.getFieldValue("meta_s_s_xml_a_othermeta_test_three"));
+		
+		// Demonstrate multiple othermeta with same name, becomes multivalue and singlevalue with newline separator.
+		assertEquals(Arrays.asList("one", "two"), e1.getFieldValue("meta_s_m_xml_a_othermeta_multi-value"));
+		assertEquals("one\ntwo", e1.getFieldValue("meta_s_s_xml_a_othermeta_multi-value"));
+		
+		assertEquals(Arrays.asList("content status", "lifecycle status"), e1.getFieldValue("meta_s_m_xml_a_othermeta_status"));
+		assertEquals("content status\nlifecycle status", e1.getFieldValue("meta_s_s_xml_a_othermeta_status"));
+		
+		assertEquals(Arrays.asList("perhaps-included"), e1.getFieldValue("meta_s_m_xml_a_othermeta_outside_metadata"));
+		assertEquals("perhaps-included", e1.getFieldValue("meta_s_s_xml_a_othermeta_outside_metadata"));
+		
+		// extended chars in field name
+		//assertEquals(Arrays.asList("Göteborg"), e1.getFieldValue("meta_s_m_xml_a_othermeta_h_gkvarter"));
+		//assertEquals("Göteborg", e1.getFieldValue("meta_s_s_xml_a_othermeta_h_gkvarter"));
+		
+		assertEquals(Arrays.asList("long name"), e1.getFieldValue("meta_s_m_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+		assertEquals("long name", e1.getFieldValue("meta_s_s_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 		
 		
 		

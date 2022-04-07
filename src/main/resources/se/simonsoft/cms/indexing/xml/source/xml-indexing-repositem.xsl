@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
@@ -65,6 +65,10 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
+		
+		<!-- Determine meta element (parent of 'metadata'). Techdoc-DITA/Book | TIA | Bookmap | map | topic -->
+		<xsl:variable name="meta" select="/*/techdocinfo | /*/techinfometa | /*/bookmeta| /*/topicmeta | /*/prolog"/>
+		
 		<xsl:variable name="titles" as="element()*">
 			<xsl:choose>
 				<xsl:when test="$ditamap//booktitle/mainbooktitle">
@@ -194,6 +198,11 @@
 				<xsl:apply-templates select="/*/bookmeta/prodinfo/series | /*/prolog/metadata/prodinfo/series" mode="meta"/>
 			</field>
 			-->
+			
+			<xsl:call-template name="meta">
+				<xsl:with-param name="meta" select="$meta[1]"/>
+			</xsl:call-template>
+			
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
@@ -566,6 +575,94 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+	
+	
+	<!-- 
+	
+	embd_xml_meta_...
+	meta_s_m_xml_prodname
+	
+	-->
+	
+	<xsl:template name="meta">
+		<!-- Process a DITA-style meta element (parent of 'metadata') -->
+		<xsl:param name="meta" as="element()" required="yes"/>
+		
+		<!--call: fieldsuffix hardcoded, element+ -->
+		<!-- skip unifying embd_xml fields for now -->
+		<!-- 
+		<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
+		-->
+		
+		<!-- All othermeta -->
+		<xsl:for-each select="distinct-values($meta//othermeta/@name)">
+			<xsl:call-template name="meta-othermeta">
+				<xsl:with-param name="name" select="."/>
+				<xsl:with-param name="meta" select="$meta"/>
+			</xsl:call-template>
+		</xsl:for-each>
+		
+	</xsl:template>
+	
+	<xsl:template name="meta-unit">
+		<xsl:param name="meta" as="element()" required="yes"/>
+		
+		
+		
+	</xsl:template>
+	
+	<xsl:template name="meta-othermeta">
+		<!-- meta_s_m_xml_a_othermeta_... -->
+		<!-- union of all othermeta, indicated by '_a_'. -->
+		<xsl:param name="name" as="xs:string" required="yes"/>
+		<xsl:param name="meta" as="element()" required="yes"/>
+		<!-- make singlevalue field with newline separator -->
+		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
+		
+		<xsl:variable name="fieldsuffix" select="replace($name, '[^a-zA-Z0-9_-]', '_')"/>
+		<xsl:variable name="om" as="element(othermeta)+" select="$meta//othermeta[@name = $name]"/>
+		
+		<xsl:choose >
+			<xsl:when test="count($om) = 1">
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om[1]/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om[1]/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om/@content ! normalize-space(.)"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_s_xml_a_othermeta_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="$om/@content ! normalize-space(.) => string-join($meta-single-separator)"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+		
+	</xsl:template>
+	
+	
+	<xsl:template name="field">
+		<!-- Support both single and multivalue. -->
+		<xsl:param name="name" as="xs:string"/>
+		<xsl:param name="value"/>
+		
+		<xsl:for-each select="$value">
+			<xsl:element name="field">
+				<xsl:attribute name="name" select="$name"/>
+				<xsl:value-of select="."/>
+			</xsl:element>
+		</xsl:for-each>
+	</xsl:template>
+	
+	
 	
 	<!-- Tentative approach for managing metadata. Likely need a multiValued field instead. -->
 	<xsl:template match="element()" mode="meta">
