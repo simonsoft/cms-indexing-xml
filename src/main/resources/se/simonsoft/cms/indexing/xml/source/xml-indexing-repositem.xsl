@@ -619,6 +619,7 @@
 		<!-- make singlevalue field with newline separator -->
 		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
 		
+		<!-- Replace extended characters with '_' in field name. -->
 		<xsl:variable name="fieldsuffix" select="replace($name, '[^a-zA-Z0-9_-]', '_')"/>
 		<xsl:variable name="om" as="element(othermeta)+" select="$meta//othermeta[@name = $name]"/>
 		
@@ -644,8 +645,6 @@
 				</xsl:call-template>
 			</xsl:otherwise>
 		</xsl:choose>
-		
-		
 	</xsl:template>
 	
 	

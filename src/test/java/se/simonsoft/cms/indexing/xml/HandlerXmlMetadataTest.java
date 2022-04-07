@@ -128,8 +128,8 @@ public class HandlerXmlMetadataTest {
 		assertEquals("perhaps-included", e1.getFieldValue("meta_s_s_xml_a_othermeta_outside_metadata"));
 		
 		// extended chars in field name
-		//assertEquals(Arrays.asList("Göteborg"), e1.getFieldValue("meta_s_m_xml_a_othermeta_h_gkvarter"));
-		//assertEquals("Göteborg", e1.getFieldValue("meta_s_s_xml_a_othermeta_h_gkvarter"));
+		assertEquals(Arrays.asList("Göteborg"), e1.getFieldValue("meta_s_m_xml_a_othermeta_h_gkvarter"));
+		assertEquals("Göteborg", e1.getFieldValue("meta_s_s_xml_a_othermeta_h_gkvarter"));
 		
 		assertEquals(Arrays.asList("long name"), e1.getFieldValue("meta_s_m_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 		assertEquals("long name", e1.getFieldValue("meta_s_s_xml_a_othermeta_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
