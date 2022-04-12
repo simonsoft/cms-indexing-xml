@@ -101,6 +101,7 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				if (referenceName.equals("graphictranslated")) {
 					if (!ids.isEmpty()) {
 						fields.addField("flag", "hasgraphictranslated");
+						fields.addField("count_graphictranslated", ids.size());
 					}
 				}
 				
