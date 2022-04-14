@@ -25,7 +25,8 @@ public class WorkflowExtractionWork extends WorkflowExtraction {
 	
 	public void handle(WorkflowIndexingInput input, IndexingDoc fields) {
 		
-		WorkflowExtractionTranslationExportOptions options = (WorkflowExtractionTranslationExportOptions) deserializeOption(input.getOptions(), WorkflowExtractionTranslationExportOptions.class);
+		// Workflow cms-work-v1 does not forwards 'options' because some execution actions do not have options.
+		//WorkflowExtractionTranslationExportOptions options = (WorkflowExtractionTranslationExportOptions) deserializeOption(input.getOptions(), WorkflowExtractionTranslationExportOptions.class);
 		
 		fields.setField("embd_" + input.getWorkflow() + "_action", input.getAction());
 	}
