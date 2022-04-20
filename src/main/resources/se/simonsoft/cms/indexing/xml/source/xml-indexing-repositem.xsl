@@ -340,11 +340,15 @@
 				</field>
 				
 				<!-- Extract text (excluding keyref): open / in_progress -->
-				<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
-				<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
-				
-				<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
-				<field name="count_words_progress"><xsl:value-of select="count($tstatus_progress_text)"/></field>
+				<!-- Counting words can NOT work after translation is completed. Set twords on all non-Pretranslated leaf elements? Fallback to @cms:twords - Pretranslated?  -->
+				<!-- UI stop showing open and pretranslated... probably makes sense. Loosing ability to get statistics? -->
+				<xsl:if test="$document-status = 'In_Translation' or starts-with($document-status, 'Pending_Pretranslate')">
+					<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+					<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+					
+					<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
+					<field name="count_words_progress"><xsl:value-of select="count($tstatus_progress_text)"/></field>
+				</xsl:if>
 			</xsl:if>
 			
 			<!-- Elements marked translate="no" or markfortrans="no" (excluding Pretranslated elements). -->
