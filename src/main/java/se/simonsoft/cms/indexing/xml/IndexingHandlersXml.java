@@ -23,6 +23,7 @@ import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
 import se.simonsoft.cms.indexing.abx.HandlerAbxMasters;
 import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromUrl;
 import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
+import se.simonsoft.cms.indexing.abx.HandlerReleaseLabel;
 import se.simonsoft.cms.indexing.abx.HandlerXmlMasters;
 import se.simonsoft.cms.indexing.abx.HandlerXmlReferences;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
@@ -82,6 +83,7 @@ public abstract class IndexingHandlersXml {
 				HandlerAbxBaseLogicalId.class,
 				HandlerAbxDependencies.class,
 				HandlerAbxMasters.class,
+				HandlerReleaseLabel.class,
 				HandlerPathareaFromProperties.class);
 		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
 		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
