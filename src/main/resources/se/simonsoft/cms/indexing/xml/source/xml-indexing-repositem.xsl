@@ -67,7 +67,7 @@
 		<xsl:variable name="root" select="."/>
 		
 		<!-- Determine meta element (parent of 'metadata'). Techdoc-DITA/Book | TIA | Bookmap | map | topic -->
-		<xsl:variable name="meta" select="/*/techdocinfo | /*/techinfometa | /*/bookmeta| /*/topicmeta | /*/prolog"/>
+		<xsl:variable name="meta" select="/*/techdocinfo | $ditamap/*/techdocinfo | /*/techinfometa | $ditamap/*/techinfometa | /*/bookmeta | $ditamap/*/bookmeta | /*/topicmeta | $ditamap/*/topicmeta | /*/prolog"/>
 		
 		<xsl:variable name="titles" as="element()*">
 			<xsl:choose>

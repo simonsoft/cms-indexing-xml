@@ -32,7 +32,6 @@ import se.repos.indexing.solrj.SolrPingOp;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
-import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.cms.item.workflow.WorkflowExecutionId;
 
