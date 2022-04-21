@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>se.simonsoft</groupId>
 		<artifactId>cms-maven-parent</artifactId>
-		<version>11.0.1</version>
+		<version>11.0.2</version>
 		<relativePath/>
 	</parent>
 
@@ -95,6 +95,16 @@
 			<artifactId>solr-test-framework</artifactId>
 			<version>${solr-version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-slf4j-impl</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>se.repos</groupId>
