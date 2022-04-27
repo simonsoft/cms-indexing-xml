@@ -342,7 +342,7 @@
 				<!-- Extract text (excluding keyref): open / in_progress -->
 				<!-- Counting words can NOT work after translation is completed. Set twords on all non-Pretranslated leaf elements? Fallback to @cms:twords - Pretranslated?  -->
 				<!-- UI stop showing open and pretranslated... probably makes sense. Loosing ability to get statistics? -->
-				<xsl:if test="$document-status = 'In_Translation' or starts-with($document-status, 'Pending_Pretranslate')">
+				<xsl:if test="$patharea = 'release' or $document-status = 'In_Translation' or starts-with($document-status, 'Pending_Pretranslate')">
 					<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
 					<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
 					
