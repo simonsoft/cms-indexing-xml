@@ -134,6 +134,9 @@ public class WorkflowIndexing {
 			d.setField("embd_" + input.getWorkflow() + "_configname", input.getConfigname());
 		}
 		
+		// Treating the start time as a string, given the current repositem schema (not adding fields for Workflow at this time).
+		d.setField("embd_" + input.getWorkflow() + "_executionstart", input.getExecutionStart());
+		
 		d.setField("embd_" + input.getWorkflow() + "_executionid", input.getExecutionId()); // Might be same as uuid after reindexing (from publish manifest).
 		d.setField("embd_" + input.getWorkflow() + "_uuid", executionId.getUuid());
 		d.setField("embd_" + input.getWorkflow() + "_status", input.getStatus());

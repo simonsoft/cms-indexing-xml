@@ -29,6 +29,7 @@ public class WorkflowIndexingInput {
 
 	private String workflow;
 	private String executionId;
+	private String executionStart;
 	private String status;
 	private String error;
 	private boolean complete = false;
@@ -63,6 +64,16 @@ public class WorkflowIndexingInput {
 	@JsonSetter("executionid")
 	public void setExecutionId(String executionId) {
 		this.executionId = executionId;
+	}
+
+	@JsonGetter("executionstart")
+	public String getExecutionStart() {
+		return executionStart;
+	}
+
+	@JsonSetter("executionstart")
+	public void setExecutionStart(String executionStart) {
+		this.executionStart = executionStart;
 	}
 
 
