@@ -35,7 +35,7 @@ public class WorkflowIndexingInput {
 	private boolean complete = false;
 	
 	private String configname; // cmsconfig-module:configname
-	private String action; // Not intended for indexing.
+	private String action;
 	private CmsItemId itemId;
 	private String userId;
 	private JsonNode options;
