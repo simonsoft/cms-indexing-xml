@@ -68,10 +68,10 @@ public class HandlerReleaseLabel implements
 				}
 			}
 			
-			{ // Prerelease
+			if (l.getPrereleaseSegments() != null && !l.getPrereleaseSegments().isEmpty()) { // Prerelease
 				List<String> segOrig = l.getPrereleaseSegments();
 				List<String> segSort = l.getPrereleaseSegmentsSort();
-				for (int pos = 0; pos < l.getSegments().size(); pos++) {
+				for (int pos = 0; pos < segOrig.size(); pos++) {
 					f.setField(prefix + "_prerelease" + Integer.toString(pos), segOrig.get(pos));
 					f.setField(prefix + "_prerelease" + Integer.toString(pos) + "_sort", segSort.get(pos));
 				}
