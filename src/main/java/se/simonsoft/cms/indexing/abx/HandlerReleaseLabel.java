@@ -34,16 +34,19 @@ public class HandlerReleaseLabel implements
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerReleaseLabel.class);
 	
+	private static final String RELEASELABEL_PROP_FIELD = "prop_abx.ReleaseLabel";
+
+	public static final String RELEASELABEL_META_FIELD = "meta_s_s_releaselabel";
 	
-	private static final String RELEASELABEL_FIELD = "prop_abx.ReleaseLabel";
+	
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		IndexingDoc doc = progress.getFields();
-		String rl = (String) doc.getFieldValue(RELEASELABEL_FIELD);
+		String rl = (String) doc.getFieldValue(RELEASELABEL_PROP_FIELD);
 		
 		if (rl != null && !rl.isBlank()) {
-			extractReleaseLabel(progress.getFields(), rl, "meta_s_s_releaselabel");
+			extractReleaseLabel(progress.getFields(), rl, RELEASELABEL_META_FIELD);
 		}
 		
 	}

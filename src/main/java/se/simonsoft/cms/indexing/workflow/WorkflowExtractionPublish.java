@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import javax.enterprise.context.ApplicationScoped;
 
 import se.repos.indexing.IndexingDoc;
+import se.simonsoft.cms.indexing.abx.HandlerReleaseLabel;
 import se.simonsoft.cms.item.structure.CmsLabelVersion;
 import se.simonsoft.cms.publish.config.databinds.job.PublishJobManifest;
 import se.simonsoft.cms.publish.config.databinds.job.PublishJobOptions;
@@ -45,15 +46,16 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 		handleManifestMap("embd_" + input.getWorkflow() + "_job", manifest.getJob(), fields);
 		
 		if (manifest.getDocument() != null) {
-			// TODO: #1438 Handle multiple abbreviated versions.
-			// Likely done here in indexing.
+			// #1438 Handle multiple abbreviated versions.
 			// The abbreviated versions are in custom.versionN  
 			// Likely a webapp handler that makes queries against these SolR documents with sortable ReleaseLabel
 			
 			// #1592 Normalize versionrelease for string sorting in SolR.
+			// Ensure no SolR field analysis by using the same field as type:file indexing.
+			// Field analysis will ruin the careful string sorting.
 			String rl = manifest.getDocument().get("versionrelease");
 			CmsLabelVersion l = new CmsLabelVersion(rl);
-			fields.setField("embd_" + input.getWorkflow() + "_document_versionrelease_sort", l.getLabelSort());
+			fields.setField(HandlerReleaseLabel.RELEASELABEL_META_FIELD + "_sort", l.getLabelSort());
 			
 			handleManifestMap("embd_" + input.getWorkflow() + "_document", manifest.getDocument(), fields);
 		}
