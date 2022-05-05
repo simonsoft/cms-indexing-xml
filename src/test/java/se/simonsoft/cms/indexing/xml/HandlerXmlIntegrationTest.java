@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -511,6 +512,47 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("get RID by checksum", "c5fed03ed1304cecce75d63aee2ada2b0f2326af 2gyvymn15kv0006", shard.iterator().next());
 	}
 
+	
+	@Test
+	public void testReleaseLabelSort1() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releaselabels");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/releaselabels", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+		
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+		
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList rlLegacy = repositem.query(new SolrQuery("patharea:release AND head:true").setSort("prop_abx.ReleaseLabel", ORDER.asc).setFields("*")).getResults();
+		assertEquals("no of releases", 8, rlLegacy.getNumFound());
+		
+		// The Legacy string based sorting
+		// NOTE: This field likely has case-normalization reversing the upper/lower order compared to ASCII.
+		Iterator<SolrDocument> itLegacy = rlLegacy.iterator();
+		assertEquals("10", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("2", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("ab", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB-beta", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB.1", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("b", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("B", itLegacy.next().getFieldValue("prop_abx.ReleaseLabel"));
+		
+		
+		SolrDocumentList rlSort = repositem.query(new SolrQuery("patharea:release AND head:true").setSort("meta_s_s_releaselabel_sort", ORDER.asc).setFields("*")).getResults();
+		assertEquals("no of releases", 8, rlSort.getNumFound());
+		
+		// The correct SemVer sorting (via String in SolR)
+		Iterator<SolrDocument> itSort = rlSort.iterator();
+		assertEquals("2", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("10", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("B", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB-beta", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("AB.1", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("b", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+		assertEquals("ab", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
+	}
+	
 	
 	@Test
 	public void testJoinReleasetranslationNoExtraFields() throws SolrServerException, IOException {

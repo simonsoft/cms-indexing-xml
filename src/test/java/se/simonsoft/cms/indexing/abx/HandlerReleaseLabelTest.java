@@ -38,16 +38,47 @@ public class HandlerReleaseLabelTest {
 		doc.addField("prop_abx.ReleaseLabel", "X.10");
 		area.handle(progress);
 		assertEquals("X.10", doc.getFieldValue("meta_s_s_releaselabel"));
-		assertEquals("000000000X.0000000010", doc.getFieldValue("meta_s_s_releaselabel_sort"));
-		assertEquals("X", doc.getFieldValue("meta_s_s_releaselabel0"));
-		assertEquals("000000000X", doc.getFieldValue("meta_s_s_releaselabel0_sort"));
-		assertEquals("10", doc.getFieldValue("meta_s_s_releaselabel1"));
-		assertEquals("0000000010", doc.getFieldValue("meta_s_s_releaselabel1_sort"));
+		assertEquals("@@@@@@@@@X.////////10-", doc.getFieldValue("meta_s_s_releaselabel_sort"));
+		assertEquals("X", doc.getFieldValue("meta_s_s_releaselabel_version0"));
+		assertEquals("@@@@@@@@@X", doc.getFieldValue("meta_s_s_releaselabel_version0_sort"));
+		assertEquals("10", doc.getFieldValue("meta_s_s_releaselabel_version1"));
+		assertEquals("////////10", doc.getFieldValue("meta_s_s_releaselabel_version1_sort"));
 		
-		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel2"));
-		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel2_sort"));
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_version2"));
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_version2_sort"));
+		
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_prerelease0"));
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_prerelease0_sort"));
 	}
 	
 
+	@Test
+	public void testLabelPropsPrerelease() {
+		// Should identify Release/Translation based on Label/Locale-props.
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		IndexingItemProgress progress = mock(IndexingItemProgress.class);
+		when(progress.getFields()).thenReturn(doc);
+		HandlerReleaseLabel area = new HandlerReleaseLabel();
+		
+		doc.addField("prop_abx.ReleaseLabel", "X.10-beta.1");
+		area.handle(progress);
+		assertEquals("X.10-beta.1", doc.getFieldValue("meta_s_s_releaselabel"));
+		assertEquals("@@@@@@@@@X.////////10+beta./////////1", doc.getFieldValue("meta_s_s_releaselabel_sort"));
+		assertEquals("X", doc.getFieldValue("meta_s_s_releaselabel_version0"));
+		assertEquals("@@@@@@@@@X", doc.getFieldValue("meta_s_s_releaselabel_version0_sort"));
+		assertEquals("10", doc.getFieldValue("meta_s_s_releaselabel_version1"));
+		assertEquals("////////10", doc.getFieldValue("meta_s_s_releaselabel_version1_sort"));
+		
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_version2"));
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_version2_sort"));
+		
+		assertEquals("beta", doc.getFieldValue("meta_s_s_releaselabel_prerelease0"));
+		assertEquals("beta", doc.getFieldValue("meta_s_s_releaselabel_prerelease0_sort"));
+		assertEquals("1", doc.getFieldValue("meta_s_s_releaselabel_prerelease1"));
+		assertEquals("/////////1", doc.getFieldValue("meta_s_s_releaselabel_prerelease1_sort"));
+		
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_prerelease2"));
+		assertEquals(null, doc.getFieldValue("meta_s_s_releaselabel_prerelease2_sort"));
+	}
 	
 }

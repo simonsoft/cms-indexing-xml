@@ -55,11 +55,23 @@ public class HandlerReleaseLabel implements
 			f.setField(prefix, l.getLabel());
 			f.setField(prefix + "_sort", l.getLabelSort());
 			
-			List<String> segOrig = l.getSegments();
-			List<String> segSort = l.getSegmentsSort();
-			for (int pos = 0; pos < l.getSegments().size(); pos++) {
-				f.setField(prefix + Integer.toString(pos), segOrig.get(pos));
-				f.setField(prefix + Integer.toString(pos) + "_sort", segSort.get(pos));
+			
+			{ // Version
+				List<String> segOrig = l.getVersionSegments();
+				List<String> segSort = l.getVersionSegmentsSort();
+				for (int pos = 0; pos < segOrig.size(); pos++) {
+					f.setField(prefix + "_version" + Integer.toString(pos), segOrig.get(pos));
+					f.setField(prefix + "_version" + Integer.toString(pos) + "_sort", segSort.get(pos));
+				}
+			}
+			
+			{ // Prerelease
+				List<String> segOrig = l.getPrereleaseSegments();
+				List<String> segSort = l.getPrereleaseSegmentsSort();
+				for (int pos = 0; pos < l.getSegments().size(); pos++) {
+					f.setField(prefix + "_prerelease" + Integer.toString(pos), segOrig.get(pos));
+					f.setField(prefix + "_prerelease" + Integer.toString(pos) + "_sort", segSort.get(pos));
+				}
 			}
 			
 		} catch (Exception e) {

@@ -53,6 +53,11 @@
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </dependency>
 	
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-item</artifactId>
+			<version>3.1.1-SNAPSHOT</version>
+		</dependency>
 	
 		<dependency>
 			<groupId>se.repos</groupId>

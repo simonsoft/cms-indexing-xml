@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2009-2013 Simonsoft Nordic AB
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<lists>
+   <list>
+      <entry kind="dir">
+         <name>.</name>
+         <commit revision="1">
+			<author>m</author>
+			<date>2013-01-04T14:33:14.600772Z</date>
+			</commit>
+         <properties>
+         </properties>
+      </entry>
+      <entry kind="dir">
+         <name>tms</name>
+         <commit revision="14">
+            <author>test</author>
+            <date>2012-10-03T05:24:04.977908Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang</name>
+         <commit revision="14">
+            <author>test</author>
+            <date>2012-10-03T05:24:04.977908Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang/sv-SE</name>
+         <commit revision="14">
+            <author>test</author>
+            <date>2012-10-03T05:24:04.977908Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang/sv-SE/release</name>
+         <commit revision="14">
+            <author>test</author>
+            <date>2012-10-03T05:24:04.977908Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang/sv-SE/release/R001</name>
+         <commit revision="9">
+            <author>test</author>
+            <date>2012-10-03T05:06:59.295201Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang/sv-SE/release/R001/xml</name>
+         <commit revision="9">
+            <author>test</author>
+            <date>2012-10-03T05:06:59.295201Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/lang/sv-SE/release/R001/xml/Docs</name>
+         <commit revision="9">
+            <author>test</author>
+            <date>2012-10-03T05:06:59.295201Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/release</name>
+         <commit revision="14">
+            <author>test</author>
+            <date>2012-10-03T05:24:04.977908Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/release/R001</name>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/release/R001/xml</name>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties/>
+      </entry>
+      <entry kind="dir">
+         <name>tms/release/R001/xml/Docs</name>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties/>
+      </entry> 2 10 a ba A BA
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/2/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">2</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/10/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">10</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/b/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">b</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/ab/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">ab</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/B/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">B</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/AB/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">AB</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/AB-beta/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">AB-beta</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+      <entry kind="file" contentpath="/R001.xml">
+         <name>tms/release/AB.1/xml/Docs/My First Novel.xml</name>
+         <size>1362</size>
+         <commit revision="8">
+            <author>test</author>
+            <date>2012-10-03T04:41:38.005222Z</date>
+         </commit>
+         <properties>
+            <property name="abx:AuthorMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:Dependencies"/>
+            <property name="abx:DoctypeName">document</property>
+            <property name="abx:Encoding">UTF-8</property>
+            <property name="abx:PublicId">-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN</property>
+            <property name="abx:ReleaseId">2gyvymn15kv0000</property>
+            <property name="abx:ReleaseLabel">AB.1</property>
+            <property name="abx:ReleaseMaster">x-svn:///svn/testaut1/tms/xml/Docs/My%20First%20Novel.xml?p=5</property>
+            <property name="abx:SystemId">techdoc.dtd</property>
+            <property name="abx:TagType"/>
+            <property name="abx:TranslationProject">0001</property>
+            <property name="abx:lang">en-GB</property>
+            <property name="cms:createdby">solsson</property>
+            <property name="cms:status">Released</property>
+            <property name="xml:title">My First Novel</property>
+         </properties>
+      </entry>
+   </list>
+</lists>

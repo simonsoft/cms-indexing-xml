@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2009-2013 Simonsoft Nordic AB
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--Arbortext, Inc., 1988-2012, v.4002-->
+<!DOCTYPE document PUBLIC "-//Simonsoft//DTD TechDoc Base V1.1 Techdoc//EN"
+ "techdoc.dtd">
+<document createdby="solsson" docno="1" status="Released"
+xml:lang="en-GB"
+cms:rlogicalid="x-svn:///svn/testaut1^/tms/xml/Docs/My%20First%20Novel.xml?p=5"
+xmlns:cms="http://www.simonsoft.se/namespace/cms"
+cms:rid="2gyvymn15kv0000">
+<title cms:rid="2gyvymn15kv0001">My First Novel</title>
+<subtitle cms:rid="2gyvymn15kv0002">Translation test</subtitle>
+<body cms:rid="2gyvymn15kv0003">
+<section
+cms:rlogicalid="x-svn:///svn/testaut1^/tms/xml/Secs/First%20chapter.xml?p=4"
+cms:rid="2gyvymn15kv0004">
+<title cms:rid="2gyvymn15kv0005">First chapter</title>
+<p cms:rid="2gyvymn15kv0006">Once upon a time...</p>
+<section
+cms:rlogicalid="x-svn:///svn/testaut1^/tms/xml/Secs/Subchapter.xml?p=4"
+cms:rid="2gyvymn15kv0007">
+<title cms:rid="2gyvymn15kv0008">Subchapter</title>
+<p cms:rid="2gyvymn15kv0009">Subchapters are quite rare in novels.</p>
+</section>
+</section>
+<section
+cms:rlogicalid="x-svn:///svn/testaut1^/tms/xml/Secs/Second%20chapter.xml?p=5"
+cms:rid="2gyvymn15kv000a">
+<title cms:rid="2gyvymn15kv000b">Second chapter</title>
+<p cms:rid="2gyvymn15kv000c">The end is nigh.</p>
+</section>
+</body>
+</document><?Pub Caret -2?>
