@@ -42,7 +42,6 @@ import net.sf.saxon.s9api.XsltTransformer;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
-import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceDoctype;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
@@ -164,7 +163,8 @@ public class HandlerXmlRepositem {
 			if (e.getCause() instanceof TransformerException) { // including net.sf.saxon.trans.XPathException
 				String msg = MessageFormatter.format("XML invalid for transformation at {}: {}", processedFile, e.getMessage()).getMessage();
 				logger.error(msg);
-				throw new XmlNotWellFormedException(msg, e);
+				// No longer throwing XmlNotWellFormedException since this situation can indicate XSL bug
+				throw new RuntimeException(msg, e);
 			}
 			throw new RuntimeException("Extraction aborted with error at " + processedFile, e);
 		}
