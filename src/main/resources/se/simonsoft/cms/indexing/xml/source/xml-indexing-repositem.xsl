@@ -88,7 +88,7 @@
 					<xsl:sequence select="//searchtitle"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:sequence select="//title"/>
+					<xsl:sequence select="//title"/><!-- Consider /*/title | /*/*/title  -->
 				</xsl:otherwise>
 			</xsl:choose> 
 		</xsl:variable>
@@ -129,6 +129,7 @@
 				<xsl:variable name="title">
 					<xsl:apply-templates select="($titles)[1]" mode="title"/>
 				</xsl:variable>
+				<!-- TODO: Consider including additional elements from "titleblock". -->
 				<field name="embd_xml_title"><xsl:value-of select="normalize-space($title)"/></field>
 			</xsl:if>
 	
@@ -203,6 +204,30 @@
 					<xsl:with-param name="meta" select="$meta[1]"/>
 				</xsl:call-template>
 			</xsl:if>
+			
+			<!-- Extract term definitions, guard against id-duplicates and long id. -->
+			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
+			<xsl:for-each-group select="subsequence(//term[@xml:id][31 > string-length(@xml:id)], 1, 30)" group-by="@xml:id">
+				<!-- Replace extended characters with '_' in field name. -->
+				<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
+				<xsl:call-template name="meta-unit">
+					<xsl:with-param name="name" select="'term_' || $fieldsuffix"/>
+					<xsl:with-param name="value" select="current-group()"/>
+				</xsl:call-template>
+			</xsl:for-each-group>
+			
+			<!-- Extract local key definitions, guard against key-duplicates and long key. -->
+			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
+			<xsl:for-each-group select="subsequence(//keydef[topicmeta/keywords/keyword][@keys], 1, 30)" group-by="tokenize(@keys, ' ')">
+				<xsl:if test="31 > string-length(current-grouping-key())">
+					<!-- Replace extended characters with '_' in field name. -->
+					<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
+					<xsl:call-template name="meta-unit">
+						<xsl:with-param name="name" select="'keydef_keyword_' || $fieldsuffix"/>
+						<xsl:with-param name="value" select="current-group()/topicmeta/keywords/keyword"/>
+					</xsl:call-template>
+				</xsl:if>
+			</xsl:for-each-group>
 			
 			
 			<!-- What about number of elements? -->	
