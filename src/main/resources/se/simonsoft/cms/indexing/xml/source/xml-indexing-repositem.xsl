@@ -206,6 +206,7 @@
 			</xsl:if>
 			
 			<!-- Extract term definitions, guard against id-duplicates and long id. -->
+			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
 			<xsl:for-each-group select="subsequence(//term[@xml:id][31 > string-length(@xml:id)], 1, 30)" group-by="@xml:id">
 				<!-- Replace extended characters with '_' in field name. -->
 				<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
@@ -216,6 +217,7 @@
 			</xsl:for-each-group>
 			
 			<!-- Extract local key definitions, guard against key-duplicates and long key. -->
+			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
 			<xsl:for-each-group select="subsequence(//keydef[topicmeta/keywords/keyword][@keys], 1, 30)" group-by="tokenize(@keys, ' ')">
 				<xsl:if test="31 > string-length(current-grouping-key())">
 					<!-- Replace extended characters with '_' in field name. -->
