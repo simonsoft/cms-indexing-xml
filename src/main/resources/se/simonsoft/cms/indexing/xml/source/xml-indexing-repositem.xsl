@@ -205,12 +205,27 @@
 				</xsl:call-template>
 			</xsl:if>
 			
+			<!-- TODO: Limit total count -->
 			<!-- Extract term definitions, guard against id-duplicates and long id. -->
 			<xsl:for-each-group select="//term[@xml:id][31 > string-length(@xml:id)]" group-by="@xml:id">
+				<!-- Replace extended characters with '_' in field name. -->
+				<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
 				<xsl:call-template name="meta-unit">
-					<xsl:with-param name="name" select="'term_' || current-grouping-key()"/>
+					<xsl:with-param name="name" select="'term_' || $fieldsuffix"/>
 					<xsl:with-param name="value" select="current-group()"/>
 				</xsl:call-template>
+			</xsl:for-each-group>
+			
+			<!-- Extract local key definitions, guard against key-duplicates and long key. -->
+			<xsl:for-each-group select="//keydef[topicmeta/keywords/keyword][@keys]" group-by="tokenize(@keys, ' ')">
+				<xsl:if test="31 > string-length(current-grouping-key())">
+					<!-- Replace extended characters with '_' in field name. -->
+					<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
+					<xsl:call-template name="meta-unit">
+						<xsl:with-param name="name" select="'keydef_keyword_' || $fieldsuffix"/>
+						<xsl:with-param name="value" select="current-group()/topicmeta/keywords/keyword"/>
+					</xsl:call-template>
+				</xsl:if>
 			</xsl:for-each-group>
 			
 			
