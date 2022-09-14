@@ -88,7 +88,7 @@
 					<xsl:sequence select="//searchtitle"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:sequence select="//title"/>
+					<xsl:sequence select="//title"/><!-- Consider /*/title | /*/*/title  -->
 				</xsl:otherwise>
 			</xsl:choose> 
 		</xsl:variable>
@@ -129,6 +129,7 @@
 				<xsl:variable name="title">
 					<xsl:apply-templates select="($titles)[1]" mode="title"/>
 				</xsl:variable>
+				<!-- TODO: Consider including additional elements from "titleblock". -->
 				<field name="embd_xml_title"><xsl:value-of select="normalize-space($title)"/></field>
 			</xsl:if>
 	
@@ -203,6 +204,14 @@
 					<xsl:with-param name="meta" select="$meta[1]"/>
 				</xsl:call-template>
 			</xsl:if>
+			
+			<!-- Extract term definitions, guard against id-duplicates and long id. -->
+			<xsl:for-each-group select="//term[@xml:id][31 > string-length(@xml:id)]" group-by="@xml:id">
+				<xsl:call-template name="meta-unit">
+					<xsl:with-param name="name" select="'term_' || current-grouping-key()"/>
+					<xsl:with-param name="value" select="current-group()"/>
+				</xsl:call-template>
+			</xsl:for-each-group>
 			
 			
 			<!-- What about number of elements? -->	
