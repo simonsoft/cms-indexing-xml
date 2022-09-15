@@ -208,8 +208,19 @@
 			<!-- Extract term definitions, guard against id-duplicates and long id. -->
 			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
 			<xsl:for-each-group select="subsequence(//term[@xml:id][31 > string-length(@xml:id)], 1, 30)" group-by="@xml:id">
+				<xsl:variable name="key">
+					<xsl:choose>
+						<xsl:when test="$patharea = 'translation'">
+							<xsl:message terminate="yes">Auch</xsl:message>
+							<xsl:value-of select="cmsfn:local-get-id-no-prefix(current-grouping-key(), /*/@xml:lang)"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="current-grouping-key()"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
 				<!-- Replace extended characters with '_' in field name. -->
-				<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
+				<xsl:variable name="fieldsuffix" select="replace($key, '[^a-zA-Z0-9_-]', '_')"/>
 				<xsl:call-template name="meta-unit">
 					<xsl:with-param name="name" select="'term_' || $fieldsuffix"/>
 					<xsl:with-param name="value" select="current-group()"/>
@@ -965,6 +976,20 @@
 				<!-- The CMS requires DITA files to have extensions dita or ditamap, lowercase. -->
 				<!-- Must also allow extension xml according to DITA spec (only when no @format) and for migrated topics. -->
 				<xsl:sequence select="matches($refelem/@href, '^[^#]*\.(xml|dita|ditamap)(#.*)?$')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:function>
+	
+	<!-- #1680 #1601 Remove lang prefix from ID if the document is a book translation. -->
+	<xsl:function name="cmsfn:local-get-id-no-prefix">
+		<xsl:param name="id" as="xs:string" required="yes"/>
+		<xsl:param name="translation-locale" as="attribute()?"/>
+		<xsl:choose>
+			<xsl:when test="starts-with($id, $translation-locale || '-')">
+				<xsl:value-of select="substring-after($id, $translation-locale || '-')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$id"/>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:function>
