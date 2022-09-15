@@ -211,7 +211,6 @@
 				<xsl:variable name="key">
 					<xsl:choose>
 						<xsl:when test="$patharea = 'translation'">
-							<xsl:message terminate="yes">Auch</xsl:message>
 							<xsl:value-of select="cmsfn:local-get-id-no-prefix(current-grouping-key(), /*/@xml:lang)"/>
 						</xsl:when>
 						<xsl:otherwise>
