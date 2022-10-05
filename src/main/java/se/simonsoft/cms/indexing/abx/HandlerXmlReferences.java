@@ -158,9 +158,10 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 				String strategyId;
 				
 				for (String d : itemIds.trim().split("\\s+")) {
-					CmsItemIdFragment idFrag = new CmsItemIdFragment(d);
-					CmsItemIdArg id = (CmsItemIdArg) idFrag.getItemId();
-					id.setHostname(host);
+					CmsItemId id = parseItemId(d, host, refName);
+					if (id == null) {
+						continue;
+					}
 					
 					strategyId = id.getPegRev() != null ?
 							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
@@ -175,13 +176,24 @@ public class HandlerXmlReferences extends HandlerAbxFolders {
 					}
 				}
 				
-				
-				
 			} 
 			
 		}
-
 		return result;
+	}
+	
+	// Avoid failing due to an invalid itemid, log instead.
+	private CmsItemId parseItemId(String s, String host, String refName) {
+		try {
+			CmsItemIdFragment idFrag = new CmsItemIdFragment(s);
+			CmsItemIdArg id = (CmsItemIdArg) idFrag.getItemId();
+			id.setHostname(host);
+			return id;
+		} catch (IllegalArgumentException e) {
+			// Log invalid CmsItemId format.
+			logger.info("Reference '{}' contains: {}", refName, e.getMessage());
+			return null;
+		}
 	}
 
 }
