@@ -117,11 +117,12 @@
 			<!-- TODO: Decision on field names, some test coverage in xml-tracking. -->
 			<!-- NOTE: Indexing will fail if field name overlaps with Tika extraction. -->
 			<field name="embd_xml_name"><xsl:value-of select="name($root)"/></field>
-			<!-- attributes on the root element -->
-			<xsl:for-each select="$root/@*">
+			<!-- attributes on the root element (union of ditabase and ditamap) -->
+			<xsl:for-each-group select="$root/@* | $ditamap/*/@*" group-by="name()">
 				<xsl:variable name="fieldname" select="concat('embd_xml_a_', replace(name(.), ':', '.'))"/>
+				<!-- Only the ditabase value will be indexed when both ditamap and ditabase has an attribute. -->
 				<field name="{$fieldname}"><xsl:value-of select="."/></field>
-			</xsl:for-each>
+			</xsl:for-each-group>
 			
 			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
 			<!-- Attempt to resolve termref and display keyref key. -->
@@ -195,6 +196,7 @@
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
 			<!-- Let the DITA hierachy within prolog define most of the depth below embd_xml_meta_* -->
 			<field name="embd_xml_meta_product">
+				<!-- Typically results in an empty field, consider removing in CMS 6.0. -->
 				<xsl:apply-templates select="/*/techdocinfo/product | /*/bookmeta/prodinfo/prodname | /*/prolog/metadata/prodinfo/prodname" mode="meta"/>
 			</field>
 
