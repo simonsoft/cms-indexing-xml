@@ -635,6 +635,11 @@
 		
 		<!-- techdocinfo -->
 		<xsl:call-template name="meta-unit">
+			<xsl:with-param name="name" select="'pubtype'"/>
+			<xsl:with-param name="value" select="$meta/pubtype"/>
+		</xsl:call-template>
+		
+		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'product'"/>
 			<xsl:with-param name="value" select="$meta/product"/>
 		</xsl:call-template>
