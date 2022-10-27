@@ -379,13 +379,22 @@
 				<!-- Extract text (excluding keyref): open / in_progress -->
 				<!-- Counting words can NOT work after translation is completed. Set twords on all non-Pretranslated leaf elements? Fallback to @cms:twords - Pretranslated?  -->
 				<!-- UI stop showing open and pretranslated... probably makes sense. Loosing ability to get statistics? -->
-				<xsl:if test="$patharea = 'release' or $document-status = 'In_Translation' or starts-with($document-status, 'Pending_Pretranslate')">
-					<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
-					<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
-					
-					<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
-					<field name="count_words_progress"><xsl:value-of select="count($tstatus_progress_text)"/></field>
-				</xsl:if>
+				<xsl:choose>
+					<xsl:when test="$patharea = 'release' or $document-status = 'In_Translation' or starts-with($document-status, 'Pending_Pretranslate')">
+						<!-- #1320 translate / progress excludes translate_no (good) -->
+						<xsl:variable name="tstatus_open_text" select="for $elemtext in $tstatus_open_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+						<xsl:variable name="tstatus_progress_text" select="for $elemtext in $tstatus_progress_elements/descendant-or-self::text()[not(ancestor::*[@keyref])][not(ancestor::*[@translate='no' or @markfortrans='no'])] return tokenize(normalize-space($elemtext), $whitespace)"/>
+						
+						<field name="count_words_translate"><xsl:value-of select="count($tstatus_open_text)"/></field>
+						<field name="count_words_progress"><xsl:value-of select="count($tstatus_progress_text)"/></field>
+					</xsl:when>
+					<xsl:when test="$patharea = 'translation'">
+						<!-- Translation that is not pending translation. -->
+						<!-- #1320 Help the UI by explicitly providing zero in the word counts when not pending translation. -->
+						<field name="count_words_translate"><xsl:value-of select="'0'"/></field>
+						<field name="count_words_progress"><xsl:value-of select="'0'"/></field>
+					</xsl:when>
+				</xsl:choose>
 			</xsl:if>
 			
 			<!-- Elements marked translate="no" or markfortrans="no" (excluding Pretranslated elements). -->
@@ -393,6 +402,8 @@
 			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tstatus='Released'])][not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor-or-self::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
 			-->
 			<!-- Elements marked translate="no" or markfortrans="no" (including Pretranslated elements). -->
+			<!-- #1320 Contains good description why "Pretranslate eating translate_no" is confusing. --> 
+			<!-- Should be fine because count_words_translate excludes translate_no. -->
 			<xsl:variable name="translate_no_text" select="for $elemtext in $root/descendant-or-self::*[not(ancestor-or-self::*[@cms:tsuppress[not(. = 'no')]])][not(@keyref)]/text()[ancestor::*[@translate='no' or @markfortrans='no']] return tokenize(normalize-space($elemtext), $whitespace)"/>
 			
 			<field name="count_words_translate_no"><xsl:value-of select="count($translate_no_text)"/></field>
