@@ -391,8 +391,10 @@
 					<xsl:when test="$patharea = 'translation'">
 						<!-- Translation that is not pending translation. -->
 						<!-- #1320 Help the UI by explicitly providing zero in the word counts when not pending translation. -->
+						<!-- TODO: Consider removing after CMS 5.1 since later versions of UI will handle undefined properly. -->
+						<!-- Disabling for now, might just wait for 5.2 UI
 						<field name="count_words_translate"><xsl:value-of select="'0'"/></field>
-						<field name="count_words_progress"><xsl:value-of select="'0'"/></field>
+						-->
 					</xsl:when>
 				</xsl:choose>
 			</xsl:if>
