@@ -44,8 +44,13 @@ public class HandlerTextSelectionTest {
 		HandlerTextSelection handler = new HandlerTextSelection();
 		handler.handle(progress);
 		
+		// Currently disabled.
+		/*
 		assertEquals("xml", doc.getFieldValue("text"));
 		assertNull("should remove the xml field", doc.getFieldValue("embd_xml_text"));
+		*/
+		// #1407 Add truncated text to text_stored, prefer XML extraction.
+		assertEquals("xml", doc.getFieldValue("text_stored"));
 	}
 	
 }
