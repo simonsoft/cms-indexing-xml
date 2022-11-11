@@ -422,9 +422,11 @@
 
 			<!-- Just concat of the tokens/words. Somehow becomes space-separated. -->
 			<!-- Using field 'text' seems unable to override Tika extraction. -->
-			<!-- TODO: Consider the impact of storing the text field. -->
-			<!--
+			<!-- Consider the impact of storing the text field, see HandlerTextSelection.java. -->
 			<field name="embd_xml_text"><xsl:value-of select="$text"/></field>
+			<!-- Could resolve keyref/termref like the title. Not sure if that will have negative effects on search. -->
+			<!-- 
+			<field name="embd_xml_text"><xsl:apply-templates select="*" mode="intro"/></field>
 			-->
 			
 			<!-- Word count is simple when each word is a text node. -->
@@ -623,6 +625,7 @@
 		<xsl:choose>
 			<xsl:when test="$linkend/text()">
 				<!-- Direct text content, e.g. term/termref -->
+				<!-- Risk of side effects with some xref? -->
 				<xsl:apply-templates select="$linkend/text()" mode="#current"/>
 			</xsl:when>
 			<xsl:otherwise>

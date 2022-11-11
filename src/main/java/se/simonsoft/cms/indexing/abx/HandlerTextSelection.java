@@ -85,12 +85,14 @@ public class HandlerTextSelection implements IndexingItemHandler{
 				}
 			}
 		}
+		*/
 		
 		// Removing the temporary text fields, might be large.
 		for(String key: this.fields) {
-			doc.removeField(key);
+			if (!key.equals(TEXT_FIELD)) {
+				doc.removeField(key);
+			}
 		}
-		*/
 		
 	}
 
