@@ -244,6 +244,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	}
 	
 	private Map<String, String> getChecksumMap(XmlIndexProgress xmlProgress, CmsItemId revId) {
+		// TODO: #1703 Can we get the checksum of an itemid?
 		Map<String, String> result = doCacheGet(revId);
 		if (result != null) {
 			logger.info("RID-map cache hit ({}) for Release: {}", result.size(), revId);
@@ -298,6 +299,7 @@ public class XmlIndexReleaseReuseChecksum implements XmlIndexFieldExtraction {
 	}
 	
 	private Map<String, String> doCacheGet(CmsItemId release) {
+		// TODO: #1703 Cache based in sha1 instead, frequently missing the cache due to rev based on the translation.
 		return this.cache.get(release);
 	}
 	
