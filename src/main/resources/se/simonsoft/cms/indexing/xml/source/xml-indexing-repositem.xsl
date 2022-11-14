@@ -67,11 +67,11 @@
 		<xsl:variable name="root" select="."/>
 
 		<!-- All attributes except cms-namespace, both ditamap and primary content. -->
-		<xsl:variable name="attrs-root" select="//@*[not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]"/>
+		<xsl:variable name="attrs-main" select="//@*[not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]"/>
 		<xsl:variable name="attrs-ditamap" select="$ditamap//@*[not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]"/>
 		<xsl:variable name="attrs" as="attribute()*">
 			<xsl:sequence select="$attrs-ditamap"/>
-			<xsl:sequence select="$attrs-root"/>
+			<xsl:sequence select="$attrs-main"/>
 		</xsl:variable>
 		
 		<!-- Determine meta element (parent of 'metadata'). Techdoc-DITA/Book | TIA | Bookmap | map | topic -->
@@ -537,10 +537,15 @@
 			<!-- Extract DITA conref dependencies. -->
 			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
 			
-			<xsl:if test="$is-dita-map">
-				<!-- Extract DITA topicref dependencies. -->
-				<field name="ref_itemid_topicref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
-			</xsl:if>
+			<!-- Extract DITA topicref dependencies. -->
+			<xsl:choose>
+				<xsl:when test="$is-dita-map">
+					<field name="ref_itemid_topicref"><xsl:apply-templates select="$attrs-main[name() = 'href'][starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>	
+				</xsl:when>
+				<xsl:when test="$ditamap">
+					<field name="ref_itemid_topicref"><xsl:apply-templates select="$attrs-ditamap[name() = 'href'][starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
+				</xsl:when>
+			</xsl:choose>
 			
 			<!-- #1550: CMS 5.1 extracts xref for all XML, not just dita topics. -->
 			<field name="ref_itemid_xref">
