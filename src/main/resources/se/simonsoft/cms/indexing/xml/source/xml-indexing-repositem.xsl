@@ -543,7 +543,7 @@
 			
 			<!-- #1550: CMS 5.1 extracts xref for all XML, not just dita topics. -->
 			<field name="ref_itemid_xref">
-				<xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][name(..) = $xref-tags-seq]" mode="refxref"/>
+				<xsl:apply-templates select="$attrs[name(..) = $xref-tags-seq][starts-with(., 'x-svn:')]" mode="refxref"/>
 			</field>
 			
 			<!-- Extract rlogicalid slaves. -->
