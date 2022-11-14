@@ -527,8 +527,8 @@
 				<xsl:apply-templates select="$attrs[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
 				<xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
 			</field>
-			<!-- Extract xml dependencies. -->
-			<field name="ref_itemid_include"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
+			<!-- Extract xml dependencies (XInclude). -->
+			<field name="ref_itemid_include"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
 			<!-- Extract graphics dependencies. -->
 			<field name="ref_itemid_graphic"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
 			<field name="ref_itemid_graphictranslated"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][../@xml:lang][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
