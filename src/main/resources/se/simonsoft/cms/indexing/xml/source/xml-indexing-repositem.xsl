@@ -198,7 +198,8 @@
 			<field name="embd_xml_linkends"><xsl:value-of select="//@*[name() = 'linkend']"/></field>
 			
 			<!-- Reference attributes with fragment should be searchable, will concat the tokens separated by a space. -->
-			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in $attrs[name() = 'href' or name() = 'conref'][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
+			<!-- Limit to references within CMS excluding those internally btw ditamap and ditabase (Release/Translation). -->
+			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][starts-with(., 'x-svn:')][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
 			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
