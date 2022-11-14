@@ -65,6 +65,14 @@
 	<!-- Will only match the initial context element since all further processing is done with specific modes. -->
 	<xsl:template match="*">
 		<xsl:variable name="root" select="."/>
+
+		<!-- All attributes except cms-namespace, both ditamap and primary content. -->
+		<xsl:variable name="attrs-main" select="//@*[not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]"/>
+		<xsl:variable name="attrs-ditamap" select="$ditamap//@*[not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]"/>
+		<xsl:variable name="attrs" as="attribute()*">
+			<xsl:sequence select="$attrs-ditamap"/>
+			<xsl:sequence select="$attrs-main"/>
+		</xsl:variable>
 		
 		<!-- Determine meta element (parent of 'metadata'). Techdoc-DITA/Book | TIA | Bookmap | map | topic -->
 		<xsl:variable name="meta" select="/*/techdocinfo | $ditamap/*/techdocinfo | /*/techinfometa | $ditamap/*/techinfometa | /*/bookmeta | $ditamap/*/bookmeta | /*/topicmeta | $ditamap/*/topicmeta | /*/prolog"/>
@@ -184,13 +192,14 @@
 			</xsl:if>
 			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
-			<field name="embd_xml_ids"><xsl:value-of select="//@*[name() = 'xml:id' or name() = 'id']"/></field>
+			<field name="embd_xml_ids"><xsl:value-of select="$attrs[name() = 'xml:id' or name() = 'id']"/></field>
 			
 			<!-- Linkend attribute should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_linkends"><xsl:value-of select="//@*[name() = 'linkend']"/></field>
 			
 			<!-- Reference attributes with fragment should be searchable, will concat the tokens separated by a space. -->
-			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
+			<!-- Limit to references within CMS excluding those internally btw ditamap and ditabase (Release/Translation). -->
+			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][starts-with(., 'x-svn:')][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
 			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
@@ -506,36 +515,41 @@
 			
 			
 			<!-- Detect non-CMS references in XML files.  -->
-			<field name="ref_xml_noncms"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
+			<field name="ref_xml_noncms"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][not(starts-with(., 'x-svn:'))][not(starts-with(., '#'))][not(starts-with(., 'http:'))][not(starts-with(., 'https:'))][not(starts-with(., 'mailto:'))]" mode="refnoncms"/></field>
 			
 			<!-- Extract all dependencies in document order, including duplicates. -->
 			<!-- ref-attrs-conref-seq contains the union of ref-attrs-seq and 'conref'. -->
 			<field name="ref_itemid_dependency">
-				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refdep"/>
-				<xsl:apply-templates select="//@*[name() = $ref-attrs-conref-seq][starts-with(., 'x-svn:')]" mode="refdep"/>
+				<xsl:apply-templates select="$attrs[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refdep"/>
+				<xsl:apply-templates select="$attrs[name() = $ref-attrs-conref-seq][starts-with(., 'x-svn:')]" mode="refdep"/>
 			</field>
 			<!-- Extract keydef maps. -->
 			<field name="ref_itemid_keydefmap">
-				<xsl:apply-templates select="//@*[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
-				<xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
+				<xsl:apply-templates select="$attrs[name() = 'keyrefhref'][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
+				<xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refkeydefmap"/>
 			</field>
-			<!-- Extract xml dependencies. -->
+			<!-- Extract xml dependencies (XInclude). -->
 			<field name="ref_itemid_include"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')]" mode="refinclude"/></field>
 			<!-- Extract graphics dependencies. -->
-			<field name="ref_itemid_graphic"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
-			<field name="ref_itemid_graphictranslated"><xsl:apply-templates select="//@*[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][../@xml:lang][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
+			<field name="ref_itemid_graphic"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
+			<field name="ref_itemid_graphictranslated"><xsl:apply-templates select="$attrs[name() = $ref-attrs-seq][starts-with(., 'x-svn:')][../@xml:lang][not(cmsfn:is-format-dita(..))]" mode="refgraphic"/></field>
 			
 			<!-- Extract DITA conref dependencies. -->
 			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
 			
-			<xsl:if test="$is-dita-map">
-				<!-- Extract DITA topicref dependencies. -->
-				<field name="ref_itemid_topicref"><xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
-			</xsl:if>
+			<!-- Extract DITA topicref dependencies. -->
+			<xsl:choose>
+				<xsl:when test="$is-dita-map">
+					<field name="ref_itemid_topicref"><xsl:apply-templates select="$attrs-main[name() = 'href'][starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>	
+				</xsl:when>
+				<xsl:when test="$ditamap">
+					<field name="ref_itemid_topicref"><xsl:apply-templates select="$attrs-ditamap[name() = 'href'][starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>
+				</xsl:when>
+			</xsl:choose>
 			
 			<!-- #1550: CMS 5.1 extracts xref for all XML, not just dita topics. -->
 			<field name="ref_itemid_xref">
-				<xsl:apply-templates select="//@href[starts-with(., 'x-svn:')][name(..) = $xref-tags-seq]" mode="refxref"/>
+				<xsl:apply-templates select="$attrs[name(..) = $xref-tags-seq][starts-with(., 'x-svn:')]" mode="refxref"/>
 			</field>
 			
 			<!-- Extract rlogicalid slaves. -->
