@@ -51,7 +51,7 @@ public class HandlerPathareaFromProperties implements
 			doc.addField("patharea", RELEASE_VAL);
 			doc.setField("pathmain", false);
 			
-		} else if (doc.getFieldValue("type").equals("folder")) {
+		} else if (doc.containsKey("type") && doc.getFieldValue("type").equals("folder")) {
 			if (isFolderNonMain(doc.getFieldValue("pathsegment1")) || isFolderNonMain(doc.getFieldValue("pathsegment2"))) {
 				// Avoid setting patharea on these simple heuristics.
 				doc.setField("pathmain", false);
