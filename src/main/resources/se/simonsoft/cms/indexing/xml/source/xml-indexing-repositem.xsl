@@ -537,7 +537,7 @@
 			<!-- Extract DITA conref dependencies. -->
 			<field name="ref_itemid_conref"><xsl:apply-templates select="//@conref[starts-with(., 'x-svn:')]" mode="refconref"/></field>
 			
-			<!-- Extract DITA topicref dependencies. -->
+			<!-- Extract DITA topicref dependencies (limited to DITA target type). -->
 			<xsl:choose>
 				<xsl:when test="$is-dita-map">
 					<field name="ref_itemid_topicref"><xsl:apply-templates select="$attrs-main[name() = 'href'][starts-with(., 'x-svn:')][cmsfn:is-format-dita(..)]" mode="reftopicref"/></field>	
