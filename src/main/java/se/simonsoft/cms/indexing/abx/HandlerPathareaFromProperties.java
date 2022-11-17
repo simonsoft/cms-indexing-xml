@@ -50,11 +50,35 @@ public class HandlerPathareaFromProperties implements
 		} else if (doc.containsKey(RELEASEMASTER_FIELD) || doc.containsKey(RELEASELABEL_FIELD)) {
 			doc.addField("patharea", RELEASE_VAL);
 			doc.setField("pathmain", false);
+			
+		} else if (doc.getFieldValue("type").equals("folder")) {
+			if (isFolderNonMain(doc.getFieldValue("pathsegment1")) || isFolderNonMain(doc.getFieldValue("pathsegment2"))) {
+				// Avoid setting patharea on these simple heuristics.
+				doc.setField("pathmain", false);
+			} else {
+				// Keeping fallback to pathmain:true since this is the historical behavior.
+				doc.setField("pathmain", true);
+			}
+		
 		} else {
 			doc.setField("pathmain", true);
 		}
 	}
 
+	// #1657 Quick fix based on heuristics for suppressing folders from the search results.
+	private boolean isFolderNonMain(Object pathSegment) {
+		if (pathSegment == null) {
+			return false;
+		}
+		if ("release".equals(pathSegment)) {
+			return true;
+		}
+		if ("lang".equals(pathSegment)) {
+			return true;
+		}
+		return false;
+	}
+	
 	@SuppressWarnings("serial")
 	@Override
 	public Set<Class<? extends IndexingItemHandler>> getDependencies() {
