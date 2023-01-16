@@ -112,15 +112,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>se.repos</groupId>
-			<artifactId>repos-testing</artifactId>
-			<version>0.21.0-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-filexml</artifactId>
-			<version>0.21.0-SNAPSHOT</version>
+			<version>0.21.2-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
