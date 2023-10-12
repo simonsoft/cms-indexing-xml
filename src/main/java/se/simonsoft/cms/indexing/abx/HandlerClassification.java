@@ -201,6 +201,10 @@ public class HandlerClassification implements IndexingItemHandler {
 		if (itemClassificationGraphicWeb.isGraphic(itemId)) {
 			progress.getFields().addField(FLAG_FIELD, "isgraphicweb");
 		}
+		
+		if (isCmsClass(progress.getFields(), "template")) {
+			progress.getFields().addField(FLAG_FIELD, "istemplate");
+		}
 	}
 	
 	public static boolean isCmsClass(IndexingDoc f, String name) {
