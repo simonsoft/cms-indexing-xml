@@ -96,6 +96,10 @@ public class HandlerClassification implements IndexingItemHandler {
 	}
 	
 	private void setFolderFlags(IndexingItemProgress progress) {
+		// Mark all folders "isfolder".
+		// Overlaps type:folder but very useful when browsing folder tree for a certain category of files, e.g. flag:(isxml isfolder)
+		progress.getFields().addField(FLAG_FIELD, "isfolder");
+		
 		if (isCmsClass(progress.getFields(), "shardparent")) {
 			progress.getFields().addField(FLAG_FIELD, "isshardparent");
 		}
