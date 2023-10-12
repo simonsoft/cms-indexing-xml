@@ -67,8 +67,9 @@ public class HandlerClassificationTest {
 		
 		assertTrue(doc.containsKey("flag"));
 		Collection<Object> flags = doc.getFieldValues("flag");
-		assertEquals(1, flags.size());
+		assertEquals(2, flags.size());
 		assertTrue("child should have isshard flag", flags.contains("isshard"));
+		assertTrue("child should have isfolder flag", flags.contains("isfolder"));
 		
 		assertNull("not extracted for folder", doc.getFieldValue("meta_s_s_pathdirname"));
 		assertNull("not extracted for folder", doc.getFieldValue("meta_s_s_pathdirnonshard"));
