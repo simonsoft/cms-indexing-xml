@@ -209,6 +209,14 @@ public class HandlerClassification implements IndexingItemHandler {
 		if (isCmsClass(progress.getFields(), "template")) {
 			progress.getFields().addField(FLAG_FIELD, "istemplate");
 		}
+		
+		if (isCmsClass(progress.getFields(), "template-editor")) {
+			progress.getFields().addField(FLAG_FIELD, "istemplateeditor");
+		}
+		
+		if (isCmsClass(progress.getFields(), "template-topic")) {
+			progress.getFields().addField(FLAG_FIELD, "istemplatetopic");
+		}
 	}
 	
 	public static boolean isCmsClass(IndexingDoc f, String name) {
