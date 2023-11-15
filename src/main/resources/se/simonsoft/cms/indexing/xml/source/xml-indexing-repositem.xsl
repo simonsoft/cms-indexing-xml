@@ -218,17 +218,8 @@
 			
 			<!-- Extract term definitions, guard against id-duplicates and long id. -->
 			<!-- Limited to 30 fields, can likely be raised after evaluation. -->
-			<xsl:for-each-group select="subsequence(//term[@xml:id][31 > string-length(@xml:id)], 1, 30)" group-by="@xml:id">
-				<xsl:variable name="key">
-					<xsl:choose>
-						<xsl:when test="$patharea = 'translation'">
-							<xsl:value-of select="cmsfn:local-get-id-no-prefix(current-grouping-key(), /*/@xml:lang)"/>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="current-grouping-key()"/>
-						</xsl:otherwise>
-					</xsl:choose>
-				</xsl:variable>
+			<xsl:for-each-group select="subsequence(//term[@xml:id][31 > string-length(@xml:id)], 1, 30)" group-by="cmsfn:local-get-id-no-prefix(@xml:id, /*/@xml:lang)">
+				<xsl:variable name="key" select="current-grouping-key()"/>
 				<!-- Replace extended characters with '_' in field name. -->
 				<xsl:variable name="fieldsuffix" select="replace($key, '[^a-zA-Z0-9_-]', '_')"/>
 				<xsl:call-template name="meta-unit">
