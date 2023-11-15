@@ -922,25 +922,42 @@
 			</xsl:when>
 
 			<!-- techdocmap -->
+			
+			<!-- Draft of market support in docno (no test coverage) -->
+			<xsl:when test="$root/techdocinfo/docno[@market = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/docno[@market = /*/@xml:lang]"/>
+			</xsl:when>
+			
+			<!-- Draft of country support in docno (no test coverage) -->
+			<xsl:when test="$root/techdocinfo/docno[@country = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/docno[@country = /*/@xml:lang]"/>
+			</xsl:when>
+			
 			<xsl:when test="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/docno[@xml:lang = /*/@xml:lang]"/>
 			</xsl:when>
 			
-			<xsl:when test="count($root/techdocinfo/docno[not(@xml:lang)]) = 1">
+			<xsl:when test="count($root/techdocinfo/docno[not(@xml:lang)][not(@market)][not(@country)]) = 1">
 				<!-- Exactly one non-lang-specific.. -->
 				<xsl:value-of select="$root/techdocinfo/docno[1]"/>
 			</xsl:when>
+			
+			<!-- TODO: support techdocinfo in either techdocmap or coverpage (does the above work with Release/Translation?) -->
 
 			<!-- Techdoc-Book -->
 			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
 				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
 			</xsl:when>
 			
+			<xsl:when test="$root//docinfogroup/docinfo[@country = /*/@xml:lang]">
+				<xsl:value-of select="$root//docinfogroup/docinfo[@country = /*/@xml:lang]/docno"/>
+			</xsl:when>
+			
 			<xsl:when test="$root//docinfogroup/docinfo[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root//docinfogroup/docinfo[@xml:lang = /*/@xml:lang]/docno"/>
 			</xsl:when>
 			
-			<xsl:when test="$root//docinfogroup/docinfo[not(@market)] and $root//docinfogroup/docinfo[not(@xml:lang)] and count($root//docinfogroup/docinfo) = 1">
+			<xsl:when test="count($root//docinfogroup/docinfo[not(@market)][not(@xml:lang)][not(@country)]) = 1">
 				<!-- Exactly one docinfo element, no @market / @xml:lang attribute set. -->
 				<xsl:value-of select="$root//docinfogroup/docinfo[1]/docno"/>
 			</xsl:when>
