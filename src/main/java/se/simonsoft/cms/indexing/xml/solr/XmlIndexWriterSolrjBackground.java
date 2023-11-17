@@ -87,6 +87,8 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	// Things might change when supporting indexing in Lambda.
 	public void waitForCompletion() {
 		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
+		ExecutorService executor = this.executor;
+		this.executor = null; // Ensure this executor is never reused regardless of shutdown result.
 		executor.shutdown();
 		try {
 			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
@@ -101,7 +103,6 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			logger.warn(msg, e);
 			throw new RuntimeException(msg);
 		}
-		executor = null;
 	}
 	
 	
