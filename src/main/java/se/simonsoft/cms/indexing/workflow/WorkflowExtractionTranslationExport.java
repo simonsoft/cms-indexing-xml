@@ -39,8 +39,17 @@ public class WorkflowExtractionTranslationExport extends WorkflowExtraction {
 			fields.setField("embd_" + input.getWorkflow() + "_delivery_name", name);
 		}
 		
-		if (options.getProgress() != null && options.getProgress().getParams() != null && options.getProgress().getParams().containsKey("packageurl")) {
-			fields.setField("embd_" + input.getWorkflow() + "_packageurl", options.getProgress().getParams().get("packageurl"));
+		if (options.getProgress() != null && options.getProgress().getParams() != null) {
+			if (options.getProgress().getParams().containsKey("packageurl")) {
+				// TODO: Remove, not supplied by webapp 5.2.6+
+				fields.setField("embd_" + input.getWorkflow() + "_packageurl", options.getProgress().getParams().get("packageurl"));				
+			}
+			if (options.getProgress().getParams().containsKey("packagename")) {
+				fields.setField("embd_" + input.getWorkflow() + "_packagename", options.getProgress().getParams().get("packagename"));				
+			}
+			if (options.getProgress().getParams().containsKey("packagepath")) {
+				fields.setField("embd_" + input.getWorkflow() + "_packagepath", options.getProgress().getParams().get("packagepath"));				
+			}
 		}
 	}
 	
