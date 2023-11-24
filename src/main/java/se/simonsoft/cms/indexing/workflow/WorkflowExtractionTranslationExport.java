@@ -30,7 +30,7 @@ public class WorkflowExtractionTranslationExport extends WorkflowExtraction {
 		fields.setField("embd_" + input.getWorkflow() + "_project", options.getProject());
 		fields.setField("embd_" + input.getWorkflow() + "_pdf", options.getPdf());
 		
-		if (options.getDelivery() != null && options.getDelivery().getType() != null) {
+		if (options.getDelivery() != null && options.getDelivery().getType() != null && !options.getDelivery().getType().equals("none")) {
 			String name = options.getDelivery().getType(); // Fallback
 			fields.setField("embd_" + input.getWorkflow() + "_delivery", options.getDelivery().getType());
 			if (options.getDelivery().getParams().containsKey("name")) {
