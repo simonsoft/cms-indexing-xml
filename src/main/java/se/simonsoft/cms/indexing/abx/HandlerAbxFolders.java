@@ -58,6 +58,11 @@ public abstract class HandlerAbxFolders implements IndexingItemHandler {
 			RepoRevision revision;
 			
 			for (CmsItemId id : ids) {
+				logger.trace("handle id: {}", id);
+				if (id.getRelPath() == null) {
+					logger.warn("handleFolders encountered reference to repo root: {}", id);
+					continue;
+				}
 				
 				for (CmsItemPath ancestor : id.getRelPath().getAncestors()) {
 					
