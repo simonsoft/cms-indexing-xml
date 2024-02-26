@@ -201,6 +201,16 @@
 			<!-- Limit to references within CMS excluding those internally btw ditamap and ditabase (Release/Translation). -->
 			<field name="embd_xml_fragments"><xsl:value-of select="for $ref in //@*[name() = 'href' or name() = 'conref'][starts-with(., 'x-svn:')][contains(., '#')] return (substring-after($ref, '#'), tokenize(substring-after($ref, '#'), '/'))"/></field>
 			
+			<!-- DITA outputclass on the root element, multi-value -->
+			<xsl:if test="@outputclass">
+				<xsl:variable name="outputclass" as="xs:string+" select="tokenize(@outputclass, ' ')"/>
+				<field name="meta_s_m_xml_outputclass">
+					<xsl:for-each select="$outputclass">
+						<xsl:value-of select="."/>
+					</xsl:for-each>
+				</field>
+			</xsl:if>
+			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
 			<!-- Let the DITA hierachy within prolog define most of the depth below embd_xml_meta_* -->
