@@ -206,6 +206,10 @@ public class HandlerClassification implements IndexingItemHandler {
 			progress.getFields().addField(FLAG_FIELD, "isgraphicweb");
 		}
 		
+		if (isCmsClass(progress.getFields(), "keydefmap")) {
+			progress.getFields().addField(FLAG_FIELD, "iskeydefmap");
+		}
+		
 		if (isCmsClass(progress.getFields(), "template")) {
 			progress.getFields().addField(FLAG_FIELD, "istemplate");
 		}
