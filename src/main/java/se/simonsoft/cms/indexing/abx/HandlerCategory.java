@@ -105,6 +105,12 @@ public class HandlerCategory implements IndexingItemHandler {
 		if (category != null) {
 			value = category;
 		}
+		
+		// Some types can have multiple categories, e.g. Excel files that are keydefmap.
+		Set<String> secondary = getCategorySecondary(itemId, doc);
+		if (secondary != null) {
+			value.addAll(secondary);
+		}
 
 		doc.setField(CATEGORY_FIELD, value);
 	}
@@ -148,6 +154,13 @@ public class HandlerCategory implements IndexingItemHandler {
 		return null;
 	}
 
+	private Set<String> getCategorySecondary(CmsItemId itemId, IndexingDoc doc) {
+		Collection<Object> flags = doc.getFieldValues("flag");
+		if (flags != null && flags.contains("iskeydefmap")) {
+			return new HashSet<>(Arrays.asList("keydefmap"));
+		}
+		return null;
+	}
 
 	private Set<String> getGraphicCategory(CmsItemId itemId, IndexingDoc doc) {
 		String[] mime = getMimeCategory(doc);
