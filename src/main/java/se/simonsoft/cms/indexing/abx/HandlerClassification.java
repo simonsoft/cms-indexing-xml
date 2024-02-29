@@ -16,7 +16,9 @@
 package se.simonsoft.cms.indexing.abx;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -50,6 +52,9 @@ public class HandlerClassification implements IndexingItemHandler {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerClassification.class);
 	
 	private static final String FLAG_FIELD = "flag";
+	private static final String XML_ELEMENT_FIELD = "embd_xml_name";
+	private static final String META_OUTPUTCLASS_FIELD = "meta_s_m_xml_outputclass";
+	
 	
 	
 	private static final CmsItemClassification itemClassificationXml = new CmsItemClassificationXml();
@@ -176,6 +181,7 @@ public class HandlerClassification implements IndexingItemHandler {
 			return;
 		}
 		CmsItemId itemId = progress.getRepository().getItemId(itemPath, null);
+		IndexingDoc f = progress.getFields();
 		
 		if (itemClassificationXml.isXml(itemId)) {
 			progress.getFields().addField(FLAG_FIELD, "isxml");
@@ -206,7 +212,7 @@ public class HandlerClassification implements IndexingItemHandler {
 			progress.getFields().addField(FLAG_FIELD, "isgraphicweb");
 		}
 		
-		if (isCmsClass(progress.getFields(), "keydefmap")) {
+		if (isCmsClass(f, "keydefmap") || isOutputClass(f, "keydefmap") || isElementName(f, "keydefmap")) {
 			progress.getFields().addField(FLAG_FIELD, "iskeydefmap");
 		}
 		
@@ -239,6 +245,22 @@ public class HandlerClassification implements IndexingItemHandler {
 		}
 		String[] a = itemClass.split(" ");
 		return Arrays.asList(a).contains(name);
+	}
+	
+	public static boolean isOutputClass(IndexingDoc f, String name) {
+		Collection<Object> outputClass = f.getFieldValues(META_OUTPUTCLASS_FIELD);
+		if (outputClass == null) {
+			return false;
+		}
+		return outputClass.contains(name);
+	}
+	
+	public static boolean isElementName(IndexingDoc f, String name) {
+		Object elementName = f.getFieldValue(XML_ELEMENT_FIELD);
+		if (elementName == null) {
+			return false;
+		}
+		return name.equals(elementName);
 	}
 	
 
