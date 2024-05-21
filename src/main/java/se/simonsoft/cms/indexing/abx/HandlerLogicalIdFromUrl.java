@@ -18,6 +18,9 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.HandlerProperties;
@@ -36,6 +39,8 @@ public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 	public static final String URL_ITEM_FIELD = "url";
 	public static final String REV_ITEM_FIELD = "rev";
 	
+	private static final Logger logger = LoggerFactory.getLogger(HandlerLogicalIdFromUrl.class);
+	
 	@Override
 	protected CmsItemId getItemId(IndexingItemProgress progress) {
 		CmsChangesetItem item = progress.getItem();
@@ -49,7 +54,13 @@ public class HandlerLogicalIdFromUrl extends HandlerLogicalId {
 		}
 
 		Long rev = (Long) progress.getFields().getFieldValue(REV_ITEM_FIELD); // should be path revision
-		CmsItemId id = repo.getItemId(url).withPegRev(rev);
+		CmsItemId id = null;
+		try {
+			id = repo.getItemId(url).withPegRev(rev);
+		} catch (IllegalArgumentException e) {
+			// Can happen in rare cases when URL contains character not allowed by CmsRepository regex, e.g. colon in path.
+			logger.error("Failed to generate itemId from item URL: {}", url);
+		}
 		return id;
 	}
 	
