@@ -27,7 +27,7 @@ import se.repos.indexing.IndexingDoc;
 /**
  * Passes solr doc style field=value elements directly to {@link IndexingDoc}.
  */
-class ContentHandlerToIndexFields implements ContentHandler {
+public class ContentHandlerToIndexFields implements ContentHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContentHandlerToIndexFields.class);
 	
