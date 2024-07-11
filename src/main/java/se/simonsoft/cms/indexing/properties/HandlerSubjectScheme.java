@@ -98,6 +98,7 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
     @Override
     protected CmsItemId getItemId(IndexingItemProgress progress) {
         CmsChangesetItem item = progress.getItem();
+        // Ignore non-file items as later on contentStrategy.getBuffer(...) since its entry is missing a "size" attribute.
         if (!item.isFile()) return null;
         CmsRepository repo = progress.getRepository();
         CmsItemPath path = item.getPath();
