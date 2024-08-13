@@ -41,6 +41,7 @@ import se.simonsoft.cms.xmlsource.transform.SaxonMessageListener;
 import javax.inject.Inject;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -91,7 +92,8 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
             }
         }
         if (properties.isEmpty()) return;
-        indexItemProperties(progress, properties);
+        InputStream subjectScheme = getSubjectScheme(progress);
+        if (subjectScheme != null) indexItemProperties(progress, subjectScheme, properties);
     }
 
     @Override
@@ -109,24 +111,29 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
         return Set.of();
     }
 
-    private void indexItemProperties(IndexingItemProgress progress, XdmMap properties) {
-        XmlSourceDocumentS9api document = null;
+    private InputStream getSubjectScheme(IndexingItemProgress progress) {
         RepoRevision revision = progress.getRevision();
         String projectFolder = progress.getItem().getPath().getPathSegments().get(0);
-        Destination destination = new SAXDestination(new ContentHandlerToIndexFields(progress.getFields()));
-        LoggingErrorListener errorListener = new LoggingErrorListener();
-        SaxonMessageListener messageListener = new SaxonMessageListener();
         try {
             CmsItemPath relPath = new CmsItemPath(String.format("/.cms/%s/properties.ditamap", projectFolder));
             ItemContentBuffer buffer = contentStrategy.getBuffer(revision, relPath, progress.getFields());
-            document = sourceReader.read(buffer.getContents());
+            return buffer.getContents();
         } catch (CmsItemNotFoundException whatever) {
             try {
                 CmsItemPath relPath = new CmsItemPath("/.cms/properties.ditamap");
                 ItemContentBuffer buffer = contentStrategy.getBuffer(revision, relPath, progress.getFields());
-                document = sourceReader.read(buffer.getContents());
-            } catch (CmsItemNotFoundException nevermind) {}
+                return buffer.getContents();
+            } catch (CmsItemNotFoundException nevermind) {
+                return null;
+            }
         }
+    }
+
+    private void indexItemProperties(IndexingItemProgress progress, InputStream input, XdmMap properties) {
+        Destination destination = new SAXDestination(new ContentHandlerToIndexFields(progress.getFields()));
+        LoggingErrorListener errorListener = new LoggingErrorListener();
+        SaxonMessageListener messageListener = new SaxonMessageListener();
+        XmlSourceDocumentS9api document = sourceReader.read(input);
         if (document != null) {
             XmlSourceElementS9api documentElement = document.getDocumentElement();
             transformer.setParameter(new QName("properties"), properties);
