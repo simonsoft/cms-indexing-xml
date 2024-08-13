@@ -33,7 +33,6 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
@@ -54,9 +53,9 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
     private static final Logger logger = LoggerFactory.getLogger(HandlerSubjectScheme.class);
 
     @Inject
-    public HandlerSubjectScheme(XmlSourceReader sourceReader, Processor processor) {
+    public HandlerSubjectScheme(XmlSourceReaderS9api sourceReader, Processor processor) {
         var stylesheet = new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/properties/subject-scheme-props.xsl"));
-        this.sourceReader = (XmlSourceReaderS9api) sourceReader;
+        this.sourceReader = sourceReader;
         XsltCompiler compiler = processor.newXsltCompiler();
         XsltExecutable xsltCompiled;
         try {
