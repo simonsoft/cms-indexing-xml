@@ -86,6 +86,7 @@ public class HandlerSubjectSchemeTest {
 		when(progress.getRepository()).thenReturn(repo1);
 		when(progress.getItem()).thenReturn(item);
 		properties.and("cds:productname", "Inspire_1200S Tempo_T_6 Rapid_A_600J");
+		properties.and("cds:undefinedkey", "Foo Bar");
 		ItemContentBufferStrategy cbs = mock(ItemContentBufferStrategy.class);
 		ItemContentBuffer buffer = mock(ItemContentBuffer.class);
 		when(buffer.getContents()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
@@ -96,6 +97,8 @@ public class HandlerSubjectSchemeTest {
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Tempo T 6"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Inspire 1200S"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Rapid_A_600J"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Foo"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Bar"));
 	}
 
 	@Test
@@ -112,6 +115,7 @@ public class HandlerSubjectSchemeTest {
 		when(progress.getRepository()).thenReturn(repo1);
 		when(progress.getItem()).thenReturn(item);
 		properties.and("cds:productname", "Inspire_1200S Tempo_T_6 Rapid_A_600J");
+		properties.and("cds:undefinedkey", "Foo Bar");
 		ItemContentBufferStrategy cbs = mock(ItemContentBufferStrategy.class);
 		ItemContentBuffer buffer = mock(ItemContentBuffer.class);
 		ItemContentBuffer fallbackBuffer = mock(ItemContentBuffer.class);
@@ -126,5 +130,7 @@ public class HandlerSubjectSchemeTest {
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Tempo T 6"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Inspire 1200S"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Rapid_A_600J"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Foo"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Bar"));
 	}
 }
