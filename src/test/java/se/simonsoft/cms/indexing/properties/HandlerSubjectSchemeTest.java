@@ -47,6 +47,16 @@ public class HandlerSubjectSchemeTest {
 							"<?xml-model href=\"urn:oasis:names:tc:dita:spec:classification:rng:subjectScheme.rng\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\n" +
 							"<subjectScheme>\n" +
 							"    <hasInstance>\n" +
+							"        <subjectdef keys=\"productfamily\">\n" +
+							"            <topicmeta>\n" +
+							"                <shortdesc>Product Family</shortdesc>\n" +
+							"            </topicmeta>\n" +
+							"            <subjectdef keys=\"Tempo_T_6\">\n" +
+							"                <topicmeta>\n" +
+							"                    <navtitle>The Wrong Tempo T 6</navtitle>\n" +
+							"                </topicmeta>\n" +
+							"            </subjectdef>\n" +
+							"        </subjectdef>\n" +
 							"        <subjectdef keys=\"productname\">\n" +
 							"            <topicmeta>\n" +
 							"                <shortdesc>Product Name</shortdesc>\n" +

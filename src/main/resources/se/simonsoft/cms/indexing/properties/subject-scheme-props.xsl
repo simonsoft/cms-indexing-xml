@@ -28,9 +28,8 @@
 
     <xsl:template match="subjectScheme">
 
+        <xsl:variable name="root" select="."/>
         <xsl:variable name="subjects" select="//enumerationdef[elementdef[@name='cms:property']][subjectdef[@keyref]]"/>
-
-        <xsl:variable name="titles" select="//subjectdef[subjectdef[topicmeta[navtitle]]]"/>
 
         <xsl:element name="doc">
 
@@ -45,7 +44,7 @@
                 <xsl:for-each select="$property-values">
 
                     <xsl:variable name="property-value" select="." as="xs:string"/>
-                    <xsl:variable name="property-value-title" select="$titles[@keys=$subject-key]/subjectdef[@keys=$property-value]/topicmeta/navtitle"/>
+                    <xsl:variable name="property-value-title" select="$root//subjectdef[@keys=$subject-key]/descendant::subjectdef[@keys=$property-value]/topicmeta/navtitle"/>
 
                     <xsl:element name="field">
 
