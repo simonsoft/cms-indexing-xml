@@ -76,8 +76,12 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
 
     @Override
     public void handle(IndexingItemProgress progress) {
+        CmsItemProperties itemProperties = null;
         String excludePattern = "(cmsconfig.*:.*|svn:.*|abx:.*)";
-        CmsItemProperties itemProperties = progress.getProperties();
+        try {
+            itemProperties = progress.getProperties();
+        } catch (Exception nevermind) {}
+        if (itemProperties == null) return;
         CmsItemId itemId = getItemId(progress);
         if (itemId == null) return;
         CmsItemPath itemRelPath = itemId.getRelPath();
