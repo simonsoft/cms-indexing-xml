@@ -18,7 +18,6 @@ package se.simonsoft.cms.indexing.abx;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -176,6 +175,7 @@ public class HandlerClassification implements IndexingItemHandler {
 	private void setClassificationFlags(IndexingItemProgress progress) {
 		
 		CmsItemPath itemPath = progress.getItem().getPath();
+		CmsItemProperties propsParent = getPropertiesParent(progress.getItem().getPath(), progress.getRevision());
 		
 		if (itemPath == null) {
 			return;
@@ -216,6 +216,10 @@ public class HandlerClassification implements IndexingItemHandler {
 			progress.getFields().addField(FLAG_FIELD, "iskeydefmap");
 		}
 		
+		if (isCmsClass(f, "releasable") || isCmsClass(propsParent, "releasableparent")  /*|| isElementName(f, "document")*/) {
+			progress.getFields().addField(FLAG_FIELD, "isreleasable");
+		}
+		
 		if (isCmsClass(progress.getFields(), "template")) {
 			progress.getFields().addField(FLAG_FIELD, "istemplate");
 		}
@@ -239,6 +243,9 @@ public class HandlerClassification implements IndexingItemHandler {
 	}
 	
 	public static boolean isCmsClass(CmsItemProperties props, String name) {
+		if (props == null) {
+			return false;
+		}
 		String itemClass = props.getString("cms:class");
 		if (itemClass == null) {
 			return false;
