@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -142,5 +143,33 @@ public class HandlerSubjectSchemeTest {
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Rapid_A_600J"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Foo"));
 		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey").contains("Bar"));
+	}
+	
+	@Test
+	public void testHandlerPropEmpty() {
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		when(item.isFile()).thenReturn(true);
+		when(item.getPath()).thenReturn(new CmsItemPath("/dita/xml/bookmap1.ditamap"));
+		IndexingItemProgress progress = mock(IndexingItemProgress.class);
+		CmsItemPropertiesMap properties = new CmsItemPropertiesMap();
+		when(progress.getProperties()).thenReturn(properties);
+		when(progress.getFields()).thenReturn(doc);
+		CmsRepository repo1 = new CmsRepository("http://cmshostname/svn/keydefmap1");
+		when(progress.getRepository()).thenReturn(repo1);
+		when(progress.getItem()).thenReturn(item);
+		properties.and("cds:productname", "Inspire_1200S Tempo_T_6 Rapid_A_600J");
+		properties.and("cds:empty", ""); // NOTE: Empty value
+		ItemContentBufferStrategy cbs = mock(ItemContentBufferStrategy.class);
+		ItemContentBuffer buffer = mock(ItemContentBuffer.class);
+		when(buffer.getContents()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+		when(cbs.getBuffer(any(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
+		handler.setItemContentBufferStrategy(cbs);
+		handler.handle(progress);
+		assertEquals(3, doc.getFieldValues("meta_s_m_prop_cds.productname").size());
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Tempo T 6"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Inspire 1200S"));
+		assertTrue(doc.getFieldValues("meta_s_m_prop_cds.productname").contains("Rapid_A_600J"));
+		assertNull(doc.getFieldValues("meta_s_m_prop_cds.undefinedkey"));
 	}
 }

@@ -37,7 +37,7 @@
 
                 <xsl:variable name="property-name" select="." as="xs:string"/>
                 <xsl:variable name="property-name-nocolon" select="translate($property-name, ':', '.')"/>
-                <xsl:variable name="property-values" select="tokenize(map:get($properties, $property-name), ' ')" as="xs:string+"/>
+                <xsl:variable name="property-values" select="tokenize(map:get($properties, $property-name), ' ')" as="xs:string*"/>
 
                 <xsl:variable name="subject-key" select="$subjects[attributedef[@name=$property-name]]/subjectdef/@keyref"/>
 
