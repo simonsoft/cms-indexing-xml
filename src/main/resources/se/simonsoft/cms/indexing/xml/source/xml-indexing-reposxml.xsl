@@ -159,6 +159,13 @@
 			</xsl:if>
 			
 			
+			<!-- release checksums: "@cms:c_sha1_source_reuse" -->
+			<!-- #620 Release checksums available after normalization transform, useful for comparing to previous Release. -->
+			<xsl:if test="$patharea = 'release' and empty($ridduplicates)">
+				<xsl:variable name="ridelements" as="element()*" select="descendant-or-self::*[@cms:rid]"/>
+				<xsl:attribute name="cmsreposxml:reuse_c_sha1_release_descendants" select="$ridelements/@cms:c_sha1_source_reuse"/>
+			</xsl:if>
+			
 			<!-- Lists all duplicated RID (duplicates included twice) -->
 			<!-- Rids should not be duplicated in the document, but that can only be identified from the root node.-->
 			<!-- This field can only identify duplicates among its children, not whether the element itself is a duplicate in the document context. -->

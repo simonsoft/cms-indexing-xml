@@ -98,7 +98,11 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 			if (a.getName().startsWith("cmsreposxml:")) {
 				String fieldName = a.getName().substring(12);
 				logger.trace("Field from attribute: {} - {}", fieldName, a.getName());
-				doc.addField(fieldName, a.getValue());
+				if (fieldName.equals("reuse_c_sha1_release_descendants")) {
+					doc.addField(fieldName, a.getValue().split(" "));
+				} else {
+					doc.addField(fieldName, a.getValue());
+				}
 			}
 		}
 	}
