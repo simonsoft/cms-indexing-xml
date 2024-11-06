@@ -21,6 +21,7 @@ import static org.junit.Assume.assumeNotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -183,6 +184,13 @@ public class HandlerXmlLargeFileTest {
 		SolrDocumentList translations = reposxml.query(new SolrQuery("patharea:translation").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
 		assertEquals(0, translations.getNumFound());
 
+		SolrDocumentList releaseTop = reposxml.query(new SolrQuery("patharea:release AND depth:1").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
+		assertEquals(1, releaseTop.getNumFound());
+		// Adding all element sha1 on root document.
+		Collection<Object> reuse_c_sha1_release_descendants = releaseTop.get(0).getFieldValues("reuse_c_sha1_release_descendants");
+		assertNotNull(reuse_c_sha1_release_descendants);
+		assertEquals(10544, reuse_c_sha1_release_descendants.size());
+		//assertEquals("", reuse_c_sha1_release_descendants.iterator().next());
 
 		//SolrDocument e1 = all.get(0);
 		//assertEquals(80, e1.getFieldNames().size());
