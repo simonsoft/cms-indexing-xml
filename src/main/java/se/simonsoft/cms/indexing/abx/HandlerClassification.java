@@ -75,14 +75,18 @@ public class HandlerClassification implements IndexingItemHandler {
 		
 		CmsChangesetItem item = progress.getItem();
 		
+		if (item.isDelete()) {
+			// No reason to process delete.
+			return;
+		}
+
+		// #1885 Set meta field with cms:status, empty string when not set.
+		// TODO Should likely be a modeled field 'status' when doing a major revision of the schema.
+		setStatusMeta(progress);
+		
 		if (item.isFolder()) {
 			// Folders can easily be detected by the "type" field.
 			setFolderFlags(progress);
-			return;
-		}
-		
-		if (item.isDelete()) {
-			// No reason to process delete.
 			return;
 		}
 
@@ -97,6 +101,15 @@ public class HandlerClassification implements IndexingItemHandler {
 		
 		// #1613 Extract pathdirname and pathdirnonshard for faceting. 
 		setPathdirFacet(progress);
+	}
+	
+	private void setStatusMeta(IndexingItemProgress progress) {
+		String status = ""; // Always set the field.
+		String itemStatus = (String) progress.getFields().getFieldValue("prop_cms.status");
+		if (itemStatus != null) {
+			status = itemStatus;
+		}
+		progress.getFields().addField("meta_s_s_status", status);
 	}
 	
 	private void setFolderFlags(IndexingItemProgress progress) {
