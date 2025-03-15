@@ -211,6 +211,36 @@
 				</field>
 			</xsl:if>
 			
+			<!-- #1902 Flag for isdita etc -->
+			<xsl:choose>
+				<xsl:when test="$is-dita-map">
+					<field name="flag">
+						<xsl:value-of select="'isdita'"/>
+					</field>
+					<field name="flag">
+						<xsl:value-of select="'isditamap'"/>
+					</field>
+				</xsl:when>
+				<xsl:when test="$is-dita-topic">
+					<!-- TODO: Consider isditabase -->
+					<field name="flag">
+						<xsl:value-of select="'isdita'"/>
+					</field>
+					<field name="flag">
+						<xsl:value-of select="'isditatopic'"/>
+					</field>
+				</xsl:when>
+				<!-- Key definition maps have extension .xml in order to be processed as Book during Prepare Release. -->
+				<xsl:when test="name($root) = ('map', 'bookmap', 'techdocmap', 'keydefmap')">
+					<field name="flag">
+						<xsl:value-of select="'isdita'"/>
+					</field>
+					<field name="flag">
+						<xsl:value-of select="'isditamap'"/>
+					</field>
+				</xsl:when>
+			</xsl:choose>
+			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
 			<!-- Let the DITA hierachy within prolog define most of the depth below embd_xml_meta_* -->
