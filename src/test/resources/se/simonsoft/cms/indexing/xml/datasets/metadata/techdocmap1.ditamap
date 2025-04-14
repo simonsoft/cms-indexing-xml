@@ -5,6 +5,11 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="urn:simonsoft:names:techdoc:dita:xsd:simonsoft:documentation-techdocmap.xsd"
 xmlns:ditaarch="http://dita.oasis-open.org/architecture/2005/">
 <title>Main title</title>
+<profiling>
+<profiles name="release" platform="linux windows" audience="expert" _stage="release"/>
+<profiles name="one" platform="linux" audience="expert" _stage="publish"/>
+<profiles name="two" platform="windows" audience="expert" logicalexpr="bogus"/>
+</profiling>
 <techdocinfo>
 <product>The Product name</product><product>Another prodinfo</product
 ><model>Model A</model><model>Model B</model>

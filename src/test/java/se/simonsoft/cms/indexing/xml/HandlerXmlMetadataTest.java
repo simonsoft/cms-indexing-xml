@@ -21,6 +21,7 @@ import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -233,5 +234,29 @@ public class HandlerXmlMetadataTest {
 		assertEquals("one\ntwo", e1.getFieldValue("meta_s_s_xml_a_othermeta_multi-value"));
 	}
 	
+	@Test
+	public void testProfilingTechdocmap1() throws Exception {
+		assumeResourceExists(repoSource, "/techdocmap1.ditamap");
+
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
+		assertEquals(2, all.getNumFound()); 
+		
+		SolrDocument e1 = all.get(0);
+		assertEquals("file", e1.getFieldValue("type"));
+		assertEquals(true, e1.getFieldValue("head"));
+		
+		
+		// No of fields, just during development
+		//assertEquals(88, e1.getFieldNames().size());
+		
+		
+		// Profiling
+		assertEquals(List.of("release", "one", "two"), e1.getFieldValue("meta_s_m_xml_profiling_names"));
+		assertEquals(List.of("release"), e1.getFieldValue("meta_s_m_xml_profiling_release_names"));
+		assertEquals(List.of("one", "two"), e1.getFieldValue("meta_s_m_xml_profiling_publish_names"));
+		assertEquals("[{\"name\":\"release\",\"platform\":\"linux windows\",\"audience\":\"expert\",\"_stage\":\"release\"},{\"name\":\"one\",\"platform\":\"linux\",\"audience\":\"expert\",\"_stage\":\"publish\"},{\"name\":\"two\",\"platform\":\"windows\",\"audience\":\"expert\"}]", 
+				e1.getFieldValue("embd_xml_profiling"));
+	}
 
 }
