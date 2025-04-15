@@ -244,24 +244,24 @@
 
 			<!-- #1295 Index the profiling element in 'embd_xml_profiling' producing the same JSON as Abx Editor (excl 'logicalexpr'). -->
 			<!-- Additionally index the profiles name attributes in multi-value fields.-->
-			<xsl:if test="/*/profiling">
+			<xsl:variable name="profiling" select="/*/profiling | $ditamap/*/profiling"/>
+			<xsl:if test="$profiling">
 				<xsl:call-template name="field">
 					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_names'"/>
-					<xsl:with-param name="value" select="/*/profiling/profiles/@name"/>
+					<xsl:with-param name="value" select="$profiling/profiles/@name"/>
 				</xsl:call-template>
 				<xsl:call-template name="field">
 					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_release_names'"/>
-					<xsl:with-param name="value" select="/*/profiling/profiles[@_stage = 'release']/@name"/>
+					<xsl:with-param name="value" select="$profiling/profiles[@_stage = 'release']/@name"/>
 				</xsl:call-template>
 				<xsl:call-template name="field">
 					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_publish_names'"/>
-					<xsl:with-param name="value" select="/*/profiling/profiles[@_stage = 'publish' or not(@_stage)]/@name"/>
+					<xsl:with-param name="value" select="$profiling/profiles[@_stage = 'publish' or not(@_stage)]/@name"/>
 				</xsl:call-template>
 				
 				<field name="embd_xml_profiling">
-					<xsl:value-of select="cmsfn:profiling-json(/*/profiling/profiles)"/>
+					<xsl:value-of select="cmsfn:profiling-json($profiling/profiles)"/>
 				</field>
-				
 			</xsl:if>
 			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
