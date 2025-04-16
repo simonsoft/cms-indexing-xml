@@ -19,6 +19,7 @@
 <xsl:stylesheet version="3.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:fn="http://www.w3.org/2005/xpath-functions"
 	xmlns:cms="http://www.simonsoft.se/namespace/cms"
 	xmlns:cmsfn="http://www.simonsoft.se/namespace/cms-functions"
 	>
@@ -240,6 +241,28 @@
 					</field>
 				</xsl:when>
 			</xsl:choose>
+
+			<!-- #1295 Index the profiling element in 'embd_xml_profiling' producing the same JSON as Abx Editor (excl 'logicalexpr'). -->
+			<!-- Additionally index the profiles name attributes in multi-value fields.-->
+			<xsl:variable name="profiling" select="/*/profiling | $ditamap/*/profiling"/>
+			<xsl:if test="$profiling">
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_names'"/>
+					<xsl:with-param name="value" select="$profiling/profiles/@name"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_release_names'"/>
+					<xsl:with-param name="value" select="$profiling/profiles[@_stage = 'release']/@name"/>
+				</xsl:call-template>
+				<xsl:call-template name="field">
+					<xsl:with-param name="name" select="'meta_s_m_xml_profiling_publish_names'"/>
+					<xsl:with-param name="value" select="$profiling/profiles[@_stage = 'publish' or not(@_stage)]/@name"/>
+				</xsl:call-template>
+				
+				<field name="embd_xml_profiling">
+					<xsl:value-of select="cmsfn:profiling-json($profiling/profiles)"/>
+				</field>
+			</xsl:if>
 			
 			<!-- Experimental: Extract product name metadata from both topic and techdocmap. -->
 			<!-- Likely need multiValued field without tokenization to achieve good faceting. -->
@@ -1078,4 +1101,31 @@
 		</xsl:choose>
 	</xsl:function>
 	
+	<xsl:function name="cmsfn:profiling-json">
+		<xsl:param name="recipes" as="element(profiles)*"/>
+		
+		<xsl:variable name="result" as="xs:string*">
+			<xsl:for-each select="$recipes">
+				<xsl:sequence select="cmsfn:profiles-json(.)"/>
+			</xsl:for-each>
+		</xsl:variable>
+		
+		<xsl:value-of select="'[' || string-join($result, ',') || ']'"/>
+	</xsl:function>
+	
+	<xsl:function name="cmsfn:profiles-json">
+		<xsl:param name="recipe" as="element(profiles)"/>
+		
+		<xsl:variable name="result">
+			<xsl:element name="fn:map">
+				<xsl:for-each select="$recipe/@*[not(name() = 'logicalexpr')]">
+					<xsl:element name="fn:string">
+						<xsl:attribute name="key" select="name()"/>
+						<xsl:value-of select="."/>
+					</xsl:element>
+				</xsl:for-each>
+			</xsl:element>
+		</xsl:variable>
+		<xsl:value-of select="xml-to-json($result)"/>		
+	</xsl:function>
 </xsl:stylesheet>
