@@ -183,14 +183,25 @@
 			
 			
 			<!-- Supports docno from Techdoc 'docinfo' with selection of language-specific docno based on @market / @xml:lang. -->
-			<xsl:if test="cmsfn:get-docno(.)">
-				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$ditamap and cmsfn:get-docno($ditamap/*)">
+					<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno($ditamap/*)"/></field>
+				</xsl:when>
+				<xsl:when test="cmsfn:get-docno(.)">
+					<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
+				</xsl:when>
+			</xsl:choose>
 			
 			<!-- Supports partno from Techdoc 'techdocinfo' with selection of language-specific docno based on @market / @xml:lang. -->
-			<xsl:if test="cmsfn:get-partno(.)">
-				<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$ditamap and cmsfn:get-partno($ditamap/*)">
+					<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno($ditamap/*)"/></field>
+				</xsl:when>
+				<xsl:when test="cmsfn:get-partno(.)">
+					<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
+				</xsl:when>
+			</xsl:choose>
+
 			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_ids"><xsl:value-of select="$attrs[name() = 'xml:id' or name() = 'id']"/></field>
