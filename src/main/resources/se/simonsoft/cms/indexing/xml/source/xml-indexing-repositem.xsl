@@ -989,7 +989,7 @@
 			<!-- techdocmap -->
 			
 			<!-- Draft of market support in docno (no test coverage) -->
-			<xsl:when test="$root/techdocinfo/docno[@market = /*/@xml:lang]">
+			<xsl:when test="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/docno[@market = /*/@xml:lang]"/>
 			</xsl:when>
 			
@@ -1010,7 +1010,7 @@
 			<!-- TODO: support techdocinfo in either techdocmap or coverpage (does the above work with Release/Translation?) -->
 
 			<!-- Techdoc-Book -->
-			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
+			<xsl:when test="$root//docinfogroup/docinfo[tokenize(@market, ';') = /*/@xml:lang]">
 				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
 			</xsl:when>
 			
