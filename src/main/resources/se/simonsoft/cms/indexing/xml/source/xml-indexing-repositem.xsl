@@ -1049,6 +1049,12 @@
 			</xsl:when>
 			
 			<!-- techdocmap -->
+			
+			<!-- Draft of market support in partno (no test coverage) -->
+			<xsl:when test="$root/techdocinfo/partno[tokenize(@market, ' ') = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/partno[tokenize(@market, ' ') = /*/@xml:lang]"/>
+			</xsl:when>
+			
 			<xsl:when test="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]"/>
 			</xsl:when>
