@@ -183,14 +183,25 @@
 			
 			
 			<!-- Supports docno from Techdoc 'docinfo' with selection of language-specific docno based on @market / @xml:lang. -->
-			<xsl:if test="cmsfn:get-docno(.)">
-				<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$ditamap and cmsfn:get-docno($ditamap/*)">
+					<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno($ditamap/*)"/></field>
+				</xsl:when>
+				<xsl:when test="cmsfn:get-docno(.)">
+					<field name="embd_xml_docno"><xsl:value-of select="cmsfn:get-docno(.)"/></field>
+				</xsl:when>
+			</xsl:choose>
 			
 			<!-- Supports partno from Techdoc 'techdocinfo' with selection of language-specific docno based on @market / @xml:lang. -->
-			<xsl:if test="cmsfn:get-partno(.)">
-				<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$ditamap and cmsfn:get-partno($ditamap/*)">
+					<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno($ditamap/*)"/></field>
+				</xsl:when>
+				<xsl:when test="cmsfn:get-partno(.)">
+					<field name="embd_xml_partno"><xsl:value-of select="cmsfn:get-partno(.)"/></field>
+				</xsl:when>
+			</xsl:choose>
+
 			
 			<!-- ID attributes should be searchable, will concat the tokens separated by a space. -->
 			<field name="embd_xml_ids"><xsl:value-of select="$attrs[name() = 'xml:id' or name() = 'id']"/></field>
@@ -978,8 +989,8 @@
 			<!-- techdocmap -->
 			
 			<!-- Draft of market support in docno (no test coverage) -->
-			<xsl:when test="$root/techdocinfo/docno[@market = /*/@xml:lang]">
-				<xsl:value-of select="$root/techdocinfo/docno[@market = /*/@xml:lang]"/>
+			<xsl:when test="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]"/>
 			</xsl:when>
 			
 			<!-- Draft of country support in docno (no test coverage) -->
@@ -996,11 +1007,11 @@
 				<xsl:value-of select="$root/techdocinfo/docno[1]"/>
 			</xsl:when>
 			
-			<!-- TODO: support techdocinfo in either techdocmap or coverpage (does the above work with Release/Translation?) -->
+			<!-- TODO: support techdocinfo in either techdocmap or coverpage -->
 
 			<!-- Techdoc-Book -->
-			<xsl:when test="$root//docinfogroup/docinfo[@market = /*/@xml:lang]">
-				<xsl:value-of select="$root//docinfogroup/docinfo[@market = /*/@xml:lang]/docno"/>
+			<xsl:when test="$root//docinfogroup/docinfo[tokenize(@market, ';') = /*/@xml:lang]">
+				<xsl:value-of select="$root//docinfogroup/docinfo[tokenize(@market, ';') = /*/@xml:lang]/docno"/>
 			</xsl:when>
 			
 			<xsl:when test="$root//docinfogroup/docinfo[@country = /*/@xml:lang]">
@@ -1038,6 +1049,12 @@
 			</xsl:when>
 			
 			<!-- techdocmap -->
+			
+			<!-- Draft of market support in partno (no test coverage) -->
+			<xsl:when test="$root/techdocinfo/partno[tokenize(@market, ' ') = /*/@xml:lang]">
+				<xsl:value-of select="$root/techdocinfo/partno[tokenize(@market, ' ') = /*/@xml:lang]"/>
+			</xsl:when>
+			
 			<xsl:when test="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/partno[@xml:lang = /*/@xml:lang]"/>
 			</xsl:when>
