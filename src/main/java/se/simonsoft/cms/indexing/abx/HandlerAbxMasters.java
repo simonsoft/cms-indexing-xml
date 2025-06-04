@@ -50,6 +50,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		super(idStrategy);
 	}
 	
+	// TODO: Inject CommitRevisionCache
+	
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		
@@ -75,6 +77,9 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		}
 		
 		handleFolders(fields, "rel_abx.Masters_pathparents", masterIds);
+		
+		// #1922: Implement relation to previous commit revision here as well.
+		//handleCommitPrevious(fields);
 		
 	}
 
@@ -122,6 +127,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 							idStrategy.getIdHead(id);
 					
 					fields.addField("rel_" + propertyName, strategyId);
+					
+					// #1922: Ensure we have a relation to a commit revision.
+					if (id.getPegRev() != null) {
+						// Get the commit revision upTo id.getPegRev().
+						
+						//fields.addField("rel_commit_" + propertyName, ..);
+					}
 					
 					result.add(id);
 				}
