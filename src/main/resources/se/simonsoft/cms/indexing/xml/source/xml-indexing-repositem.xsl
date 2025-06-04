@@ -315,6 +315,18 @@
 				</xsl:if>
 			</xsl:for-each-group>
 			
+			<!-- #1856 Add support for DITA 2.0 keytext element -->
+			<xsl:for-each-group select="subsequence(//keydef[topicmeta/keytext][@keys], 1, 30)" group-by="tokenize(@keys, ' ')">
+				<xsl:if test="31 > string-length(current-grouping-key())">
+					<!-- Replace extended characters with '_' in field name. -->
+					<xsl:variable name="fieldsuffix" select="replace(current-grouping-key(), '[^a-zA-Z0-9_-]', '_')"/>
+					<xsl:call-template name="meta-unit">
+						<xsl:with-param name="name" select="'keydef_keytext_' || $fieldsuffix"/>
+						<xsl:with-param name="value" select="current-group()/topicmeta/keytext"/>
+					</xsl:call-template>
+				</xsl:if>
+			</xsl:for-each-group>
+			
 			
 			<!-- What about number of elements? -->	
 			<field name="count_elements"><xsl:value-of select="count(//element())"/></field>
