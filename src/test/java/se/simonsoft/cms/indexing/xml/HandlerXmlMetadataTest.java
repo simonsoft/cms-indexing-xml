@@ -256,7 +256,7 @@ public class HandlerXmlMetadataTest {
 		assertEquals(List.of("release"), e1.getFieldValue("meta_s_m_xml_profiling_release_names"));
 		assertEquals(List.of("one", "two"), e1.getFieldValue("meta_s_m_xml_profiling_publish_names"));
 		assertEquals("[{\"name\":\"release\",\"platform\":\"linux windows\",\"audience\":\"expert\",\"_stage\":\"release\"},{\"name\":\"one\",\"platform\":\"linux\",\"audience\":\"expert\",\"_stage\":\"publish\"},{\"name\":\"two\",\"platform\":\"windows\",\"audience\":\"expert\"}]", 
-				e1.getFieldValue("embd_xml_profiling"));
+				e1.getFieldValue("embd_cms_profiling"));
 	}
 
 }

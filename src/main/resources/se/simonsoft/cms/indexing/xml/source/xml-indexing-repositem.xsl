@@ -253,7 +253,7 @@
 				</xsl:when>
 			</xsl:choose>
 
-			<!-- #1295 Index the profiling element in 'embd_xml_profiling' producing the same JSON as Abx Editor (excl 'logicalexpr'). -->
+			<!-- #1295 Index the profiling element in 'embd_cms_profiling' producing the same JSON as Abx Editor (excl 'logicalexpr'). -->
 			<!-- Additionally index the profiles name attributes in multi-value fields.-->
 			<xsl:variable name="profiling" select="/*/profiling | $ditamap/*/profiling"/>
 			<xsl:if test="$profiling">
@@ -270,7 +270,13 @@
 					<xsl:with-param name="value" select="$profiling/profiles[@_stage = 'publish' or not(@_stage)]/@name"/>
 				</xsl:call-template>
 				
+				<!-- Deprecated field name, needed for webapp 5.2.13. -->
 				<field name="embd_xml_profiling">
+					<xsl:value-of select="cmsfn:profiling-json($profiling/profiles)"/>
+				</field>
+				
+				<!-- Field covered by the required include pattern for CmsItem.MetaCms -->
+				<field name="embd_cms_profiling">
 					<xsl:value-of select="cmsfn:profiling-json($profiling/profiles)"/>
 				</field>
 			</xsl:if>
