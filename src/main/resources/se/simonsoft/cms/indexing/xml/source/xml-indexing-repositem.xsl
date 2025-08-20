@@ -1153,7 +1153,7 @@
 		
 		<xsl:variable name="result">
 			<xsl:element name="fn:map">
-				<xsl:for-each select="$recipe/@*[not(name() = 'logicalexpr')]">
+				<xsl:for-each select="$recipe/@*[not(name() = 'logicalexpr')][not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]">
 					<xsl:element name="fn:string">
 						<xsl:attribute name="key" select="name()"/>
 						<xsl:value-of select="."/>
