@@ -53,9 +53,12 @@ public class WorkflowExtractionPublish extends WorkflowExtraction {
 			// #1592 Normalize versionrelease for string sorting in SolR.
 			// Ensure no SolR field analysis by using the same field as type:file indexing.
 			// Field analysis will ruin the careful string sorting.
-			String rl = manifest.getDocument().get("versionrelease");
-			CmsLabelVersion l = new CmsLabelVersion(rl);
-			fields.setField(HandlerReleaseLabel.RELEASELABEL_META_FIELD + "_sort", l.getLabelSort());
+			// #1423 Ensure publish workflow can process item from Author Area.
+			if (manifest.getDocument().get("versionrelease") != null) {
+				String rl = manifest.getDocument().get("versionrelease");
+				CmsLabelVersion l = new CmsLabelVersion(rl);
+				fields.setField(HandlerReleaseLabel.RELEASELABEL_META_FIELD + "_sort", l.getLabelSort());
+			}
 			
 			handleManifestMap("embd_" + input.getWorkflow() + "_document", manifest.getDocument(), fields);
 		}
