@@ -30,10 +30,15 @@ import java.util.Collection;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
+import se.simonsoft.cms.backend.svnkit.info.change.CmsChangesetReaderSvnkit;
+import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.indexing.IdStrategyDefault;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.inspection.CmsChangesetReader;
 
 /**
  *
@@ -90,19 +95,27 @@ public class HandlerAbxFoldersTest {
 	 */
 	@Test
 	public void testHandleMastersParents() {
-		
+
+		String path = "/vvab/xml/documents/900108.xml";
 		String authorMaster = "x-svn:///svn/demo1^/vvab/xml/documents/900108.xml?p=129";
 		String translationMaster = "x-svn:///svn/demo1^/vvab/release/A/xml/documents/900108.xml?p=131";
 		
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
 		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+		when(item.getPath()).thenReturn(new CmsItemPath(path));
+		when(p.getRevision()).thenReturn(new RepoRevision(129, null));
 		when(p.getFields()).thenReturn(doc);
-		when(p.getRepository()).thenReturn(new CmsRepository("http://host:123/svn/demo1"));
+		when(p.getRepository()).thenReturn(repo);
+		when(p.getItem()).thenReturn(item);
 		doc.addField("repohost", "host:123");
 		doc.addField("prop_abx.AuthorMaster", authorMaster);
 		doc.addField("prop_abx.TranslationMaster", translationMaster);
-		
-		IndexingItemHandler handler = new HandlerAbxMasters(new IdStrategyDefault());
+
+		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+		CmsChangesetReader changesetReader = mock(CmsChangesetReaderSvnkit.class);
+		handler.setCmsChangesetReader(changesetReader);
 		handler.handle(p);
 		System.out.println("rel_abx.Masters_pathparents: " + doc.getFieldValues("rel_abx.Masters_pathparents"));
 		

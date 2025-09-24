@@ -23,6 +23,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.simonsoft.cms.backend.svnkit.info.change.CmsChangesetReaderSvnkit;
+import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingItemHandler;
@@ -30,8 +32,11 @@ import se.repos.indexing.item.HandlerPathinfo;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.item.HandlerProperties;
 import se.simonsoft.cms.item.CmsItemId;
+import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
+import se.simonsoft.cms.item.inspection.CmsChangesetReader;
 
 /**
  * Uses the abx.*Master properties, splitting on newline, to add fields rel_abx.*Master.
@@ -39,7 +44,9 @@ import se.simonsoft.cms.item.impl.CmsItemIdArg;
 public class HandlerAbxMasters extends HandlerAbxFolders {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxMasters.class);
-	
+
+	private CmsChangesetReaderSvnkit changesetReader;
+
 	private static final String HOSTFIELD = "repohost";
 	
 	/**
@@ -49,9 +56,12 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	public HandlerAbxMasters(IdStrategy idStrategy) {
 		super(idStrategy);
 	}
-	
-	// TODO: Inject CommitRevisionCache
-	
+
+	@Inject
+	public void setCmsChangesetReader(CmsChangesetReader changesetReader) {
+		this.changesetReader = (CmsChangesetReaderSvnkit) changesetReader;
+	}
+
 	@Override
 	public void handle(IndexingItemProgress progress) {
 		
@@ -77,10 +87,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		}
 		
 		handleFolders(fields, "rel_abx.Masters_pathparents", masterIds);
-		
-		// #1922: Implement relation to previous commit revision here as well.
-		//handleCommitPrevious(fields);
-		
+
+		handleCommitPrevious(progress);
 	}
 
 	@Override
@@ -99,8 +107,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	 * @param fields
 	 * @param host
 	 * @param propertyName name of the property field to copy master ref from
-	 * @param abxprop value of the property field.
-	 * @return 
+	 * @return
 	 */
 	protected Set<CmsItemId> handleAbxProperty(IndexingDoc fields, String host, String propertyName) {
 
@@ -108,46 +115,92 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		String abxprop = (String) fields.getFieldValue(fieldName);
 		Set<CmsItemId> result = new HashSet<CmsItemId>();
 
-		String strategyId;
+		String relationRevId;
 		if (abxprop != null) {
 			
 			if (abxprop.length() != 0) {
 				
-				String propvalueNormalized = "";
+				String propValueNormalized = "";
 				for (String d : abxprop.split("\n")) {
-					CmsItemIdArg id = new CmsItemIdArg(d);
-					id.setHostname(host);
+					CmsItemIdArg itemId = new CmsItemIdArg(d);
+					itemId.setHostname(host);
 					
 					// #886 Normalize the itemids in the indexed property.
 					// Simply by parsing the id with latest cms-item (3.x).
-					propvalueNormalized = propvalueNormalized.concat(id.getLogicalId()).concat("\n");
+					propValueNormalized = propValueNormalized.concat(itemId.getLogicalId()).concat("\n");
 					
-					strategyId = id.getPegRev() != null ?
-							idStrategy.getId(id, new RepoRevision(id.getPegRev(), null)) :
-							idStrategy.getIdHead(id);
+					relationRevId = itemId.getPegRev() != null ?
+							idStrategy.getId(itemId, new RepoRevision(itemId.getPegRev(), null)) :
+							idStrategy.getIdHead(itemId);
 					
-					fields.addField("rel_" + propertyName, strategyId);
+					fields.addField("rel_" + propertyName, relationRevId);
 					
 					// #1922: Ensure we have a relation to a commit revision.
-					if (id.getPegRev() != null) {
+					if (itemId.getPegRev() != null) {
 						// Get the commit revision upTo id.getPegRev().
-						
-						//fields.addField("rel_commit_" + propertyName, ..);
+						RepoRevision commitRev = changesetReader.getChangedRevision(itemId.getRelPath(), itemId.getPegRev());
+						if (commitRev != null) {
+							String commitRevId = idStrategy.getId(itemId, commitRev);
+							fields.addField("rel_commit_" + propertyName, commitRevId);
+						}
 					}
 					
-					result.add(id);
+					result.add(itemId);
 				}
 				// #886 Overwrite the property field with normalized itemId(s).
-				fields.setField(fieldName, propvalueNormalized.trim());
-				
+				fields.setField(fieldName, propValueNormalized.trim());
 			} else {
 				logger.debug("{} property exists but is empty", propertyName);
 			}
-			
 		}
-		
+
 		return result;
-		
 	}
 
+	/**
+	 * Handles commit relation fields for item history tracking via graph traversal.
+	 * - rel_commit_previous: For all modifications except ADD (<= current-1)
+	 * - rel_commit_previous_move: For ADD operations that are moves
+	 * - rel_commit_previous_copy: For ADD operations that are copies
+	 *
+	 * @param progress the indexing progress containing the current item
+	 */
+	private void handleCommitPrevious(IndexingItemProgress progress) {
+		CmsChangesetItem item = progress.getItem();
+		IndexingDoc fields = progress.getFields();
+		CmsRepository repository = progress.getRepository();
+
+		// Field rel_commit_previous: All modifications except ADD should use previous commit (<= current-1)
+		if (!item.isAdd()) {
+			CmsItemPath itemPath = item.getPath();
+			RepoRevision revision = progress.getRevision();
+			RepoRevision previousCommitRev = changesetReader.getChangedRevision(itemPath, revision.getNumber() - 1);
+			if (previousCommitRev != null) {
+				CmsItemId itemId = new CmsItemIdArg(repository, itemPath).withPegRev(previousCommitRev.getNumber());
+				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
+				fields.addField("rel_commit_previous", previousCommitRevId);
+			}
+		} else {
+			// Handle ADD operations: check for move and copy
+			if (item.isCopy()) {
+				CmsItemPath copyFromPath = item.getCopyFromPath();
+				RepoRevision copyFromRevision = item.getCopyFromRevision();
+
+				if (copyFromPath != null && copyFromRevision != null) {
+					// Get the commit revision for the copy source
+					RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
+					if (previousCommitRev != null) {
+						CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
+						String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
+
+						if (item.isMove()) {
+							fields.addField("rel_commit_previous_move", previousCommitRevId);
+						} else {
+							fields.addField("rel_commit_previous_copy", previousCommitRevId);
+						}
+					}
+				}
+			}
+		}
+	}
 }
