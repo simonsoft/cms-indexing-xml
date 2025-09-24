@@ -180,24 +180,22 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
 				fields.addField("rel_commit_previous", previousCommitRevId);
 			}
-		} else {
-			// Handle ADD operations: check for move and copy
-			if (item.isCopy()) {
-				CmsItemPath copyFromPath = item.getCopyFromPath();
-				RepoRevision copyFromRevision = item.getCopyFromRevision();
+		} else if (item.isCopy() || item.isMove()) {
+			// Handle ADD operations: Copy / Move
+			CmsItemPath copyFromPath = item.getCopyFromPath();
+			RepoRevision copyFromRevision = item.getCopyFromRevision();
 
-				if (copyFromPath != null && copyFromRevision != null) {
-					// Get the commit revision for the copy source
-					RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
-					if (previousCommitRev != null) {
-						CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
-						String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
-
-						if (item.isMove()) {
-							fields.addField("rel_commit_previous_move", previousCommitRevId);
-						} else {
-							fields.addField("rel_commit_previous_copy", previousCommitRevId);
-						}
+			if (copyFromPath != null && copyFromRevision != null) {
+				// Get the commit revision for the copy or move source
+				RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
+				CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
+				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
+				if (previousCommitRev != null) {
+					if (item.isCopy()) {
+						fields.addField("rel_commit_previous_copy", previousCommitRevId);
+					}
+					if (item.isMove()) {
+						fields.addField("rel_commit_previous_move", previousCommitRevId);
 					}
 				}
 			}
