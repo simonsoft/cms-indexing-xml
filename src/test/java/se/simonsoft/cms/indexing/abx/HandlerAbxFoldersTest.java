@@ -132,158 +132,144 @@ public class HandlerAbxFoldersTest {
 
 	}
 
-	@Test
-	public void testHandleCommitPrevious() {
-		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
-		CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
+    @Test
+    public void testHandleCommitPrevious() {
+        CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+        CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
 
-		IndexingItemProgress progress = mock(IndexingItemProgress.class);
-		CmsChangesetItem item = mock(CmsChangesetItem.class);
-		IndexingDoc doc = new IndexingDocIncrementalSolrj();
-		CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
+        IndexingItemProgress progress = mock(IndexingItemProgress.class);
+        CmsChangesetItem item = mock(CmsChangesetItem.class);
+        IndexingDoc doc = new IndexingDocIncrementalSolrj();
+        CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
 
-		when(progress.getRepository()).thenReturn(repo);
-		when(progress.getItem()).thenReturn(item);
-		when(progress.getFields()).thenReturn(doc);
-		when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
-		when(item.getPath()).thenReturn(itemPath);
-		when(item.isAdd()).thenReturn(false);
+        when(progress.getRepository()).thenReturn(repo);
+        when(progress.getItem()).thenReturn(item);
+        when(progress.getFields()).thenReturn(doc);
+        when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
+        when(item.getPath()).thenReturn(itemPath);
+        when(item.isAdd()).thenReturn(false);
 
-		when(changesetReader.getChangedRevision(itemPath, 129)).thenReturn(new RepoRevision(125, null));
+        when(changesetReader.getChangedRevision(itemPath, 129)).thenReturn(new RepoRevision(125, null));
 
-		doc.addField("repohost", "host:123");
+        doc.addField("repohost", "host:123");
 
-		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
-		handler.setCmsChangesetReader(changesetReader);
-		handler.handle(progress);
+        HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+        handler.setCmsChangesetReader(changesetReader);
+        handler.handle(progress);
 
-		Collection<Object> relCommitPrevious = doc.getFieldValues("rel_commit_previous");
-		assertNotNull("Expected rel_commit_previous to be populated for non-ADD operation", relCommitPrevious);
-		assertEquals(1, relCommitPrevious.size());
-		assertTrue(relCommitPrevious.iterator().next().toString().contains("@0000000125"));
-	}
+        Collection<Object> relCommitPrevious = doc.getFieldValues("rel_commit_previous");
+        assertNotNull("Expected rel_commit_previous to be populated for non-ADD operation", relCommitPrevious);
+        assertEquals(1, relCommitPrevious.size());
+        assertTrue(relCommitPrevious.iterator().next().toString().contains("@0000000125"));
+    }
 
-	@Test
-	public void testHandleCommitPreviousMove() {
-		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
-		CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
-		CmsItemPath moveFromPath = new CmsItemPath("/vvab/xml/old/900108.xml");
+    @Test
+    public void testHandleCommitPreviousMove() {
+        CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+        CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
+        CmsItemPath moveFromPath = new CmsItemPath("/vvab/xml/old/900108.xml");
 
-		IndexingItemProgress progress = mock(IndexingItemProgress.class);
-		CmsChangesetItem item = mock(CmsChangesetItem.class);
-		IndexingDoc doc = new IndexingDocIncrementalSolrj();
-		CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
+        IndexingItemProgress progress = mock(IndexingItemProgress.class);
+        CmsChangesetItem item = mock(CmsChangesetItem.class);
+        IndexingDoc doc = new IndexingDocIncrementalSolrj();
+        CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
 
-		when(progress.getRepository()).thenReturn(repo);
-		when(progress.getItem()).thenReturn(item);
-		when(progress.getFields()).thenReturn(doc);
-		when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
-		when(item.getPath()).thenReturn(itemPath);
-		when(item.isAdd()).thenReturn(true);
-		when(item.isCopy()).thenReturn(true);
-		when(item.isMove()).thenReturn(true);
-		when(item.getCopyFromPath()).thenReturn(moveFromPath);
-		when(item.getCopyFromRevision()).thenReturn(new RepoRevision(129, null));
+        when(progress.getRepository()).thenReturn(repo);
+        when(progress.getItem()).thenReturn(item);
+        when(progress.getFields()).thenReturn(doc);
+        when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
+        when(item.getPath()).thenReturn(itemPath);
+        when(item.isAdd()).thenReturn(true);
+        when(item.isCopy()).thenReturn(true);
+        when(item.isMove()).thenReturn(true);
+        when(item.getCopyFromPath()).thenReturn(moveFromPath);
+        when(item.getCopyFromRevision()).thenReturn(new RepoRevision(129, null));
 
-		when(changesetReader.getChangedRevision(itemPath, 129)).thenReturn(new RepoRevision(125, null));
-		when(changesetReader.getChangedRevision(moveFromPath, 129)).thenReturn(new RepoRevision(125, null));
+        when(changesetReader.getChangedRevision(moveFromPath, 129)).thenReturn(new RepoRevision(125, null));
 
-		doc.addField("repohost", "host:123");
+        doc.addField("repohost", "host:123");
 
-		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
-		handler.setCmsChangesetReader(changesetReader);
-		handler.handle(progress);
+        HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+        handler.setCmsChangesetReader(changesetReader);
+        handler.handle(progress);
 
-		// rel_commit_previous should be populated for move operations too
-		Collection<Object> relCommitPrevious = doc.getFieldValues("rel_commit_previous");
-		assertNotNull("Expected rel_commit_previous to be populated for MOVE operation", relCommitPrevious);
-		assertEquals(1, relCommitPrevious.size());
-		assertTrue(relCommitPrevious.iterator().next().toString().contains("@0000000125"));
+        Collection<Object> relCommitPreviousMove = doc.getFieldValues("rel_commit_previous_move");
+        assertNotNull("Expected rel_commit_previous_move to be populated for MOVE operation", relCommitPreviousMove);
+        assertEquals(1, relCommitPreviousMove.size());
+        assertTrue(relCommitPreviousMove.iterator().next().toString().contains("/vvab/xml/old/900108.xml"));
+        assertTrue(relCommitPreviousMove.iterator().next().toString().contains("@0000000125"));
+    }
 
-		Collection<Object> relCommitPreviousMove = doc.getFieldValues("rel_commit_previous_move");
-		assertNotNull("Expected rel_commit_previous_move to be populated for MOVE operation", relCommitPreviousMove);
-		assertEquals(1, relCommitPreviousMove.size());
-		assertTrue(relCommitPreviousMove.iterator().next().toString().contains("/vvab/xml/old/900108.xml"));
-		assertTrue(relCommitPreviousMove.iterator().next().toString().contains("@0000000125"));
-	}
+    @Test
+    public void testHandleCommitPreviousCopy() {
+        CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+        CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
+        CmsItemPath copyFromPath = new CmsItemPath("/vvab/xml/templates/template.xml");
 
-	@Test
-	public void testHandleCommitPreviousCopy() {
-		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
-		CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
-		CmsItemPath copyFromPath = new CmsItemPath("/vvab/xml/templates/template.xml");
+        IndexingItemProgress progress = mock(IndexingItemProgress.class);
+        CmsChangesetItem item = mock(CmsChangesetItem.class);
+        IndexingDoc doc = new IndexingDocIncrementalSolrj();
+        CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
 
-		IndexingItemProgress progress = mock(IndexingItemProgress.class);
-		CmsChangesetItem item = mock(CmsChangesetItem.class);
-		IndexingDoc doc = new IndexingDocIncrementalSolrj();
-		CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
+        when(progress.getRepository()).thenReturn(repo);
+        when(progress.getItem()).thenReturn(item);
+        when(progress.getFields()).thenReturn(doc);
+        when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
+        when(item.getPath()).thenReturn(itemPath);
+        when(item.isAdd()).thenReturn(true);
+        when(item.isCopy()).thenReturn(true);
+        when(item.isMove()).thenReturn(false);
+        when(item.getCopyFromPath()).thenReturn(copyFromPath);
+        when(item.getCopyFromRevision()).thenReturn(new RepoRevision(120, null));
 
-		when(progress.getRepository()).thenReturn(repo);
-		when(progress.getItem()).thenReturn(item);
-		when(progress.getFields()).thenReturn(doc);
-		when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
-		when(item.getPath()).thenReturn(itemPath);
-		when(item.isAdd()).thenReturn(true);
-		when(item.isCopy()).thenReturn(true);
-		when(item.isMove()).thenReturn(false);
-		when(item.getCopyFromPath()).thenReturn(copyFromPath);
-		when(item.getCopyFromRevision()).thenReturn(new RepoRevision(120, null));
+        when(changesetReader.getChangedRevision(copyFromPath, 120)).thenReturn(new RepoRevision(115, null));
 
-		when(changesetReader.getChangedRevision(itemPath, 129)).thenReturn(new RepoRevision(115, null));
-		when(changesetReader.getChangedRevision(copyFromPath, 120)).thenReturn(new RepoRevision(115, null));
+        doc.addField("repohost", "host:123");
 
-		doc.addField("repohost", "host:123");
+        HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+        handler.setCmsChangesetReader(changesetReader);
+        handler.handle(progress);
 
-		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
-		handler.setCmsChangesetReader(changesetReader);
-		handler.handle(progress);
+        Collection<Object> relCommitPreviousCopy = doc.getFieldValues("rel_commit_previous_copy");
+        assertNotNull("Expected rel_commit_previous_copy to be populated for COPY operation", relCommitPreviousCopy);
+        assertEquals(1, relCommitPreviousCopy.size());
+        assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("/vvab/xml/templates/template.xml"));
+        assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("@0000000115"));
 
-		// rel_commit_previous should be populated for copy operations too
-		Collection<Object> relCommitPrevious = doc.getFieldValues("rel_commit_previous");
-		assertNotNull("Expected rel_commit_previous to be populated for COPY operation", relCommitPrevious);
-		assertEquals(1, relCommitPrevious.size());
-		assertTrue(relCommitPrevious.iterator().next().toString().contains("@0000000115"));
+        assertNull("Expected rel_commit_previous_move to NOT be populated for pure COPY operation",
+                doc.getFieldValues("rel_commit_previous_move"));
+    }
 
-		Collection<Object> relCommitPreviousCopy = doc.getFieldValues("rel_commit_previous_copy");
-		assertNotNull("Expected rel_commit_previous_copy to be populated for COPY operation", relCommitPreviousCopy);
-		assertEquals(1, relCommitPreviousCopy.size());
-		assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("/vvab/xml/templates/template.xml"));
-		assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("@0000000115"));
+    @Test
+    public void testHandleCommitPreviousAdd() {
+        CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+        CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
 
-		assertNull("Expected rel_commit_previous_move to NOT be populated for pure COPY operation",
-				doc.getFieldValues("rel_commit_previous_move"));
-	}
+        IndexingItemProgress progress = mock(IndexingItemProgress.class);
+        CmsChangesetItem item = mock(CmsChangesetItem.class);
+        IndexingDoc doc = new IndexingDocIncrementalSolrj();
+        CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
 
-	@Test
-	public void testHandleCommitPreviousAdd() {
-		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
-		CmsItemPath itemPath = new CmsItemPath("/vvab/xml/documents/900108.xml");
+        when(progress.getRepository()).thenReturn(repo);
+        when(progress.getItem()).thenReturn(item);
+        when(progress.getFields()).thenReturn(doc);
+        when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
+        when(item.getPath()).thenReturn(itemPath);
+        when(item.isAdd()).thenReturn(true);
+        when(item.isCopy()).thenReturn(false);
+        when(item.isMove()).thenReturn(false);
 
-		IndexingItemProgress progress = mock(IndexingItemProgress.class);
-		CmsChangesetItem item = mock(CmsChangesetItem.class);
-		IndexingDoc doc = new IndexingDocIncrementalSolrj();
-		CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
+        doc.addField("repohost", "host:123");
 
-		when(progress.getRepository()).thenReturn(repo);
-		when(progress.getItem()).thenReturn(item);
-		when(progress.getFields()).thenReturn(doc);
-		when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
-		when(item.getPath()).thenReturn(itemPath);
-		when(item.isAdd()).thenReturn(true);
-		when(item.isCopy()).thenReturn(false);
-		when(item.isMove()).thenReturn(false);
+        HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+        handler.setCmsChangesetReader(changesetReader);
+        handler.handle(progress);
 
-		doc.addField("repohost", "host:123");
-
-		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
-		handler.setCmsChangesetReader(changesetReader);
-		handler.handle(progress);
-
-		assertNull("Expected rel_commit_previous to NOT be populated for pure ADD operation",
-				doc.getFieldValues("rel_commit_previous"));
-		assertNull("Expected rel_commit_previous_move to NOT be populated for pure ADD operation",
-				doc.getFieldValues("rel_commit_previous_move"));
-		assertNull("Expected rel_commit_previous_copy to NOT be populated for pure ADD operation",
-				doc.getFieldValues("rel_commit_previous_copy"));
-	}
+        assertNull("Expected rel_commit_previous to NOT be populated for pure ADD operation",
+                doc.getFieldValues("rel_commit_previous"));
+        assertNull("Expected rel_commit_previous_move to NOT be populated for pure ADD operation",
+                doc.getFieldValues("rel_commit_previous_move"));
+        assertNull("Expected rel_commit_previous_copy to NOT be populated for pure ADD operation",
+                doc.getFieldValues("rel_commit_previous_copy"));
+    }
 }

@@ -171,7 +171,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		CmsRepository repository = progress.getRepository();
 
 		// Field rel_commit_previous: All modifications except ADD should use previous commit (<= current-1)
-		if (!item.isAdd() || item.isCopy() || item.isMove()) {
+		if (!item.isAdd()) {
 			CmsItemPath itemPath = item.getPath();
 			RepoRevision revision = progress.getRevision();
 			RepoRevision previousCommitRev = changesetReader.getChangedRevision(itemPath, revision.getNumber() - 1);
@@ -180,23 +180,22 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
 				fields.addField("rel_commit_previous", previousCommitRevId);
 			}
+		} else if (item.isCopy() || item.isMove()) {
+			// Handle ADD operations: Copy / Move
+			CmsItemPath copyFromPath = item.getCopyFromPath();
+			RepoRevision copyFromRevision = item.getCopyFromRevision();
 
-			if (item.isCopy() || item.isMove()) {
-				// Handle ADD operations: Copy / Move
-				CmsItemPath copyFromPath = item.getCopyFromPath();
-				RepoRevision copyFromRevision = item.getCopyFromRevision();
-				if (copyFromPath != null && copyFromRevision != null) {
-					// Get the commit revision for the copy or move source
-					RepoRevision copyFromCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
-					CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(copyFromCommitRev.getNumber());
-					String copyFromCommitRevId = idStrategy.getId(itemId, copyFromCommitRev);
-					if (copyFromCommitRev != null) {
-						if (item.isCopy()) {
-							fields.addField("rel_commit_previous_copy", copyFromCommitRevId);
-						}
-						if (item.isMove()) {
-							fields.addField("rel_commit_previous_move", copyFromCommitRevId);
-						}
+			if (copyFromPath != null && copyFromRevision != null) {
+				// Get the commit revision for the copy or move source
+				RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
+				CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
+				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
+				if (previousCommitRev != null) {
+					if (item.isCopy()) {
+						fields.addField("rel_commit_previous_copy", previousCommitRevId);
+					}
+					if (item.isMove()) {
+						fields.addField("rel_commit_previous_move", previousCommitRevId);
 					}
 				}
 			}
