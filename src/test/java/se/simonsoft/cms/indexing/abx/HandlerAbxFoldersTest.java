@@ -161,6 +161,16 @@ public class HandlerAbxFoldersTest {
 		assertNotNull("Expected rel_commit_previous to be populated for non-ADD operation", relCommitPrevious);
 		assertEquals(1, relCommitPrevious.size());
 		assertTrue(relCommitPrevious.iterator().next().toString().contains("@0000000125"));
+
+		Collection<Object> relCommitPreviousCopy = doc.getFieldValues("rel_commit_previous_copy");
+		assertNotNull("Expected rel_commit_previous_copy to be populated for non-ADD operation", relCommitPreviousCopy);
+		assertEquals(1, relCommitPreviousCopy.size());
+		assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("@0000000125"));
+
+		Collection<Object> relCommitPreviousMove = doc.getFieldValues("rel_commit_previous_move");
+		assertNotNull("Expected rel_commit_previous_move to be populated for non-ADD operation", relCommitPreviousMove);
+		assertEquals(1, relCommitPreviousMove.size());
+		assertTrue(relCommitPreviousMove.iterator().next().toString().contains("@0000000125"));
 	}
 
 	@Test
