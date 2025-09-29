@@ -62,15 +62,18 @@ public class HandlerAbxMastersTest {
 		when(changesetItem.isAdd()).thenReturn(true);
 
 		doc.addField("repohost", "host:123");
-		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation^/xml/test.xml?p=456");
+		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation/xml/test.xml?p=456");
 
-		RepoRevision commitRev = new RepoRevision(456L, null);
+		// Commit revision lower than peg.
+		RepoRevision commitRev = new RepoRevision(400L, null);
 		when(changesetReader.getChangedRevision(any(CmsItemPath.class), eq(456L))).thenReturn(commitRev);
 
 		handler.handle(progress);
 
+		assertEquals("host:123/svn/documentation/xml/test.xml@0000000456", doc.getFieldValue("rel_abx.ReleaseMaster"));
+
 		assertTrue("Should have rel_commit_abx.ReleaseMaster field", doc.getFieldNames().contains("rel_commit_abx.ReleaseMaster"));
-		assertNotNull("rel_commit_abx.ReleaseMaster should not be null", doc.getFieldValue("rel_commit_abx.ReleaseMaster"));
+		assertEquals("host:123/svn/documentation/xml/test.xml@0000000400", doc.getFieldValue("rel_commit_abx.ReleaseMaster"));
 
 		verify(changesetReader).getChangedRevision(any(CmsItemPath.class), eq(456L));
 	}
@@ -85,11 +88,13 @@ public class HandlerAbxMastersTest {
 		when(changesetItem.isAdd()).thenReturn(true);
 
 		doc.addField("repohost", "host:123");
-		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation^/xml/test.xml?p=456");
+		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation/xml/test.xml?p=456");
 
 		when(changesetReader.getChangedRevision(any(CmsItemPath.class), eq(456L))).thenReturn(null);
 
 		handler.handle(progress);
+
+		assertEquals("host:123/svn/documentation/xml/test.xml@0000000456", doc.getFieldValue("rel_abx.ReleaseMaster"));
 
 		assertFalse("Should not have rel_commit_abx.ReleaseMaster field when commit revision is null", doc.getFieldNames().contains("rel_commit_abx.ReleaseMaster"));
 
@@ -106,9 +111,11 @@ public class HandlerAbxMastersTest {
 		when(changesetItem.isAdd()).thenReturn(true);
 
 		doc.addField("repohost", "host:123");
-		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation^/xml/test.xml");
+		doc.addField("prop_abx.ReleaseMaster", "x-svn:///svn/documentation/xml/test.xml");
 
 		handler.handle(progress);
+
+		assertEquals("host:123/svn/documentation/xml/test.xml", doc.getFieldValue("rel_abx.ReleaseMaster"));
 
 		assertFalse("Should not have rel_commit_abx.ReleaseMaster field when no peg revision", doc.getFieldNames().contains("rel_commit_abx.ReleaseMaster"));
 

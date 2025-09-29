@@ -140,7 +140,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 						// Get the commit revision upTo id.getPegRev().
 						RepoRevision commitRev = changesetReader.getChangedRevision(itemId.getRelPath(), itemId.getPegRev());
 						if (commitRev != null) {
-							String commitRevId = idStrategy.getId(itemId, commitRev);
+							String commitRevId = idStrategy.getId(itemId.withPegRev(null), commitRev);
 							fields.addField("rel_commit_" + propertyName, commitRevId);
 						}
 					}
