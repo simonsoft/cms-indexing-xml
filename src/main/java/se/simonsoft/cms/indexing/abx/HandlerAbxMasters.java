@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.simonsoft.cms.backend.svnkit.info.change.CmsChangesetReaderSvnkit;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.repos.indexing.IndexingDoc;
@@ -45,7 +44,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAbxMasters.class);
 
-	private CmsChangesetReaderSvnkit changesetReader;
+	private CmsChangesetReader changesetReader;
 
 	private static final String HOSTFIELD = "repohost";
 
@@ -59,7 +58,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 
 	@Inject
 	public void setCmsChangesetReader(CmsChangesetReader changesetReader) {
-		this.changesetReader = (CmsChangesetReaderSvnkit) changesetReader;
+		this.changesetReader = changesetReader;
 	}
 
 	@Override
