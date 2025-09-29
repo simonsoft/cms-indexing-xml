@@ -179,6 +179,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				CmsItemId itemId = new CmsItemIdArg(repository, itemPath).withPegRev(previousCommitRev.getNumber());
 				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
 				fields.addField("rel_commit_previous", previousCommitRevId);
+				fields.addField("rel_commit_previous_copy", previousCommitRevId);
+				fields.addField("rel_commit_previous_move", previousCommitRevId);
 			}
 		} else if (item.isCopy() || item.isMove()) {
 			// Handle ADD operations: Copy / Move
