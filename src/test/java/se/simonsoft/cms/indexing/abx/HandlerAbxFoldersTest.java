@@ -275,11 +275,8 @@ public class HandlerAbxFoldersTest {
 		handler.setCmsChangesetReader(changesetReader);
 		handler.handle(progress);
 
-		assertNull("Expected rel_commit_previous to NOT be populated for pure ADD operation",
-		doc.getFieldValues("rel_commit_previous"));
-		assertNull("Expected rel_commit_previous_move to NOT be populated for pure ADD operation",
-		doc.getFieldValues("rel_commit_previous_move"));
-		assertNull("Expected rel_commit_previous_copy to NOT be populated for pure ADD operation",
-		doc.getFieldValues("rel_commit_previous_copy"));
+		assertNull("Expected rel_commit_previous to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous"));
+		assertNull("Expected rel_commit_previous_move to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous_move"));
+		assertNull("Expected rel_commit_previous_copy to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous_copy"));
 	}
 }
