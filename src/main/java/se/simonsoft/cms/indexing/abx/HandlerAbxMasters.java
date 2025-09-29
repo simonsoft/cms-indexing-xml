@@ -48,7 +48,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	private CmsChangesetReaderSvnkit changesetReader;
 
 	private static final String HOSTFIELD = "repohost";
-	
+
 	/**
 	 * @param idStrategy to fill the refid/relid field
 	 */
@@ -64,28 +64,28 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 
 	@Override
 	public void handle(IndexingItemProgress progress) {
-		
+
 		logger.trace("handle(IndexItemProgress progress)");
-		
+
 		IndexingDoc fields = progress.getFields();
 		String host = (String) fields.getFieldValue(HOSTFIELD);
 		if (host == null) {
 			throw new IllegalStateException("Depending on indexer that adds host field " + HOSTFIELD);
 		}
-		
+
 		Set<CmsItemId> masterIds = new HashSet<CmsItemId>();
 		String[] abxProperties = {"abx.ReleaseMaster", "abx.AuthorMaster", "abx.TranslationMaster"};
 		for (String propertyName : abxProperties) {
 			masterIds.addAll(handleAbxProperty(fields, host, propertyName));
 		}
-		
+
 		for (CmsItemId masterId : masterIds) {
-			fields.addField("rel_abx.Masters", 
-					masterId.getPegRev() == null ? 
-							idStrategy.getIdHead(masterId) : 
+			fields.addField("rel_abx.Masters",
+					masterId.getPegRev() == null ?
+							idStrategy.getIdHead(masterId) :
 							idStrategy.getId(masterId, new RepoRevision(masterId.getPegRev(), null)));
 		}
-		
+
 		handleFolders(fields, "rel_abx.Masters_pathparents", masterIds);
 
 		handleCommitPrevious(progress);
@@ -98,7 +98,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 			add(HandlerProperties.class);
 		}};
 	}
-	
+
 	/**
 	 * Helper method for extracting master ids and adding them to a reference
 	 * field. Assumes that the provided property is found in a field with the
@@ -117,24 +117,24 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 
 		String relationRevId;
 		if (abxprop != null) {
-			
+
 			if (abxprop.length() != 0) {
-				
+
 				String propValueNormalized = "";
 				for (String d : abxprop.split("\n")) {
 					CmsItemIdArg itemId = new CmsItemIdArg(d);
 					itemId.setHostname(host);
-					
+
 					// #886 Normalize the itemids in the indexed property.
 					// Simply by parsing the id with latest cms-item (3.x).
 					propValueNormalized = propValueNormalized.concat(itemId.getLogicalId()).concat("\n");
-					
+
 					relationRevId = itemId.getPegRev() != null ?
 							idStrategy.getId(itemId, new RepoRevision(itemId.getPegRev(), null)) :
 							idStrategy.getIdHead(itemId);
-					
+
 					fields.addField("rel_" + propertyName, relationRevId);
-					
+
 					// #1922: Ensure we have a relation to a commit revision.
 					if (itemId.getPegRev() != null) {
 						// Get the commit revision upTo id.getPegRev().
@@ -144,7 +144,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 							fields.addField("rel_commit_" + propertyName, commitRevId);
 						}
 					}
-					
+
 					result.add(itemId);
 				}
 				// #886 Overwrite the property field with normalized itemId(s).
