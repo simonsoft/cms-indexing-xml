@@ -60,8 +60,8 @@ public class HandlerAbxDependenciesTest {
 	
 	@Test
 	public void testInvalid() {
-		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/in valid.png\n" + // Incorrectly accepted.
-				"invalid.png\n" + // Unfortunately needed to trigger the issue.
+		String abxdeps = "x-svn:///svn/documentation^/graphics/cms/process/2.0/in valid.png\n" +
+				//"invalid.png\n" + // Unfortunately needed to trigger the issue.
 				"x-svn:///svn/documentation^/xml/reference/cms/adapter/Introduction%20to%20CMS.xml\n" +
 				"x-svn:///svn/documentation^/xml/reference/cms/User_interface.xml?p=123";
 		IndexingItemProgress p = mock(IndexingItemProgress.class);
@@ -81,7 +81,9 @@ public class HandlerAbxDependenciesTest {
 			assertTrue(ex.getMessage().startsWith("Failed to parse abx.Dependencies"));
 		}
 		Collection<Object> refid = doc.getFieldValues("ref_abx.Dependencies");
-		assertEquals("Should have failed to add the dependencies as refid", 1, refid.size()); // Should really be zero.
+		// cms-item 3.2.0 is more strict in the itemId format validation.
+		assertNull("Should have failed to add the dependencies as refid", refid);
+		//assertEquals("Should have failed to add the dependencies as refid", 1, refid.size()); // Should really be zero.
 		
 	}
 	
