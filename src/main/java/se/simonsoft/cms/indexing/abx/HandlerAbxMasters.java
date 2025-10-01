@@ -159,8 +159,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	/**
 	 * Handles commit relation fields for item history tracking via graph traversal.
 	 * - rel_commit_previous: For all modifications except ADD (<= current-1)
-	 * - rel_commit_previous_move: For ADD operations that are moves
-	 * - rel_commit_previous_copy: For ADD operations that are copies
+	 * - rel_commit_previous_move: Includes ADD operations that are moves
+	 * - rel_commit_previous_copy: Includes ADD operations that are moves and copies (move is a special case of copy) 
 	 *
 	 * @param progress the indexing progress containing the current item
 	 */
@@ -178,8 +178,8 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				CmsItemId itemId = new CmsItemIdArg(repository, itemPath).withPegRev(previousCommitRev.getNumber());
 				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
 				fields.addField("rel_commit_previous", previousCommitRevId);
-				fields.addField("rel_commit_previous_copy", previousCommitRevId);
 				fields.addField("rel_commit_previous_move", previousCommitRevId);
+				fields.addField("rel_commit_previous_copy", previousCommitRevId);
 			}
 		} else if (item.isCopy() || item.isMove()) {
 			// Handle ADD operations: Copy / Move
@@ -192,11 +192,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
 				String previousCommitRevId = idStrategy.getId(itemId, previousCommitRev);
 				if (previousCommitRev != null) {
-					if (item.isCopy()) {
-						fields.addField("rel_commit_previous_copy", previousCommitRevId);
-					}
 					if (item.isMove()) {
 						fields.addField("rel_commit_previous_move", previousCommitRevId);
+						// Reasoning is that a history traversal that want to follow copy operations most likely also want to follow move.
+						fields.addField("rel_commit_previous_copy", previousCommitRevId);
+					}
+					if (item.isCopy()) {
+						fields.addField("rel_commit_previous_copy", previousCommitRevId);
 					}
 				}
 			}

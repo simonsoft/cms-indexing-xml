@@ -208,6 +208,9 @@ public class HandlerAbxFoldersTest {
 		assertEquals(1, relCommitPreviousMove.size());
 		assertTrue(relCommitPreviousMove.iterator().next().toString().contains("/vvab/xml/old/900108.xml"));
 		assertTrue(relCommitPreviousMove.iterator().next().toString().contains("@0000000125"));
+		
+		// Reasoning is that a history traversal that want to follow copy operations most likely also want to follow move.
+		assertNotNull("Expected rel_commit_previous_copy to be populated for MOVE operation", doc.getFieldValues("rel_commit_previous_copy"));
 	}
 
 	@Test
@@ -246,8 +249,7 @@ public class HandlerAbxFoldersTest {
 		assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("/vvab/xml/templates/template.xml"));
 		assertTrue(relCommitPreviousCopy.iterator().next().toString().contains("@0000000115"));
 
-		assertNull("Expected rel_commit_previous_move to NOT be populated for pure COPY operation",
-		doc.getFieldValues("rel_commit_previous_move"));
+		assertNull("Expected rel_commit_previous_move to NOT be populated for pure COPY operation", doc.getFieldValues("rel_commit_previous_move"));
 	}
 
 	@Test
