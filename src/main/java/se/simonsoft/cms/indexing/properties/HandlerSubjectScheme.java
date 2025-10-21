@@ -98,7 +98,14 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
         }
         if (properties.isEmpty()) return;
         InputStream subjectScheme = getSubjectScheme(progress);
-        if (subjectScheme != null) indexItemProperties(progress, subjectScheme, properties);
+        if (subjectScheme != null) {
+        	try {
+        		indexItemProperties(progress, subjectScheme, properties);
+        	} catch (RuntimeException e) {
+        		// Best effort, keep indexing going if subject scheme invalid.
+				logger.error("Subject scheme properties indexing failed: " + e.getMessage(), e);
+			}
+        }
     }
 
     @Override
