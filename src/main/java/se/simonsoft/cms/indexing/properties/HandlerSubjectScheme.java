@@ -33,6 +33,7 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
+import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceElementS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
@@ -137,7 +138,15 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
         Destination destination = new SAXDestination(new ContentHandlerToIndexFields(progress.getFields()));
         LoggingErrorListener errorListener = new LoggingErrorListener();
         SaxonMessageListener messageListener = new SaxonMessageListener();
-        XmlSourceDocumentS9api document = sourceReader.read(input);
+        XmlSourceDocumentS9api document;
+        try {
+        	document = sourceReader.read(input);
+        } catch (XmlNotWellFormedException e) {
+        	String msg = MessageFormatter.format("Subject scheme invalid for {}: {}", progress.getItem(), e.getMessage()).getMessage();
+            logger.error(msg);
+            // Throwing XmlNotWellFormedException here brings down indexing.
+            throw new RuntimeException(msg, e);
+		}
         if (document != null) {
             XmlSourceElementS9api documentElement = document.getDocumentElement();
             transformer.setParameter(new QName("properties"), properties);
