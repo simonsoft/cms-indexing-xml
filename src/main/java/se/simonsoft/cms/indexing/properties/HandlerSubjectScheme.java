@@ -126,6 +126,10 @@ public class HandlerSubjectScheme extends HandlerLogicalId {
     private InputStream getSubjectScheme(IndexingItemProgress progress) {
         RepoRevision revision = progress.getRevision();
         String projectFolder = progress.getItem().getPath().getPathSegments().get(0);
+        // Don't index properties for items within .cms folder itself.
+        if (projectFolder.equals(".cms")) {
+        	return null;
+        }
         try {
             CmsItemPath relPath = new CmsItemPath(String.format("/.cms/%s/properties.ditamap", projectFolder));
             ItemContentBuffer buffer = contentStrategy.getBuffer(revision, relPath, progress.getFields());
