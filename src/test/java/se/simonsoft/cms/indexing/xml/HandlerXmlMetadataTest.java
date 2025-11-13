@@ -101,6 +101,12 @@ public class HandlerXmlMetadataTest {
 		
 		// Basics
 		assertEquals("bookmap", e1.getFieldValue("embd_xml_name"));
+		assertEquals("en", e1.getFieldValue("embd_xml_a_xml.lang"));
+		
+		// descendant attributes
+		assertEquals("excludes 'en' since it is on the root element", "fr", e1.getFieldValue("embd_xml_da_xml.lang"));
+		assertEquals("A.10 A.6", e1.getFieldValue("embd_xml_da_version"));
+		assertEquals("With double space nospace multi value separator one two content status Göteborg long name lifecycle perhaps-included", e1.getFieldValue("embd_xml_da_content"));
 		
 		
 		// Docno from bookmap

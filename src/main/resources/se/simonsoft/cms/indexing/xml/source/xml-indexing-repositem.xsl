@@ -133,6 +133,14 @@
 				<field name="{$fieldname}"><xsl:value-of select="."/></field>
 			</xsl:for-each-group>
 			
+			<!-- #1934 attributes on descendant elements (union of ditabase and ditamap) -->
+			<!-- excludes cms-ns and other attributes with specific fields. -->
+			<xsl:for-each-group select="($root/descendant::*/@* | $ditamap/descendant::*/@*)[not(name() = 'xml:id' or name() = 'id' or name() = 'linkend' or name() = 'href' or name() = 'fileref')][not(namespace-uri() = 'http://www.simonsoft.se/namespace/cms')]" group-by="name()">
+				<xsl:variable name="fieldname" select="concat('embd_xml_da_', replace(name(.), ':', '.'))"/>
+				<!-- Only the ditabase value will be indexed when both ditamap and ditabase has an attribute. -->
+				<field name="{$fieldname}"><xsl:value-of select="distinct-values(for $a in fn:current-group() return tokenize($a, '[ ,;]+'))"/></field>
+			</xsl:for-each-group>
+			
 			<!-- Title, there is a specific field in repositem schema but there will be a separate handler making a selection. -->
 			<!-- Attempt to resolve termref and display keyref key. -->
 			<xsl:if test="$titles">
