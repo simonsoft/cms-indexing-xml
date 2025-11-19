@@ -170,7 +170,7 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		CmsRepository repository = progress.getRepository();
 
 		// Field rel_commit_previous: All modifications except ADD should use previous commit (<= current-1)
-		if (!item.isAdd()) {
+		if (!item.isAdd() && item.getPath() != null) {
 			CmsItemPath itemPath = item.getPath();
 			RepoRevision revision = progress.getRevision();
 			RepoRevision previousCommitRev = changesetReader.getChangedRevision(itemPath, revision.getNumber() - 1);
