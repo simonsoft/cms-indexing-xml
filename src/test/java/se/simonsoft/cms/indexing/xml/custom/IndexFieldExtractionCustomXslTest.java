@@ -57,6 +57,7 @@ public class IndexFieldExtractionCustomXslTest {
 	private TransformerServiceFactory transformerServiceFactory;
 	private TransformerService tReuse;
 	
+	private static final String tsourceAllowed = "tsp";
 	
 	@Before
 	public void setUp() {
@@ -71,7 +72,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 	@Test
 	public void test() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -98,7 +99,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalization() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		String xml =
@@ -132,7 +133,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalizationAssistSpace() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -152,7 +153,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testNormalizationAssistVVAB() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -170,7 +171,7 @@ public class IndexFieldExtractionCustomXslTest {
 
 	@Test
 	public void testNormalizationPreserve() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -194,7 +195,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPhElement() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -219,7 +220,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testProcessInstruction() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -242,7 +243,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testProcessInstructionRid() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(
@@ -263,7 +264,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testAttributesBursting() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
 		fields.setField("source",
@@ -287,7 +288,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testAttributesCms() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -317,7 +318,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testAttributesCmsPrefixNormalize() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -343,7 +344,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test (expected=Exception.class) 
 	public void testAttributesCmsPrefixOccupied() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -364,7 +365,7 @@ public class IndexFieldExtractionCustomXslTest {
 	
 	@Test
 	public void testPretranslateDisqualifyOnDuplicateRid() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		
 		IndexingDoc fields =  new IndexingDocIncrementalSolrj();
@@ -399,7 +400,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnRemovedRid() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);	
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);	
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -438,7 +439,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnTsuppress() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		root.setField("source",
@@ -490,7 +491,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnTvalidate() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
@@ -529,7 +530,7 @@ public class IndexFieldExtractionCustomXslTest {
 	 */
 	@Test
 	public void testPretranslateDisqualifyOnMarkfortranslateNo() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);		
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);		
 		
 		IndexingDoc root = new IndexingDocIncrementalSolrj();
 		String xml =
@@ -590,8 +591,38 @@ public class IndexFieldExtractionCustomXslTest {
 	}
 	
 	@Test
+	public void testPretranslateDisqualifyOnTsource() {
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);		
+		
+		IndexingDoc root = new IndexingDocIncrementalSolrj();
+		root.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:tsource=\"mt\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\" cms:tsource=\"tsp company\"><p cms:rid=\"r02b\">section</p></section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\"><title>Title</title>Figure</figure>\n" +						
+				"</document>");
+		root.setField("prop_cms.status", "Released");
+		root.setField("patharea", "translation");
+		
+		x.end(null, null, root);
+		assertEquals("above", "r02 r02b ", root.getFieldValue("reuseridreusevalue"));
+		
+		IndexingDoc below = new IndexingDocIncrementalSolrj();
+		below.setField("source",
+				"<document xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rlogicalid=\"xy1\" cms:rid=\"r01\">\n" +
+				"<section cms:rlogicalid=\"xy2\" cms:rid=\"r02\"><p cms:rid=\"r02b\" cms:tsource=\"tsp company\">section</p></section>\n" +
+				"<figure cms:rlogicalid=\"xy3\" cms:rid=\"r03\" cms:tsource=\"mt\"><title>Title</title>Figure</figure>\n" +						
+				"</document>");
+		below.setField("prop_cms.status", "Released");
+		below.setField("patharea", "translation");
+		
+		x.end(null, null, below);
+		assertEquals("below", "r02 r02b ", below.getFieldValue("reuseridreusevalue"));
+		
+	}
+	
+	@Test
 	public void testPretranslateDisqualifyOnStatus() {
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);	
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);	
 		
 		IndexingDoc doc2 = new IndexingDocIncrementalSolrj();
 		doc2.addField("prop_cms.status", "In_Translation");
@@ -618,7 +649,7 @@ public class IndexFieldExtractionCustomXslTest {
 		// but does the current element "source" concept handle entities that are actually declared?
 		String element = "<p>Conference R&D;</p>";
 		
-		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory);
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
 		
 		IndexingDoc fields = mock(IndexingDoc.class);
 		when(fields.getFieldValue("source")).thenReturn(element);

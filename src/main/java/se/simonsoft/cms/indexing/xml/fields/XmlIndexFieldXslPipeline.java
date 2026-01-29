@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 	private final TransformerService t;
 	private final TransformerService tNormalize; // Only for testing.
 
+	private String tsourceAllowed;
 	
 	public static final String STATUS_FIELD_NAME = "prop_cms.status";
 	public static final String PATHAREA_FIELD_NAME = "patharea";
@@ -51,14 +53,18 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 	private static final String STATUS_PARAM = "document-status";
 	private static final String PATHAREA_PARAM = "patharea";
 	private static final String DEPTH_PARAM = "reposxml-depth";
+	private static final String TSOURCE_ALLOWED_PARAM = "tsource-allowed";
 	private static final String PATHEXT_PARAM = "pathext";
 	@SuppressWarnings("unused")
 	private static final String DITAMAP_PARAM = "ditamap";
 	
 	@Inject
-	public XmlIndexFieldXslPipeline(TransformerServiceFactory transformerServiceFactory) {
+	public XmlIndexFieldXslPipeline(
+			TransformerServiceFactory transformerServiceFactory, 
+			@Named("se.simonsoft.cms.indexing.xml.tsourceAllowed")String tsourceAllowed) {
 		this.t = transformerServiceFactory.buildTransformerService("xml-indexing-reposxml.xsl");
 		this.tNormalize = transformerServiceFactory.buildTransformerService("reuse-normalize.xsl"); // Only Unit testing.
+		this.tsourceAllowed = tsourceAllowed;
 	}
 	
 	/*
@@ -108,10 +114,10 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 	}
 	
 	public XmlSourceDocumentS9api doTransformPipeline(XmlSourceDocumentS9api source, IndexingDoc doc) {
-		return this.t.transform(source, getTransformOptionsFromFields(doc));
+		return this.t.transform(source, getTransformOptionsFromFields(doc, this.tsourceAllowed));
 	}
 
-	public static TransformOptions getTransformOptionsFromFields(IndexingDoc fields) {
+	public static TransformOptions getTransformOptionsFromFields(IndexingDoc fields, String tsourceAllowed) {
 
 		TransformOptions options = new TransformOptions();
 		// Status as parameter to XSL.
@@ -130,6 +136,8 @@ public class XmlIndexFieldXslPipeline implements XmlIndexFieldExtraction {
 		if (depth != null) {
 			options.setParameter(DEPTH_PARAM, new Long(depth));
 		}
+		
+		options.setParameter(TSOURCE_ALLOWED_PARAM, tsourceAllowed);
 		
 		// The file extension field must always be extracted.
 		/* Only repositem
