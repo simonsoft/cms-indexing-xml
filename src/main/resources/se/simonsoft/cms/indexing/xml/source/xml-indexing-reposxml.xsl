@@ -31,6 +31,9 @@
 	<!-- depth of reposxml extraction as determined by repositem XSL. -->
 	<!-- TODO: Depth limit implemented in XmlSourceHandlerFieldExtractors can likely be removed, done here since Pipeline introduced. -->
 	<xsl:param name="reposxml-depth" as="xs:integer?"/>
+	<!-- #1668 Configure allowed tsource tokens. -->
+	<xsl:param name="tsource-allowed" as="xs:string"/>
+	<xsl:variable name="tsource-allowed-seq" select="tokenize($tsource-allowed, ' ')"/>
 	<!-- ancestor attributes on an element named 'attributes' -->
 	<!-- 
 	<xsl:param name="ancestor-attributes"/>
@@ -198,6 +201,8 @@
 	<!-- Ranks elements according to how useful they would be as replacement, >0 to be at all useful -->
 	<!-- TODO: Can be removed? Will not work if we extract in multiple levels. No, need to merge $ancestor-attributes tests.-->
 	<xsl:template match="*" mode="rule-reusevalue-context">
+		<xsl:variable name="tsource-above" select="ancestor-or-self::*[@cms:tsource][1]/@cms:tsource"/>
+		<xsl:variable name="tsource-below" select="descendant::*[@cms:tsource]/@cms:tsource"/>
 		<xsl:choose>
 			<!-- #716 Mechanism for suppressing parts of a document without regard to rlogicalid. -->
 			<!-- Ancestors and element itself where tsuppress is set. -->
@@ -216,6 +221,13 @@
 			<xsl:when test="descendant-or-self::*[@cms:rlogicalid and not(@cms:rid)]">-3</xsl:when>
 			<!-- Marking a document Obsolete means we don't want to reuse from it -->
 			<xsl:when test="$document-status = 'Obsolete'">-1</xsl:when>
+			
+			<!-- #1668 Investigate cms:tsource -->
+			<!-- Nearest cms:tsource above must match allowed (or be empty which overrides ancestor above) -->
+			<xsl:when test="$tsource-above and not(empty(tokenize($tsource-above, ' '))) and empty(tokenize($tsource-above, ' ')[. = $tsource-allowed-seq])">-10</xsl:when>
+			<!-- Any cms:tsource below where no token matches the allowed -->
+			<xsl:when test="$tsource-below[empty(tokenize(., ' ')[. = $tsource-allowed-seq])]">-11</xsl:when>
+			
 			
 			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
 			<xsl:otherwise>1</xsl:otherwise>
