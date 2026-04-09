@@ -160,7 +160,8 @@
 							<!-- Find the first element with direct text children. (experiment attempting to target typeofhazard) -->
 							<xsl:apply-templates select="$reusable-typed//(element()[normalize-space(string-join(text(), ''))])[1]" mode="intro"/>
 						</xsl:variable>
-						<field name="embd_xml_title"><xsl:text expand-text="yes">{concat(upper-case(substring($reusable-typed/@type, 1, 1)), substring($reusable-typed/@type, 2))}: {string-join(subsequence(tokenize(normalize-space($intro), ' '), 1, 5), ' ')}</xsl:text></field>
+						<xsl:variable name="intro-words" select="12"/>
+						<field name="embd_xml_title"><xsl:text expand-text="yes">{concat(upper-case(substring($reusable-typed/@type, 1, 1)), substring($reusable-typed/@type, 2))}: {string-join(subsequence(tokenize(normalize-space($intro), ' '), 1, $intro-words), ' ')}{if (count(tokenize(normalize-space($intro), ' ')) > $intro-words) then '&#8230;' else ''}</xsl:text></field>
 					</xsl:when>
 				</xsl:choose>
 			</xsl:if>
