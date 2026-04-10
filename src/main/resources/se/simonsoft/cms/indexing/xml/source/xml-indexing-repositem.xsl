@@ -148,7 +148,22 @@
 					<xsl:apply-templates select="($titles)[1]" mode="title"/>
 				</xsl:variable>
 				<!-- TODO: Consider including additional elements from "titleblock". -->
-				<field name="embd_xml_title"><xsl:value-of select="normalize-space($title)"/></field>
+				
+				<xsl:variable name="reusable-typed" select="$root/element()[fn:ends-with(name(), 'body')]/element()[1][@type]"/>
+				<xsl:choose>
+					<xsl:when test="string-length(normalize-space($title)) > 0">
+						<field name="embd_xml_title"><xsl:value-of select="normalize-space($title)"/></field>
+					</xsl:when>
+					<xsl:when test="$reusable-typed">
+						<!-- #1923 Generating a title in notetopic / hazardtopic topic. -->
+						<xsl:variable name="intro">
+							<!-- Find the first element with direct text children. (experiment attempting to target typeofhazard) -->
+							<xsl:apply-templates select="$reusable-typed//(element()[normalize-space(string-join(text(), ''))])[1]" mode="intro"/>
+						</xsl:variable>
+						<xsl:variable name="intro-words" select="12"/>
+						<field name="embd_xml_title"><xsl:text expand-text="yes">{concat(upper-case(substring($reusable-typed/@type, 1, 1)), substring($reusable-typed/@type, 2))}: {string-join(subsequence(tokenize(normalize-space($intro), ' '), 1, $intro-words), ' ')}{if (count(tokenize(normalize-space($intro), ' ')) > $intro-words) then '&#8230;' else ''}</xsl:text></field>
+					</xsl:when>
+				</xsl:choose>
 			</xsl:if>
 	
 			<!-- Introduction to to text - first couple of paragraphs. -->
