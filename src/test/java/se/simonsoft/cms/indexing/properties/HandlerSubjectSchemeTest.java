@@ -34,8 +34,9 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +102,7 @@ public class HandlerSubjectSchemeTest {
 		ItemContentBufferStrategy cbs = mock(ItemContentBufferStrategy.class);
 		ItemContentBuffer buffer = mock(ItemContentBuffer.class);
 		when(buffer.getContents()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-		when(cbs.getBuffer(any(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
+		when(cbs.getBuffer(nullable(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
 		handler.setItemContentBufferStrategy(cbs);
 		handler.handle(progress);
 		assertEquals(3, doc.getFieldValues("meta_s_m_prop_cds.productname").size());
@@ -133,8 +134,8 @@ public class HandlerSubjectSchemeTest {
 		when(fallbackBuffer.getContents()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 		CmsItemId itemId = repo1.getItemId().withRelPath(new CmsItemPath("/.cms/dita/properties.ditamap"));
 		when(buffer.getContents()).thenThrow(new CmsItemNotFoundException(itemId));
-		when(cbs.getBuffer(any(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
-		when(cbs.getBuffer(any(RepoRevision.class), eq(new CmsItemPath("/.cms/properties.ditamap")), any(IndexingDoc.class))).thenReturn(fallbackBuffer);
+		when(cbs.getBuffer(nullable(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
+		when(cbs.getBuffer(nullable(RepoRevision.class), eq(new CmsItemPath("/.cms/properties.ditamap")), any(IndexingDoc.class))).thenReturn(fallbackBuffer);
 		handler.setItemContentBufferStrategy(cbs);
 		handler.handle(progress);
 		assertEquals(3, doc.getFieldValues("meta_s_m_prop_cds.productname").size());
@@ -163,7 +164,7 @@ public class HandlerSubjectSchemeTest {
 		ItemContentBufferStrategy cbs = mock(ItemContentBufferStrategy.class);
 		ItemContentBuffer buffer = mock(ItemContentBuffer.class);
 		when(buffer.getContents()).thenReturn(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-		when(cbs.getBuffer(any(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
+		when(cbs.getBuffer(nullable(RepoRevision.class), eq(new CmsItemPath("/.cms/dita/properties.ditamap")), any(IndexingDoc.class))).thenReturn(buffer);
 		handler.setItemContentBufferStrategy(cbs);
 		handler.handle(progress);
 		assertEquals(3, doc.getFieldValues("meta_s_m_prop_cds.productname").size());

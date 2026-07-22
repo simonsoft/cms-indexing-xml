@@ -15,12 +15,15 @@
  */
 package se.simonsoft.cms.indexing.xml.testconfig;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
+import jakarta.enterprise.context.Dependent;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.s9api.Processor;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
@@ -38,18 +41,26 @@ public class IndexingConfigXmlBase extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(Processor.class).toProvider(SaxonConfiguration.class);
-		Multibinder<ExtensionFunctionDefinition> transformerFunctions = Multibinder.newSetBinder(binder(), ExtensionFunctionDefinition.class);
-		transformerFunctions.addBinding().to(GetChecksum.class);
-		transformerFunctions.addBinding().to(GetPegRev.class);
-		transformerFunctions.addBinding().to(WithPegRev.class);
-		transformerFunctions.addBinding().to(GetLogicalId.class);
-		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
+		// repos-indexing is now CDI annotated, while these tests still use Guice.
+		bindScope(Dependent.class, Scopes.NO_SCOPE);
+
+		Set<ExtensionFunctionDefinition> transformerFunctions = new LinkedHashSet<>();
+		transformerFunctions.add(new GetChecksum());
+		transformerFunctions.add(new GetPegRev());
+		transformerFunctions.add(new WithPegRev());
+		transformerFunctions.add(new GetLogicalId());
+		Processor processor = new SaxonConfiguration(transformerFunctions).get();
+		XmlSourceReaderS9api reader = new XmlSourceReaderS9api(processor);
+		bind(Processor.class).toInstance(processor);
+		bind(XmlSourceReaderS9api.class).toInstance(reader);
+		bind(XmlSourceReader.class).toInstance(reader);
 
 		Map<String, String> stylesheets = TransformerServiceFactory.getStylesheetsForTestingMap();
 		stylesheets.put("xml-indexing-repositem.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
 		stylesheets.put("xml-indexing-reposxml.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl");
-		bind(TransformStylesheetSource.class).toInstance(new TransformStylesheetSourceConfig(stylesheets));
+		TransformStylesheetSource stylesheetSource = new TransformStylesheetSourceConfig(stylesheets);
+		bind(TransformStylesheetSource.class).toInstance(stylesheetSource);
+		bind(TransformerServiceFactory.class).toInstance(new TransformerServiceFactory(processor, reader, stylesheetSource));
 		
 		// Set up test config defaults.
 		bind(Integer.class).annotatedWith(Names.named("se.simonsoft.cms.indexing.xml.maxFilesize")).toInstance(new Integer(10 * 1048576));

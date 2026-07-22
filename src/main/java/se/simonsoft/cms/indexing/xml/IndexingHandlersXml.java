@@ -15,6 +15,9 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import se.repos.indexing.IndexingHandlers;
@@ -75,22 +78,22 @@ public abstract class IndexingHandlersXml {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void configureFirst(Object guiceMultibinder) {
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Unblock));
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Structure));
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Fast));
-		IndexingHandlers.to(guiceMultibinder,
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Unblock));
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Structure));
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Fast));
+		to(guiceMultibinder,
 				HandlerLogicalIdFromUrl.class,
 				HandlerAbxBaseLogicalId.class,
 				HandlerAbxDependencies.class,
 				HandlerAbxMasters.class,
 				HandlerReleaseLabel.class,
 				HandlerPathareaFromProperties.class);
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
-		IndexingHandlers.to(guiceMultibinder, HandlerXml.class);
-		//IndexingHandlers.to(guiceMultibinder, HandlerTitleSelection.class); // Must be configured after Tika in repos-indexing-standalone.
-		IndexingHandlers.to(guiceMultibinder, HandlerXmlReferences.class);
-		IndexingHandlers.to(guiceMultibinder, HandlerXmlMasters.class);
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Nice));
+		to(guiceMultibinder, HandlerXml.class);
+		//to(guiceMultibinder, HandlerTitleSelection.class); // Must be configured after Tika in repos-indexing-standalone.
+		to(guiceMultibinder, HandlerXmlReferences.class);
+		to(guiceMultibinder, HandlerXmlMasters.class);
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Content));
 	}
 
 	/**
@@ -99,12 +102,36 @@ public abstract class IndexingHandlersXml {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void configureLast(Object guiceMultibinder) {
-		IndexingHandlers.to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
-		IndexingHandlers.to(guiceMultibinder, MarkerXmlCommit.class);
+		to(guiceMultibinder, IndexingHandlers.STANDARD.get(IndexingHandlers.Group.Final));
+		to(guiceMultibinder, MarkerXmlCommit.class);
 	}
 	
 	public static void configureXmlFieldExtraction(Object guiceMultibinderXmlIndexFieldExtraction) {
-		IndexingHandlers.toArbitrary(guiceMultibinderXmlIndexFieldExtraction, STANDARD_XML_EXTRACTION);
+		toArbitrary(guiceMultibinderXmlIndexFieldExtraction, STANDARD_XML_EXTRACTION);
+	}
+
+	@SafeVarargs
+	private static <T> void to(Object guiceMultibinder, Class<? extends T>... classes) {
+		to(guiceMultibinder, Arrays.asList(classes));
+	}
+
+	private static void to(Object guiceMultibinder, Iterable<? extends Class<?>> classes) {
+		toArbitrary(guiceMultibinder, classes);
+	}
+
+	private static void toArbitrary(Object guiceMultibinder, Iterable<? extends Class<?>> classes) {
+		for (Class<?> type: classes) {
+			try {
+				Method addBinding = guiceMultibinder.getClass().getMethod("addBinding");
+				addBinding.setAccessible(true);
+				Object linkedBindingBuilder = addBinding.invoke(guiceMultibinder);
+				Method to = linkedBindingBuilder.getClass().getMethod("to", Class.class);
+				to.setAccessible(true);
+				to.invoke(linkedBindingBuilder, type);
+			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+				throw new IllegalStateException("Failed to bind indexing handler " + type.getName(), e);
+			}
+		}
 	}
 	
 }

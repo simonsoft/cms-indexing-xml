@@ -15,7 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;

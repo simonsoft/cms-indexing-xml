@@ -15,8 +15,8 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
 
