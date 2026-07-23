@@ -27,7 +27,9 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
@@ -49,6 +51,14 @@ public class SvnDatasetLoadQuarkusTest {
 	@Inject
 	SvnDatasetRevisionEvents events;
 
+	@Inject
+	@Named("repositem")
+	SolrClient repositem;
+
+	@Inject
+	@Named("reposxml")
+	SolrClient reposxml;
+
 	@Test
 	@ActivateRequestContext
 	public void testLoadDatasetIntoSvnDevService() throws Exception {
@@ -59,14 +69,21 @@ public class SvnDatasetLoadQuarkusTest {
 		assertEquals(2L, repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
 		assertEquals(List.of(SvnDatasetRepoIdProducer.REPO_ID + " 1", SvnDatasetRepoIdProducer.REPO_ID + " 2"), events.revisions());
+		assertEquals(0, repositem.ping().getStatus());
+		assertEquals(0, reposxml.ping().getStatus());
 	}
 
 	public static class Profile implements QuarkusTestProfile {
 
 		@Override
 		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
+			return Map.ofEntries(
+					Map.entry(SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline"),
+					Map.entry("quarkus.solr.enabled", "true"),
+					Map.entry("quarkus.solr.devservices.cores.repositem.config-path", "se/repos/indexing/solr/repositem"),
+					Map.entry("quarkus.solr.devservices.cores.reposxml.config-path", "se/simonsoft/cms/indexing/xml/solr/reposxml"),
+					// Solr multi-core owns the named repositem client in this Quarkus test.
+					Map.entry("quarkus.arc.exclude-types", "se.repos.indexing.config.RepositemSolrClientProducer"));
 		}
 	}
 }
