@@ -30,6 +30,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
@@ -37,6 +39,9 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
+import se.repos.indexing.ReposIndexing;
+import se.repos.indexing.scheduling.IndexingSchedule;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.svn.runtime.RepoId;
 import se.simonsoft.svn.runtime.SvnDumpConfig;
 import se.simonsoft.svn.runtime.SvnRevisionAvailableEvent;
@@ -69,8 +74,11 @@ public class SvnDatasetLoadQuarkusTest {
 		assertEquals(2L, repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
 		assertEquals(List.of(SvnDatasetRepoIdProducer.REPO_ID + " 1", SvnDatasetRepoIdProducer.REPO_ID + " 2"), events.revisions());
-		assertEquals(0, repositem.ping().getStatus());
-		assertEquals(0, reposxml.ping().getStatus());
+
+		SolrDocumentList indexedXmlItems = repositem.query(
+				new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
+		assertEquals(1, indexedXmlItems.getNumFound());
+		assertEquals(4, reposxml.query(new SolrQuery("pathname:test1.xml")).getResults().getNumFound());
 	}
 
 	public static class Profile implements QuarkusTestProfile {
@@ -105,8 +113,20 @@ class SvnDatasetRevisionEvents {
 
 	private final List<String> revisions = new ArrayList<>();
 
+	@Inject
+	ReposIndexing indexing;
+
+	@Inject
+	IndexingSchedule schedule;
+
 	void onRevisionAvailable(@Observes SvnRevisionAvailableEvent event) {
 		revisions.add(event.repoId() + " " + event.revision());
+		schedule.start();
+		try {
+			indexing.sync(new RepoRevision(event.revision(), null));
+		} finally {
+			schedule.stop();
+		}
 	}
 
 	void clear() {

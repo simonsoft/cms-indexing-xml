@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -46,6 +47,7 @@ import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
+@Dependent
 public class HandlerXml implements IndexingItemHandler {
 
 	public static final String FLAG_XML = "hasxml";
