@@ -15,8 +15,10 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import jakarta.annotation.Priority;
@@ -28,6 +30,7 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.s9api.Processor;
@@ -50,7 +53,7 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexReleaseReuseChecksum;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
@@ -65,9 +68,11 @@ import se.simonsoft.cms.xmlsource.transform.function.GetLogicalId;
 import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
 import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
-@Alternative
-@Priority(1)
 public class XmlIndexingHandlersProducer {
+
+	static final String CONFIG_MAX_FILESIZE = "se.simonsoft.cms.indexing.xml.maxFilesize";
+	static final String CONFIG_SUPPRESS_RID_BEFORE = "se.simonsoft.cms.indexing.xml.suppressRidBefore";
+	static final String CONFIG_TSOURCE_ALLOWED = "se.simonsoft.cms.indexing.xml.tsourceAllowed";
 
 	@Produces
 	@Singleton
@@ -90,7 +95,10 @@ public class XmlIndexingHandlersProducer {
 	@Singleton
 	public TransformerServiceFactory createTransformerServiceFactory(
 			Processor processor, XmlSourceReader sourceReader) {
-		Map<String, String> stylesheets = TransformerServiceFactory.getStylesheetsForTestingMap();
+		Map<String, String> stylesheets = new LinkedHashMap<>();
+		stylesheets.put("identity.xsl", "se/simonsoft/cms/xmlsource/transform/identity.xsl");
+		stylesheets.put("reuse-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		stylesheets.put("itemid-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl");
 		stylesheets.put("xml-indexing-repositem.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
 		stylesheets.put("xml-indexing-reposxml.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl");
 		TransformStylesheetSource stylesheetSource = new TransformStylesheetSourceConfig(stylesheets);
@@ -99,26 +107,29 @@ public class XmlIndexingHandlersProducer {
 
 	@Produces
 	@Named("se.simonsoft.cms.indexing.xml.maxFilesize")
-	public Integer createMaxFilesize() {
-		return 10 * 1048576;
+	public Integer createMaxFilesize(
+			@ConfigProperty(name = CONFIG_MAX_FILESIZE, defaultValue = "10485760") int maxFilesize) {
+		return maxFilesize;
 	}
 
 	@Produces
 	@Named("se.simonsoft.cms.indexing.xml.suppressRidBefore")
-	public String createSuppressRidBefore() {
-		return "";
+	public String createSuppressRidBefore(
+			@ConfigProperty(name = CONFIG_SUPPRESS_RID_BEFORE) Optional<String> suppressRidBefore) {
+		return suppressRidBefore.orElse("");
 	}
 
 	@Produces
 	@Named("se.simonsoft.cms.indexing.xml.tsourceAllowed")
-	public String createTsourceAllowed() {
-		return "tsp";
+	public String createTsourceAllowed(
+			@ConfigProperty(name = CONFIG_TSOURCE_ALLOWED, defaultValue = "tsp") String tsourceAllowed) {
+		return tsourceAllowed;
 	}
 
 	@Produces
 	@Dependent
 	public XmlIndexWriter createXmlIndexWriter(@Named("reposxml") SolrClient reposxml) {
-		return new XmlIndexWriterSolrj(reposxml);
+		return new XmlIndexWriterSolrjBackground(reposxml);
 	}
 
 	@Produces
@@ -151,6 +162,8 @@ public class XmlIndexingHandlersProducer {
 
 	@Produces
 	@RequestScoped
+	@Alternative
+	@Priority(1)
 	public Set<IndexingItemHandler> createIndexingItemHandlers(
 			IdStrategy idStrategy,
 			@Named("repositem") SolrClient repositem,
