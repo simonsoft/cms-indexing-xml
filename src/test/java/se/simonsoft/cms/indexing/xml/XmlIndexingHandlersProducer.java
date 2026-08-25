@@ -36,6 +36,15 @@ import se.repos.indexing.config.IndexingHandlersProducer;
 import se.repos.indexing.item.HandlerChecksum;
 import se.repos.indexing.item.ItemContentBufferStrategy;
 import se.repos.indexing.item.ItemPropertiesBufferStrategy;
+import se.repos.indexing.solrj.HandlerSendIncrementalSolrjRepositem;
+import se.simonsoft.cms.indexing.abx.HandlerAbxBaseLogicalId;
+import se.simonsoft.cms.indexing.abx.HandlerAbxDependencies;
+import se.simonsoft.cms.indexing.abx.HandlerAbxMasters;
+import se.simonsoft.cms.indexing.abx.HandlerLogicalIdFromUrl;
+import se.simonsoft.cms.indexing.abx.HandlerPathareaFromProperties;
+import se.simonsoft.cms.indexing.abx.HandlerReleaseLabel;
+import se.simonsoft.cms.indexing.abx.HandlerXmlMasters;
+import se.simonsoft.cms.indexing.abx.HandlerXmlReferences;
 import se.simonsoft.cms.indexing.xml.fields.IndexFieldDeletionsToSaveSpace;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldElement;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
@@ -44,6 +53,7 @@ import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
+import se.simonsoft.cms.item.inspection.CmsChangesetReader;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
@@ -146,19 +156,37 @@ public class XmlIndexingHandlersProducer {
 			@Named("repositem") SolrClient repositem,
 			@Named("reposxml") SolrClient reposxml,
 			CmsRepository repository,
+			CmsChangesetReader changesetReader,
 			ItemContentBufferStrategy contentBufferStrategy,
 			ItemPropertiesBufferStrategy propertiesBufferStrategy,
 			HandlerXml handlerXml) {
 		Set<IndexingItemHandler> standard = new IndexingHandlersProducer().createIndexingItemHandlers(
 				idStrategy, repositem, repository, contentBufferStrategy, propertiesBufferStrategy);
 		Set<IndexingItemHandler> handlers = new LinkedHashSet<>();
+		boolean abxAdded = false;
 		boolean xmlAdded = false;
 		for (IndexingItemHandler handler : standard) {
+			if (!abxAdded && handler.getClass().equals(HandlerSendIncrementalSolrjRepositem.class)) {
+				handlers.add(new HandlerLogicalIdFromUrl());
+				handlers.add(new HandlerAbxBaseLogicalId());
+				handlers.add(new HandlerAbxDependencies(idStrategy));
+				HandlerAbxMasters abxMasters = new HandlerAbxMasters(idStrategy);
+				abxMasters.setCmsChangesetReader(changesetReader);
+				handlers.add(abxMasters);
+				handlers.add(new HandlerReleaseLabel());
+				handlers.add(new HandlerPathareaFromProperties());
+				abxAdded = true;
+			}
 			if (!xmlAdded && handler.getClass().equals(HandlerChecksum.class)) {
 				handlers.add(handlerXml);
+				handlers.add(new HandlerXmlReferences(idStrategy));
+				handlers.add(new HandlerXmlMasters(idStrategy));
 				xmlAdded = true;
 			}
 			handlers.add(handler);
+		}
+		if (!abxAdded) {
+			throw new IllegalStateException("Could not place ABX handlers in handler chain");
 		}
 		if (!xmlAdded) {
 			throw new IllegalStateException("Could not place " + HandlerXml.class.getSimpleName() + " in handler chain");
