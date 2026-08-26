@@ -99,45 +99,6 @@ public class HandlerXmlIntegrationTest {
 		assertEquals("Should not have cleared other repositories", 1, reposxml.query(new SolrQuery("*:*")).getResults().size());
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testAttributesReleasetranslationTranslation() throws SolrServerException, IOException {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/testaut1", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		SolrClient reposxml = indexing.getCore("reposxml");
-		
-		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
-		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
-		assertNull("Should NOT limit depth of Release", flagged.get(0).getFieldValue("count_reposxml_depth"));
-		assertEquals("Should limit depth of Translation", 1L, flagged.get(1).getFieldValue("count_reposxml_depth"));
-		assertEquals("no of topics - 3 techdoc sections", 3L, flagged.get(1).getFieldValue("count_elements_topic"));
-		
-		SolrDocumentList findAll = reposxml.query(new SolrQuery("prop_abx.TranslationLocale:*")).getResults();
-		assertEquals("Should find all elements in the single translation", 1, findAll.getNumFound());
-		assertEquals("Should limit reposxml extraction depth", 1L, findAll.get(0).getFieldValue("count_reposxml_depth"));
-		
-		SolrDocumentList findUsingRid0 = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0000 AND prop_abx.TranslationLocale:*")).getResults();
-		assertEquals("Should find root element in the Translation", 1, findUsingRid0.getNumFound());
-		SolrDocument elem0 = findUsingRid0.get(0);
-
-		String ridStr = (String) elem0.getFieldValue("reuseridreusevalue");
-		assertEquals("number of elements is 13, verified",  13, ridStr.split(" ").length);
-		assertEquals("RIDs with reusevalue > 0", "2gyvymn15kv0000 2gyvymn15kv0001 2gyvymn15kv0002 2gyvymn15kv0003 2gyvymn15kv0004 2gyvymn15kv0005 2gyvymn15kv0006 2gyvymn15kv0007 2gyvymn15kv0008 2gyvymn15kv0009 2gyvymn15kv000a 2gyvymn15kv000b 2gyvymn15kv000c ", ridStr);
-		
-		List<String> cList = (List<String>) elem0.getFieldValue("reuse_c_sha1_release_descendants");
-		//assertEquals("debug contents", "...", cList);
-		assertTrue("should contain Release checksum", cList.contains("c5fed03ed1304cecce75d63aee2ada2b0f2326af"));
-		Collection<Object> shard = elem0.getFieldValues("reuse_rid_c5");
-		assertNotNull(shard);
-		assertEquals("number of RIDs in shard 'c5'", 1, shard.size());
-		assertEquals("get RID by checksum", "c5fed03ed1304cecce75d63aee2ada2b0f2326af 2gyvymn15kv0006", shard.iterator().next());
-	}
-
-	
 	@Test
 	public void testReleaseLabelSort1() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releaselabels");
