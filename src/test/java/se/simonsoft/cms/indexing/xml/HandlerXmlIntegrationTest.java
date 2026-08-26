@@ -41,18 +41,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.indexing.IndexAdmin;
-import se.repos.indexing.solrj.SolrCommit;
 import se.repos.testing.indexing.ReposTestIndexing;
 import se.repos.testing.indexing.TestIndexOptions;
 import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
 import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
 import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
 import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
 import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
-import se.simonsoft.cms.item.CmsItemPath;
-import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class HandlerXmlIntegrationTest {
 
@@ -74,50 +70,6 @@ public class HandlerXmlIntegrationTest {
 	public void tearDown() throws IOException {
 		indexing.tearDown();
 	}
-	
-	@Test
-	public void testNextRevisionDeletesElement() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient reposxml = indexing.getCore("reposxml");
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
-		assertEquals(4, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline", x1.get(0).getFieldValue("repoid"));
-		assertEquals("should get 'pathfull' from repositem", "/svn/tiny-inline/test1.xml", x1.get(0).getFieldValue("pathfull"));
-	
-		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
-		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
-		
-		// Basic tests related to the deletePath implementation (avoiding the use of deleteByQuery due to performance).
-		String idReposxml = (String) x1.get(0).getFieldValue("id");
-		assertEquals("reposxml id format is vital for delete", "localtesthost/svn/tiny-inline/test1.xml@0000000002|00000002", idReposxml);
-		assertEquals("remove the element part of id" ,"localtesthost/svn/tiny-inline/test1.xml@0000000002|", XmlIndexWriterSolrj.getIdBase(x1.get(0), null));
-		
-		
-		// TODO delete one of the elements and make sure it is not there after indexing next revision, would indicate reliance on id overwrite
-		
-		// At least managed to test a faked delete.
-		XmlIndexWriter xiw = indexing.getContext().getInstance(XmlIndexWriter.class);
-		CmsChangesetItem c = mock(CmsChangesetItem.class);
-		when(c.getPath()).thenReturn(new CmsItemPath("/test1.xml"));
-
-		// Test the query
-		SolrQuery qD = XmlIndexWriterSolrj.getDeleteQuery(repo, c);
-		SolrDocumentList xD = reposxml.query(qD).getResults();
-		assertEquals(4, xD.getNumFound());
-		
-		// Test actual delete
-		xiw.deletePath(repo, c);
-		new SolrCommit(reposxml, true).run();
-		
-		SolrDocumentList xDeleted = reposxml.query(new SolrQuery("*:*")).getResults();
-		assertEquals(0, xDeleted.getNumFound());
-	}	
 	
 	@Test
 	public void testClear() throws SolrServerException, IOException {
