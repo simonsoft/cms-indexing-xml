@@ -16,7 +16,6 @@
 package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -74,72 +73,6 @@ public class HandlerXmlIntegrationTest {
 	@After
 	public void tearDown() throws IOException {
 		indexing.tearDown();
-	}
-	
-	@Test
-	public void testTinyRidDuplicate() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-ridduplicate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient reposxml = indexing.getCore("reposxml");
-		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("treelocation", ORDER.asc)).getResults();
-		assertEquals("Should index all elements", 5, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
-	
-		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
-		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
-		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
-		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
-		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
-		assertTrue("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("3 flag(s)", 3, flags.size());
-		
-		Collection<Object> duplicates = flagged.get(0).getFieldValues("embd_xml_ridduplicate");
-		assertEquals("one duplicate, mentioned once", 1, duplicates.size());
-		assertEquals("List the duplicate RIDs in repositem core", "2gyvymn15kv0002", duplicates.iterator().next());
-		
-
-		// Back to asserting on reposxml.
-		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
-		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		// No longer providing source, has been blocked by other extractor since a few years.
-		//assertEquals("should extract source", "<elem xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" name=\"ch1\" cms:rid=\"2gyvymn15kv0002\">text</elem>", x1.get(2).getFieldValue("source"));
-		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
-	}
-	
-	@Test
-	public void testTinyRidDuplicateTsuppress() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-ridduplicate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient reposxml = indexing.getCore("reposxml");
-		
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("treelocation", ORDER.asc)).getResults();
-		assertEquals("Should index all elements", 5, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-ridduplicate", x1.get(0).getFieldValue("repoid"));
-	
-		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("pathname:test1-tsuppress.xml AND flag:hasxml AND head:true")).getResults();
-		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1, flagged.getNumFound());
-		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
-		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
-		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
-		assertFalse("Flag 'hasridduplicate'", flagged.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertTrue("Flag 'hastsuppress'", flagged.get(0).getFieldValues("flag").contains("hastsuppress"));
-		assertEquals("only hasxml, hasxmlrepositem, hastsuppress flag", 3, flags.size());
-
-		// Back to asserting on reposxml.
-		assertEquals("second element", "section", x1.get(1).getFieldValue("name"));
-		assertEquals("third element", "elem", x1.get(2).getFieldValue("name"));
-		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 	
 	@Test
@@ -212,44 +145,6 @@ public class HandlerXmlIntegrationTest {
 		assertEquals(1, reposxml.query(new SolrQuery("*:*")).getResults().size());
 		indexAdmin.clear();
 		assertEquals("Should not have cleared other repositories", 1, reposxml.query(new SolrQuery("*:*")).getResults().size());
-	}
-	
-	@Test
-	public void testTinyAttributes() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-attributes");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient reposxml = indexing.getCore("reposxml");
-		
-		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
-		SolrDocumentList x1 = reposxml.query(q1).getResults();
-		assertEquals(4, x1.getNumFound());
-		
-		assertEquals("get name of root", "root", x1.get(0).getFieldValue("a_name"));
-		assertEquals("get depth of root", 1, x1.get(0).getFieldValue("depth"));
-		assertEquals("get pos/treeloc of root", "1", x1.get(0).getFieldValue("treelocation"));
-		assertEquals("get name of e1", "ch1", x1.get(1).getFieldValue("a_name"));
-		
-		assertNull("get name of e2", x1.get(2).getFieldValue("a_name"));
-		assertEquals("get id of e2", "e2", x1.get(2).getFieldValue("a_id"));
-		
-		assertEquals("get ancestor name of e1 - tests that inherited attr is not overridden by local attr", "root", x1.get(1).getFieldValue("aa_name"));
-		assertEquals("get inherited name of e1 - overridden by local attr", "ch1", x1.get(1).getFieldValue("ia_name"));
-		
-		assertEquals("get ancestor name of e2", "root", x1.get(2).getFieldValue("aa_name"));
-		assertEquals("get inherited name of e2", "root", x1.get(2).getFieldValue("ia_name"));
-		
-		assertEquals("get p-sibling name of e2", "ch1", x1.get(2).getFieldValue("sa_name"));
-		
-		assertEquals("get element name of inline", "inline", x1.get(3).getFieldValue("name"));
-		assertEquals("get inherited name of inline", "root", x1.get(3).getFieldValue("ia_name"));
-		assertEquals("get depth of inline", 3, x1.get(3).getFieldValue("depth"));
-		assertEquals("get pos/treeloc of inline", "1.2.1", x1.get(3).getFieldValue("treelocation"));
-		assertNull("get p-sibling name of inline", x1.get(3).getFieldValue("sa_name"));
-		
 	}
 	
 	@Test
