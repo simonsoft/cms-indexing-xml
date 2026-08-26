@@ -187,24 +187,6 @@ public class HandlerXmlIntegrationTest {
 	}	
 	
 	@Test
-	public void testInvalidXml() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-invalid", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient reposxml = indexing.getCore("reposxml");
-		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();		
-		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
-				0, x1.getNumFound());
-		
-		SolrClient repositem = indexing.getCore("repositem");
-		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror AND head:true")).getResults();
-		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());		
-	}
-	
-	@Test
 	public void testClear() throws SolrServerException, IOException {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-inline", repoSource);

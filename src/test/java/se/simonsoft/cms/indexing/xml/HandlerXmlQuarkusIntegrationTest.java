@@ -212,13 +212,8 @@ public class HandlerXmlQuarkusIntegrationTest {
 
 		@Override
 		public Map<String, String> getConfigOverrides() {
-			return Map.ofEntries(
-					Map.entry(SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline"),
-					Map.entry("quarkus.solr.enabled", "true"),
-					Map.entry("quarkus.solr.devservices.cores.repositem.config-path", "se/repos/indexing/solr/repositem"),
-					Map.entry("quarkus.solr.devservices.cores.reposxml.config-path", "se/simonsoft/cms/indexing/xml/solr/reposxml"),
-					// Solr multi-core owns the named repositem client in this Quarkus test.
-					Map.entry("quarkus.arc.exclude-types", "se.repos.indexing.config.RepositemSolrClientProducer"));
+			return Map.of(
+					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		}
 	}
 }
