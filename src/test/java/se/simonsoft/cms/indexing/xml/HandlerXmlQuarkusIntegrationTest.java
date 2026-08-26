@@ -17,9 +17,11 @@ package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,8 +38,11 @@ import jakarta.inject.Named;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
@@ -46,6 +51,7 @@ import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
+import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.indexing.IdStrategy;
@@ -80,8 +86,6 @@ public class HandlerXmlQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyInline() throws Exception {
-		events.clear();
-
 		SVNRepository repository = repositories.get();
 
 		assertEquals(2L, repository.getLatestRevision());
@@ -156,6 +160,54 @@ public class HandlerXmlQuarkusIntegrationTest {
 		assertEquals("should extract source", "<elem>text</elem>", x1.get(1).getFieldValue("source_reuse"));
 	}
 
+	@Test
+	@ActivateRequestContext
+	public void testJoin() throws SolrServerException, IOException, SVNException {
+		assertEquals(2L, repositories.get().getLatestRevision());
+
+		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
+		assertEquals("all elements that have a parent, got " + j1, 3, j1.getNumFound());
+		for (SolrDocument e : j1) {
+			assertNotEquals("root does not have a parent", "doc", e.getFieldValue("name"));
+		}
+
+		SolrDocumentList j2 = reposxml.query(new SolrQuery("{!join from=id_p to=id}*:*")).getResults();
+		assertEquals("all elements that have a child, got " + j2, 2, j2.getNumFound());
+
+		SolrDocumentList j3 = reposxml.query(new SolrQuery("{!join from=id_p to=id}name:inline")).getResults();
+		assertEquals("all elements that have a child which is an <inline/>, got " + j3, 1, j3.getNumFound());
+		assertEquals("elem", j3.get(0).getFieldValue("name"));
+		String expectedElementId = idStrategy.getId(cmsRepository, new RepoRevision(2, null),
+				new CmsItemPath("/test1.xml")) + "|00000003";
+		assertEquals(expectedElementId, j3.get(0).getFieldValue("id"));
+
+		SolrDocumentList j4 = reposxml.query(new SolrQuery("name:elem AND {!join from=id_p to=id}*:*")).getResults();
+		assertEquals("all elements that are an elem and have a child, got " + j4, 1, j4.getNumFound());
+		assertEquals(expectedElementId, j4.get(0).getFieldValue("id"));
+
+		SolrDocumentList j5 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
+		assertEquals("all elements that have a child which is either <elem/> or <inline/>" + j5, 2, j5.getNumFound());
+
+		// why doesn't this run? instead use Parameter dereferencing?
+		//SolrDocumentList j6 = reposxml.query(new SolrQuery("repo:tiny-inline AND {!join from=id_p to=id}(name:elem OR name:inline)")).getResults();
+		//assertEquals("all elements that have a child which is either <elem/> or <inline/>, in the test repo" + j6, 2, j6.getNumFound());
+
+		SolrDocumentList j7 = reposxml.query(new SolrQuery("{!join from=id_p to=id}(text:\"elem text\" AND name:elem)")).getResults();
+		assertEquals("elements that have a child which matches two criterias" + j7, 1, j7.getNumFound());
+
+		SolrDocumentList j8 = reposxml.query(new SolrQuery("{!join from=id_a to=id}name:inline")).getResults();
+		assertEquals("elements with a descendat which is an <inline/>, got " + j8, 2, j8.getNumFound());
+
+		// "Parameter dereferencing", http://wiki.apache.org/solr/LocalParams#parameter_dereferencing, but how to do "qq" in solrj?
+//		// find all figures with a bylinew with value "me"
+//		assertJQ(req("q", "{!join from=id_p to=id v=$qq}",
+//					"qq", "name:byline AND pos:1.2.2", // we don't have text indexed in this test so we use pos instead
+//					//"qf", "name",
+//					"fl", "id",
+//					"debugQuery", "true"),
+//				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
+	}
+
 	public static class Profile implements QuarkusTestProfile {
 
 		@Override
@@ -202,10 +254,6 @@ class SvnDatasetRevisionEvents {
 		} finally {
 			schedule.stop();
 		}
-	}
-
-	void clear() {
-		revisions.clear();
 	}
 
 	List<String> revisions() {
