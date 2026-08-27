@@ -120,6 +120,32 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 		assertEquals("get RID by checksum", "c5fed03ed1304cecce75d63aee2ada2b0f2326af 2gyvymn15kv0006", shard.iterator().next());
 	}
 
+	@Test
+	@ActivateRequestContext
+	public void testJoinReleasetranslationNoExtraFields() throws Exception {
+		assertEquals(14L, repositories.get().getLatestRevision());
+
+		// search for the first title
+		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
+		assertEquals("Should find the first title in the release (though actually a future one)", 1, findUsingRid.getNumFound());
+		String wantedReleaseSha1 = (String) findUsingRid.get(0).getFieldValue("c_sha1_source_reuse");
+
+		SolrDocumentList findAllMatchesWithoutJoin = reposxml.query(new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1)).getResults();
+		assertEquals("Could search for the checksum in all xml", 1, findAllMatchesWithoutJoin.getNumFound());
+
+		SolrQuery q = new SolrQuery("c_sha1_source_reuse:" + wantedReleaseSha1
+				// Because we join on the same filed name we must explicitly state that the hit should be a release, or In_Translation items would join with themselves and match
+				// Do we have a release specific field that is not copied to translations? For now just exclude translations.
+				+ " AND -prop_abx.TranslationLocale:*"
+				// Haven't found how to combine two criterias on the join into a single join, when there's also criteria on the actual match (see join test above)
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}prop_abx.TranslationLocale:sv-SE"
+				+ " AND {!join from=prop_abx.AuthorMaster to=prop_abx.AuthorMaster}reusevalue:1");
+		SolrDocumentList findReusevalue = reposxml.query(q).getResults();
+		assertEquals(1, findReusevalue.getNumFound());
+		// TODO with the current data set it is impossible to assert that we don't get false positives with the above query
+		// Would need another release with an Obsolete sv-SE translation and a reusevalue=1 de-DE one, which probably would match falsely
+	}
+
 	public static class Profile implements QuarkusTestProfile {
 
 		@Override
