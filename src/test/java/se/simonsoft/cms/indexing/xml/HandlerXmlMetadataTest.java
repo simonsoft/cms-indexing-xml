@@ -17,73 +17,44 @@ package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assume.assumeNotNull;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.io.SVNRepository;
 
-import se.repos.testing.indexing.ReposTestIndexing;
-import se.repos.testing.indexing.TestIndexOptions;
-import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
-import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
-import se.simonsoft.cms.backend.filexml.FilexmlSource;
-import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
-import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
-import se.simonsoft.cms.item.CmsItemPath;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
+import se.simonsoft.svn.runtime.SvnDumpConfig;
 
+@QuarkusTest
+@TestProfile(HandlerXmlMetadataTest.Profile.class)
 public class HandlerXmlMetadataTest {
 
-	private static ReposTestIndexing indexing;
-	private static FilexmlSourceClasspath repoSource;
-	private static CmsRepositoryFilexml repo;
-	private static FilexmlRepositoryReadonly filexml;
-	
-	
-	/**
-	 * Manual dependency injection.
-	 */
-	@BeforeClass
-	public static void setUpIndexing() {
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
-				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXmlBase())
-				.addModule(new IndexingConfigXmlDefault());
-		indexing = ReposTestIndexing.getInstance(indexOptions);
-		
-		repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/metadata");
-		repo = new CmsRepositoryFilexml("http://localtesthost/svn/namespace", repoSource);
-		filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	}
-	
-	@AfterClass
-	public static void tearDown() throws IOException {
-		ReposTestIndexing.getInstance().tearDown();
-	}
-	
-	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
-	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
-		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported",
-				source.getFile(new CmsItemPath(cmsItemPath)));
-	}
+	@Inject
+	Instance<SVNRepository> repositories;
+
+	@Inject
+	@Named("repositem")
+	SolrClient repositem;
 	
 	@Test
+	@ActivateRequestContext
 	public void testMetadataBookmap() throws Exception {
-		assumeResourceExists(repoSource, "/bookmap1.ditamap");
+		assertEquals(2L, repositories.get().getLatestRevision());
 
-		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:bookmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
 		
@@ -174,10 +145,10 @@ public class HandlerXmlMetadataTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testMetadataTechdocmap1() throws Exception {
-		assumeResourceExists(repoSource, "/techdocmap1.ditamap");
+		assertEquals(2L, repositories.get().getLatestRevision());
 
-		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
 		
@@ -241,10 +212,10 @@ public class HandlerXmlMetadataTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testProfilingTechdocmap1() throws Exception {
-		assumeResourceExists(repoSource, "/techdocmap1.ditamap");
+		assertEquals(2L, repositories.get().getLatestRevision());
 
-		SolrClient repositem = indexing.getCore("repositem");
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
 		
@@ -263,6 +234,15 @@ public class HandlerXmlMetadataTest {
 		assertEquals(List.of("one", "two"), e1.getFieldValue("meta_s_m_xml_profiling_publish_names"));
 		assertEquals("[{\"name\":\"release\",\"platform\":\"linux windows\",\"audience\":\"expert\",\"_stage\":\"release\"},{\"name\":\"one\",\"platform\":\"linux\",\"audience\":\"expert\",\"_stage\":\"publish\"},{\"name\":\"two\",\"platform\":\"windows\",\"audience\":\"expert\"}]", 
 				e1.getFieldValue("embd_cms_profiling"));
+	}
+
+	public static class Profile implements QuarkusTestProfile {
+
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			return Map.of(
+					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/metadata");
+		}
 	}
 
 }
