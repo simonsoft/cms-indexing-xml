@@ -53,7 +53,7 @@ public class HandlerXmlReleaseLabelQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testReleaseLabelSort1() throws Exception {
-		assertEquals(14L, repositories.get().getLatestRevision());
+		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList rlLegacy = repositem.query(new SolrQuery("patharea:release AND head:true").setSort("prop_abx.ReleaseLabel", ORDER.asc).setFields("*")).getResults();
 		assertEquals("no of releases", 8, rlLegacy.getNumFound());

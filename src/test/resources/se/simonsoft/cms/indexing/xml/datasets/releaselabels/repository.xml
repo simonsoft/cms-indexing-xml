@@ -29,33 +29,33 @@
       </entry>
       <entry kind="dir">
          <name>tms</name>
-         <commit revision="14">
+         <commit revision="8">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T04:41:38.005222Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang/sv-SE</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang/sv-SE/release</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
@@ -85,9 +85,9 @@
       </entry>
       <entry kind="dir">
          <name>tms/release</name>
-         <commit revision="14">
+         <commit revision="8">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T04:41:38.005222Z</date>
          </commit>
          <properties/>
       </entry>
@@ -114,9 +114,9 @@
             <date>2012-10-03T04:41:38.005222Z</date>
          </commit>
          <properties/>
-      </entry> 2 10 a ba A BA
+      </entry><!-- Release labels covered by this dataset: 2 10 b ab B AB AB-beta AB.1 -->
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/2/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/2.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -141,7 +141,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/10/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/10.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -166,7 +166,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/b/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/b.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -191,7 +191,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/ab/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/ab.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -216,7 +216,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/B/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/B.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -241,7 +241,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/AB/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/AB.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -266,7 +266,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/AB-beta/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/AB-beta.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -291,7 +291,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/AB.1/xml/Docs/My First Novel.xml</name>
+         <name>tms/release/R001/xml/Docs/AB.1.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
