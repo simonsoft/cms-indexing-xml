@@ -16,6 +16,7 @@
 package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -56,6 +57,25 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Inject
 	@Named("repositem")
 	SolrClient repositem;
+
+	@Test
+	@ActivateRequestContext
+	public void testReleaseTranslationTitleText() throws Exception {
+		assertEquals(14L, repositories.get().getLatestRevision());
+
+		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+		assertEquals("NOTE: This filexml repo was manually created, file name does not match.", "My First Novel.xml", doc.get(0).getFieldValue("pathname"));
+
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", flags.contains(""));
+		assertTrue("Flag 'hasxml'", flags.contains("hasxml"));
+		assertEquals("2 flag(s)", 2, flags.size());
+
+		assertEquals("word count excl keyref", 24L, doc.get(0).getFieldValue("count_words_text"));
+		assertEquals("", "My First Novel", doc.get(0).getFieldValue("embd_xml_title"));
+		assertEquals("", "Once upon a time...\nSubchapters are quite rare in novels.", doc.get(0).getFieldValue("embd_xml_intro"));
+	}
 
 	@Test
 	@ActivateRequestContext
