@@ -166,7 +166,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/R001/xml/Docs/b.xml</name>
+         <name>tms/release/R001/xml/Docs/b-lower.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -191,7 +191,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/R001/xml/Docs/ab.xml</name>
+         <name>tms/release/R001/xml/Docs/ab-lower.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -216,7 +216,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/R001/xml/Docs/B.xml</name>
+         <name>tms/release/R001/xml/Docs/b-upper.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
@@ -241,7 +241,7 @@
          </properties>
       </entry>
       <entry kind="file" contentpath="/R001.xml">
-         <name>tms/release/R001/xml/Docs/AB.xml</name>
+         <name>tms/release/R001/xml/Docs/ab-upper.xml</name>
          <size>1362</size>
          <commit revision="8">
             <author>test</author>
