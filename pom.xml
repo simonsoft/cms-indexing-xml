@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-item</artifactId>
-			<version>3.2.2</version>
+			<version>3.2.3-SNAPSHOT</version>
 		</dependency>
 	
 		<dependency>
@@ -113,46 +113,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-test-framework</artifactId>
-			<version>${solr-version}</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-slf4j-impl</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.25.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j2-impl</artifactId>
-			<version>2.25.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>se.simonsoft</groupId>
-			<artifactId>cms-backend-filexml</artifactId>
-			<version>0.22.0-SNAPSHOT</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sonatype.sisu</groupId>
-					<artifactId>sisu-guice</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-svnkit</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
@@ -161,12 +121,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>7.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -190,8 +144,6 @@
                 <configuration>
 					<argLine>
 						-Djava.util.logging.manager=org.jboss.logmanager.LogManager
-						-Dtest.solr.allowed.securerandom=NativePRNG
-						-Dsolr.directoryFactory=solr.StandardDirectoryFactory
 						--add-opens java.base/java.lang=ALL-UNNAMED
 						--add-opens java.base/java.lang.invoke=ALL-UNNAMED
 						-XX:+EnableDynamicAgentLoading
