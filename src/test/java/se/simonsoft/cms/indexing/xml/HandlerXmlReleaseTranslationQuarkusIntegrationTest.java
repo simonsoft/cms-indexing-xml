@@ -60,7 +60,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testAttributesReleasetranslationRelease() throws Exception {
-		assertEquals(14L, repositories.get().getLatestRevision());
+		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocument elem;
 		// search for the first title
@@ -91,7 +91,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testAttributesReleasetranslationTranslation() throws Exception {
-		assertEquals(14L, repositories.get().getLatestRevision());
+		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
@@ -123,7 +123,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testJoinReleasetranslationNoExtraFields() throws Exception {
-		assertEquals(14L, repositories.get().getLatestRevision());
+		assertEquals(9L, repositories.get().getLatestRevision());
 
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();
