@@ -61,7 +61,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testReleaseTranslationTitleText() throws Exception {
-		assertEquals(14L, repositories.get().getLatestRevision());
+		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
