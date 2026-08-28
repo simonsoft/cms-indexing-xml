@@ -70,7 +70,6 @@ public class HandlerXml implements IndexingItemHandler {
 	private XmlIndexWriter indexWriter;
 	
 	private HandlerXmlRepositem handlerXmlRepositem;
-	@Inject
 	private XmlIndexFieldXslPipeline xslPipeline; // Requesting preprocess XSL by handler.
 	
 	private Integer maxFilesize = null;
@@ -102,6 +101,11 @@ public class HandlerXml implements IndexingItemHandler {
 	public void setDependenciesIndexing(
 			XmlIndexWriter indexAddProvider) {
 		this.indexWriter = indexAddProvider;
+	}
+
+	@Inject
+	void setXslPipeline(XmlIndexFieldXslPipeline xslPipeline) {
+		this.xslPipeline = xslPipeline;
 	}
 	
 	@Inject
