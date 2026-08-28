@@ -18,10 +18,8 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -43,11 +41,6 @@ import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocumentList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -55,24 +48,11 @@ import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import se.repos.testing.indexing.ReposTestIndexing;
-import se.repos.testing.indexing.TestIndexOptions;
-import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
-import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
-import se.simonsoft.cms.backend.filexml.FilexmlSource;
-import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
-import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
-import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.NullEntityResolver;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 /**
  * These tests require test data that is large and non-Open-Source.
@@ -84,13 +64,12 @@ import com.google.inject.Injector;
  */
 public class HandlerXmlLargeFileTest {
 
-	private Injector injector;
 	private Processor p;
-	private ReposTestIndexing indexing;
 	private TransformerServiceFactory tf;
 	private XmlSourceReaderS9api sourceReader;
 
-	private String classPath = "se/simonsoft/cms/indexing/xml/datasets/";
+	private static final String CLASS_PATH = "se/simonsoft/cms/indexing/xml/datasets/";
+	private static final String DATASET_PATH = CLASS_PATH + "single-860k";
 	
 	private long startTime = 0;
 
@@ -114,131 +93,19 @@ public class HandlerXmlLargeFileTest {
 	}
 
 	@Before
-	public void setUp() {
-
-	}
-
-	/**
-	 * Manual dependency injection.
-	 */
-	@Before
 	public void setUpIndexing() {
 		startTime = System.currentTimeMillis();
 
-		injector = Guice.createInjector(new IndexingConfigXmlBase());
-
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
-				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXmlDefault());
-		indexing = ReposTestIndexing.getInstance(indexOptions);
-
-		p = injector.getInstance(Processor.class);
-		sourceReader = new XmlSourceReaderS9api(p);
-		tf = new TransformerServiceFactory(p, sourceReader);
+		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
+		p = producer.createProcessor();
+		sourceReader = producer.createXmlSourceReader(p);
+		tf = producer.createTransformerServiceFactory(p, sourceReader);
 	}
 
 	@After
-	public void tearDown() throws IOException {
+	public void tearDown() {
 		long time = System.currentTimeMillis() - startTime;
 		System.out.println("Test took " + time + " millisecondss");
-
-		ReposTestIndexing.getInstance().tearDown();
-	}
-
-	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
-	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
-		InputStream file = null;
-		try{
-			file = source.getFile(new CmsItemPath(cmsItemPath));
-		} catch (Exception e) {
-			// file will be null
-		}
-		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported", file);
-	}
-
-	@Test
-	public void testSingle860k() throws Exception {
-		
-		// NOTE: The test will be skipped if T501007.xml is not provided.
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
-		assumeResourceExists(repoSource, "/T501007.xml");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/flir", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-
-		indexing.enable(new ReposTestBackendFilexml(filexml), injector);
-
-		SolrClient reposxml = indexing.getCore("reposxml");
-		
-		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(11488, all.getNumFound()); // haven't verified this number, got it from first test
-		
-		SolrDocumentList pathmain = reposxml.query(new SolrQuery("pathmain:true").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(0, pathmain.getNumFound());
-		
-		SolrDocumentList area = reposxml.query(new SolrQuery("patharea:*").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(11488, area.getNumFound());
-
-		SolrDocumentList releases = reposxml.query(new SolrQuery("patharea:release").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(11488, releases.getNumFound());
-		
-		SolrDocumentList translations = reposxml.query(new SolrQuery("patharea:translation").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(0, translations.getNumFound());
-
-		SolrDocumentList releaseTop = reposxml.query(new SolrQuery("patharea:release AND depth:1").setRows(1)/*.addSort("depth", ORDER.asc)*/).getResults();
-		assertEquals(1, releaseTop.getNumFound());
-		// Adding all element sha1 on root document.
-		Collection<Object> reuse_c_sha1_release_descendants = releaseTop.get(0).getFieldValues("reuse_c_sha1_release_descendants");
-		assertNotNull(reuse_c_sha1_release_descendants);
-		assertEquals(10544, reuse_c_sha1_release_descendants.size());
-		//assertEquals("", reuse_c_sha1_release_descendants.iterator().next());
-
-		//SolrDocument e1 = all.get(0);
-		//assertEquals(80, e1.getFieldNames().size());
-		//assertEquals("...", e1.getFieldValue("pathname"));
-		/* Can not assert on props since repositem is not involved.
-		assertEquals("xml", e1.getFieldValue("prop_abx.ContentType"));
-		assertNull(e1.getFieldValue("prop_abx.Dependencies"));
-		*/
-		
-		
-		// Shallow indexing is controlled by 'patharea'
-		// Repositem XSL sets field 'count_reposxml_depth' used by XmlSourceHandlerFieldExtractors.java to limit the depth.
-		
-		// The checksums on Release is no longer used for Pretranslate. Might be used for processing Release (previously released sections). 
-		assertChecksums(reposxml);
-	}
-
-	private void assertChecksums(SolrClient reposxml) {
-
-		// We are comparing checksum calculation in Indexing (for object itself) with XSL filter. 
-		String FIELDNAME = "c_sha1_source_reuse";
-
-		try {
-			for (Entry<String, String> t : tests.entrySet()) {
-
-				SolrDocumentList e;
-
-				String q = "name:" + t.getKey(); // Query for first element with current tagname.
-				e = reposxml.query(new SolrQuery(q).setRows(1).addSort("treelocation", ORDER.asc)).getResults();
-
-				
-				// Only for testing, must disable the removal of source_reuse in XmlIndexFieldExtractionSource.java
-				/*
-				String sourceReuse = (String) e.get(0).getFieldValue("source_reuse");
-				if (sourceReuse != null && t.getKey().equals("body")) {
-					assertEquals("", sourceReuse);
-				}
-				*/
-				assertEquals("checksum for first " + t.getKey(), t.getValue(), e.get(0).getFieldValue(FIELDNAME));
-			}
-		} catch (SolrServerException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 	}
 
 	@Test
@@ -246,13 +113,13 @@ public class HandlerXmlLargeFileTest {
 	public void testSingle860kReuseNormalize() throws Exception {
 
 		// NOTE: The test will be skipped if T501007.xml is not provided.
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
-		assumeResourceExists(repoSource, "/T501007.xml");
+		assumeNotNull("Test skipped until large file /T501007.xml is exported",
+				getClass().getClassLoader().getResource(DATASET_PATH + "/T501007.xml"));
 
 		TransformerService t = tf.buildTransformerService("reuse-normalize.xsl");
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				classPath.concat("single-860k/T501007.xml"));
+				DATASET_PATH + "/T501007.xml");
 
 		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
 
@@ -317,8 +184,8 @@ public class HandlerXmlLargeFileTest {
 	public void testSingle860kIdentity() throws Exception {
 
 		// NOTE: The test will be skipped if T501007.xml is not provided.
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
-		assumeResourceExists(repoSource, "/T501007.xml");
+		assumeNotNull("Test skipped until large file /T501007.xml is exported",
+				getClass().getClassLoader().getResource(DATASET_PATH + "/T501007.xml"));
 				
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/transform/identity.xsl");
@@ -327,7 +194,7 @@ public class HandlerXmlLargeFileTest {
 		TransformerService t = tf.buildTransformerService(xslt);
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				classPath.concat("single-860k/T501007.xml"));
+				DATASET_PATH + "/T501007.xml");
 
 		XmlSourceDocumentS9api sDoc = sourceReader.read(xml); // This line is failing on build server when dataset resource is missing.
 
@@ -339,8 +206,8 @@ public class HandlerXmlLargeFileTest {
 	public void testSingle860kIdentityNoFramework() throws Exception {
 
 		// NOTE: The test will be skipped if T501007.xml is not provided.
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath(classPath.concat("single-860k"));
-		assumeResourceExists(repoSource, "/T501007.xml");
+		assumeNotNull("Test skipped until large file /T501007.xml is exported",
+				getClass().getClassLoader().getResource(DATASET_PATH + "/T501007.xml"));
 				
 		InputStream xsl = this.getClass().getClassLoader().getResourceAsStream(
 				"se/simonsoft/cms/indexing/xml/transform/identity-strip-space.xsl");
@@ -350,7 +217,7 @@ public class HandlerXmlLargeFileTest {
 		XsltExecutable e = p.newXsltCompiler().compile(xslt);
 
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				classPath.concat("single-860k/T501007.xml"));
+				DATASET_PATH + "/T501007.xml");
 		
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		spf.setNamespaceAware(true);
@@ -380,7 +247,7 @@ public class HandlerXmlLargeFileTest {
 		org.junit.Assume.assumeFalse("jenkins".equals(username));
 		
 		InputStream xml = this.getClass().getClassLoader().getResourceAsStream(
-				classPath.concat("single-860k/T501007.xml"));
+				DATASET_PATH + "/T501007.xml");
 		
 		assertNotNull("The dataset file 'T501007.xml' is required in order to execute all tests.'", xml);
 
