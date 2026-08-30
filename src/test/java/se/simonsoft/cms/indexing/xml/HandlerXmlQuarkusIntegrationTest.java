@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -47,7 +47,6 @@ import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
@@ -56,12 +55,11 @@ import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.svn.runtime.RepoId;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 import se.simonsoft.svn.runtime.SvnRevisionAvailableEvent;
 
 @QuarkusTest
-@TestProfile(HandlerXmlQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlQuarkusIntegrationTest {
+@TestProfile(TinyInlineDatasetProfile.class)
+public class HandlerXmlQuarkusIntegrationTest extends SharedDatasetProfileTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -86,11 +84,12 @@ public class HandlerXmlQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyInline() throws Exception {
+		resetDataset();
 		SVNRepository repository = repositories.get();
 
 		assertEquals(2L, repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
-		assertEquals(List.of(SvnDatasetRepoIdProducer.REPO_ID + " 1", SvnDatasetRepoIdProducer.REPO_ID + " 2"), events.revisions());
+		assertEquals(List.of(cmsRepository.getName() + " 1", cmsRepository.getName() + " 2"), events.revisions());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
@@ -163,6 +162,7 @@ public class HandlerXmlQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testJoin() throws SolrServerException, IOException, SVNException {
+		resetDataset();
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
@@ -208,25 +208,25 @@ public class HandlerXmlQuarkusIntegrationTest {
 //				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		}
-	}
 }
 
 @ApplicationScoped
 class SvnDatasetRepoIdProducer {
 
-	static final String REPO_ID = "cms-indexing-xml-dataset";
+	private String repoId = newRepoId();
 
 	@Produces
 	@RepoId
 	public String produceRepoId() {
-		return REPO_ID;
+		return repoId;
+	}
+
+	void reset() {
+		repoId = newRepoId();
+	}
+
+	private static String newRepoId() {
+		return "cms-indexing-xml-dataset-" + UUID.randomUUID();
 	}
 }
 
@@ -253,5 +253,9 @@ class SvnDatasetRevisionEvents {
 
 	List<String> revisions() {
 		return List.copyOf(revisions);
+	}
+
+	void clear() {
+		revisions.clear();
 	}
 }
