@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -44,6 +45,7 @@ public class CoreReposxmlIntegrationTest {
 	@Named("reposxml")
 	SolrClient reposxml;
 
+	@BeforeEach
 	@AfterEach
 	public void clearIndex() throws SolrServerException, IOException {
 		reposxml.deleteByQuery("*:*");

@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -35,8 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
 import se.repos.indexing.solrj.SolrCommit;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
 import se.simonsoft.cms.item.CmsItemPath;
@@ -44,11 +40,9 @@ import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.indexing.IdStrategy;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlDeleteQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlDeleteQuarkusIntegrationTest {
+public class HandlerXmlDeleteQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -73,6 +67,7 @@ public class HandlerXmlDeleteQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testNextRevisionDeletesElement() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
@@ -114,12 +109,4 @@ public class HandlerXmlDeleteQuarkusIntegrationTest {
 		assertEquals(0, xDeleted.getNumFound());
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		}
-	}
 }

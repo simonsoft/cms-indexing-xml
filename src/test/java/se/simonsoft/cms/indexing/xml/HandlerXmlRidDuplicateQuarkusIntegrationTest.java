@@ -20,7 +20,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Map;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
@@ -35,15 +34,11 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlRidDuplicateQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
+public class HandlerXmlRidDuplicateQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -65,6 +60,7 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyRidDuplicate() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("treelocation", ORDER.asc)).getResults();
@@ -95,6 +91,7 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyRidDuplicateTsuppress() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("treelocation", ORDER.asc)).getResults();
@@ -117,12 +114,4 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
-		}
-	}
 }

@@ -18,8 +18,6 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -32,13 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlAttributesNsQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlAttributesNsQuarkusIntegrationTest {
+public class HandlerXmlAttributesNsQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -50,6 +44,7 @@ public class HandlerXmlAttributesNsQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyAttributesNs() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns");
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
@@ -84,12 +79,4 @@ public class HandlerXmlAttributesNsQuarkusIntegrationTest {
 		assertEquals("get inherited doc.code of e2", "", x1.get(2).getFieldValue("ia_doc,code"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns");
-		}
-	}
 }

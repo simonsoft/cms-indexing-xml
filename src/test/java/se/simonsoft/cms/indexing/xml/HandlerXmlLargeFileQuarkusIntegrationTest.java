@@ -38,17 +38,13 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import io.quarkus.arc.ClientProxy;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlLargeFileQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlLargeFileQuarkusIntegrationTest {
+public class HandlerXmlLargeFileQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	private static final String DATASET_PATH = "se/simonsoft/cms/indexing/xml/datasets/single-860k";
 	private static final String DATASET_FILE = DATASET_PATH + "/T501007.xml";
@@ -96,6 +92,7 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest {
 			}
 		}, CmsChangesetReader.class);
 
+		loadDataset(DATASET_PATH);
 		assertEquals(1L, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
@@ -131,15 +128,4 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest {
 		return HandlerXmlLargeFileQuarkusIntegrationTest.class.getClassLoader().getResource(DATASET_FILE) != null;
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			// Keep the old skip behavior when the non-open-source XML file is unavailable.
-			String datasetPath = datasetAvailable()
-					? DATASET_PATH
-					: "se/simonsoft/cms/indexing/xml/datasets/tiny-inline";
-			return Map.of(SvnDumpConfig.DATASET_PATH, datasetPath);
-		}
-	}
 }

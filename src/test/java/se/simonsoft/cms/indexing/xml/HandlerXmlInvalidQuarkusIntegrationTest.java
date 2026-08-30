@@ -17,8 +17,6 @@ package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -31,13 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlInvalidQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlInvalidQuarkusIntegrationTest {
+public class HandlerXmlInvalidQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,6 +47,7 @@ public class HandlerXmlInvalidQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testInvalidXml() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
 		assertEquals(2L, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
@@ -63,12 +58,4 @@ public class HandlerXmlInvalidQuarkusIntegrationTest {
 		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
-		}
-	}
 }

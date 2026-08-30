@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
@@ -39,13 +38,9 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlReleaseTranslationQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
+public class HandlerXmlReleaseTranslationQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -61,6 +56,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testReleaseTranslationTitleText() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
@@ -80,6 +76,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testAttributesReleasetranslationRelease() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocument elem;
@@ -111,6 +108,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testAttributesReleasetranslationTranslation() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
@@ -143,6 +141,7 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testJoinReleasetranslationNoExtraFields() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 		assertEquals(9L, repositories.get().getLatestRevision());
 
 		// search for the first title
@@ -166,12 +165,4 @@ public class HandlerXmlReleaseTranslationQuarkusIntegrationTest {
 		// Would need another release with an Obsolete sv-SE translation and a reusevalue=1 de-DE one, which probably would match falsely
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
-		}
-	}
 }

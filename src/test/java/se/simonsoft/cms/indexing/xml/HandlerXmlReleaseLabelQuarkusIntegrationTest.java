@@ -18,7 +18,6 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -35,13 +34,9 @@ import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
 
 @QuarkusTest
-@TestProfile(HandlerXmlReleaseLabelQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlReleaseLabelQuarkusIntegrationTest {
+public class HandlerXmlReleaseLabelQuarkusIntegrationTest extends DatasetQuarkusTest {
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,6 +48,7 @@ public class HandlerXmlReleaseLabelQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testReleaseLabelSort1() throws Exception {
+		loadDataset("se/simonsoft/cms/indexing/xml/datasets/releaselabels");
 		assertEquals(9L, repositories.get().getLatestRevision());
 
 		SolrDocumentList rlLegacy = repositem.query(new SolrQuery("patharea:release AND head:true").setSort("prop_abx.ReleaseLabel", ORDER.asc).setFields("*")).getResults();
@@ -87,12 +83,4 @@ public class HandlerXmlReleaseLabelQuarkusIntegrationTest {
 		assertEquals("ab", itSort.next().getFieldValue("prop_abx.ReleaseLabel"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/releaselabels");
-		}
-	}
 }
