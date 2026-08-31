@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
@@ -34,14 +33,17 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlMetadataTest.Profile.class)
-public class HandlerXmlMetadataTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/metadata", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,7 +55,9 @@ public class HandlerXmlMetadataTest {
 	@Test
 	@ActivateRequestContext
 	public void testMetadataBookmap() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:bookmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
@@ -147,7 +151,9 @@ public class HandlerXmlMetadataTest {
 	@Test
 	@ActivateRequestContext
 	public void testMetadataTechdocmap1() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
@@ -214,7 +220,9 @@ public class HandlerXmlMetadataTest {
 	@Test
 	@ActivateRequestContext
 	public void testProfilingTechdocmap1() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
@@ -234,15 +242,6 @@ public class HandlerXmlMetadataTest {
 		assertEquals(List.of("one", "two"), e1.getFieldValue("meta_s_m_xml_profiling_publish_names"));
 		assertEquals("[{\"name\":\"release\",\"platform\":\"linux windows\",\"audience\":\"expert\",\"_stage\":\"release\"},{\"name\":\"one\",\"platform\":\"linux\",\"audience\":\"expert\",\"_stage\":\"publish\"},{\"name\":\"two\",\"platform\":\"windows\",\"audience\":\"expert\"}]", 
 				e1.getFieldValue("embd_cms_profiling"));
-	}
-
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/metadata");
-		}
 	}
 
 }
