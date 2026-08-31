@@ -17,8 +17,6 @@ package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -26,9 +24,7 @@ import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
@@ -39,7 +35,7 @@ import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
 @TestProfile(MockableSvnDatasetProfile.class)
-public class HandlerXmlInvalidQuarkusIntegrationTest {
+public class HandlerXmlInvalidQuarkusIntegrationTest extends MockableSvnDatasetTest {
 
 	private static final SvnDataset DATASET = new SvnDataset(
 			"se/simonsoft/cms/indexing/xml/datasets/tiny-invalid", 2);
@@ -54,14 +50,6 @@ public class HandlerXmlInvalidQuarkusIntegrationTest {
 	@Inject
 	@Named("reposxml")
 	SolrClient reposxml;
-
-	@AfterEach
-	public void clearIndexes() throws SolrServerException, IOException {
-		repositem.deleteByQuery("*:*");
-		repositem.commit();
-		reposxml.deleteByQuery("*:*");
-		reposxml.commit();
-	}
 
 	@Test
 	@ActivateRequestContext
