@@ -18,8 +18,6 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -31,14 +29,17 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlAttributesNsQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlAttributesNsQuarkusIntegrationTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlAttributesNsQuarkusIntegrationTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -50,7 +51,9 @@ public class HandlerXmlAttributesNsQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyAttributesNs() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
@@ -84,12 +87,4 @@ public class HandlerXmlAttributesNsQuarkusIntegrationTest {
 		assertEquals("get inherited doc.code of e2", "", x1.get(2).getFieldValue("ia_doc,code"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns");
-		}
-	}
 }

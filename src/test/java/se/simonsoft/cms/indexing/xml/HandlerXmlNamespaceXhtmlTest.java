@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -34,14 +32,17 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlNamespaceXhtmlTest.Profile.class)
-public class HandlerXmlNamespaceXhtmlTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlNamespaceXhtmlTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,7 +54,9 @@ public class HandlerXmlNamespaceXhtmlTest {
 	@Test
 	@ActivateRequestContext
 	public void testNamespaceXhtml() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(13, all.getNumFound());
@@ -72,12 +75,4 @@ public class HandlerXmlNamespaceXhtmlTest {
 		assertEquals("inherited ns", "http://www.w3.org/1999/xhtml", e2.getFieldValue("ins_"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml");
-		}
-	}
 }
