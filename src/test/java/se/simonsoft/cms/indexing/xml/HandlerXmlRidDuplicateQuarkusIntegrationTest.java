@@ -20,8 +20,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -34,16 +32,19 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.indexing.IdStrategy;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlRidDuplicateQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlRidDuplicateQuarkusIntegrationTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -65,7 +66,9 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyRidDuplicate() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
@@ -95,7 +98,9 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyRidDuplicateTsuppress() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
@@ -117,12 +122,4 @@ public class HandlerXmlRidDuplicateQuarkusIntegrationTest {
 		assertEquals("should extract source_reuse", "<elem>text</elem>", x1.get(2).getFieldValue("source_reuse"));
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
-		}
-	}
 }

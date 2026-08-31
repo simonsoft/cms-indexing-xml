@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Map;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
@@ -34,14 +33,19 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.cms.indexing.xml.MockableSvnDatasetProfile;
+import se.simonsoft.cms.indexing.xml.MockableSvnDatasetTest;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlRepositemTest.Profile.class)
-public class HandlerXmlRepositemTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlRepositemTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,7 +57,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslate() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -75,7 +81,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateComplete() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -101,7 +109,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSection() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -123,7 +133,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSectionTranslateNo() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -148,7 +160,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSectionTranslateNoTerm() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-term.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -174,7 +188,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslatePartial() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-partial.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -197,7 +213,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNo() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -221,7 +239,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNoSection() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -245,7 +265,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNoTsuppress() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-tsuppress.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -278,7 +300,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateMixedUnsafe() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-mixed-unsafe.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -295,7 +319,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingParent() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-parent.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -311,7 +337,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingSibling() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-sibling.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -327,7 +355,9 @@ public class HandlerXmlRepositemTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingEmpty() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-empty.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
@@ -339,13 +369,4 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> ridMissing = doc.get(0).getFieldValues("embd_xml_ridmissing");
 		assertEquals("List the missing RIDs in repositem core", "2gyvymn15kv0000", ridMissing.iterator().next());
 	}
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		}
-	}
-
 }
