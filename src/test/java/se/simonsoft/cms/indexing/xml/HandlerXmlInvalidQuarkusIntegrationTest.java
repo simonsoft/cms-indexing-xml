@@ -17,7 +17,7 @@ package se.simonsoft.cms.indexing.xml;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
+import java.io.IOException;
 
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
@@ -26,18 +26,23 @@ import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocumentList;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlInvalidQuarkusIntegrationTest.Profile.class)
+@TestProfile(MockableSvnDatasetProfile.class)
 public class HandlerXmlInvalidQuarkusIntegrationTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-invalid", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -50,10 +55,20 @@ public class HandlerXmlInvalidQuarkusIntegrationTest {
 	@Named("reposxml")
 	SolrClient reposxml;
 
+	@AfterEach
+	public void clearIndexes() throws SolrServerException, IOException {
+		repositem.deleteByQuery("*:*");
+		repositem.commit();
+		reposxml.deleteByQuery("*:*");
+		reposxml.commit();
+	}
+
 	@Test
 	@ActivateRequestContext
 	public void testInvalidXml() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
@@ -61,14 +76,5 @@ public class HandlerXmlInvalidQuarkusIntegrationTest {
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxmlerror AND head:true")).getResults();
 		assertEquals("Should be flagged as error in repositem", 1, flagged.getNumFound());
-	}
-
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
-		}
 	}
 }
