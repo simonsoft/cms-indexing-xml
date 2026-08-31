@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -46,8 +45,8 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
@@ -56,15 +55,22 @@ import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.svn.runtime.RepoId;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 import se.simonsoft.svn.runtime.SvnRevisionAvailableEvent;
 
 @QuarkusTest
-@TestProfile(HandlerXmlQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlQuarkusIntegrationTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlQuarkusIntegrationTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-inline", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
+
+	@Inject
+	@RepoId
+	Instance<String> repoIds;
 
 	@Inject
 	SvnDatasetRevisionEvents events;
@@ -86,11 +92,14 @@ public class HandlerXmlQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testTinyInline() throws Exception {
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+		events.clear();
+		String repoId = repoIds.get();
 		SVNRepository repository = repositories.get();
 
-		assertEquals(2L, repository.getLatestRevision());
+		assertEquals(DATASET.revision(0), repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
-		assertEquals(List.of(SvnDatasetRepoIdProducer.REPO_ID + " 1", SvnDatasetRepoIdProducer.REPO_ID + " 2"), events.revisions());
+		assertEquals(List.of(repoId + " 1", repoId + " 2"), events.revisions());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
@@ -163,7 +172,9 @@ public class HandlerXmlQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testJoin() throws SolrServerException, IOException, SVNException {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
 		assertEquals("all elements that have a parent, got " + j1, 3, j1.getNumFound());
@@ -208,14 +219,6 @@ public class HandlerXmlQuarkusIntegrationTest {
 //				"/response=={'numFound':1,'start':0,'docs':[{'id':'testdoc1_e3'}]}");
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		}
-	}
 }
 
 @ApplicationScoped
@@ -253,5 +256,9 @@ class SvnDatasetRevisionEvents {
 
 	List<String> revisions() {
 		return List.copyOf(revisions);
+	}
+
+	void clear() {
+		revisions.clear();
 	}
 }

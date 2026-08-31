@@ -38,20 +38,20 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import io.quarkus.arc.ClientProxy;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangeset;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlLargeFileQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlLargeFileQuarkusIntegrationTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlLargeFileQuarkusIntegrationTest extends MockableSvnDatasetTest {
 
 	private static final String DATASET_PATH = "se/simonsoft/cms/indexing/xml/datasets/single-860k";
 	private static final String DATASET_FILE = DATASET_PATH + "/T501007.xml";
+	private static final SvnDataset DATASET = new SvnDataset(DATASET_PATH, 1);
 
 	private static final Map<String, String> CHECKSUMS = Map.of(
 			"p", "c30f06122daa3fde28755ea85f59c14d0d5ac073",
@@ -77,6 +77,8 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest {
 	@ActivateRequestContext
 	public void testSingle860k() throws Exception {
 		assumeTrue(datasetAvailable(), "Test skipped until large file /T501007.xml is exported");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
 		CmsChangesetReader changesetReader = ClientProxy.unwrap(changesetReaders.get());
 		QuarkusMock.installMockForType(new CmsChangesetReader() {
 			@Override
@@ -96,7 +98,7 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest {
 			}
 		}, CmsChangesetReader.class);
 
-		assertEquals(1L, repositories.get().getLatestRevision());
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
 		assertEquals(11488, all.getNumFound());
@@ -131,15 +133,4 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest {
 		return HandlerXmlLargeFileQuarkusIntegrationTest.class.getClassLoader().getResource(DATASET_FILE) != null;
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			// Keep the old skip behavior when the non-open-source XML file is unavailable.
-			String datasetPath = datasetAvailable()
-					? DATASET_PATH
-					: "se/simonsoft/cms/indexing/xml/datasets/tiny-inline";
-			return Map.of(SvnDumpConfig.DATASET_PATH, datasetPath);
-		}
-	}
 }

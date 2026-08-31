@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -34,8 +32,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import se.repos.indexing.solrj.SolrCommit;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
@@ -44,11 +42,14 @@ import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.indexing.IdStrategy;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDataset;
 
 @QuarkusTest
-@TestProfile(HandlerXmlDeleteQuarkusIntegrationTest.Profile.class)
-public class HandlerXmlDeleteQuarkusIntegrationTest {
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlDeleteQuarkusIntegrationTest extends MockableSvnDatasetTest {
+
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-inline", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -73,7 +74,9 @@ public class HandlerXmlDeleteQuarkusIntegrationTest {
 	@Test
 	@ActivateRequestContext
 	public void testNextRevisionDeletesElement() throws Exception {
-		assertEquals(2L, repositories.get().getLatestRevision());
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
@@ -114,12 +117,4 @@ public class HandlerXmlDeleteQuarkusIntegrationTest {
 		assertEquals(0, xDeleted.getNumFound());
 	}
 
-	public static class Profile implements QuarkusTestProfile {
-
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-					SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
-		}
-	}
 }
