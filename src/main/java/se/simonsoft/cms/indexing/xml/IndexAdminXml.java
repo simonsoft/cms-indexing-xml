@@ -17,7 +17,6 @@ package se.simonsoft.cms.indexing.xml;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.inject.Singleton;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
