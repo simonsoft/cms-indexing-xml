@@ -41,8 +41,11 @@ import se.simonsoft.svn.runtime.SvnDataset;
 @TestProfile(MockableSvnDatasetProfile.class)
 public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 
-	private static final SvnDataset DATASET = new SvnDataset(
+	private static final SvnDataset XML_DATASET = new SvnDataset(
 			"se/simonsoft/cms/indexing/xml/datasets/namespace-xml", 2);
+
+	private static final SvnDataset XHTML_DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml", 2);
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -53,10 +56,34 @@ public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 
 	@Test
 	@ActivateRequestContext
-	public void testNamespaceXml() throws Exception {
-		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+	public void testNamespaceXhtml() throws Exception {
+		QuarkusMock.installMockForType(XHTML_DATASET, SvnDataset.class);
 
-		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(XHTML_DATASET.revision(0), repositories.get().getLatestRevision());
+
+		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("treelocation", ORDER.asc)).getResults();
+		assertEquals(13, all.getNumFound());
+
+		SolrDocument e1 = all.get(0);
+		assertEquals("html", e1.getFieldValue("name"));
+		// Solr allows the wildcard part of dynamic fields to be empty.
+		// TODO: Is ns_ what we want or would we like to define as "ns"?
+		assertEquals("declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ns_"));
+		assertEquals("inherited and declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ins_"));
+		assertNotNull("used as well", e1.getFieldValue("uns_"));
+
+		SolrDocument e2 = all.get(1);
+		assertEquals("head", e2.getFieldValue("name"));
+		assertNull("not declared here", e2.getFieldValue("ns_"));
+		assertEquals("inherited ns", "http://www.w3.org/1999/xhtml", e2.getFieldValue("ins_"));
+	}
+
+	@Test
+	@ActivateRequestContext
+	public void testNamespaceXml() throws Exception {
+		QuarkusMock.installMockForType(XML_DATASET, SvnDataset.class);
+
+		assertEquals(XML_DATASET.revision(0), repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(5, all.getNumFound()); 
@@ -137,7 +164,7 @@ public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 		
 		assertNotNull("used", e4.getFieldValue("uns_cms2"));
 		
-			e4 = null;
+		e4 = null;
 	}
 
 }
