@@ -47,12 +47,36 @@ public class HandlerXmlRepositemTest extends MockableSvnDatasetTest {
 	private static final SvnDataset DATASET = new SvnDataset(
 			"se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate", 2);
 
+	private static final SvnDataset RELEASE_TRANSLATION_DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/releasetranslation", 9);
+
 	@Inject
 	Instance<SVNRepository> repositories;
 
 	@Inject
 	@Named("repositem")
 	SolrClient repositem;
+
+	@Test
+	@ActivateRequestContext
+	public void testReleaseTranslationTitleText() throws Exception {
+		QuarkusMock.installMockForType(RELEASE_TRANSLATION_DATASET, SvnDataset.class);
+
+		assertEquals(RELEASE_TRANSLATION_DATASET.revision(0), repositories.get().getLatestRevision());
+
+		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+		assertEquals("NOTE: This filexml repo was manually created, file name does not match.", "My First Novel.xml", doc.get(0).getFieldValue("pathname"));
+
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", flags.contains(""));
+		assertTrue("Flag 'hasxml'", flags.contains("hasxml"));
+		assertEquals("2 flag(s)", 2, flags.size());
+
+		assertEquals("word count excl keyref", 24L, doc.get(0).getFieldValue("count_words_text"));
+		assertEquals("", "My First Novel", doc.get(0).getFieldValue("embd_xml_title"));
+		assertEquals("", "Once upon a time...\nSubchapters are quite rare in novels.", doc.get(0).getFieldValue("embd_xml_intro"));
+	}
 
 	@Test
 	@ActivateRequestContext
