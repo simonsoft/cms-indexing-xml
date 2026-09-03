@@ -15,26 +15,31 @@
  */
 package se.simonsoft.cms.indexing.xml;
 
+import java.io.IOException;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.jupiter.api.AfterEach;
 
-import se.repos.indexing.solrj.MarkerOptimizeSolrj;
-
-/**
- * Deprecated because optimize should only run at carefully selected occasions,
- * given the high data volumes in xml index.
- */
-@Deprecated
-public class MarkerXmlOptimize extends MarkerOptimizeSolrj {
+/** Clears the shared Solr Dev Service cores after each dataset test. */
+public abstract class MockableSvnDatasetTest {
 
 	@Inject
-	public MarkerXmlOptimize(@Named("reposxml") SolrClient core) {
-		// Optimize can take significant time (have seen above 30min).
-		// Ideally perform optimize during night time.
-		// Currently uses the same interval as repositem core.
-		super(core);
+	@Named("repositem")
+	SolrClient cleanupRepositem;
+
+	@Inject
+	@Named("reposxml")
+	SolrClient cleanupReposxml;
+
+	@AfterEach
+	public void clearIndexes() throws SolrServerException, IOException {
+		cleanupRepositem.deleteByQuery("*:*");
+		cleanupRepositem.commit();
+		cleanupReposxml.deleteByQuery("*:*");
+		cleanupReposxml.commit();
 	}
-	
 }

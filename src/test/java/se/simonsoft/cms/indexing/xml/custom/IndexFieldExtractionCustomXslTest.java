@@ -17,8 +17,8 @@ package se.simonsoft.cms.indexing.xml.custom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,20 +29,15 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
+import se.simonsoft.cms.indexing.xml.XmlIndexingHandlersProducer;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexFieldXslPipeline;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexRidDuplicateDetection;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
 import se.simonsoft.cms.xmlsource.XmlSourceAttributeMapRid;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceDocumentS9api;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.TransformOptions;
@@ -51,7 +46,6 @@ import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 public class IndexFieldExtractionCustomXslTest {
 	
-	private Injector injector;
 	private Processor p;
 	private XmlSourceReaderS9api sourceReader;
 	private TransformerServiceFactory transformerServiceFactory;
@@ -62,10 +56,10 @@ public class IndexFieldExtractionCustomXslTest {
 	@Before
 	public void setUp() {
 		
-		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
-		p = injector.getInstance(Processor.class);
-		sourceReader = (XmlSourceReaderS9api) injector.getInstance(XmlSourceReader.class);
-		transformerServiceFactory = injector.getInstance(TransformerServiceFactory.class);
+		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
+		p = producer.createProcessor();
+		sourceReader = producer.createXmlSourceReader(p);
+		transformerServiceFactory = producer.createTransformerServiceFactory(p, sourceReader);
 		
 		tReuse = this.transformerServiceFactory.buildTransformerService("reuse-normalize.xsl");
 	}

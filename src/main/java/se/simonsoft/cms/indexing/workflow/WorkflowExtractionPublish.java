@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import se.repos.indexing.IndexingDoc;
 import se.simonsoft.cms.indexing.abx.HandlerReleaseLabel;

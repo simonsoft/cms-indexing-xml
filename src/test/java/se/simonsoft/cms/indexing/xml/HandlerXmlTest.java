@@ -24,32 +24,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
+
+import net.sf.saxon.s9api.Processor;
 
 import se.repos.indexing.IndexingDoc;
 import se.repos.indexing.IndexingHandlerException;
 import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlStub;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.xmlsource.handler.XmlNotWellFormedException;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceElement;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
 public class HandlerXmlTest {
-
-	private Injector injector;
-	
-	@Before
-	public void setUp() {
-		
-		injector = Guice.createInjector(new IndexingConfigXmlBase(), new IndexingConfigXmlStub());
-	}
 	
 	@Test
 	public void testXmlSourceElementInvalid() {
@@ -80,7 +70,7 @@ public class HandlerXmlTest {
 		});
 		
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		
@@ -133,7 +123,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		
@@ -188,7 +178,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		handlerXml.setConfigIndexing(10 * 1048576, null);
@@ -242,7 +232,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		handlerXml.setConfigIndexing(10 * 1048576, null);
@@ -298,7 +288,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		handlerXml.setConfigIndexing(10 * 1048576, null);
@@ -354,7 +344,7 @@ public class HandlerXmlTest {
 			}
 		});
 		
-		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		HandlerXml handlerXml = createHandlerXml();
 		handlerXml.setDependenciesIndexing(indexWriter);
 		handlerXml.setFieldExtraction(fe);
 		handlerXml.setConfigIndexing(10 * 1048576, "90tbkfc5eev0000");
@@ -381,6 +371,18 @@ public class HandlerXmlTest {
 		assertEquals("Should NOT have called the extract method", 0, calls.size());
 		// Should preferably verify that repositem is extracted.
 		assertEquals("Repositem extraction counts the elements", "1", p1f.getFieldValue("count_elements"));
+	}
+
+	private HandlerXml createHandlerXml() {
+		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
+		Processor processor = producer.createProcessor();
+		XmlSourceReaderS9api sourceReader = producer.createXmlSourceReader(processor);
+		TransformerServiceFactory transformerServiceFactory =
+				producer.createTransformerServiceFactory(processor, sourceReader);
+		HandlerXml handlerXml = new HandlerXml(processor, sourceReader, transformerServiceFactory);
+		handlerXml.setXslPipeline(producer.createXmlIndexFieldXslPipeline(transformerServiceFactory, "tsp"));
+		handlerXml.setConfigIndexing(10 * 1048576, "");
+		return handlerXml;
 	}
 	
 }

@@ -18,8 +18,9 @@ package se.simonsoft.cms.indexing.xml;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import net.sf.saxon.s9api.Processor;
 
@@ -46,6 +47,7 @@ import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
+@Dependent
 public class HandlerXml implements IndexingItemHandler {
 
 	public static final String FLAG_XML = "hasxml";
@@ -68,7 +70,6 @@ public class HandlerXml implements IndexingItemHandler {
 	private XmlIndexWriter indexWriter;
 	
 	private HandlerXmlRepositem handlerXmlRepositem;
-	@Inject
 	private XmlIndexFieldXslPipeline xslPipeline; // Requesting preprocess XSL by handler.
 	
 	private Integer maxFilesize = null;
@@ -100,6 +101,11 @@ public class HandlerXml implements IndexingItemHandler {
 	public void setDependenciesIndexing(
 			XmlIndexWriter indexAddProvider) {
 		this.indexWriter = indexAddProvider;
+	}
+
+	@Inject
+	void setXslPipeline(XmlIndexFieldXslPipeline xslPipeline) {
+		this.xslPipeline = xslPipeline;
 	}
 	
 	@Inject

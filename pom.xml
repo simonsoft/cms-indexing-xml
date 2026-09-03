@@ -25,14 +25,17 @@
     </repositories>
 	
 	<properties>
-		<solr-version>8.11.1</solr-version>
+		<solr-version>9.6.1</solr-version>
 		
-		<quarkus-plugin.version>2.4.1.Final</quarkus-plugin.version>
+		<quarkus-plugin.version>3.34.6</quarkus-plugin.version>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-		<quarkus.platform.version>2.4.1.Final</quarkus.platform.version>
+		<quarkus.platform.version>3.34.6</quarkus.platform.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 		
-		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+		<mockito-version>5.21.0</mockito-version>
+		<surefire-plugin.version>3.2.5</surefire-plugin.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -52,17 +55,31 @@
             <groupId>jakarta.enterprise</groupId>
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.eclipse.microprofile.config</groupId>
+			<artifactId>microprofile-config-api</artifactId>
+		</dependency>
 	
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-item</artifactId>
-			<version>3.2.2</version>
+			<version>3.2.3-SNAPSHOT</version>
 		</dependency>
 	
 		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>quarkus-svn-extension</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>quarkus-solr-extension</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing</artifactId>
-			<version>0.21.0</version>
+			<version>0.22.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -96,25 +113,24 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-test-framework</artifactId>
-			<version>${solr-version}</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-slf4j-impl</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-backend-svnkit</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>se.simonsoft</groupId>
-			<artifactId>cms-backend-filexml</artifactId>
-			<version>0.22.0-SNAPSHOT</version>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -126,10 +142,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>
-						-Dtest.solr.allowed.securerandom=NativePRNG
-						<!-- Needed for Java 17 compatibility. -->
+					<argLine>
+						-Djava.util.logging.manager=org.jboss.logmanager.LogManager
 						--add-opens java.base/java.lang=ALL-UNNAMED
+						--add-opens java.base/java.lang.invoke=ALL-UNNAMED
+						-XX:+EnableDynamicAgentLoading
 					</argLine>
                 </configuration>
             </plugin>

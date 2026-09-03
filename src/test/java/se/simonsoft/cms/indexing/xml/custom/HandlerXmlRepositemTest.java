@@ -20,82 +20,71 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Collection;
+
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.io.SVNRepository;
 
-import se.repos.testing.indexing.ReposTestIndexing;
-import se.repos.testing.indexing.TestIndexOptions;
-import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
-import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
-import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
-import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
+import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import se.simonsoft.cms.indexing.xml.MockableSvnDatasetProfile;
+import se.simonsoft.cms.indexing.xml.MockableSvnDatasetTest;
+import se.simonsoft.svn.runtime.SvnDataset;
 
-public class HandlerXmlRepositemTest {
-	
-	private ReposTestIndexing indexing = null;
+@QuarkusTest
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlRepositemTest extends MockableSvnDatasetTest {
 
-	/**
-	 * Manual dependency injection.
-	 */
-	@Before
-	public void setUpIndexing() {
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
-				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXmlBase())
-				.addModule(new IndexingConfigXmlDefault());
-		indexing = ReposTestIndexing.getInstance(indexOptions);
-	}
-	
-	@After
-	public void tearDown() throws IOException {
-		indexing.tearDown();
-	}
-	
-	
+	private static final SvnDataset DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
+
+	private static final SvnDataset RELEASE_TRANSLATION_DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
+
+	@Inject
+	Instance<SVNRepository> repositories;
+
+	@Inject
+	@Named("repositem")
+	SolrClient repositem;
+
 	@Test
+	@ActivateRequestContext
 	public void testReleaseTranslationTitleText() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/releasetranslation", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(RELEASE_TRANSLATION_DATASET, SvnDataset.class);
+
+		assertEquals(9, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		assertEquals("NOTE: This filexml repo was manually created, file name does not match.", "My First Novel.xml", doc.get(0).getFieldValue("pathname"));
-		
-		Collection<Object> flags = doc.get(0).getFieldValues("flag");
-		assertFalse("Flag - not empty string", doc.get(0).getFieldValues("flag").contains(""));
-		assertTrue("Flag 'hasxml'", doc.get(0).getFieldValues("flag").contains("hasxml"));
-		//assertTrue("Flag 'hasridduplicate'", doc.get(0).getFieldValues("flag").contains("hasridduplicate"));
-		assertEquals("2 flag(s)", 2, flags.size());
-		
-		assertEquals("word count excl keyref",  24L, doc.get(0).getFieldValue("count_words_text"));
 
+		Collection<Object> flags = doc.get(0).getFieldValues("flag");
+		assertFalse("Flag - not empty string", flags.contains(""));
+		assertTrue("Flag 'hasxml'", flags.contains("hasxml"));
+		assertEquals("2 flag(s)", 2, flags.size());
+
+		assertEquals("word count excl keyref", 24L, doc.get(0).getFieldValue("count_words_text"));
 		assertEquals("", "My First Novel", doc.get(0).getFieldValue("embd_xml_title"));
 		assertEquals("", "Once upon a time...\nSubchapters are quite rare in novels.", doc.get(0).getFieldValue("embd_xml_intro"));
 	}
-	
 
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslate() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -114,14 +103,12 @@ public class HandlerXmlRepositemTest {
 	
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateComplete() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -144,14 +131,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSection() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -170,14 +155,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSectionTranslateNo() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-complete-section-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -199,14 +182,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateCompleteSectionTranslateNoTerm() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-		
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-term.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -229,14 +210,12 @@ public class HandlerXmlRepositemTest {
 	
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslatePartial() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-partial.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -256,14 +235,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNo() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -284,14 +261,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNoSection() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-section.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -312,14 +287,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateTranslateNoTsuppress() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-translate-no-tsuppress.xml AND flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -349,14 +322,12 @@ public class HandlerXmlRepositemTest {
 
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateMixedUnsafe() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-mixed-unsafe.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -370,14 +341,12 @@ public class HandlerXmlRepositemTest {
 	
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingParent() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-parent.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -390,14 +359,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingSibling() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-sibling.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -410,14 +377,12 @@ public class HandlerXmlRepositemTest {
 	}
 	
 	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslateRidMissingEmpty() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-pretranslate");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-pretranslate", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
-	
-		SolrClient repositem = indexing.getCore("repositem");
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList doc = repositem.query(new SolrQuery("pathname:test1-rid-missing-empty.xml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 		Collection<Object> flags = doc.get(0).getFieldValues("flag");
@@ -428,5 +393,4 @@ public class HandlerXmlRepositemTest {
 		Collection<Object> ridMissing = doc.get(0).getFieldValues("embd_xml_ridmissing");
 		assertEquals("List the missing RIDs in repositem core", "2gyvymn15kv0000", ridMissing.iterator().next());
 	}
-	
 }

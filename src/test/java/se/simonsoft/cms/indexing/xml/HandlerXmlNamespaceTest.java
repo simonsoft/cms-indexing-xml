@@ -18,103 +18,73 @@ package se.simonsoft.cms.indexing.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assume.assumeNotNull;
 
-import java.io.IOException;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.io.SVNRepository;
 
-import se.repos.testing.indexing.ReposTestIndexing;
-import se.repos.testing.indexing.TestIndexOptions;
-import se.simonsoft.cms.backend.filexml.CmsRepositoryFilexml;
-import se.simonsoft.cms.backend.filexml.FilexmlRepositoryReadonly;
-import se.simonsoft.cms.backend.filexml.FilexmlSource;
-import se.simonsoft.cms.backend.filexml.FilexmlSourceClasspath;
-import se.simonsoft.cms.backend.filexml.testing.ReposTestBackendFilexml;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlBase;
-import se.simonsoft.cms.indexing.xml.testconfig.IndexingConfigXmlDefault;
-import se.simonsoft.cms.item.CmsItemPath;
+import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import se.simonsoft.svn.runtime.SvnDataset;
 
-public class HandlerXmlNamespaceTest {
+@QuarkusTest
+@TestProfile(MockableSvnDatasetProfile.class)
+public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 
-	private ReposTestIndexing indexing;
-	
-	private long startTime = 0;
-	
-	/**
-	 * Manual dependency injection.
-	 */
-	@Before
-	public void setUpIndexing() {
-		startTime = System.currentTimeMillis();
-		
-		TestIndexOptions indexOptions = new TestIndexOptions().itemDefaultServices()
-				.addCore("reposxml", "se/simonsoft/cms/indexing/xml/solr/reposxml/**")
-				.addModule(new IndexingConfigXmlBase())
-				.addModule(new IndexingConfigXmlDefault());
-		indexing = ReposTestIndexing.getInstance(indexOptions);
-	}
-	
-	@After
-	public void tearDown() throws IOException {
-		long time = System.currentTimeMillis() - startTime;
-		System.out.println("Test took " + time + " millisecondss");
-		
-		ReposTestIndexing.getInstance().tearDown();
-	}
-	
-	// filexml backend could expose a https://github.com/hamcrest/JavaHamcrest matcher
-	protected void assumeResourceExists(FilexmlSource source, String cmsItemPath) {
-		assumeNotNull("Test skipped until large file " + cmsItemPath + " is exported",
-				source.getFile(new CmsItemPath(cmsItemPath)));
-	}
-	
+	private static final SvnDataset XML_DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xml");
+
+	private static final SvnDataset XHTML_DATASET = new SvnDataset(
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml");
+
+	@Inject
+	Instance<SVNRepository> repositories;
+
+	@Inject
+	@Named("reposxml")
+	SolrClient reposxml;
+
 	@Test
+	@ActivateRequestContext
 	public void testNamespaceXhtml() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml");
-		assumeResourceExists(repoSource, "/test1.xml");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/namespace", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
+		QuarkusMock.installMockForType(XHTML_DATASET, SvnDataset.class);
 
-		SolrClient reposxml = indexing.getCore("reposxml");
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("treelocation", ORDER.asc)).getResults();
-		assertEquals(13, all.getNumFound()); 
-		
+		assertEquals(13, all.getNumFound());
+
 		SolrDocument e1 = all.get(0);
 		assertEquals("html", e1.getFieldValue("name"));
 		// Solr allows the wildcard part of dynamic fields to be empty.
-		// TODO: Is ns_ what we want or would we like to define as "ns"? 
+		// TODO: Is ns_ what we want or would we like to define as "ns"?
 		assertEquals("declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ns_"));
 		assertEquals("inherited and declared ns", "http://www.w3.org/1999/xhtml", e1.getFieldValue("ins_"));
 		assertNotNull("used as well", e1.getFieldValue("uns_"));
-		
+
 		SolrDocument e2 = all.get(1);
 		assertEquals("head", e2.getFieldValue("name"));
 		assertNull("not declared here", e2.getFieldValue("ns_"));
 		assertEquals("inherited ns", "http://www.w3.org/1999/xhtml", e2.getFieldValue("ins_"));
-		
 	}
-	
-	
-	@Test
-	public void testNamespaceXml() throws Exception {
-		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/namespace-xml");
-		assumeResourceExists(repoSource, "/test1.xml");
-		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/namespace", repoSource);
-		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
-		
-		indexing.enable(new ReposTestBackendFilexml(filexml));
 
-		SolrClient reposxml = indexing.getCore("reposxml");
+	@Test
+	@ActivateRequestContext
+	public void testNamespaceXml() throws Exception {
+		QuarkusMock.installMockForType(XML_DATASET, SvnDataset.class);
+
+		assertEquals(2, repositories.get().getLatestRevision());
+
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(5, all.getNumFound()); 
 		
