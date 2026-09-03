@@ -64,6 +64,7 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.svn.runtime.RepoId;
+import se.simonsoft.svn.runtime.SvnConnectionConfig;
 import se.simonsoft.svn.runtime.SvnDataset;
 import se.simonsoft.svn.runtime.SvnRevisionAvailableEvent;
 
@@ -73,6 +74,8 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 
 	private static final SvnDataset TINY_INLINE_DATASET = new SvnDataset(
 			"se/simonsoft/cms/indexing/xml/datasets/tiny-inline", 2);
+	private static final CmsRepository TINY_INLINE_REPOSITORY = new CmsRepository(
+			"http://localtesthost/svn/tiny-inline");
 
 	private static final SvnDataset RID_DUPLICATE_DATASET = new SvnDataset(
 			"se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate", 2);
@@ -100,6 +103,9 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	Instance<String> repoIds;
 
 	@Inject
+	SvnConnectionConfig svnConnectionConfig;
+
+	@Inject
 	SvnDatasetRevisionEvents events;
 
 	@Inject
@@ -123,22 +129,35 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	@ActivateRequestContext
 	public void testTinyInline() throws Exception {
 		QuarkusMock.installMockForType(TINY_INLINE_DATASET, SvnDataset.class);
+		QuarkusMock.installMockForType(TINY_INLINE_REPOSITORY, CmsRepository.class);
 		events.clear();
 		String repoId = repoIds.get();
 		SVNRepository repository = repositories.get();
 
+		assertEquals("http://localtesthost/svn/tiny-inline", cmsRepository.getUrl());
+		assertEquals(svnConnectionConfig.hostname(), repository.getLocation().getHost());
+		assertEquals(svnConnectionConfig.port(), repository.getLocation().getPort());
+		assertEquals(svnConnectionConfig.repoparent() + "/" + repoId, repository.getLocation().getPath());
+		assertNotEquals(cmsRepository.getHost(), repository.getLocation().getHost());
 		assertEquals(TINY_INLINE_DATASET.revision(0), repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
 		assertEquals(List.of(repoId + " 1", repoId + " 2"), events.revisions());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", idStrategy.getIdRepository(cmsRepository),
+		assertEquals("should get 'repoid' from repositem", "localtesthost/svn/tiny-inline",
 				x1.get(0).getFieldValue("repoid"));
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1,
 				flagged.getNumFound());
+		assertEquals("localtesthost", flagged.get(0).getFieldValue("repohost"));
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("id"));
+		assertEquals("localtesthost/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("idhead"));
+		assertEquals("localtesthost/svn/tiny-inline#0000000002", flagged.get(0).getFieldValue("revid"));
+		assertEquals("http://localtesthost/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("url"));
+		assertEquals("http://localtesthost/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("urlhead"));
+		assertEquals("/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("pathfull"));
 		Collection<Object> flags = flagged.get(0).getFieldValues("flag");
 		assertFalse("Flag - not empty string", flagged.get(0).getFieldValues("flag").contains(""));
 		assertTrue("Flag 'hasxml'", flagged.get(0).getFieldValues("flag").contains("hasxml"));
