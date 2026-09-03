@@ -51,7 +51,7 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest extends MockableSvnDatase
 
 	private static final String DATASET_PATH = "se/simonsoft/cms/indexing/xml/datasets/single-860k";
 	private static final String DATASET_FILE = DATASET_PATH + "/T501007.xml";
-	private static final SvnDataset DATASET = new SvnDataset(DATASET_PATH, 1);
+	private static final SvnDataset DATASET = new SvnDataset(DATASET_PATH);
 
 	private static final Map<String, String> CHECKSUMS = Map.of(
 			"p", "c30f06122daa3fde28755ea85f59c14d0d5ac073",
@@ -98,7 +98,7 @@ public class HandlerXmlLargeFileQuarkusIntegrationTest extends MockableSvnDatase
 			}
 		}, CmsChangesetReader.class);
 
-		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(1, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(1)).getResults();
 		assertEquals(11488, all.getNumFound());

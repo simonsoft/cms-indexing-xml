@@ -73,27 +73,27 @@ import se.simonsoft.svn.runtime.SvnRevisionAvailableEvent;
 public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 
 	private static final SvnDataset TINY_INLINE_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/tiny-inline", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 	private static final CmsRepository TINY_INLINE_REPOSITORY = new CmsRepository(
 			"http://localtesthost/svn/tiny-inline");
 
 	private static final SvnDataset RID_DUPLICATE_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-ridduplicate");
 
 	private static final SvnDataset INVALID_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/tiny-invalid", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-invalid");
 
 	private static final SvnDataset ATTRIBUTES_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/tiny-attributes", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-attributes");
 
 	private static final SvnDataset ATTRIBUTES_NS_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/tiny-attributes-ns");
 
 	private static final SvnDataset RELEASE_LABELS_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/releaselabels", 9);
+			"se/simonsoft/cms/indexing/xml/datasets/releaselabels");
 
 	private static final SvnDataset RELEASE_TRANSLATION_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/releasetranslation", 9);
+			"se/simonsoft/cms/indexing/xml/datasets/releasetranslation");
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -139,7 +139,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 		assertEquals(svnConnectionConfig.port(), repository.getLocation().getPort());
 		assertEquals(svnConnectionConfig.repoparent() + "/" + repoId, repository.getLocation().getPath());
 		assertNotEquals(cmsRepository.getHost(), repository.getLocation().getHost());
-		assertEquals(TINY_INLINE_DATASET.revision(0), repository.getLatestRevision());
+		assertEquals(2, repository.getLatestRevision());
 		assertEquals(SVNNodeKind.FILE, repository.checkPath("test1.xml", 2));
 		assertEquals(List.of(repoId + " 1", repoId + " 2"), events.revisions());
 
@@ -223,7 +223,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testTinyRidDuplicate() throws Exception {
 		QuarkusMock.installMockForType(RID_DUPLICATE_DATASET, SvnDataset.class);
 
-		assertEquals(RID_DUPLICATE_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
@@ -255,7 +255,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testTinyRidDuplicateTsuppress() throws Exception {
 		QuarkusMock.installMockForType(RID_DUPLICATE_DATASET, SvnDataset.class);
 
-		assertEquals(RID_DUPLICATE_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("pathname:test1-tsuppress.xml").addSort("treelocation", ORDER.asc)).getResults();
 		assertEquals("Should index all elements", 5, x1.getNumFound());
@@ -282,7 +282,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testNextRevisionDeletesElement() throws Exception {
 		QuarkusMock.installMockForType(TINY_INLINE_DATASET, SvnDataset.class);
 
-		assertEquals(TINY_INLINE_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
@@ -328,7 +328,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testInvalidXml() throws Exception {
 		QuarkusMock.installMockForType(INVALID_DATASET, SvnDataset.class);
 
-		assertEquals(INVALID_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*")).getResults();
 		assertEquals("Should skip the document because it is not parseable as XML. Thus we can try formats that may be XML, such as html, without breaking indexing.",
@@ -343,7 +343,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testJoin() throws SolrServerException, IOException, SVNException {
 		QuarkusMock.installMockForType(TINY_INLINE_DATASET, SvnDataset.class);
 
-		assertEquals(TINY_INLINE_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList j1 = reposxml.query(new SolrQuery("{!join from=id to=id_p}*:*")).getResults();
 		assertEquals("all elements that have a parent, got " + j1, 3, j1.getNumFound());
@@ -394,7 +394,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testTinyAttributes() throws Exception {
 		QuarkusMock.installMockForType(ATTRIBUTES_DATASET, SvnDataset.class);
 
-		assertEquals(ATTRIBUTES_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
@@ -428,7 +428,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testTinyAttributesNs() throws Exception {
 		QuarkusMock.installMockForType(ATTRIBUTES_NS_DATASET, SvnDataset.class);
 
-		assertEquals(ATTRIBUTES_NS_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrQuery q1 = new SolrQuery("*:*").addSort("treelocation", SolrQuery.ORDER.asc);
 		SolrDocumentList x1 = reposxml.query(q1).getResults();
@@ -467,7 +467,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testAttributesReleasetranslationRelease() throws Exception {
 		QuarkusMock.installMockForType(RELEASE_TRANSLATION_DATASET, SvnDataset.class);
 
-		assertEquals(RELEASE_TRANSLATION_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(9, repositories.get().getLatestRevision());
 
 		SolrDocument elem;
 		// search for the first title
@@ -500,7 +500,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testAttributesReleasetranslationTranslation() throws Exception {
 		QuarkusMock.installMockForType(RELEASE_TRANSLATION_DATASET, SvnDataset.class);
 
-		assertEquals(RELEASE_TRANSLATION_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(9, repositories.get().getLatestRevision());
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 2, flagged.getNumFound());
@@ -534,7 +534,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testReleaseLabelSort1() throws Exception {
 		QuarkusMock.installMockForType(RELEASE_LABELS_DATASET, SvnDataset.class);
 
-		assertEquals(RELEASE_LABELS_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(9, repositories.get().getLatestRevision());
 
 		SolrDocumentList rlLegacy = repositem.query(new SolrQuery("patharea:release AND head:true").setSort("prop_abx.ReleaseLabel", ORDER.asc).setFields("*")).getResults();
 		assertEquals("no of releases", 8, rlLegacy.getNumFound());
@@ -573,7 +573,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 	public void testJoinReleasetranslationNoExtraFields() throws Exception {
 		QuarkusMock.installMockForType(RELEASE_TRANSLATION_DATASET, SvnDataset.class);
 
-		assertEquals(RELEASE_TRANSLATION_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(9, repositories.get().getLatestRevision());
 
 		// search for the first title
 		SolrDocumentList findUsingRid = reposxml.query(new SolrQuery("a_cms.rid:2gyvymn15kv0001 AND -prop_abx.TranslationLocale:*")).getResults();

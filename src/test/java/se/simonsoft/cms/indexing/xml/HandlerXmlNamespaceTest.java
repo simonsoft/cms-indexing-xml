@@ -42,10 +42,10 @@ import se.simonsoft.svn.runtime.SvnDataset;
 public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 
 	private static final SvnDataset XML_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/namespace-xml", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xml");
 
 	private static final SvnDataset XHTML_DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/namespace-xhtml");
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -59,7 +59,7 @@ public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 	public void testNamespaceXhtml() throws Exception {
 		QuarkusMock.installMockForType(XHTML_DATASET, SvnDataset.class);
 
-		assertEquals(XHTML_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(2).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(13, all.getNumFound());
@@ -83,7 +83,7 @@ public class HandlerXmlNamespaceTest extends MockableSvnDatasetTest {
 	public void testNamespaceXml() throws Exception {
 		QuarkusMock.installMockForType(XML_DATASET, SvnDataset.class);
 
-		assertEquals(XML_DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = reposxml.query(new SolrQuery("*:*").setRows(5).setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(5, all.getNumFound()); 

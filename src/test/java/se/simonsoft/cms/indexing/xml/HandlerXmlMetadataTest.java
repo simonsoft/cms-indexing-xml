@@ -43,7 +43,7 @@ import se.simonsoft.svn.runtime.SvnDataset;
 public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 
 	private static final SvnDataset DATASET = new SvnDataset(
-			"se/simonsoft/cms/indexing/xml/datasets/metadata", 2);
+			"se/simonsoft/cms/indexing/xml/datasets/metadata");
 
 	@Inject
 	Instance<SVNRepository> repositories;
@@ -57,7 +57,7 @@ public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 	public void testMetadataBookmap() throws Exception {
 		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
 
-		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:bookmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
@@ -153,7 +153,7 @@ public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 	public void testMetadataTechdocmap1() throws Exception {
 		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
 
-		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
@@ -222,7 +222,7 @@ public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 	public void testProfilingTechdocmap1() throws Exception {
 		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
 
-		assertEquals(DATASET.revision(0), repositories.get().getLatestRevision());
+		assertEquals(2, repositories.get().getLatestRevision());
 
 		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap1").setRows(2)).getResults();
 		assertEquals(2, all.getNumFound()); 
