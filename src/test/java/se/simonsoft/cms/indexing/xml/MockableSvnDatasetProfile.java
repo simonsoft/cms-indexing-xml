@@ -24,7 +24,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
 import se.simonsoft.svn.runtime.RepoId;
-import se.simonsoft.svn.runtime.SvnDumpConfig;
+import se.simonsoft.svn.runtime.SvnDatasetProducer;
 
 public class MockableSvnDatasetProfile implements QuarkusTestProfile {
 
@@ -32,7 +32,7 @@ public class MockableSvnDatasetProfile implements QuarkusTestProfile {
 	public Map<String, String> getConfigOverrides() {
 		// A configured dataset creates the normal-scoped bean that tests replace with QuarkusMock.
 		return Map.of(
-				SvnDumpConfig.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
+				SvnDatasetProducer.DATASET_PATH, "se/simonsoft/cms/indexing/xml/datasets/tiny-inline");
 	}
 
 	@Override
