@@ -134,6 +134,7 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 		SVNRepository repository = repositories.get();
 
 		assertEquals("https://cmshostname/svn/tiny-inline", cmsRepository.getUrl());
+		assertEquals("http", repository.getLocation().getProtocol());
 		assertEquals(svnConnectionConfig.hostname(), repository.getLocation().getHost());
 		assertEquals(svnConnectionConfig.port(), repository.getLocation().getPort());
 		assertEquals(svnConnectionConfig.repoparent() + "/" + repoId, repository.getLocation().getPath());
@@ -145,12 +146,23 @@ public class HandlerXmlIntegrationTest extends MockableSvnDatasetTest {
 
 		SolrDocumentList x1 = reposxml.query(new SolrQuery("*:*").setSort("treelocation", ORDER.asc)).getResults();
 		assertEquals(4, x1.getNumFound());
-		assertEquals("should get 'repoid' from repositem", "cmshostname/svn/tiny-inline",
-				x1.get(0).getFieldValue("repoid"));
+		for (SolrDocument element : x1) {
+			assertEquals("cmshostname/svn/tiny-inline", element.getFieldValue("repoid"));
+			assertEquals("cmshostname", element.getFieldValue("repohost"));
+			assertEquals("tiny-inline", element.getFieldValue("repo"));
+			assertEquals("/svn", element.getFieldValue("repoparent"));
+			assertEquals("/svn/tiny-inline/test1.xml", element.getFieldValue("pathfull"));
+			String elementId = (String) element.getFieldValue("id");
+			assertTrue("Public XML element ID: " + elementId,
+					elementId.startsWith("cmshostname/svn/tiny-inline/test1.xml@0000000002|"));
+		}
 
 		SolrDocumentList flagged = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Documents that got added to reposxml should be flagged 'hasxml' in repositem", 1,
 				flagged.getNumFound());
+		assertEquals("cmshostname/svn/tiny-inline", flagged.get(0).getFieldValue("repoid"));
+		assertEquals("tiny-inline", flagged.get(0).getFieldValue("repo"));
+		assertEquals("/svn", flagged.get(0).getFieldValue("repoparent"));
 		assertEquals("cmshostname", flagged.get(0).getFieldValue("repohost"));
 		assertEquals("cmshostname/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("id"));
 		assertEquals("cmshostname/svn/tiny-inline/test1.xml", flagged.get(0).getFieldValue("idhead"));
