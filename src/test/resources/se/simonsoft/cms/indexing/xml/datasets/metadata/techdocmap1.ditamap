@@ -11,6 +11,7 @@ xmlns:ditaarch="http://dita.oasis-open.org/architecture/2005/">
 <profiles name="two" platform="windows" audience="expert" logicalexpr="bogus"/>
 </profiling>
 <techdocinfo>
+<pubtype type="service-manual"/>
 <product>The Product name</product><product>Another prodinfo</product
 ><model>Model A</model><model>Model B</model>
 <docno>1234 ABCD</docno>

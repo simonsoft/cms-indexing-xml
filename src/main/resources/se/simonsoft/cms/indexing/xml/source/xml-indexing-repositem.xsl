@@ -774,7 +774,7 @@
 		<!-- techdocinfo -->
 		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'pubtype'"/>
-			<xsl:with-param name="value" select="$meta/pubtype"/>
+			<xsl:with-param name="value" select="$meta/pubtype/(@type, text())"/>
 		</xsl:call-template>
 		
 		<xsl:call-template name="meta-unit">
@@ -888,7 +888,7 @@
 	
 	<xsl:template name="meta-unit">
 		<xsl:param name="name" as="xs:string" required="yes"/>
-		<xsl:param name="value" as="element()*" required="yes"/>
+		<xsl:param name="value" as="node()*" required="yes"/>
 		<!-- make singlevalue field with newline separator -->
 		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
 		
