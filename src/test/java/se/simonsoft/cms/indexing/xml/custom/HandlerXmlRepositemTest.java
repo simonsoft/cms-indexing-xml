@@ -85,7 +85,26 @@ public class HandlerXmlRepositemTest {
 		assertEquals("", "My First Novel", doc.get(0).getFieldValue("embd_xml_title"));
 		assertEquals("", "Once upon a time...\nSubchapters are quite rare in novels.", doc.get(0).getFieldValue("embd_xml_intro"));
 	}
-	
+
+
+	@Test
+	public void testDitamapLocalKeyrefTitleIntro() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-keydef");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-keydef", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList doc = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+
+		// CMS-2012: DITA 2.0 keydef/topicmeta/keytext structure, single-value keys attribute.
+		assertEquals("Acme Widget", doc.get(0).getFieldValue("embd_xml_title"));
+		// DITA 1.3 keydef/topicmeta/keywords/keyword structure. Keyref matches the 2nd of 2 space-separated keys.
+		assertEquals("Documentation for Acme Widget 2.0.", doc.get(0).getFieldValue("embd_xml_intro"));
+	}
+
 
 	@Test
 	public void testTinyPretranslate() throws Exception {
