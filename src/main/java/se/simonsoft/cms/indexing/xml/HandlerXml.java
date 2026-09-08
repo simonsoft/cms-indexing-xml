@@ -260,14 +260,21 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.error(msg); // Suppress stack trace for normal log levels.
 			logger.debug(msg, e);
 			throw new IndexingHandlerException(msg, e);
-		} catch (RuntimeException e) { 
+		} catch (RuntimeException e) {
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
+		} catch (Throwable t) {
+			// Catches Error (e.g. OutOfMemoryError, StackOverflowError) escaping Saxon/XSLT, which
+			// RuntimeException does not. Must convert to IndexingHandlerException so cleanup in
+			// handle() runs and the revision is correctly left incomplete instead of killing the daemon.
+			progress.getFields().addField("flag", FLAG_XML_ERROR);
+			String msg = MessageFormatter.format("Unexpected XML error (Throwable) {} skipped. {}", progress.getFields().getFieldValue("path"), t.getMessage()).getMessage();
+			logger.error(msg, t);
+			throw new IndexingHandlerException(msg, t);
 		}
-		// TODO: Should we catch other forms of errors, from XSL?
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {

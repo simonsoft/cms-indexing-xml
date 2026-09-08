@@ -156,9 +156,67 @@ public class HandlerXmlTest {
 		}
 		
 		assertEquals("Should have called the extract method", 1, calls.size());
-	}	
-	
-	
+	}
+
+	@Test
+	public void testXmlSourceElementOutOfMemoryError() {
+		// CMS-1892: an Error (e.g. OutOfMemoryError) escaping Saxon/XSLT must not bypass
+		// IndexingHandlerException wrapping, or it silently terminates indexing of the revision.
+
+		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
+		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
+		final List<XmlSourceElement> calls = new LinkedList<XmlSourceElement>();
+		fe.add(new XmlIndexFieldExtraction() {
+			@Override
+			public void begin(XmlSourceElement processedElement, XmlIndexElementId idProvider) throws XmlNotWellFormedException {
+
+			}
+
+			@Override
+			public void end(XmlSourceElement processedElement, XmlIndexElementId idProvider, IndexingDoc fields) throws XmlNotWellFormedException {
+				calls.add(processedElement);
+				throw new OutOfMemoryError("simulated heap exhaustion");
+			}
+
+			@Override
+			public void endDocument() {
+
+			}
+
+			@Override
+			public void startDocument(XmlIndexProgress xmlProgress) {
+
+			}
+		});
+
+		HandlerXml handlerXml = injector.getInstance(HandlerXml.class);
+		handlerXml.setDependenciesIndexing(indexWriter);
+		handlerXml.setFieldExtraction(fe);
+
+		CmsChangesetItem p1i = mock(CmsChangesetItem.class);
+		when(p1i.isFile()).thenReturn(true);
+		when(p1i.getFilesize()).thenReturn(1L);
+		when(p1i.getPath()).thenReturn(new CmsItemPath("/some.xml"));
+		IndexingDoc p1f = new IndexingDocIncrementalSolrj();
+		p1f.addField("id", "base-id");
+		p1f.addField("embd_Content-Type", "application/xml");
+		IndexingItemProgress p1 = mock(IndexingItemProgress.class);
+		when(p1.getItem()).thenReturn(p1i);
+		when(p1.getFields()).thenReturn(p1f);
+		when(p1.getContents()).thenReturn(new ByteArrayInputStream("<p>P</p>".getBytes()));
+		try {
+			handlerXml.handle(p1); // should catch Error, wrap it, run cleanup, and leave the item/revision incomplete
+			fail("Should not proceed on unknown indexing errors, because we might unknowingly get an incomplete index");
+		} catch (IndexingHandlerException e) {
+			// expected: the Error must be wrapped, not propagate raw and kill the indexing daemon
+			assertTrue("Cause should be the original Error", e.getCause() instanceof OutOfMemoryError);
+		}
+
+		assertEquals("Should have called the extract method", 1, calls.size());
+		verify(indexWriter, atLeastOnce()).deletePath(any(), eq(p1i)); // cleanup must still run
+	}
+
+
 	@Test
 	public void testHandlerXmlFilesize() {
 
