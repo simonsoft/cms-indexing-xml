@@ -99,9 +99,9 @@ public class HandlerXmlRepositemTest {
 		SolrDocumentList doc = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
 		assertEquals("Document should exist", 1, doc.getNumFound());
 
-		// CMS-2012: DITA 2.0 keydef/topicmeta/keytext structure.
+		// CMS-2012: DITA 2.0 keydef/topicmeta/keytext structure. Keyref matches the 2nd of 2 space-separated keys.
 		assertEquals("Acme Widget", doc.get(0).getFieldValue("embd_xml_title"));
-		// DITA 1.3 keydef/topicmeta/keywords/keyword structure (pre-existing, previously untested).
+		// DITA 1.3 keydef/topicmeta/keywords/keyword structure. Keyref matches the 2nd of 2 space-separated keys.
 		assertEquals("Documentation for Acme Widget 2.0.", doc.get(0).getFieldValue("embd_xml_intro"));
 	}
 
