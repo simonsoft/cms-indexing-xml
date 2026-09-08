@@ -266,14 +266,17 @@ public class HandlerXml implements IndexingItemHandler {
 			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
-		} catch (Throwable t) {
-			// Catches Error (e.g. OutOfMemoryError, StackOverflowError) escaping Saxon/XSLT, which
-			// RuntimeException does not. Must convert to IndexingHandlerException so cleanup in
-			// handle() runs and the revision is correctly left incomplete instead of killing the daemon.
-			progress.getFields().addField("flag", FLAG_XML_ERROR);
-			String msg = MessageFormatter.format("Unexpected XML error (Throwable) {} skipped. {}", progress.getFields().getFieldValue("path"), t.getMessage()).getMessage();
+		} catch (Error t) {
+			// Error (e.g. OutOfMemoryError, StackOverflowError) escaping Saxon/XSLT indicates a
+			// resource/environment problem, not a data problem with this specific file. Must remain
+			// a hard failure: log with full path/revision context for diagnosis (previously only a
+			// generic, item-agnostic message appeared far downstream at the daemon level), then
+			// rethrow unwrapped so the revision is correctly left incomplete and picked up again on
+			// retry, instead of being silently accepted as complete with reposxml content missing.
+			String msg = MessageFormatter.arrayFormat("Unrecoverable error extracting XML {} at revision {}: {}",
+					new Object[] {progress.getFields().getFieldValue("path"), progress.getRevision(), t.getMessage()}).getMessage();
 			logger.error(msg, t);
-			throw new IndexingHandlerException(msg, t);
+			throw t;
 		}
 	}
 	

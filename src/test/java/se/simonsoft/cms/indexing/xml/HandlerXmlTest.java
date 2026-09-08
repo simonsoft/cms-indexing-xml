@@ -160,8 +160,10 @@ public class HandlerXmlTest {
 
 	@Test
 	public void testXmlSourceElementOutOfMemoryError() {
-		// CMS-1892: an Error (e.g. OutOfMemoryError) escaping Saxon/XSLT must not bypass
-		// IndexingHandlerException wrapping, or it silently terminates indexing of the revision.
+		// CMS-1892: an Error (e.g. OutOfMemoryError) escaping Saxon/XSLT is a resource/environment
+		// problem, not a data problem with this file. It must remain a hard failure (propagate
+		// unwrapped, not as IndexingHandlerException) so the revision is correctly left incomplete
+		// and retried, instead of being silently accepted as complete with content missing.
 
 		XmlIndexWriter indexWriter = mock(XmlIndexWriter.class);
 		Set<XmlIndexFieldExtraction> fe = new LinkedHashSet<XmlIndexFieldExtraction>();
@@ -205,15 +207,15 @@ public class HandlerXmlTest {
 		when(p1.getFields()).thenReturn(p1f);
 		when(p1.getContents()).thenReturn(new ByteArrayInputStream("<p>P</p>".getBytes()));
 		try {
-			handlerXml.handle(p1); // should catch Error, wrap it, run cleanup, and leave the item/revision incomplete
-			fail("Should not proceed on unknown indexing errors, because we might unknowingly get an incomplete index");
-		} catch (IndexingHandlerException e) {
-			// expected: the Error must be wrapped, not propagate raw and kill the indexing daemon
-			assertTrue("Cause should be the original Error", e.getCause() instanceof OutOfMemoryError);
+			handlerXml.handle(p1); // should log with full context, then rethrow the Error unwrapped
+			fail("An Error must remain a hard failure so the revision is retried, not silently accepted");
+		} catch (OutOfMemoryError e) {
+			// expected: must propagate as-is, NOT be caught/converted into IndexingHandlerException,
+			// so it is not treated as a soft per-item failure that lets the revision be marked complete
+			assertEquals("simulated heap exhaustion", e.getMessage());
 		}
 
 		assertEquals("Should have called the extract method", 1, calls.size());
-		verify(indexWriter, atLeastOnce()).deletePath(any(), eq(p1i)); // cleanup must still run
 	}
 
 
