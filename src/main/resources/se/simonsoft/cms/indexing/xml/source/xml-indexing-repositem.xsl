@@ -1008,7 +1008,14 @@
 		<!-- TODO: Support multi-value keys attribute. -->
 		<xsl:apply-templates select="//keydef[@keys = current()/@keyref]//keywords/keyword[1]" mode="#current"/>
 	</xsl:template>
-	
+
+	<xsl:template match="*[@keyref][//keydef[@keys = current()/@keyref]//keytext]" mode="title intro" priority="10">
+		<!-- CMS-2012: Matching locally defined keydefs using the DITA 2.0 keytext structure. -->
+		<!-- Keydefs in referenced maps are much more complex and could change after indexing. -->
+		<!-- TODO: Support multi-value keys attribute. -->
+		<xsl:apply-templates select="//keydef[@keys = current()/@keyref]//keytext[1]" mode="#current"/>
+	</xsl:template>
+
 	<xsl:template match="*[@keyref][not(text())]" mode="title intro">
 		<xsl:value-of select="concat('[', @keyref ,']')"/>
 	</xsl:template>
