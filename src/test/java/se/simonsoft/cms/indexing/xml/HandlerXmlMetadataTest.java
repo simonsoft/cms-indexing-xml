@@ -208,6 +208,9 @@ public class HandlerXmlMetadataTest {
 		
 		
 		// techdocinfo
+		assertEquals(Arrays.asList("service-manual"), e1.getFieldValue("meta_s_m_xml_pubtype"));
+		assertEquals("service-manual", e1.getFieldValue("meta_s_s_xml_pubtype"));
+
 		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_product"));
 		assertEquals("The Product name\nAnother prodinfo", e1.getFieldValue("meta_s_s_xml_product"));
 		
@@ -240,6 +243,19 @@ public class HandlerXmlMetadataTest {
 		assertEquals("one\ntwo", e1.getFieldValue("meta_s_s_xml_a_othermeta_multi-value"));
 	}
 	
+	@Test
+	public void testMetadataTechdocmapPubtypeAttributeAndText() throws Exception {
+		assumeResourceExists(repoSource, "/techdocmap2.ditamap");
+
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap2 AND head:true")).getResults();
+		assertEquals(1, all.getNumFound());
+
+		SolrDocument e1 = all.get(0);
+		assertEquals(Arrays.asList("service-manual", "installation-manual"), e1.getFieldValue("meta_s_m_xml_pubtype"));
+		assertEquals("service-manual\ninstallation-manual", e1.getFieldValue("meta_s_s_xml_pubtype"));
+	}
+
 	@Test
 	public void testProfilingTechdocmap1() throws Exception {
 		assumeResourceExists(repoSource, "/techdocmap1.ditamap");
