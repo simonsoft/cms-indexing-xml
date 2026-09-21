@@ -1034,7 +1034,7 @@
 
 			<!-- techdocmap -->
 			
-			<!-- Draft of market support in docno (no test coverage) -->
+			<!-- Market support in docno, @market is space-separated (test coverage: HandlerXmlRepositemTest) -->
 			<xsl:when test="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]"/>
 			</xsl:when>

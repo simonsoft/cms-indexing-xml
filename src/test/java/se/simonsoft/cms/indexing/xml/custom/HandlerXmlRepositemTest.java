@@ -88,6 +88,26 @@ public class HandlerXmlRepositemTest {
 
 
 	@Test
+	public void testReleaseDitamapPropertyDocnoMarket() throws Exception {
+		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/release-ditamap");
+		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/release-ditamap", repoSource);
+		FilexmlRepositoryReadonly filexml = new FilexmlRepositoryReadonly(repo);
+
+		indexing.enable(new ReposTestBackendFilexml(filexml));
+
+		SolrClient repositem = indexing.getCore("repositem");
+		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+
+		// Ditabase primary content, ditamap in the abx:Ditamap property.
+		assertEquals("dita", doc.get(0).getFieldValue("embd_xml_name"));
+		assertEquals("title from ditamap property", "Release title", doc.get(0).getFieldValue("embd_xml_title"));
+		// Docno with @market matching xml:lang takes precedence over docno with matching @xml:lang.
+		assertEquals("3456 MARKET", doc.get(0).getFieldValue("embd_xml_docno"));
+	}
+
+
+	@Test
 	public void testDitamapLocalKeyrefTitleIntro() throws Exception {
 		FilexmlSourceClasspath repoSource = new FilexmlSourceClasspath("se/simonsoft/cms/indexing/xml/datasets/tiny-keydef");
 		CmsRepositoryFilexml repo = new CmsRepositoryFilexml("http://localtesthost/svn/tiny-keydef", repoSource);
