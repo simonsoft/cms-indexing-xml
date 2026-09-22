@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 
 	private final Logger logger = LoggerFactory.getLogger(XmlIndexWriterSolrjBackground.class);
 	
-	private ExecutorService executor = null;
+	private ThreadPoolExecutor executor = null;
 	private final List<Future<Object>> pendingFutures = new ArrayList<Future<Object>>();
 
 	private long count = 0;
@@ -61,9 +62,9 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	}
 	
 	private void submitSend(Session session) {
-		
+		session.checkCurrent();
 		if (executor == null) {
-			executor = Executors.newSingleThreadExecutor();
+			executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 		}
 		
 		logger.debug("Scheduling xml batch {}, {} elements, {} total", ++count, session.size(), session.sizeContentTotal());
@@ -71,7 +72,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		Collection<SolrInputDocument> pending = session.rotatePending();
 		// Throws RejectedExecutionException if executor is shutting down.
 		// Future is kept and inspected in waitForCompletion() so a failed batch is never silently dropped (CMS-1892).
-		Future<Object> future = executor.submit(new IndexSend(pending, count));
+		Future<Object> future = executor.submit(new IndexSend(pending, count, session));
 		pendingFutures.add(future);
 	}
 	
@@ -90,15 +91,30 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		logger.info("Awaited completion of Solr Background executor: {} ms", completed.getTime() - start.getTime());
 	}
 	
+	@Override
+	protected void sessionAbort(Session session) {
+		// Do not interrupt an active Solr request. Await it before the caller cleans up.
+		if (executor != null) {
+			for (Future<Object> future : pendingFutures) {
+				// Only cancel tasks removed from the queue; running failures must remain observable.
+				if (executor.getQueue().remove(future)) {
+					future.cancel(false);
+				}
+			}
+		}
+		waitForCompletion();
+	}
+
 	// Probably needed for unit tests
 	// TODO: This wait could be moved to MarkerXmlCommit, per-commit instead of per-document.
 	// Things might change when supporting indexing in Lambda.
 	public void waitForCompletion() {
 		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
 		ExecutorService executor = this.executor;
-		this.executor = null; // Ensure this executor is never reused regardless of shutdown result.
+		if (executor == null) {
+			return;
+		}
 		List<Future<Object>> futures = new ArrayList<Future<Object>>(pendingFutures);
-		pendingFutures.clear();
 		executor.shutdown();
 		try {
 			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
@@ -113,9 +129,15 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			logger.warn(msg, e);
 			throw new RuntimeException(msg);
 		}
+		// Keep a timed-out executor reachable so abort can still drain it before cleanup.
+		this.executor = null;
+		pendingFutures.clear();
 		// CMS-1892: awaitTermination only confirms the tasks have finished, not that they succeeded.
 		// A batch that failed inside IndexSend.call() would otherwise be silently discarded here.
 		for (Future<Object> future : futures) {
+			if (future.isCancelled()) {
+				continue;
+			}
 			try {
 				future.get();
 			} catch (ExecutionException e) {
@@ -136,15 +158,17 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		
 		private Collection<SolrInputDocument> pending;
 		private long id;
-		
-		IndexSend(Collection<SolrInputDocument> pending, long id) {
+		private final Session session;
+
+		IndexSend(Collection<SolrInputDocument> pending, long id, Session session) {
 			this.pending = pending;
 			this.id = id;
+			this.session = session;
 		}
 		
 		@Override
 		public Object call() throws Exception {
-			doBatchSend(pending);
+			doBatchSend(pending, session);
 			logger.debug("Scheduled batch {} completed", id);
 			return null;
 		}

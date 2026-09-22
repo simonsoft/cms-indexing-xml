@@ -23,6 +23,8 @@ import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 public interface XmlIndexWriter extends Provider<XmlIndexAddSession> {
 
 	void deletePath(CmsRepository repository, CmsChangesetItem c);
+
+	XmlIndexAddSession get(XmlIndexingGuard guard);
 	
 	@Deprecated // No longer doing intermediate commit of each XML file since SolR 6 / 8 upgrade.
 	public void commit(boolean expungeDeletes);

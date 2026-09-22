@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.AbstractMap;
@@ -24,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.inject.Inject;
@@ -32,8 +34,10 @@ import jakarta.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
@@ -48,6 +52,7 @@ import se.repos.indexing.solrj.SolrQueryOp;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.indexing.xml.XmlIndexingGuard;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendDepthFirstPosition;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
@@ -83,24 +88,48 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	@Override
 	public XmlIndexAddSession get() {
-		return new Session();
+		return new Session(null);
 	}
 	
+	@Override
+	public XmlIndexAddSession get(XmlIndexingGuard guard) {
+		return new Session(Objects.requireNonNull(guard));
+	}
+
 	protected void batchSend(Session session) {
-		
+		session.checkCurrent();
 		Collection<SolrInputDocument> pending = session.rotatePending();
 		if (pending.size() == 0) {
 			logger.warn("Send to solr attempted with empty document list");
 			return;
 		}
 		logger.info("Sending {} elements size {} to Solr starting with id {}", pending.size(), session.sizeContentTotal(), pending.iterator().next().getFieldValue("id"));
-		doBatchSend(pending);
+		doBatchSend(pending, session);
 	}
 	
 	protected void doBatchSend(Collection<SolrInputDocument> pending) {
 		new SolrAdd(solrServer, pending).run();
 	}
 	
+	protected void doBatchSend(Collection<SolrInputDocument> pending, Session session) {
+		if (session.guard == null) {
+			// Legacy sessions use the existing send hook.
+			doBatchSend(pending);
+			return;
+		}
+		new SolrAdd(solrServer, pending) {
+			@Override
+			public UpdateResponse runOp() throws SolrServerException, IOException {
+				// Check on the actual sending thread, including after SolrOp's retry delay.
+				return session.guard.isCurrent() ? super.runOp() : null;
+			}
+		}.run();
+	}
+
+	protected void sessionAbort(Session session) {
+		// Synchronous sessions have no in-flight work.
+	}
+
 	protected void sessionEnd(Session session) {
 		batchSend(session);
 	}
@@ -224,10 +253,31 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		private Collection<SolrInputDocument> pending = new LinkedList<SolrInputDocument>();
 		
 		private int contentSize = 0;
-		
+		private final XmlIndexingGuard guard;
+
+		Session(XmlIndexingGuard guard) {
+			this.guard = guard;
+		}
+
+		void checkCurrent() {
+			if (guard != null) {
+				guard.check();
+			}
+		}
+
 		@Override
 		public void end() {
 			sessionEnd(this);
+			checkCurrent();
+		}
+
+		@Override
+		public void abort() {
+			if (guard != null) {
+				guard.stop();
+			}
+			pending.clear();
+			sessionAbort(this);
 		}
 		
 		private SolrInputDocument getSolrDoc(IndexingDoc doc) {
@@ -279,6 +329,11 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 		@Override
 		public boolean add(IndexingDoc e) {
+			// Once a background batch detects staleness, stop extracting/scheduling more elements.
+			// Live SVN lookups are at batch checkpoints, not once per XML element.
+			if (guard != null && guard.isStopped()) {
+				guard.check();
+			}
 			if (size() == 0) {
 				contentSize = 0;
 			}
