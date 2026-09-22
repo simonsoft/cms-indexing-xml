@@ -16,8 +16,12 @@
 package se.simonsoft.cms.indexing.xml.solr;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -31,6 +35,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
+import se.simonsoft.cms.indexing.xml.XmlIndexingGuard;
+import se.simonsoft.cms.item.CmsItemPath;
+import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 /**
  * Verify features of the actual index, without using our abstractions.
@@ -64,6 +73,88 @@ public class CoreReposxmlIntegrationTest {
 
 		QueryResponse query = reposxml.query(new SolrQuery("*:*"));
 		assertEquals(1, query.getResults().getNumFound());
+	}
+
+	@Test
+	public void abortedRevisionCleanupPreservesOlderAndNewerDocuments() throws Exception {
+		addRevision(1, "/repo/test.xml");
+		addRevision(3, "/repo/test.xml");
+		addRevision(2, "/other/test.xml");
+		reposxml.commit();
+		// The failed batch need not be searchable yet. Cleanup must still remove it.
+		addRevision(2, "/repo/test.xml");
+		new XmlIndexWriterSolrj(reposxml).deleteRevision(repository(), item(), new RepoRevision(2, null));
+		reposxml.commit();
+		assertEquals(Set.of(1L, 3L), revisions("/repo/test.xml"));
+		assertEquals(Set.of(2L), revisions("/other/test.xml"));
+	}
+
+	@Test
+	public void replacementBoundsMixedRevisionFallback() throws Exception {
+		addRevision(1, "/repo/test.xml");
+		addRevision(2, "/repo/test.xml");
+		addRevision(3, "/repo/test.xml");
+		reposxml.commit();
+		new XmlIndexWriterSolrj(reposxml).deletePath(repository(), item(), new RepoRevision(2, null),
+				new XmlIndexingGuard(() -> true));
+		reposxml.commit();
+		assertEquals(Set.of(3L), revisions("/repo/test.xml"));
+	}
+
+	@Test
+	public void replacementKeepsEfficientIdDeletionWithinRevisionBound() throws Exception {
+		addRevision(1, "/repo/test.xml");
+		addRevision(3, "/repo/test.xml");
+		reposxml.commit();
+		boolean allowed = XmlIndexWriterSolrj.deleteByQueryAllowed;
+		try {
+			XmlIndexWriterSolrj.deleteByQueryAllowed = false;
+			new XmlIndexWriterSolrj(reposxml).deletePath(repository(), item(), new RepoRevision(2, null),
+					new XmlIndexingGuard(() -> true));
+		} finally {
+			XmlIndexWriterSolrj.deleteByQueryAllowed = allowed;
+		}
+		reposxml.commit();
+		assertEquals(Set.of(3L), revisions("/repo/test.xml"));
+	}
+
+	@Test
+	public void staleDeleteLeavesAllRevisionsUntouched() throws Exception {
+		addRevision(1, "/repo/test.xml");
+		addRevision(3, "/repo/test.xml");
+		reposxml.commit();
+		new XmlIndexWriterSolrj(reposxml).deletePath(repository(), item(), new RepoRevision(2, null),
+				new XmlIndexingGuard(() -> false));
+		reposxml.commit();
+		assertEquals(Set.of(1L, 3L), revisions("/repo/test.xml"));
+	}
+
+	private void addRevision(long revision, String path) throws Exception {
+		SolrInputDocument doc = new SolrInputDocument();
+		doc.setField("id", path + "@" + revision + "|00000001");
+		doc.setField("pathfull", path);
+		doc.setField("rev", revision);
+		doc.setField("depth", 1);
+		doc.setField("treelocation", "1");
+		doc.setField("name", "doc");
+		reposxml.add(doc);
+	}
+
+	private Set<Long> revisions(String path) throws Exception {
+		return reposxml.query(new SolrQuery("pathfull:" + XmlIndexWriterSolrj.quote(path)))
+				.getResults().stream().map(d -> (Long) d.getFieldValue("rev")).collect(Collectors.toSet());
+	}
+
+	private CmsRepository repository() {
+		CmsRepository repository = mock(CmsRepository.class);
+		when(repository.getPath()).thenReturn("/repo");
+		return repository;
+	}
+
+	private CmsChangesetItem item() {
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		when(item.getPath()).thenReturn(new CmsItemPath("/test.xml"));
+		return item;
 	}
 
 }

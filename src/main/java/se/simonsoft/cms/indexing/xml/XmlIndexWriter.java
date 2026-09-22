@@ -18,6 +18,7 @@ package se.simonsoft.cms.indexing.xml;
 import jakarta.inject.Provider;
 
 import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public interface XmlIndexWriter extends Provider<XmlIndexAddSession> {
@@ -25,6 +26,12 @@ public interface XmlIndexWriter extends Provider<XmlIndexAddSession> {
 	void deletePath(CmsRepository repository, CmsChangesetItem c);
 
 	XmlIndexAddSession get(XmlIndexingGuard guard);
+
+	/** Retire only this or older revisions, while the candidate is still current. */
+	void deletePath(CmsRepository repository, CmsChangesetItem item, RepoRevision revision, XmlIndexingGuard guard);
+
+	/** Remove only the candidate's output after its writes have stopped. */
+	void deleteRevision(CmsRepository repository, CmsChangesetItem item, RepoRevision revision);
 	
 	@Deprecated // No longer doing intermediate commit of each XML file since SolR 6 / 8 upgrade.
 	public void commit(boolean expungeDeletes);
