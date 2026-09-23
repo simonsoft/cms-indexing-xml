@@ -287,6 +287,10 @@ public class HandlerXml implements IndexingItemHandler {
 			throw new IndexingHandlerException(msg, e);
 		} catch (RuntimeException e) {
 			failure = e;
+			// Future proposal (CMS-1892): rethrow unexpected RuntimeException unchanged so
+			// failed Solr writes are not accepted as text_error via IndexingHandlerException.
+			// This would also abort on unexpected transformation failures; decide which
+			// transformation errors should remain accepted before changing this behavior.
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
@@ -313,6 +317,9 @@ public class HandlerXml implements IndexingItemHandler {
 						indexWriter.deleteRevision(progress.getRepository(), c, progress.getRevision());
 					}
 				} catch (RuntimeException | Error cleanupFailure) {
+					// Future proposal: propagate cleanupFailure with the original failure suppressed,
+					// so an accepted content error cannot hide failed cleanup and allow completion.
+					// Keep the current suppression order until that policy is agreed.
 					if (failure != null) {
 						failure.addSuppressed(cleanupFailure);
 					} else {
