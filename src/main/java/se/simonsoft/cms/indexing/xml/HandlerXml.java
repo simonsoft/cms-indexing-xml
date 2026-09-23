@@ -260,14 +260,24 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.error(msg); // Suppress stack trace for normal log levels.
 			logger.debug(msg, e);
 			throw new IndexingHandlerException(msg, e);
-		} catch (RuntimeException e) { 
+		} catch (RuntimeException e) {
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
+		} catch (Error t) {
+			// Error (e.g. OutOfMemoryError, StackOverflowError) escaping Saxon/XSLT indicates a
+			// resource/environment problem, not a data problem with this specific file. Must remain
+			// a hard failure: log with full path/revision context for diagnosis (previously only a
+			// generic, item-agnostic message appeared far downstream at the daemon level), then
+			// rethrow unwrapped so the revision is correctly left incomplete and picked up again on
+			// retry, instead of being silently accepted as complete with reposxml content missing.
+			String msg = MessageFormatter.arrayFormat("Unrecoverable error extracting XML {} at revision {}: {}",
+					new Object[] {progress.getFields().getFieldValue("path"), progress.getRevision(), t.getMessage()}).getMessage();
+			logger.error(msg, t);
+			throw t;
 		}
-		// TODO: Should we catch other forms of errors, from XSL?
 	}
 	
 	private IndexingDoc cloneItemFields(IndexingDoc fields) {
