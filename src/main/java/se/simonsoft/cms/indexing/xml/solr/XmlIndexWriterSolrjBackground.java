@@ -15,11 +15,15 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -37,6 +41,7 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 	private final Logger logger = LoggerFactory.getLogger(XmlIndexWriterSolrjBackground.class);
 	
 	private ExecutorService executor = null;
+	private final List<Future<Object>> pendingFutures = new ArrayList<Future<Object>>();
 
 	private long count = 0;
 	
@@ -64,7 +69,10 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		logger.debug("Scheduling xml batch {}, {} elements, {} total", ++count, session.size(), session.sizeContentTotal());
 		
 		Collection<SolrInputDocument> pending = session.rotatePending();
-		executor.submit(new IndexSend(pending, count)); // Throws RejectedExecutionException if executor is shutting down.
+		// Throws RejectedExecutionException if executor is shutting down.
+		// Future is kept and inspected in waitForCompletion() so a failed batch is never silently dropped (CMS-1892).
+		Future<Object> future = executor.submit(new IndexSend(pending, count));
+		pendingFutures.add(future);
 	}
 	
 	@Override
@@ -89,6 +97,8 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 		// Is there anything in the ExecutorService API for this? Yes, but we need to shutdown.
 		ExecutorService executor = this.executor;
 		this.executor = null; // Ensure this executor is never reused regardless of shutdown result.
+		List<Future<Object>> futures = new ArrayList<Future<Object>>(pendingFutures);
+		pendingFutures.clear();
 		executor.shutdown();
 		try {
 			// #1094 Issuing SolR commit without awaiting full completion will make the resulting searcher incomplete.
@@ -102,6 +112,22 @@ public class XmlIndexWriterSolrjBackground extends XmlIndexWriterSolrj {
 			String msg = MessageFormatter.format("Failed to await shutdown of Solr Background executor: {}", e.getMessage()).getMessage();
 			logger.warn(msg, e);
 			throw new RuntimeException(msg);
+		}
+		// CMS-1892: awaitTermination only confirms the tasks have finished, not that they succeeded.
+		// A batch that failed inside IndexSend.call() would otherwise be silently discarded here.
+		for (Future<Object> future : futures) {
+			try {
+				future.get();
+			} catch (ExecutionException e) {
+				Throwable cause = e.getCause() != null ? e.getCause() : e;
+				String msg = MessageFormatter.format("Solr Background executor batch failed: {}", cause.getMessage()).getMessage();
+				logger.error(msg, cause);
+				throw new RuntimeException(msg, cause);
+			} catch (InterruptedException e) {
+				String msg = MessageFormatter.format("Interrupted while collecting result of Solr Background executor batch: {}", e.getMessage()).getMessage();
+				logger.warn(msg, e);
+				throw new RuntimeException(msg, e);
+			}
 		}
 	}
 	
