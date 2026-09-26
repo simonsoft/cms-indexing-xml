@@ -36,6 +36,8 @@ import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.impl.CmsItemIdArg;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
+import se.simonsoft.cms.item.inspection.CmsContentsReader;
+import se.simonsoft.cms.item.properties.CmsItemProperties;
 
 /**
  * Uses the abx.*Master properties, splitting on newline, to add fields rel_abx.*Master.
@@ -46,7 +48,21 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 
 	private CmsChangesetReader changesetReader;
 
+	private CmsContentsReader contentsReader;
+
 	private static final String HOSTFIELD = "repohost";
+
+	/**
+	 * CMS-2034: Revision property declaring the operation of the commit, overriding the move / copy detection.
+	 */
+	static final String REVPROP_OPERATION = "cms:operation";
+	static final String OPERATION_MOVE = "move";
+	static final String OPERATION_COPY = "copy";
+
+	/**
+	 * CMS-2034: Property set by cms-transform, recording the source item of the transform.
+	 */
+	static final String TRANSFORM_BASE_FIELD = "prop_abx.TransformBase";
 
 	/**
 	 * @param idStrategy to fill the refid/relid field
@@ -59,6 +75,11 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	@Inject
 	public void setCmsChangesetReader(CmsChangesetReader changesetReader) {
 		this.changesetReader = changesetReader;
+	}
+
+	@Inject
+	public void setCmsContentsReader(CmsContentsReader contentsReader) {
+		this.contentsReader = contentsReader;
 	}
 
 	@Override
@@ -161,6 +182,10 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 	 * - rel_commit_previous: For all modifications except ADD (<= current-1)
 	 * - rel_commit_previous_move: Includes ADD operations that are moves
 	 * - rel_commit_previous_copy: Includes ADD operations that are moves and copies (move is a special case of copy) 
+	 * 
+	 * CMS-2034: The revprop cms:operation (move / copy) overrides the move / copy detection of ADD operations.
+	 * An ADD without copy source is considered a move / copy of the abx:TransformBase item (cms-transform) when 
+	 * the revprop is set.
 	 *
 	 * @param progress the indexing progress containing the current item
 	 */
@@ -181,27 +206,94 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 				fields.addField("rel_commit_previous_move", previousCommitRevId);
 				fields.addField("rel_commit_previous_copy", previousCommitRevId);
 			}
-		} else if (item.isCopy() || item.isMove()) {
-			// Handle ADD operations: Copy / Move
-			CmsItemPath copyFromPath = item.getCopyFromPath();
-			RepoRevision copyFromRevision = item.getCopyFromRevision();
+			return;
+		}
 
-			if (copyFromPath != null && copyFromRevision != null) {
-				// Get the commit revision for the copy or move source
-				RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
-				if (previousCommitRev != null) {
-					CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
-					String previousCommitRevId = idStrategy.getId(itemId.withPegRev(null), previousCommitRev);
-					if (item.isMove()) {
-						fields.addField("rel_commit_previous_move", previousCommitRevId);
-						// Reasoning is that a history traversal that want to follow copy operations most likely also want to follow move.
-						fields.addField("rel_commit_previous_copy", previousCommitRevId);
-					}
-					if (item.isCopy()) {
-						fields.addField("rel_commit_previous_copy", previousCommitRevId);
-					}
+		CmsItemPath copyFromPath = null;
+		RepoRevision copyFromRevision = null;
+		boolean isMove = false;
+		boolean isCopy = false;
+		String operation = null;
+
+		if (item.isCopy() || item.isMove()) {
+			// Handle ADD operations: Copy / Move
+			copyFromPath = item.getCopyFromPath();
+			copyFromRevision = item.getCopyFromRevision();
+			isMove = item.isMove();
+			isCopy = item.isCopy();
+			operation = getOperation(progress.getRevision());
+		} else {
+			// CMS-2034: ADD without copy source, e.g. cms-transform recording the source in abx:TransformBase.
+			CmsItemId transformBase = getTransformBase(fields, repository);
+			if (transformBase != null) {
+				operation = getOperation(progress.getRevision());
+				if (operation != null) {
+					copyFromPath = transformBase.getRelPath();
+					copyFromRevision = new RepoRevision(progress.getRevision().getNumber() - 1, null);
 				}
 			}
 		}
+
+		// CMS-2034: The revprop overrides the move / copy detection.
+		if (operation != null) {
+			isMove = OPERATION_MOVE.equals(operation);
+			isCopy = OPERATION_COPY.equals(operation);
+		}
+
+		if (copyFromPath != null && copyFromRevision != null) {
+			// Get the commit revision for the copy or move source
+			RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
+			if (previousCommitRev != null) {
+				CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
+				String previousCommitRevId = idStrategy.getId(itemId.withPegRev(null), previousCommitRev);
+				if (isMove) {
+					fields.addField("rel_commit_previous_move", previousCommitRevId);
+					// Reasoning is that a history traversal that want to follow copy operations most likely also want to follow move.
+					fields.addField("rel_commit_previous_copy", previousCommitRevId);
+				}
+				if (isCopy) {
+					fields.addField("rel_commit_previous_copy", previousCommitRevId);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return the revprop cms:operation if set to a supported value (move / copy), otherwise null
+	 */
+	String getOperation(RepoRevision revision) {
+		if (contentsReader == null || revision == null) {
+			return null;
+		}
+		CmsItemProperties revprops = contentsReader.getRevisionProperties(revision);
+		if (revprops == null) {
+			return null;
+		}
+		String operation = revprops.getString(REVPROP_OPERATION);
+		if (operation == null || operation.trim().isEmpty()) {
+			return null;
+		}
+		operation = operation.trim().toLowerCase();
+		if (OPERATION_MOVE.equals(operation) || OPERATION_COPY.equals(operation)) {
+			return operation;
+		}
+		logger.warn("Unsupported value of revprop {} in revision {}: {}", REVPROP_OPERATION, revision.getNumber(), operation);
+		return null;
+	}
+
+	/**
+	 * @return the abx:TransformBase item if in the same repository, otherwise null
+	 */
+	private CmsItemId getTransformBase(IndexingDoc fields, CmsRepository repository) {
+		String transformBase = (String) fields.getFieldValue(TRANSFORM_BASE_FIELD);
+		if (transformBase == null || transformBase.trim().isEmpty()) {
+			return null;
+		}
+		CmsItemIdArg id = new CmsItemIdArg(transformBase.trim());
+		if (!repository.getPath().equals(id.getRepository().getPath())) {
+			logger.warn("Ignoring {} in different repository: {}", TRANSFORM_BASE_FIELD, transformBase);
+			return null;
+		}
+		return id;
 	}
 }
