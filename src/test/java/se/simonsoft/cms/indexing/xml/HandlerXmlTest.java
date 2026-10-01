@@ -436,9 +436,9 @@ public class HandlerXmlTest {
 	private HandlerXml createHandlerXml() {
 		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
 		Processor processor = producer.createProcessor();
-		XmlSourceReaderS9api sourceReader = producer.createXmlSourceReader(processor);
+		XmlSourceReaderS9api sourceReader = new XmlSourceReaderS9api(processor);
 		TransformerServiceFactory transformerServiceFactory =
-				producer.createTransformerServiceFactory(processor, sourceReader);
+				new TransformerServiceFactory(processor, sourceReader, producer.createTransformStylesheetSource());
 		HandlerXml handlerXml = new HandlerXml(processor, sourceReader, transformerServiceFactory);
 		handlerXml.setXslPipeline(producer.createXmlIndexFieldXslPipeline(transformerServiceFactory, "tsp"));
 		handlerXml.setConfigIndexing(10 * 1048576, "");

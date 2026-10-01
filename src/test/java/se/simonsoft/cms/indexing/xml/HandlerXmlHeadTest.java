@@ -58,7 +58,7 @@ public class HandlerXmlHeadTest {
     public void setUp() {
         XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
         Processor processor = producer.createProcessor();
-        reader = spy(producer.createXmlSourceReader(processor));
+        reader = spy(new XmlSourceReaderS9api(processor));
         TransformerServiceFactory factory = mock(TransformerServiceFactory.class);
         when(factory.buildTransformerService("reuse-normalize.xsl")).thenReturn(normalize);
         when(normalize.transform(any(XmlSourceDocumentS9api.class), any())).thenAnswer(call -> call.getArgument(0));

@@ -98,8 +98,8 @@ public class HandlerXmlLargeFileTest {
 
 		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
 		p = producer.createProcessor();
-		sourceReader = producer.createXmlSourceReader(p);
-		tf = producer.createTransformerServiceFactory(p, sourceReader);
+		sourceReader = new XmlSourceReaderS9api(p);
+		tf = new TransformerServiceFactory(p, sourceReader, producer.createTransformStylesheetSource());
 	}
 
 	@After

@@ -59,7 +59,6 @@ import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSource;
 import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSourceConfig;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
@@ -87,22 +86,14 @@ public class XmlIndexingHandlersProducer {
 
 	@Produces
 	@Singleton
-	public XmlSourceReaderS9api createXmlSourceReader(Processor processor) {
-		return new XmlSourceReaderS9api(processor);
-	}
-
-	@Produces
-	@Singleton
-	public TransformerServiceFactory createTransformerServiceFactory(
-			Processor processor, XmlSourceReader sourceReader) {
+	public TransformStylesheetSource createTransformStylesheetSource() {
 		Map<String, String> stylesheets = new LinkedHashMap<>();
 		stylesheets.put("identity.xsl", "se/simonsoft/cms/xmlsource/transform/identity.xsl");
 		stylesheets.put("reuse-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
 		stylesheets.put("itemid-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl");
 		stylesheets.put("xml-indexing-repositem.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
 		stylesheets.put("xml-indexing-reposxml.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl");
-		TransformStylesheetSource stylesheetSource = new TransformStylesheetSourceConfig(stylesheets);
-		return new TransformerServiceFactory(processor, sourceReader, stylesheetSource);
+		return new TransformStylesheetSourceConfig(stylesheets);
 	}
 
 	@Produces

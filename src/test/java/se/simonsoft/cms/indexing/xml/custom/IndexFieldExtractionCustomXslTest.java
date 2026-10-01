@@ -58,8 +58,8 @@ public class IndexFieldExtractionCustomXslTest {
 		
 		XmlIndexingHandlersProducer producer = new XmlIndexingHandlersProducer();
 		p = producer.createProcessor();
-		sourceReader = producer.createXmlSourceReader(p);
-		transformerServiceFactory = producer.createTransformerServiceFactory(p, sourceReader);
+		sourceReader = new XmlSourceReaderS9api(p);
+		transformerServiceFactory = new TransformerServiceFactory(p, sourceReader, producer.createTransformStylesheetSource());
 		
 		tReuse = this.transformerServiceFactory.buildTransformerService("reuse-normalize.xsl");
 	}
