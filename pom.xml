@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
-			<version>0.22.2-SNAPSHOT</version>
+			<version>0.40.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jdom2</artifactId>
@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-publish-config</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.3-SNAPSHOT</version>
 		</dependency>
 		
 	  	<dependency>
