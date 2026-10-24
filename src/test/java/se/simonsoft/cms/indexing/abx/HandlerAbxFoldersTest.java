@@ -39,6 +39,8 @@ import se.repos.indexing.item.IndexingItemProgress;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
+import se.simonsoft.cms.item.inspection.CmsContentsReader;
+import se.simonsoft.cms.item.properties.CmsItemPropertiesMap;
 
 /**
  *
@@ -280,5 +282,100 @@ public class HandlerAbxFoldersTest {
 		assertNull("Expected rel_commit_previous to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous"));
 		assertNull("Expected rel_commit_previous_move to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous_move"));
 		assertNull("Expected rel_commit_previous_copy to NOT be populated for pure ADD operation", doc.getFieldValues("rel_commit_previous_copy"));
+	}
+
+	private IndexingDoc handleAddWithOperation(String operation, boolean isCopy, boolean isMove, String transformBase) {
+		CmsRepository repo = new CmsRepository("http://host:123/svn/demo1");
+		CmsItemPath itemPath = new CmsItemPath("/vvab/xml/dita/topics/TOPIC_0000001.dita");
+		CmsItemPath copyFromPath = new CmsItemPath("/vvab/xml/sections/section.xml");
+
+		IndexingItemProgress progress = mock(IndexingItemProgress.class);
+		CmsChangesetItem item = mock(CmsChangesetItem.class);
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		CmsChangesetReaderSvnkit changesetReader = mock(CmsChangesetReaderSvnkit.class);
+		CmsContentsReader contentsReader = mock(CmsContentsReader.class);
+
+		when(progress.getRepository()).thenReturn(repo);
+		when(progress.getItem()).thenReturn(item);
+		when(progress.getFields()).thenReturn(doc);
+		when(progress.getRevision()).thenReturn(new RepoRevision(130, null));
+		when(item.getPath()).thenReturn(itemPath);
+		when(item.isAdd()).thenReturn(true);
+		when(item.isCopy()).thenReturn(isCopy);
+		when(item.isMove()).thenReturn(isMove);
+		if (isCopy || isMove) {
+			when(item.getCopyFromPath()).thenReturn(copyFromPath);
+			when(item.getCopyFromRevision()).thenReturn(new RepoRevision(129, null));
+		}
+
+		when(changesetReader.getChangedRevision(copyFromPath, 129)).thenReturn(new RepoRevision(125, null));
+		CmsItemPropertiesMap revprops = new CmsItemPropertiesMap();
+		if (operation != null) {
+			revprops.and("cms:operation", operation);
+		}
+		when(contentsReader.getRevisionProperties(new RepoRevision(130, null))).thenReturn(revprops);
+
+		doc.addField("repohost", "host:123");
+		if (transformBase != null) {
+			doc.addField("prop_abx.TransformBase", transformBase);
+		}
+
+		HandlerAbxMasters handler = new HandlerAbxMasters(new IdStrategyDefault());
+		handler.setCmsChangesetReader(changesetReader);
+		handler.setCmsContentsReader(contentsReader);
+		handler.handle(progress);
+		return doc;
+	}
+
+	@Test
+	public void testHandleCommitPreviousOperationMoveOverridesCopy() {
+		IndexingDoc doc = handleAddWithOperation("move", true, false, null);
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_move"));
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_copy"));
+		assertNull(doc.getFieldValues("rel_commit_previous"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousOperationCopyOverridesMove() {
+		IndexingDoc doc = handleAddWithOperation("copy", true, true, null);
+		assertNull("Revprop declares copy, not move", doc.getFieldValues("rel_commit_previous_move"));
+		assertEquals(1, doc.getFieldValues("rel_commit_previous_copy").size());
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_copy"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousOperationUnsupportedIgnored() {
+		IndexingDoc doc = handleAddWithOperation("rename", true, false, null);
+		assertNull(doc.getFieldValues("rel_commit_previous_move"));
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_copy"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousOperationMoveTransformBase() {
+		IndexingDoc doc = handleAddWithOperation("move", false, false, "x-svn:///svn/demo1/vvab/xml/sections/section.xml");
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_move"));
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_copy"));
+		assertNull(doc.getFieldValues("rel_commit_previous"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousOperationCopyTransformBase() {
+		IndexingDoc doc = handleAddWithOperation("Copy", false, false, "x-svn:///svn/demo1/vvab/xml/sections/section.xml");
+		assertNull(doc.getFieldValues("rel_commit_previous_move"));
+		assertEquals("host:123/svn/demo1/vvab/xml/sections/section.xml@0000000125", doc.getFieldValue("rel_commit_previous_copy"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousTransformBaseWithoutOperation() {
+		IndexingDoc doc = handleAddWithOperation(null, false, false, "x-svn:///svn/demo1/vvab/xml/sections/section.xml");
+		assertNull(doc.getFieldValues("rel_commit_previous_move"));
+		assertNull(doc.getFieldValues("rel_commit_previous_copy"));
+	}
+
+	@Test
+	public void testHandleCommitPreviousTransformBaseOtherRepository() {
+		IndexingDoc doc = handleAddWithOperation("move", false, false, "x-svn:///svn/demo2/vvab/xml/sections/section.xml");
+		assertNull(doc.getFieldValues("rel_commit_previous_move"));
+		assertNull(doc.getFieldValues("rel_commit_previous_copy"));
 	}
 }
