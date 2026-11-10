@@ -15,6 +15,7 @@
  */
 package se.simonsoft.cms.indexing.xml.solr;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.AbstractMap;
@@ -24,16 +25,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
@@ -48,8 +52,10 @@ import se.repos.indexing.solrj.SolrQueryOp;
 import se.repos.indexing.twophases.IndexingDocIncrementalSolrj;
 import se.simonsoft.cms.indexing.xml.XmlIndexAddSession;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.indexing.xml.XmlIndexingGuard;
 import se.simonsoft.cms.indexing.xml.fields.XmlIndexIdAppendDepthFirstPosition;
 import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.events.change.CmsChangesetItem;
 
 public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlIndexWriter {
@@ -83,24 +89,48 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	
 	@Override
 	public XmlIndexAddSession get() {
-		return new Session();
+		return new Session(null);
 	}
 	
+	@Override
+	public XmlIndexAddSession get(XmlIndexingGuard guard) {
+		return new Session(Objects.requireNonNull(guard));
+	}
+
 	protected void batchSend(Session session) {
-		
+		session.checkCurrent();
 		Collection<SolrInputDocument> pending = session.rotatePending();
 		if (pending.size() == 0) {
 			logger.warn("Send to solr attempted with empty document list");
 			return;
 		}
 		logger.info("Sending {} elements size {} to Solr starting with id {}", pending.size(), session.sizeContentTotal(), pending.iterator().next().getFieldValue("id"));
-		doBatchSend(pending);
+		doBatchSend(pending, session);
 	}
 	
 	protected void doBatchSend(Collection<SolrInputDocument> pending) {
 		new SolrAdd(solrServer, pending).run();
 	}
 	
+	protected void doBatchSend(Collection<SolrInputDocument> pending, Session session) {
+		if (session.guard == null) {
+			// Legacy sessions use the existing send hook.
+			doBatchSend(pending);
+			return;
+		}
+		new SolrAdd(solrServer, pending) {
+			@Override
+			public UpdateResponse runOp() throws SolrServerException, IOException {
+				// Check on the actual sending thread, including after SolrOp's retry delay.
+				return session.guard.isCurrent() ? super.runOp() : null;
+			}
+		}.run();
+	}
+
+	protected void sessionAbort(Session session) {
+		// Synchronous sessions have no in-flight work.
+	}
+
 	protected void sessionEnd(Session session) {
 		batchSend(session);
 	}
@@ -108,7 +138,28 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 	public void deletePath(CmsRepository repository, CmsChangesetItem c) {
 		// Query for the id as well as number of elements.
+		deletePath(getDeleteQuery(repository, c), c, null);
+	}
+
+	@Override
+	public void deletePath(CmsRepository repository, CmsChangesetItem c, RepoRevision revision, XmlIndexingGuard guard) {
+		Objects.requireNonNull(guard);
 		SolrQuery query = getDeleteQuery(repository, c);
+		query.addFilterQuery("rev:[* TO " + revision.getNumber() + "]");
+		deletePath(query, c, guard);
+	}
+
+	@Override
+	public void deleteRevision(CmsRepository repository, CmsChangesetItem c, RepoRevision revision) {
+		// A query also removes partial batches not yet visible to a searcher.
+		String query = "pathfull:" + quote(getPathFull(repository, c)) + " AND rev:" + revision.getNumber();
+		new SolrDeleteByQuery(solrServer, query).run();
+	}
+
+	private void deletePath(SolrQuery query, CmsChangesetItem c, XmlIndexingGuard guard) {
+		if (guard != null && !guard.isCurrent()) {
+			return;
+		}
 		QueryResponse existing = new SolrQueryOp(solrServer, query).run();
 		
 		long count = existing.getResults().getNumFound();
@@ -127,12 +178,12 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 			String id2Base = getIdBase(existing.getResults().get(1), c); 
 			if (!id2Base.equals(id1Base)) {
 				logger.warn("Delete query provided multiple revisions in reposxml: {}.. - {}..", id1Base, id2Base);
-				deletePathByQuery(repository, c);
+				deletePathByQuery(query, guard);
 				return;
 			}
 		}
 		logger.info("Deleting previous revision ({} docs): {}", count, id1Base);
-		deleteIds(id1Base, count);
+		deleteIds(id1Base, count, guard);
 		logger.info("Deleted previous revision ({} docs): {}", count, id1Base);
 	}
 	
@@ -140,25 +191,33 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	 * @param idBase with separator '|'
 	 * @param count number of elements, starting at 1.
 	 */
-	private void deleteIds(String idBase, long count) {
+	private void deleteIds(String idBase, long count, XmlIndexingGuard guard) {
 		// Paged delete for large documents, reverse order.
 		// Not bothering with partial last page.
 		Instant start = Instant.now(); 
 		long pages = (count / DELETE_PAGE_SIZE) + 1; // Adding one page for the division remainder.
 		for (long i = (pages-1); i >= 0 ; i--) { // Reverse to ensure that depth=1 is deleted last.
-			deleteIdPage(idBase, i);
+			if (guard != null && guard.isStopped()) {
+				return;
+			}
+			deleteIdPage(idBase, i, guard);
 		}
 		// TODO: Change to debug level
 		Instant end = Instant.now(); 
 		logger.info("Deleted previous revision ({} pages) in {} ms: {}", pages, Duration.between(start, end).toMillis(), idBase);
 	}
 	
-	private void deleteIdPage(String idBase, long page) {
+	private void deleteIdPage(String idBase, long page, XmlIndexingGuard guard) {
 		LinkedList<String> ids = new LinkedList<>();
 		for (long i = DELETE_PAGE_SIZE * page; i <= DELETE_PAGE_SIZE * (page+1) ; i++) { // overlap one
 			ids.add(idBase + XmlIndexIdAppendDepthFirstPosition.getElementId(i));
 		}
-		new SolrDelete(solrServer, ids).run();
+		new SolrDelete(solrServer, ids) {
+			@Override
+			public UpdateResponse runOp() throws SolrServerException, IOException {
+				return guard == null || guard.isCurrent() ? super.runOp() : null;
+			}
+		}.run();
 	}
 	
 	public static SolrQuery getDeleteQuery(CmsRepository repository, CmsChangesetItem c) {
@@ -182,22 +241,21 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 	}
 	
 	
-	private void deletePathByQuery(CmsRepository repository, CmsChangesetItem c) {
-		// Keeping this method as fallback.
-		logger.warn("Deleting previous revision using fallback to 'deleteByQuery' (slow): {}", c);
+	private void deletePathByQuery(SolrQuery selection, XmlIndexingGuard guard) {
+		logger.warn("Deleting previous revisions using fallback to 'deleteByQuery' (slow): {}", selection);
 		if (!deleteByQueryAllowed) {
 			throw new IllegalStateException("deleteByQuery is disabled by configuration");
 		}
-		
-		// we can't use id to delete because it may contain revision, we could probably delete an exact item by hooking into the head=false update in item indexing
-		// reposxml generates an unknown number of docs per cmsitem (at least for Release / Assist). Can not be deleted by a single ID.
-		
-		// DeleteByQuery turns out to be a significant performance issue, potentially more so in SolR 8 than SolR 4.
-		// https://www.od-bits.com/2018/03/dbq-or-delete-by-query.html
-		String pathfull = getPathFull(repository, c);
-		String query = "pathfull:"+ quote(pathfull);
-		logger.debug("Deleting previous revision of {} using query {}", c, query);
-		new SolrDeleteByQuery(solrServer, query).run();	
+		String query = selection.getQuery();
+		if (selection.getFilterQueries() != null) {
+			query += " AND " + String.join(" AND ", selection.getFilterQueries());
+		}
+		new SolrDeleteByQuery(solrServer, query) {
+			@Override
+			public UpdateResponse runOp() throws SolrServerException, IOException {
+				return guard == null || guard.isCurrent() ? super.runOp() : null;
+			}
+		}.run();
 	}
 	
 	private static String getPathFull(CmsRepository repository, CmsChangesetItem c) {
@@ -224,10 +282,31 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		private Collection<SolrInputDocument> pending = new LinkedList<SolrInputDocument>();
 		
 		private int contentSize = 0;
-		
+		private final XmlIndexingGuard guard;
+
+		Session(XmlIndexingGuard guard) {
+			this.guard = guard;
+		}
+
+		void checkCurrent() {
+			if (guard != null) {
+				guard.check();
+			}
+		}
+
 		@Override
 		public void end() {
 			sessionEnd(this);
+			checkCurrent();
+		}
+
+		@Override
+		public void abort() {
+			if (guard != null) {
+				guard.stop();
+			}
+			pending.clear();
+			sessionAbort(this);
 		}
 		
 		private SolrInputDocument getSolrDoc(IndexingDoc doc) {
@@ -279,6 +358,11 @@ public class XmlIndexWriterSolrj implements Provider<XmlIndexAddSession>, XmlInd
 		
 		@Override
 		public boolean add(IndexingDoc e) {
+			// Once a background batch detects staleness, stop extracting/scheduling more elements.
+			// Live SVN lookups are at batch checkpoints, not once per XML element.
+			if (guard != null && guard.isStopped()) {
+				guard.check();
+			}
 			if (size() == 0) {
 				contentSize = 0;
 			}

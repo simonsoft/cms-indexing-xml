@@ -26,6 +26,9 @@ public interface XmlIndexAddSession extends Collection<IndexingDoc> {
 	 */
 	void end();
 
+	/** Discard pending work and await any in-flight writes before cleanup. */
+	void abort();
+
 	/**
 	 * @return accumulated form all added {@link IndexingDoc#getContentSize()}
 	 */
