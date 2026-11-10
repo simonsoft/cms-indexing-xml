@@ -774,7 +774,7 @@
 		<!-- techdocinfo -->
 		<xsl:call-template name="meta-unit">
 			<xsl:with-param name="name" select="'pubtype'"/>
-			<xsl:with-param name="value" select="$meta/pubtype"/>
+			<xsl:with-param name="value" select="$meta/pubtype/(@type, text())"/>
 		</xsl:call-template>
 		
 		<xsl:call-template name="meta-unit">
@@ -888,7 +888,7 @@
 	
 	<xsl:template name="meta-unit">
 		<xsl:param name="name" as="xs:string" required="yes"/>
-		<xsl:param name="value" as="element()*" required="yes"/>
+		<xsl:param name="value" as="node()*" required="yes"/>
 		<!-- make singlevalue field with newline separator -->
 		<xsl:param name="meta-single-separator" select="'&#xa;'"/>
 		
@@ -1002,13 +1002,18 @@
 	</xsl:template>
 	
 	
-	<xsl:template match="*[@keyref][//keydef[@keys = current()/@keyref]//keywords/keyword]" mode="title intro" priority="10">
+	<xsl:template match="*[@keyref][//keydef[tokenize(@keys, ' ') = current()/@keyref]//keywords/keyword]" mode="title intro" priority="10">
 		<!-- Matching locally defined keydefs.  -->
 		<!-- Keydefs in referenced maps are much more complex and could change after indexing. -->
-		<!-- TODO: Support multi-value keys attribute. -->
-		<xsl:apply-templates select="//keydef[@keys = current()/@keyref]//keywords/keyword[1]" mode="#current"/>
+		<xsl:apply-templates select="//keydef[tokenize(@keys, ' ') = current()/@keyref]//keywords/keyword[1]" mode="#current"/>
 	</xsl:template>
-	
+
+	<xsl:template match="*[@keyref][//keydef[tokenize(@keys, ' ') = current()/@keyref]//keytext]" mode="title intro" priority="10">
+		<!-- CMS-2012: Matching locally defined keydefs using the DITA 2.0 keytext structure. -->
+		<!-- Keydefs in referenced maps are much more complex and could change after indexing. -->
+		<xsl:apply-templates select="//keydef[tokenize(@keys, ' ') = current()/@keyref]//keytext[1]" mode="#current"/>
+	</xsl:template>
+
 	<xsl:template match="*[@keyref][not(text())]" mode="title intro">
 		<xsl:value-of select="concat('[', @keyref ,']')"/>
 	</xsl:template>
@@ -1029,7 +1034,7 @@
 
 			<!-- techdocmap -->
 			
-			<!-- Draft of market support in docno (no test coverage) -->
+			<!-- Market support in docno, @market is space-separated (test coverage: HandlerXmlRepositemTest) -->
 			<xsl:when test="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]">
 				<xsl:value-of select="$root/techdocinfo/docno[tokenize(@market, ' ') = /*/@xml:lang]"/>
 			</xsl:when>

@@ -185,6 +185,9 @@ public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 		
 		
 		// techdocinfo
+		assertEquals(Arrays.asList("service-manual"), e1.getFieldValue("meta_s_m_xml_pubtype"));
+		assertEquals("service-manual", e1.getFieldValue("meta_s_s_xml_pubtype"));
+
 		assertEquals(Arrays.asList("The Product name", "Another prodinfo"), e1.getFieldValue("meta_s_m_xml_product"));
 		assertEquals("The Product name\nAnother prodinfo", e1.getFieldValue("meta_s_s_xml_product"));
 		
@@ -217,6 +220,20 @@ public class HandlerXmlMetadataTest extends MockableSvnDatasetTest {
 		assertEquals("one\ntwo", e1.getFieldValue("meta_s_s_xml_a_othermeta_multi-value"));
 	}
 	
+	@Test
+	@ActivateRequestContext
+	public void testMetadataTechdocmapPubtypeAttributeAndText() throws Exception {
+		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
+		assertEquals(2, repositories.get().getLatestRevision());
+
+		SolrDocumentList all = repositem.query(new SolrQuery("pathnamebase:techdocmap2 AND head:true")).getResults();
+		assertEquals(1, all.getNumFound());
+
+		SolrDocument e1 = all.get(0);
+		assertEquals(Arrays.asList("service-manual", "installation-manual"), e1.getFieldValue("meta_s_m_xml_pubtype"));
+		assertEquals("service-manual\ninstallation-manual", e1.getFieldValue("meta_s_s_xml_pubtype"));
+	}
+
 	@Test
 	@ActivateRequestContext
 	public void testProfilingTechdocmap1() throws Exception {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+<title keyref="prodname"/>
+<shortdesc>Documentation for <ph keyref="prodname2"/>.</shortdesc>
+<keydef keys="prodname"><topicmeta><keytext>Acme Widget</keytext></topicmeta></keydef>
+<keydef keys="altname2 prodname2"><topicmeta><keywords><keyword>Acme Widget 2.0</keyword></keywords></topicmeta></keydef>
+</map>

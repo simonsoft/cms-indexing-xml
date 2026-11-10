@@ -189,9 +189,9 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 			if (copyFromPath != null && copyFromRevision != null) {
 				// Get the commit revision for the copy or move source
 				RepoRevision previousCommitRev = changesetReader.getChangedRevision(copyFromPath, copyFromRevision.getNumber());
-				CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
-				String previousCommitRevId = idStrategy.getId(itemId.withPegRev(null), previousCommitRev);
 				if (previousCommitRev != null) {
+					CmsItemId itemId = new CmsItemIdArg(repository, copyFromPath).withPegRev(previousCommitRev.getNumber());
+					String previousCommitRevId = idStrategy.getId(itemId.withPegRev(null), previousCommitRev);
 					if (item.isMove()) {
 						fields.addField("rel_commit_previous_move", previousCommitRevId);
 						// Reasoning is that a history traversal that want to follow copy operations most likely also want to follow move.

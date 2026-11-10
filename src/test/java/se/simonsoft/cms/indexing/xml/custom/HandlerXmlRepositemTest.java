@@ -80,6 +80,37 @@ public class HandlerXmlRepositemTest extends MockableSvnDatasetTest {
 
 	@Test
 	@ActivateRequestContext
+	public void testReleaseDitamapPropertyDocnoMarket() throws Exception {
+		QuarkusMock.installMockForType(new SvnDataset("se/simonsoft/cms/indexing/xml/datasets/release-ditamap"), SvnDataset.class);
+		assertEquals(8, repositories.get().getLatestRevision());
+
+		SolrDocumentList doc = repositem.query(new SolrQuery("patharea:release AND flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+
+		// Ditabase primary content, ditamap in the abx:Ditamap property.
+		assertEquals("dita", doc.get(0).getFieldValue("embd_xml_name"));
+		assertEquals("title from ditamap property", "Release title", doc.get(0).getFieldValue("embd_xml_title"));
+		// Docno with @market matching xml:lang takes precedence over docno with matching @xml:lang.
+		assertEquals("3456 MARKET", doc.get(0).getFieldValue("embd_xml_docno"));
+	}
+
+	@Test
+	@ActivateRequestContext
+	public void testDitamapLocalKeyrefTitleIntro() throws Exception {
+		QuarkusMock.installMockForType(new SvnDataset("se/simonsoft/cms/indexing/xml/datasets/tiny-keydef"), SvnDataset.class);
+		assertEquals(2, repositories.get().getLatestRevision());
+
+		SolrDocumentList doc = repositem.query(new SolrQuery("flag:hasxml AND head:true")).getResults();
+		assertEquals("Document should exist", 1, doc.getNumFound());
+
+		// CMS-2012: DITA 2.0 keydef/topicmeta/keytext structure, single-value keys attribute.
+		assertEquals("Acme Widget", doc.get(0).getFieldValue("embd_xml_title"));
+		// DITA 1.3 keydef/topicmeta/keywords/keyword structure. Keyref matches the 2nd of 2 space-separated keys.
+		assertEquals("Documentation for Acme Widget 2.0.", doc.get(0).getFieldValue("embd_xml_intro"));
+	}
+
+	@Test
+	@ActivateRequestContext
 	public void testTinyPretranslate() throws Exception {
 		QuarkusMock.installMockForType(DATASET, SvnDataset.class);
 
