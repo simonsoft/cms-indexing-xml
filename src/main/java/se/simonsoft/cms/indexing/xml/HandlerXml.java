@@ -17,9 +17,11 @@ package se.simonsoft.cms.indexing.xml;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import net.sf.saxon.s9api.Processor;
 
@@ -46,6 +48,7 @@ import se.simonsoft.cms.xmlsource.transform.TransformOptions;
 import se.simonsoft.cms.xmlsource.transform.TransformerService;
 import se.simonsoft.cms.xmlsource.transform.TransformerServiceFactory;
 
+@Dependent
 public class HandlerXml implements IndexingItemHandler {
 
 	public static final String FLAG_XML = "hasxml";
@@ -68,7 +71,6 @@ public class HandlerXml implements IndexingItemHandler {
 	private XmlIndexWriter indexWriter;
 	
 	private HandlerXmlRepositem handlerXmlRepositem;
-	@Inject
 	private XmlIndexFieldXslPipeline xslPipeline; // Requesting preprocess XSL by handler.
 	
 	private Integer maxFilesize = null;
@@ -101,6 +103,11 @@ public class HandlerXml implements IndexingItemHandler {
 			XmlIndexWriter indexAddProvider) {
 		this.indexWriter = indexAddProvider;
 	}
+
+	@Inject
+	void setXslPipeline(XmlIndexFieldXslPipeline xslPipeline) {
+		this.xslPipeline = xslPipeline;
+	}
 	
 	@Inject
 	public void setConfigIndexing(
@@ -119,20 +126,28 @@ public class HandlerXml implements IndexingItemHandler {
 	
 	@Override
 	public void handle(IndexingItemProgress progress) {
+		// Compatibility for the legacy ordered pipeline. Independent revision jobs must
+		// supply a live SVN check through the overload below.
+		handle(progress, () -> !progress.getItem().isOverwritten());
+	}
+
+	/** XML checkpoints use the caller's item-specific SVN HEAD check, also on the writer thread. */
+	public void handle(IndexingItemProgress progress, BooleanSupplier headCheck) {
+		XmlIndexingGuard guard = new XmlIndexingGuard(headCheck);
 		CmsChangesetItem c = progress.getItem();
 		
 		if (c.isFile()) {
 			if (xmlFileFilter.isXml(c, progress.getFields())) {
 				logger.trace("Changeset content update item {} found", c);
 				if (c.isDelete()) {
-					indexWriter.deletePath(progress.getRepository(), c);
+					indexWriter.deletePath(progress.getRepository(), c, progress.getRevision(), guard);
 					boolean expunge = true;
 					logger.info("Deleted XML index content for changeset item: {}", expunge, c);
 				} else if (c.getFilesize() == 0) {
 					logger.info("Deferring XML extraction when file is empty: {}", c);
 				} else {
 					if (!c.isAdd()) {
-						indexWriter.deletePath(progress.getRepository(), c);
+						indexWriter.deletePath(progress.getRepository(), c, progress.getRevision(), guard);
 					}
 					
 					// Determine if the XML file is too large.
@@ -142,13 +157,11 @@ public class HandlerXml implements IndexingItemHandler {
 					}
 					
 					try {
-						index(progress);
+						index(progress, guard);
 						// No longer doing intermediate commit of each XML file.
 						// Previously in order to manage solr core growth during huge changesets.
 					} catch (IndexingHandlerException ex) {
-						// We should ideally revert the index if indexing of the file fails (does Solr have revert?)
 						logger.warn("Failed to perform XML extraction of {}: {}", c, ex.getMessage());
-						indexWriter.deletePath(progress.getRepository(), c);
 						// The message/stacktrace in exception will be logged in repositem.
 						throw ex;
 					}
@@ -172,7 +185,7 @@ public class HandlerXml implements IndexingItemHandler {
 		return options;
 	}
 
-	protected void index(IndexingItemProgress progress) {
+	protected void index(IndexingItemProgress progress, XmlIndexingGuard guard) {
 		
 		TransformOptions options = getTransformOptionsNormalize();
 		
@@ -182,7 +195,8 @@ public class HandlerXml implements IndexingItemHandler {
 		
 		boolean indexReposxml = true;
 		CmsChangesetItem c = progress.getItem();
-		if (c.isOverwritten()) {
+		// Check before reading. Historical repositem metadata is still required for stale jobs.
+		if (!guard.isCurrent()) {
 			logger.info("Suppressing reposxml indexing of later overwritten {} at {}", c.getPath(), progress.getRevision());
 			indexReposxml = false;
 		}
@@ -214,14 +228,18 @@ public class HandlerXml implements IndexingItemHandler {
 		}
 		
 
-		XmlIndexAddSession docHandler = indexWriter.get();
+		XmlIndexAddSession docHandler = null;
+		boolean completed = false;
+		Throwable failure = null;
 		try {
 			// Performing repositem extraction based on non-transformed XML (preserves DOCTYPE).
 			XmlSourceDocumentS9api xmlDoc = sourceReader.read(progress.getContents());
 			// Perform repositem extraction.
 			handlerXmlRepositem.handle(progress, xmlDoc);
-			
+
 			if (indexReposxml) {
+				guard.check();
+				docHandler = indexWriter.get(guard);
 				// Calculate source_reuse.
 				// Suppress source_reuse for Translations (depth = 1).
 				Integer depth = XmlIndexFieldExtraction.getDepthReposxml(progress.getFields());
@@ -232,9 +250,11 @@ public class HandlerXml implements IndexingItemHandler {
 					logger.debug("Suppress normalize transform (depth: {}): {}", depth, progress.getItem());
 				}
 				// Next XSL in pipeline, specific to reposxml.
+				guard.check();
 				xmlDoc = xslPipeline.doTransformPipeline(xmlDoc, progress.getFields());
 				
 				// Clone the repositem document selectively. Used as base for creating one clone per element.
+				guard.check();
 				IndexingDoc itemDoc = cloneItemFields(progress.getFields());
 				XmlIndexProgress xmlProgress = new XmlIndexProgress(progress.getRepository(), itemDoc);
 				XmlSourceHandler sourceHandler = new XmlSourceHandlerFieldExtractors(xmlProgress, fieldExtraction, docHandler);
@@ -242,18 +262,23 @@ public class HandlerXml implements IndexingItemHandler {
 				sourceReader.handle(xmlDoc, sourceHandler);
 				// success, flag this
 				progress.getFields().addField("flag", FLAG_XML);
+				completed = true;
 			}
 
-			// Flag that it was indexed in repositem.
+			// Add after cloning so this repositem-only flag does not leak into reposxml.
 			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
-			
+		} catch (XmlIndexingGuard.StaleItemException e) {
+			logger.info("Stopped obsolete XML indexing of {} at {}", c.getPath(), progress.getRevision());
+			progress.getFields().addField("flag", FLAG_XML_REPOSITEM);
 		} catch (IndexingHandlerException e) {
+			failure = e;
 			// Already handled exception, improve error in index.
 			logger.error("IndexingHandlerException for {}: {}",  progress.getFields().getFieldValue("path"), e.getMessage());
 			throw e;
 		
 		// TODO: Ensure that Transformer framework figures this out and throws XmlNotWellFormedException.
-		} catch (XmlNotWellFormedException e) { 
+		} catch (XmlNotWellFormedException e) {
+			failure = e;
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Invalid XML {} skipped. {}", progress.getFields().getFieldValue("path"), e.getCause()).getMessage();
@@ -261,12 +286,18 @@ public class HandlerXml implements IndexingItemHandler {
 			logger.debug(msg, e);
 			throw new IndexingHandlerException(msg, e);
 		} catch (RuntimeException e) {
+			failure = e;
+			// Future proposal (CMS-1892): rethrow unexpected RuntimeException unchanged so
+			// failed Solr writes are not accepted as text_error via IndexingHandlerException.
+			// This would also abort on unexpected transformation failures; decide which
+			// transformation errors should remain accepted before changing this behavior.
 			// failure, flag with error
 			progress.getFields().addField("flag", FLAG_XML_ERROR);
 			String msg = MessageFormatter.format("Unexpected XML error {} skipped. {}", progress.getFields().getFieldValue("path"), e.getMessage()).getMessage();
 			logger.error(msg, e);
 			throw new IndexingHandlerException(msg, e);
 		} catch (Error t) {
+			failure = t;
 			// Error (e.g. OutOfMemoryError, StackOverflowError) escaping Saxon/XSLT indicates a
 			// resource/environment problem, not a data problem with this specific file. Must remain
 			// a hard failure: log with full path/revision context for diagnosis (previously only a
@@ -277,6 +308,25 @@ public class HandlerXml implements IndexingItemHandler {
 					new Object[] {progress.getFields().getFieldValue("path"), progress.getRevision(), t.getMessage()}).getMessage();
 			logger.error(msg, t);
 			throw t;
+		} finally {
+			if (docHandler != null) {
+				try {
+					// Drain active writes before deleting partial output; queued work is discarded.
+					docHandler.abort();
+					if (!completed) {
+						indexWriter.deleteRevision(progress.getRepository(), c, progress.getRevision());
+					}
+				} catch (RuntimeException | Error cleanupFailure) {
+					// Future proposal: propagate cleanupFailure with the original failure suppressed,
+					// so an accepted content error cannot hide failed cleanup and allow completion.
+					// Keep the current suppression order until that policy is agreed.
+					if (failure != null) {
+						failure.addSuppressed(cleanupFailure);
+					} else {
+						throw cleanupFailure;
+					}
+				}
+			}
 		}
 	}
 	

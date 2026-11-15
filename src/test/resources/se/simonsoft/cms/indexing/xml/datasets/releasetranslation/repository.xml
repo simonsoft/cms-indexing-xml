@@ -44,33 +44,33 @@
       </entry>
       <entry kind="dir">
          <name>tms</name>
-         <commit revision="14">
+         <commit revision="8">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T04:41:38.005222Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang/sv-SE</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
       <entry kind="dir">
          <name>tms/lang/sv-SE/release</name>
-         <commit revision="14">
+         <commit revision="9">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T05:06:59.295201Z</date>
          </commit>
          <properties/>
       </entry>
@@ -128,9 +128,9 @@
       </entry>
       <entry kind="dir">
          <name>tms/release</name>
-         <commit revision="14">
+         <commit revision="8">
             <author>test</author>
-            <date>2012-10-03T05:24:04.977908Z</date>
+            <date>2012-10-03T04:41:38.005222Z</date>
          </commit>
          <properties/>
       </entry>

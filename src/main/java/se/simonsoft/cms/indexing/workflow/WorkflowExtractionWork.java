@@ -15,7 +15,7 @@
  */
 package se.simonsoft.cms.indexing.workflow;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import se.repos.indexing.IndexingDoc;
 
