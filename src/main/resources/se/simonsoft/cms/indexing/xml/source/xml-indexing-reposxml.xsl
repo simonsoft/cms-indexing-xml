@@ -225,8 +225,9 @@
 			<!-- #1668 Investigate cms:tsource -->
 			<!-- Nearest cms:tsource above must match allowed (or be empty which overrides ancestor above) -->
 			<xsl:when test="$tsource-above and not(empty(tokenize($tsource-above, ' '))) and empty(tokenize($tsource-above, ' ')[. = $tsource-allowed-seq])">-10</xsl:when>
-			<!-- Any cms:tsource below where no token matches the allowed -->
-			<xsl:when test="$tsource-below[empty(tokenize(., ' ')[. = $tsource-allowed-seq])]">-11</xsl:when>
+			<!-- Any non-empty cms:tsource below where no token matches the allowed -->
+			<!-- CMS-2099: Empty cms:tsource below is ignored (not tagged), disallowed ancestors of it are handled by -10 / -11. -->
+			<xsl:when test="$tsource-below[exists(tokenize(., ' '))][empty(tokenize(., ' ')[. = $tsource-allowed-seq])]">-11</xsl:when>
 			
 			
 			<!-- Anything else is a candidate for reuse, with tstatus set on the best match and replacements done if reuseready>0 -->
