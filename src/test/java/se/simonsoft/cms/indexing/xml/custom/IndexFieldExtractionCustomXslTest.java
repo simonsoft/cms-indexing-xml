@@ -621,6 +621,49 @@ public class IndexFieldExtractionCustomXslTest {
 	}
 	
 	@Test
+	public void testPretranslateDisqualifyOnTsourceEmpty() {
+		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);
+		
+		// CMS-2099: Empty cms:tsource below must not disqualify ancestors.
+		IndexingDoc emptyBelow = getTsourceDoc(
+				"<sec xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"s1\">" +
+				"<p cms:rid=\"p1\" cms:tsource=\"\">p1</p><p cms:rid=\"p2\">p2</p></sec>");
+		x.end(null, null, emptyBelow);
+		assertEquals("empty below", "1", emptyBelow.getFieldValue("reusevalue"));
+		assertEquals("empty below", "s1 p1 p2 ", emptyBelow.getFieldValue("reuseridreusevalue"));
+		
+		IndexingDoc emptyBelowAllowedAbove = getTsourceDoc(
+				"<sec xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"s1\" cms:tsource=\"tsp Acme\">" +
+				"<p cms:rid=\"p1\" cms:tsource=\"\">p1</p></sec>");
+		x.end(null, null, emptyBelowAllowedAbove);
+		assertEquals("empty below, allowed above", "1", emptyBelowAllowedAbove.getFieldValue("reusevalue"));
+		assertEquals("empty below, allowed above", "s1 p1 ", emptyBelowAllowedAbove.getFieldValue("reuseridreusevalue"));
+		
+		IndexingDoc emptyOnSection = getTsourceDoc(
+				"<body xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"b1\">" +
+				"<section cms:rid=\"s1\" cms:tsource=\"\"><p cms:rid=\"p1\">p1</p></section></body>");
+		x.end(null, null, emptyOnSection);
+		assertEquals("empty on section", "1", emptyOnSection.getFieldValue("reusevalue"));
+		assertEquals("empty on section", "b1 s1 p1 ", emptyOnSection.getFieldValue("reuseridreusevalue"));
+		
+		// Disallowed sibling still disqualifies the ancestor, empty sibling is reusable.
+		IndexingDoc disallowedAndEmpty = getTsourceDoc(
+				"<sec xmlns:cms=\"http://www.simonsoft.se/namespace/cms\" cms:rid=\"s1\">" +
+				"<p cms:rid=\"p1\" cms:tsource=\"mt m\">p1</p><p cms:rid=\"p2\" cms:tsource=\"\">p2</p></sec>");
+		x.end(null, null, disallowedAndEmpty);
+		assertEquals("disallowed and empty below", "-11", disallowedAndEmpty.getFieldValue("reusevalue"));
+		assertEquals("disallowed and empty below", "p2 ", disallowedAndEmpty.getFieldValue("reuseridreusevalue"));
+	}
+	
+	private IndexingDoc getTsourceDoc(String source) {
+		IndexingDoc doc = new IndexingDocIncrementalSolrj();
+		doc.setField("source", source);
+		doc.setField("prop_cms.status", "Released");
+		doc.setField("patharea", "translation");
+		return doc;
+	}
+	
+	@Test
 	public void testPretranslateDisqualifyOnStatus() {
 		XmlIndexFieldXslPipeline x = new XmlIndexFieldXslPipeline(transformerServiceFactory, tsourceAllowed);	
 		
