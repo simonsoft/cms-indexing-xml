@@ -289,7 +289,13 @@ public class HandlerAbxMasters extends HandlerAbxFolders {
 		if (transformBase == null || transformBase.trim().isEmpty()) {
 			return null;
 		}
-		CmsItemIdArg id = new CmsItemIdArg(transformBase.trim());
+		CmsItemIdArg id;
+		try {
+			id = new CmsItemIdArg(transformBase.trim());
+		} catch (IllegalArgumentException e) {
+			logger.warn("Ignoring invalid {}: {}", TRANSFORM_BASE_FIELD, transformBase, e);
+			return null;
+		}
 		if (!repository.getPath().equals(id.getRepository().getPath())) {
 			logger.warn("Ignoring {} in different repository: {}", TRANSFORM_BASE_FIELD, transformBase);
 			return null;

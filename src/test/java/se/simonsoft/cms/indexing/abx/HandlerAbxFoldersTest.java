@@ -373,6 +373,13 @@ public class HandlerAbxFoldersTest {
 	}
 
 	@Test
+	public void testHandleCommitPreviousTransformBaseInvalid() {
+		IndexingDoc doc = handleAddWithOperation("move", false, false, "not an item id");
+		assertNull(doc.getFieldValues("rel_commit_previous_move"));
+		assertNull(doc.getFieldValues("rel_commit_previous_copy"));
+	}
+
+	@Test
 	public void testHandleCommitPreviousTransformBaseOtherRepository() {
 		IndexingDoc doc = handleAddWithOperation("move", false, false, "x-svn:///svn/demo2/vvab/xml/sections/section.xml");
 		assertNull(doc.getFieldValues("rel_commit_previous_move"));
